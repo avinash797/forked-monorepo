@@ -1,9 +1,9 @@
-import { Stack } from 'expo-router';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { Stack } from 'expo-router';
 
 export default function AuthLayout() {
-  const backgroundColor = useThemeColor({}, 'background');
-  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background') as string;
+  const textColor = useThemeColor({}, 'text') as string;
 
   return (
     <Stack
@@ -14,16 +14,20 @@ export default function AuthLayout() {
       }}
     >
       <Stack.Screen
+        name="index"
+        options={{ title: 'Welcome', headerShown: false }}
+      />
+      <Stack.Screen
         name="login"
         options={{ title: 'Login', headerShown: false }}
       />
       <Stack.Screen
         name="signup"
-        options={{ title: 'Create Account' }}
+        options={{ title: 'Create Account', headerShown: false }}
       />
       <Stack.Screen
         name="reset-password"
-        options={{ title: 'Reset Password' }}
+        options={{ title: 'Reset Password', headerShown: false }}
       />
     </Stack>
   );

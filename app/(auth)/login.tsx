@@ -1,12 +1,15 @@
-import { useState } from 'react';
-import { StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, View } from 'react-native';
-import { Link } from 'expo-router';
-import { ThemedView } from '@/components/themed-view';
+import ForkedBrandingHeader from '@/components/forked-branding-header';
+import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-text-input';
-import { ThemedButton } from '@/components/themed-button';
+import { Colors } from '@/constants/theme';
 import { useAuth } from '@/hooks/use-auth';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { validateEmail, validatePassword } from '@/lib/validators';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Link } from 'expo-router';
+import { useState } from 'react';
+import { ImageBackground, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export default function LoginScreen() {
   const { login } = useAuth();
@@ -42,83 +45,108 @@ export default function LoginScreen() {
     }
   };
 
+  const backgroundColor = useThemeColor({ light: Colors.dark.background }, 'background') as string;
+
+
   return (
-    <ThemedView style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
+    <ImageBackground
+      source={require('@/assets/images/auth/auth-bg.jpg')}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <LinearGradient
+        colors={['rgba(0,0,0,0.4)', 'rgba(0,0,0,0.7)']}
+        style={styles.gradient}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.header}>
-            <ThemedText type="title">Welcome Back</ThemedText>
-            <ThemedText style={styles.subtitle}>
-              Sign in to continue
-            </ThemedText>
-          </View>
-
-          <View style={styles.form}>
-            <ThemedTextInput
-              label="Email"
-              placeholder="your@email.com"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              error={errors.email}
-            />
-
-            <ThemedTextInput
-              label="Password"
-              placeholder="Enter your password"
-              value={password}
-              onChangeText={setPassword}
-              showPasswordToggle
-              autoCapitalize="none"
-              autoComplete="password"
-              error={errors.password}
-            />
-
-            {errors.general && (
-              <ThemedText style={styles.generalError}>
-                {errors.general}
-              </ThemedText>
-            )}
-
-            <TouchableOpacity>
-              <Link href="/(auth)/reset-password" asChild>
-                <ThemedText type="link" style={styles.forgotPassword}>
-                  Forgot Password?
+        <View style={styles.container}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.keyboardView}
+          >
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
+            >
+              <View style={styles.header}>
+                <ForkedBrandingHeader style={{ marginVertical: 20 }} />
+                <ThemedText lightColor='#FFFFFF' type="title">Welcome to Forked</ThemedText>
+                <ThemedText lightColor='#FFFFFF' style={styles.subtitle}>
+                  Sign in to continue making your dining experience better
                 </ThemedText>
-              </Link>
-            </TouchableOpacity>
+              </View>
 
-            <ThemedButton
-              title="Login"
-              onPress={handleLogin}
-              loading={isLoading}
-              style={styles.loginButton}
-            />
+              <LinearGradient colors={['rgba(0,0,0,0.5)', 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.8)', backgroundColor]} style={styles.form}>
+                <ThemedTextInput
+                  label="Email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  error={errors.email}
+                  lightLabelColor='#FFFFFF'
+                />
 
-            <View style={styles.signupContainer}>
-              <ThemedText>Don't have an account? </ThemedText>
-              <Link href="/(auth)/signup" asChild>
+                <ThemedTextInput
+                  label="Password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChangeText={setPassword}
+                  showPasswordToggle
+                  autoCapitalize="none"
+                  autoComplete="password"
+                  error={errors.password}
+                  lightLabelColor='#FFFFFF'
+                />
+
+                {errors.general && (
+                  <ThemedText lightColor='#FFFFFF' style={styles.generalError}>
+                    {errors.general}
+                  </ThemedText>
+                )}
+
                 <TouchableOpacity>
-                  <ThemedText type="link">Sign Up</ThemedText>
+                  <Link href="/(auth)/reset-password" asChild>
+                    <ThemedText type="link" style={styles.forgotPassword}>
+                      Forgot Password?
+                    </ThemedText>
+                  </Link>
                 </TouchableOpacity>
-              </Link>
-            </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </ThemedView>
+
+                <ThemedButton
+                  title="Login"
+                  onPress={handleLogin}
+                  loading={isLoading}
+                  style={styles.loginButton}
+                />
+
+                <View style={styles.signupContainer}>
+                  <ThemedText lightColor='#FFFFFF'>Don't have an account? </ThemedText>
+                  <Link href="/(auth)/signup" asChild>
+                    <TouchableOpacity>
+                      <ThemedText type="link">Sign Up</ThemedText>
+                    </TouchableOpacity>
+                  </Link>
+                </View>
+              </LinearGradient>
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </View>
+      </LinearGradient>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  gradient: {
+    flex: 1,
+  },
   container: {
     flex: 1,
   },
@@ -127,12 +155,11 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
-    padding: 24,
+    justifyContent: 'space-between',
+    paddingTop: 24,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
   },
   subtitle: {
     marginTop: 8,
@@ -140,6 +167,8 @@ const styles = StyleSheet.create({
   },
   form: {
     width: '100%',
+    padding: 24,
+    paddingBottom: 48,
   },
   generalError: {
     marginBottom: 16,

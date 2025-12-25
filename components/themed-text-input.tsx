@@ -7,6 +7,8 @@ import { IconSymbol } from './ui/icon-symbol';
 export type ThemedTextInputProps = TextInputProps & {
   lightColor?: string;
   darkColor?: string;
+  lightLabelColor?: string;
+  darkLabelColor?: string;
   error?: string;
   label?: string;
   showPasswordToggle?: boolean;
@@ -16,6 +18,8 @@ export function ThemedTextInput({
   style,
   lightColor,
   darkColor,
+  lightLabelColor,
+  darkLabelColor,
   error,
   label,
   showPasswordToggle = false,
@@ -35,7 +39,7 @@ export function ThemedTextInput({
   return (
     <View style={styles.container}>
       {label && (
-        <ThemedText style={styles.label}>{label}</ThemedText>
+        <ThemedText lightColor={lightLabelColor} darkColor={darkLabelColor} style={styles.label}>{label}</ThemedText>
       )}
       <View style={styles.inputContainer}>
         <TextInput
@@ -64,7 +68,7 @@ export function ThemedTextInput({
         )}
       </View>
       {error && (
-        <ThemedText style={[styles.error, { color: errorColor }]}>
+        <ThemedText lightColor={lightLabelColor} darkColor={darkLabelColor} style={[styles.error, { color: errorColor }]}>
           {error}
         </ThemedText>
       )}
