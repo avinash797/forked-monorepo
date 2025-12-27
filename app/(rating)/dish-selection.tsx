@@ -7,7 +7,7 @@ import { useRatingFlow } from "@/contexts/rating-flow-context";
 import { useCreateDish, useVenueDishes } from "@/hooks/use-dishes";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, FlatList, StyleSheet } from "react-native";
+import { Alert, FlatList, ScrollView, StyleSheet } from "react-native";
 
 export default function DishSelectionScreen() {
   const router = useRouter();
@@ -82,163 +82,166 @@ export default function DishSelectionScreen() {
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText style={styles.venueText} lightColor="#666" darkColor="#999">
-        At {state.selectedVenue.name}
-      </ThemedText>
+    <ScrollView>
+      <ThemedView style={styles.container}>
+        <ThemedText style={styles.venueText} lightColor="#666" darkColor="#999">
+          At {state.selectedVenue.name}
+        </ThemedText>
 
-      {!showAddForm && (
-        <>
-          {isLoading && (
-            <ThemedText style={styles.loadingText}>
-              Loading dishes...
-            </ThemedText>
-          )}
-
-          {!isLoading && dishes.length === 0 && (
-            <ThemedView style={styles.emptyState}>
-              <ThemedText
-                style={styles.emptyText}
-                lightColor="#666"
-                darkColor="#999"
-              >
-                No dishes found for this venue
+        {!showAddForm && (
+          <>
+            {isLoading && (
+              <ThemedText style={styles.loadingText}>
+                Loading dishes...
               </ThemedText>
-              <ThemedButton
-                variant="secondary"
-                onPress={() => setShowAddForm(true)}
-                style={styles.addButton}
+            )}
+
+            {!isLoading && dishes.length === 0 && (
+              <ThemedView style={styles.emptyState}>
+                <ThemedText
+                  style={styles.emptyText}
+                  lightColor="#666"
+                  darkColor="#999"
+                >
+                  No dishes found for this venue
+                </ThemedText>
+                <ThemedButton
+                  variant="secondary"
+                  onPress={() => setShowAddForm(true)}
+                  style={styles.addButton}
+                >
+                  Add a New Dish
+                </ThemedButton>
+              </ThemedView>
+            )}
+
+            {dishes.length > 0 && (
+              <>
+                <FlatList
+                  data={dishes}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item }) => (
+                    <DishCard
+                      dish={item}
+                      onPress={() => handleDishSelect(item)}
+                    />
+                  )}
+                  contentContainerStyle={styles.listContent}
+                />
+
+                <ThemedButton
+                  variant="secondary"
+                  onPress={() => setShowAddForm(true)}
+                  style={styles.bottomButton}
+                >
+                  Add a New Dish
+                </ThemedButton>
+              </>
+            )}
+
+            {error && (
+              <ThemedText
+                style={styles.errorText}
+                lightColor="#f44336"
+                darkColor="#ff6b6b"
               >
-                Add a New Dish
-              </ThemedButton>
-            </ThemedView>
-          )}
+                {error}
+              </ThemedText>
+            )}
+          </>
+        )}
 
-          {dishes.length > 0 && (
-            <>
-              <FlatList
-                data={dishes}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                  <DishCard
-                    dish={item}
-                    onPress={() => handleDishSelect(item)}
-                  />
-                )}
-                contentContainerStyle={styles.listContent}
-              />
+        {showAddForm && (
 
-              <ThemedButton
-                variant="secondary"
-                onPress={() => setShowAddForm(true)}
-                style={styles.bottomButton}
-              >
-                Add a New Dish
-              </ThemedButton>
-            </>
-          )}
+          <ThemedView style={styles.form}>
+            <ThemedText style={styles.formTitle}>Add New Dish</ThemedText>
 
-          {error && (
-            <ThemedText
-              style={styles.errorText}
-              lightColor="#f44336"
-              darkColor="#ff6b6b"
+            <ThemedTextInput
+              label="Dish Name"
+              value={newDish.name}
+              onChangeText={(value) =>
+                setNewDish((prev) => ({ ...prev, name: value }))
+              }
+              placeholder="e.g., Margherita Pizza"
+            />
+
+            <ThemedTextInput
+              label="Category"
+              value={newDish.category}
+              onChangeText={(value) =>
+                setNewDish((prev) => ({ ...prev, category: value }))
+              }
+              placeholder="e.g., Pizza, Pasta, Burger"
+            />
+
+            <ThemedTextInput
+              label="Variety (optional)"
+              value={newDish.variety}
+              onChangeText={(value) =>
+                setNewDish((prev) => ({ ...prev, variety: value }))
+              }
+              placeholder="e.g., Large, Extra Cheese"
+            />
+
+            <ThemedTextInput
+              label="Price (optional)"
+              value={newDish.current_price}
+              onChangeText={(value) =>
+                setNewDish((prev) => ({ ...prev, current_price: value }))
+              }
+              placeholder="12.99"
+              keyboardType="decimal-pad"
+            />
+
+            <ThemedTextInput
+              label="Description (optional)"
+              value={newDish.description}
+              onChangeText={(value) =>
+                setNewDish((prev) => ({ ...prev, description: value }))
+              }
+              placeholder="Brief description of the dish"
+              multiline
+              numberOfLines={3}
+            />
+
+            <ThemedTextInput
+              label="Dietary Tags (comma-separated, optional)"
+              value={newDish.dietary_tags}
+              onChangeText={(value) =>
+                setNewDish((prev) => ({ ...prev, dietary_tags: value }))
+              }
+              placeholder="Vegetarian, Vegan, Gluten-Free"
+            />
+
+            <ThemedTextInput
+              label="Spice Level (0-5)"
+              value={newDish.spice_level}
+              onChangeText={(value) =>
+                setNewDish((prev) => ({ ...prev, spice_level: value }))
+              }
+              placeholder="0"
+              keyboardType="numeric"
+            />
+
+            <ThemedButton
+              onPress={handleCreateDish}
+              loading={isCreating}
+              style={styles.createButton}
             >
-              {error}
-            </ThemedText>
-          )}
-        </>
-      )}
+              Create & Rate Dish
+            </ThemedButton>
 
-      {showAddForm && (
-        <ThemedView style={styles.form}>
-          <ThemedText style={styles.formTitle}>Add New Dish</ThemedText>
-
-          <ThemedTextInput
-            label="Dish Name"
-            value={newDish.name}
-            onChangeText={(value) =>
-              setNewDish((prev) => ({ ...prev, name: value }))
-            }
-            placeholder="e.g., Margherita Pizza"
-          />
-
-          <ThemedTextInput
-            label="Category"
-            value={newDish.category}
-            onChangeText={(value) =>
-              setNewDish((prev) => ({ ...prev, category: value }))
-            }
-            placeholder="e.g., Pizza, Pasta, Burger"
-          />
-
-          <ThemedTextInput
-            label="Variety (optional)"
-            value={newDish.variety}
-            onChangeText={(value) =>
-              setNewDish((prev) => ({ ...prev, variety: value }))
-            }
-            placeholder="e.g., Large, Extra Cheese"
-          />
-
-          <ThemedTextInput
-            label="Price (optional)"
-            value={newDish.current_price}
-            onChangeText={(value) =>
-              setNewDish((prev) => ({ ...prev, current_price: value }))
-            }
-            placeholder="12.99"
-            keyboardType="decimal-pad"
-          />
-
-          <ThemedTextInput
-            label="Description (optional)"
-            value={newDish.description}
-            onChangeText={(value) =>
-              setNewDish((prev) => ({ ...prev, description: value }))
-            }
-            placeholder="Brief description of the dish"
-            multiline
-            numberOfLines={3}
-          />
-
-          <ThemedTextInput
-            label="Dietary Tags (comma-separated, optional)"
-            value={newDish.dietary_tags}
-            onChangeText={(value) =>
-              setNewDish((prev) => ({ ...prev, dietary_tags: value }))
-            }
-            placeholder="Vegetarian, Vegan, Gluten-Free"
-          />
-
-          <ThemedTextInput
-            label="Spice Level (0-5)"
-            value={newDish.spice_level}
-            onChangeText={(value) =>
-              setNewDish((prev) => ({ ...prev, spice_level: value }))
-            }
-            placeholder="0"
-            keyboardType="numeric"
-          />
-
-          <ThemedButton
-            onPress={handleCreateDish}
-            loading={isCreating}
-            style={styles.createButton}
-          >
-            Create & Rate Dish
-          </ThemedButton>
-
-          <ThemedButton
-            variant="secondary"
-            onPress={() => setShowAddForm(false)}
-            style={styles.cancelButton}
-          >
-            Cancel
-          </ThemedButton>
-        </ThemedView>
-      )}
-    </ThemedView>
+            <ThemedButton
+              variant="secondary"
+              onPress={() => setShowAddForm(false)}
+              style={styles.cancelButton}
+            >
+              Cancel
+            </ThemedButton>
+          </ThemedView>
+        )}
+      </ThemedView>
+    </ScrollView>
   );
 }
 

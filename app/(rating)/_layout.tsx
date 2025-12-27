@@ -10,6 +10,13 @@ export default function RatingLayout() {
       }}
     >
       <Stack.Screen
+        name="take-photo"
+        options={{
+          title: 'Take Photo',
+          headerBackVisible: true,
+        }}
+      />
+      <Stack.Screen
         name="venue-search"
         options={{
           title: 'Find Venue',

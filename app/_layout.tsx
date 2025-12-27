@@ -8,6 +8,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import "react-native-reanimated";
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ThemedView } from "@/components/themed-view";
 import { Colors } from "@/constants/theme";
@@ -73,11 +74,13 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <RatingFlowProvider>
-        <RootLayoutNav />
-      </RatingFlowProvider>
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <RatingFlowProvider>
+          <RootLayoutNav />
+        </RatingFlowProvider>
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
 

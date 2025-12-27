@@ -7,7 +7,7 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 interface PhotoPickerProps {
   photos: string[];
   onAddPhoto: (uri: string) => void;
-  onRemovePhoto: (uri: string) => void;
+  onRemovePhoto: (uri?: string) => void;
   maxPhotos?: number;
   isLoading?: boolean;
   required?: boolean;

@@ -6,7 +6,7 @@ interface RatingFlowState {
   selectedDish: Dish | null;
   starRating: number;
   reviewText: string;
-  photoUris: string[];
+  photoUri: string | null;
 }
 
 interface RatingFlowContextType {
@@ -16,7 +16,7 @@ interface RatingFlowContextType {
   setStarRating: (rating: number) => void;
   setReviewText: (text: string) => void;
   addPhoto: (uri: string) => void;
-  removePhoto: (uri: string) => void;
+  removePhoto: () => void;
   reset: () => void;
 }
 
@@ -29,7 +29,7 @@ const initialState: RatingFlowState = {
   selectedDish: null,
   starRating: 0,
   reviewText: '',
-  photoUris: [],
+  photoUri: null,
 };
 
 export function RatingFlowProvider({ children }: { children: React.ReactNode }) {
@@ -54,14 +54,14 @@ export function RatingFlowProvider({ children }: { children: React.ReactNode }) 
   const addPhoto = (uri: string) => {
     setState((prev) => ({
       ...prev,
-      photoUris: [...prev.photoUris, uri],
+      photoUri: uri,
     }));
   };
 
-  const removePhoto = (uri: string) => {
+  const removePhoto = () => {
     setState((prev) => ({
       ...prev,
-      photoUris: prev.photoUris.filter((u) => u !== uri),
+      photoUri: null,
     }));
   };
 

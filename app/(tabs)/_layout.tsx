@@ -37,7 +37,7 @@ export default function TabLayout() {
             <CenterTabButton
               {...props}
               onPress={() => {
-                router.push("/(rating)/venue-search");
+                router.push("/(rating)/take-photo");
               }}
             />
           ),

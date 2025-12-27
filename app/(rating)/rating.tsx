@@ -61,10 +61,10 @@ export default function RatingScreen() {
       return;
     }
 
-    if (state.photoUris.length === 0) {
+    if (!state.photoUri) {
       Alert.alert(
         "Photo Required",
-        "At least one photo is required to submit a review"
+        "A photo is required to submit a review"
       );
       return;
     }
@@ -74,16 +74,10 @@ export default function RatingScreen() {
       return;
     }
 
-    const photoUrls: string[] = [];
-    for (const uri of state.photoUris) {
-      const uploaded = await uploadPhoto(uri, "review", user.id);
-      if (uploaded) {
-        photoUrls.push(uploaded.url);
-      }
-    }
+    const uploaded = await uploadPhoto(state.photoUri, "review", user.id);
 
-    if (photoUrls.length === 0) {
-      Alert.alert("Upload Error", "Failed to upload photos. Please try again.");
+    if (!uploaded) {
+      Alert.alert("Upload Error", "Failed to upload photo. Please try again.");
       return;
     }
 
@@ -96,7 +90,7 @@ export default function RatingScreen() {
         location_latitude: location?.latitude ?? null,
         location_longitude: location?.longitude ?? null,
       },
-      photoUrls
+      [uploaded.url]
     );
 
     if (review) {
@@ -108,7 +102,7 @@ export default function RatingScreen() {
 
   const canSubmit =
     state.starRating > 0 &&
-    state.photoUris.length > 0 &&
+    state.photoUri !== null &&
     !isSubmitting &&
     !isUploading;
 
@@ -152,10 +146,10 @@ export default function RatingScreen() {
 
         <ThemedView style={styles.section}>
           <PhotoPicker
-            photos={state.photoUris}
+            photos={state.photoUri ? [state.photoUri] : []}
             onAddPhoto={handleAddPhoto}
             onRemovePhoto={removePhoto}
-            maxPhotos={5}
+            maxPhotos={1}
             isLoading={isUploading}
             required
           />
