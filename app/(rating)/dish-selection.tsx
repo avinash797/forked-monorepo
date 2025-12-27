@@ -6,7 +6,7 @@ import { ThemedView } from "@/components/themed-view";
 import { useRatingFlow } from "@/contexts/rating-flow-context";
 import { useCreateDish, useVenueDishes } from "@/hooks/use-dishes";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, FlatList, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 
 export default function DishSelectionScreen() {
@@ -29,10 +29,13 @@ export default function DishSelectionScreen() {
     spice_level: "0",
   });
 
-  if (!state.selectedVenue) {
-    router.back();
-    return null;
-  }
+  useEffect(() => {
+    if (!state.selectedVenue) {
+      router.back();
+    }
+  }, [state.selectedVenue, router]);
+
+  if (!state.selectedVenue) return null;
 
   const handleDishSelect = (dish: any) => {
     setDish(dish);
