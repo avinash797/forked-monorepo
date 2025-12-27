@@ -80,8 +80,6 @@ export function usePhotoUpload() {
           cacheControl: "3600",
         });
 
-      console.log("Upload response data:", data, uploadError);
-
       if (uploadError) throw uploadError;
 
       const {
