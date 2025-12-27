@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const MAPBOX_TOKEN = process.env.EXPO_PUBLIC_MAPBOX_TOKEN;
 const SUGGEST_URL = 'https://api.mapbox.com/search/searchbox/v1/suggest';
@@ -80,18 +80,19 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortController = useRef<AbortController | null>(null);
 
-  // Debounced search function
-  const search = useCallback(
-    async (searchQuery: string) => {
+  // Search function that returns a promise
+  const searchAddress = useCallback(
+    async (searchQuery: string): Promise<MapboxSuggestion[]> => {
       if (!searchQuery.trim()) {
         setSuggestions([]);
         setError(null);
-        return;
+        return [];
       }
 
       if (!MAPBOX_TOKEN) {
-        setError('Mapbox token not configured');
-        return;
+        const msg = 'Mapbox token not configured';
+        setError(msg);
+        return [];
       }
 
       // Abort previous request if still pending
@@ -110,7 +111,8 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
           session_token: sessionToken,
           country: 'US',
           language: 'en',
-          types: 'address',
+          types: 'address,poi',
+          poi_category: 'restaurant, food, hospitality',
           limit: '5',
         };
 
@@ -133,6 +135,7 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
 
         setSuggestions(results);
         setLoading(false);
+        return results;
       } catch (err: any) {
         if (err.name !== 'AbortError') {
           console.error('Address search error:', err);
@@ -140,6 +143,7 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
           setSuggestions([]);
           setLoading(false);
         }
+        return [];
       }
     },
     [sessionToken, options?.proximity]
@@ -151,16 +155,20 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
       clearTimeout(debounceTimer.current);
     }
 
-    debounceTimer.current = setTimeout(() => {
-      search(query);
-    }, 300);
+    // Only auto-search if query is set via setQuery (for backward compatibility if needed)
+    // But now we prefer manual calling of searchAddress
+    if (query) {
+      debounceTimer.current = setTimeout(() => {
+        searchAddress(query);
+      }, 300);
+    }
 
     return () => {
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
       }
     };
-  }, [query, search]);
+  }, [query, searchAddress]);
 
   // Select an address and retrieve full details
   const selectAddress = useCallback(
@@ -244,6 +252,7 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
     loading,
     error,
     selectAddress,
+    searchAddress, // Export this
     clearSearch,
   };
 }

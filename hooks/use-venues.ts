@@ -1,44 +1,50 @@
-import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import type { Venue, CreateVenueInput } from '@/types/rating';
+import type { CreateVenueInput, Venue } from '@/types/rating';
+import { useEffect, useState } from 'react';
 
-export function useVenueSearch(query: string) {
+export function useVenueSearch(initialQuery: string = '') {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!query || query.length < 2) {
+  const searchVenues = async (searchQuery: string): Promise<Venue[]> => {
+    if (!searchQuery || searchQuery.length < 2) {
       setVenues([]);
-      return;
+      return [];
     }
 
-    const searchVenues = async () => {
-      setIsLoading(true);
-      setError(null);
+    setIsLoading(true);
+    setError(null);
 
-      try {
-        const { data, error: queryError } = await supabase
-          .from('venues')
-          .select('*')
-          .or(`name.ilike.%${query}%,address_city.ilike.%${query}%`)
-          .order('name')
-          .limit(20);
+    try {
+      const { data, error: queryError } = await supabase
+        .from('venues')
+        .select('*')
+        .or(`name.ilike.%${searchQuery}%,address_city.ilike.%${searchQuery}%`)
+        .order('name')
+        .limit(20);
 
-        if (queryError) throw queryError;
-        setVenues(data || []);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      if (queryError) throw queryError;
 
-    const debounceTimer = setTimeout(searchVenues, 300);
+      const results = data || [];
+      setVenues(results);
+      return results;
+    } catch (err: any) {
+      setError(err.message);
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      searchVenues(initialQuery);
+    }, 300);
     return () => clearTimeout(debounceTimer);
-  }, [query]);
+  }, [initialQuery]);
 
-  return { venues, isLoading, error };
+  return { venues, isLoading, error, searchVenues };
 }
 
 export function useCreateVenue() {

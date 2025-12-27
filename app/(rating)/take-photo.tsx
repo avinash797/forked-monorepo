@@ -62,6 +62,7 @@ export default function TakePhotoScreen() {
       const photo = await cameraRef.current.takePictureAsync({
         quality: 0.8,
         skipProcessing: false,
+        shutterSound: false,
       });
 
       if (photo) {

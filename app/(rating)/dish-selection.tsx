@@ -59,7 +59,7 @@ export default function DishSelectionScreen() {
       return;
     }
 
-    const dish = await createDish({
+    createDish({
       venue_id: state.selectedVenue!.id,
       name: newDish.name.trim(),
       category: newDish.category.trim(),
@@ -68,17 +68,12 @@ export default function DishSelectionScreen() {
       description: newDish.description.trim() || null,
       dietary_tags: dietaryTags,
       spice_level: spiceLevel,
+    }).then((dish) => {
+      if (dish) {
+        setDish(dish);
+        router.push("/(rating)/rating");
+      }
     });
-
-    if (dish) {
-      setDish(dish);
-      Alert.alert("Success", "Dish created! Now rate it.", [
-        {
-          text: "OK",
-          onPress: () => router.push("/(rating)/rating"),
-        },
-      ]);
-    }
   };
 
   return (
