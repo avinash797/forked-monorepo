@@ -1,6 +1,6 @@
 # Forked - Product Roadmap
 
-**Last Updated:** 2025-12-25
+**Last Updated:** 2025-12-26
 
 ## Overview
 
@@ -12,20 +12,29 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 
 ---
 
-## Current Status: 30% Complete
+## Current Status: 37% Complete (+7% from Core Rating Flow)
 
-### ✅ Completed (Foundation)
+### ✅ Completed (Foundation + MVP Feature #1)
+
 - Authentication system (signup, login, password reset, profile management)
-- Database schema (11 migration files covering all entities)
+- Database schema (12 migrations: 11 tables + 1 storage bucket)
 - UI component library (themed components, navigation structure)
 - App architecture (Expo Router, TypeScript, theme system)
 - User profile viewing
+- **Core Rating Flow** (venue search, dish selection, rating submission) 🎉
+- **Photo System** (camera, gallery, Supabase Storage upload)
+- **GPS Verification** (location services, distance calculation)
 
 ### 🚧 In Progress
-- None (awaiting MVP prioritization)
+
+- Discovery & Browsing (next priority)
 
 ### ❌ Not Started
-- All core product features (rating, search, discovery, photos, GPS)
+
+- Review display & interaction
+- Advanced search & filters
+- User profiles & social features
+- Gamification UI
 
 ---
 
@@ -37,26 +46,37 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 
 ### MVP Features (Priority Order)
 
-#### 1. Core Rating Flow (Critical - 25% of MVP)
-**Status:** Not Started | **Progress:** 0%
+#### 1. Core Rating Flow (Critical - 25% of MVP) ✅ COMPLETE
 
-- [ ] "Rate a Dish" entry point on home screen
-- [ ] Venue selection screen (search + GPS proximity)
-- [ ] Dish selection screen (browse existing or add new)
-- [ ] Rating submission screen (star rating, photo, review text)
-- [ ] Photo capture/upload functionality
-- [ ] GPS location detection and verification
-- [ ] Review confirmation and submission to Supabase
+**Status:** ✅ Complete | **Progress:** 100% | **Completed:** 2025-12-26
 
-**Success Criteria:**
-- User can find a nearby venue
-- User can select or create a dish
-- User can rate with 1-5 stars + photo + optional text
-- Review saves to database with GPS verification
+- [x] "Rate a Dish" entry point on home screen (FloatingActionButton)
+- [x] Venue selection screen (search + GPS proximity)
+- [x] Dish selection screen (browse existing or add new)
+- [x] Rating submission screen (star rating, photo, review text)
+- [x] Photo capture/upload functionality (camera + gallery)
+- [x] GPS location detection and verification (with Haversine distance)
+- [x] Review confirmation and submission to Supabase
+- [x] Supabase Storage bucket configuration with RLS policies
+
+**Success Criteria:** ✅ ALL MET
+
+- ✅ User can find a nearby venue
+- ✅ User can select or create a dish
+- ✅ User can rate with 1-5 stars + photo (required) + optional text
+- ✅ Review saves to database with GPS verification status
+
+**Implementation Details:**
+- 24 files created (5 screens, 6 components, 5 hooks, 1 context, types, migration)
+- Modal presentation for clean UX
+- Distance-based venue sorting
+- Photo requirement enforced before submission
+- GPS warning displayed but non-blocking
 
 ---
 
 #### 2. Discovery & Browsing (Critical - 20% of MVP)
+
 **Status:** Not Started | **Progress:** 0%
 
 - [ ] Home feed showing top-rated dishes (nearby or trending)
@@ -66,29 +86,36 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - [ ] Filter by location (city/radius)
 
 **Success Criteria:**
+
 - User can browse top dishes on home screen
 - User can view all reviews for a dish
 - User can find specific dishes or venues via search
 
 ---
 
-#### 3. Photo System (Critical - 15% of MVP)
-**Status:** Not Started | **Progress:** 0%
+#### 3. Photo System (Critical - 15% of MVP) ✅ COMPLETE
 
-- [ ] Photo upload to Supabase Storage
-- [ ] Camera integration (Expo Camera or ImagePicker)
-- [ ] Photo gallery display (review photos, dish photos, venue photos)
-- [ ] Basic image compression/optimization
-- [ ] Photo moderation status display
+**Status:** ✅ Complete | **Progress:** 100% | **Completed:** 2025-12-26
 
-**Success Criteria:**
-- User can take or upload photos during rating
-- Photos display correctly in reviews and detail pages
-- Photos stored securely in Supabase Storage
+- [x] Photo upload to Supabase Storage (review-photos bucket)
+- [x] Camera integration (Expo ImagePicker - camera + gallery)
+- [x] Photo picker component with preview and delete
+- [x] Photo requirement enforcement (required for ratings)
+- [x] Storage bucket RLS policies configured
+- [ ] Photo gallery display (deferred to Discovery & Browsing feature)
+- [ ] Basic image compression/optimization (deferred to V1.0)
+- [ ] Photo moderation status display (deferred to V1.0)
+
+**Success Criteria:** ✅ CORE FUNCTIONALITY MET
+
+- ✅ User can take or upload photos during rating
+- ✅ Photos stored securely in Supabase Storage
+- ⏳ Photos display in review lists (upcoming in Discovery feature)
 
 ---
 
 #### 4. Review Display & Interaction (Important - 15% of MVP)
+
 **Status:** Not Started | **Progress:** 0%
 
 - [ ] Review list component (display all reviews for a dish)
@@ -98,6 +125,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - [ ] User's own review display (with edit option)
 
 **Success Criteria:**
+
 - All reviews display correctly on dish pages
 - Users can vote on review helpfulness
 - Review sorting works correctly
@@ -105,6 +133,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 ---
 
 #### 5. Data Layer & API (Critical - 15% of MVP)
+
 **Status:** Not Started | **Progress:** 0%
 
 - [ ] Supabase query functions (dishes, venues, reviews, photos)
@@ -114,6 +143,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - [ ] Optimistic updates for better UX
 
 **Success Criteria:**
+
 - All data fetches from Supabase efficiently
 - Loading states display correctly
 - Errors handled gracefully
@@ -122,6 +152,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 ---
 
 #### 6. Basic UI Components (Important - 10% of MVP)
+
 **Status:** Not Started | **Progress:** 0%
 
 - [ ] StarRating component (input and display variants)
@@ -132,6 +163,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - [ ] LoadingState and ErrorState components
 
 **Success Criteria:**
+
 - Reusable components work across all screens
 - Consistent design language
 - Proper theme support (light/dark mode)
@@ -157,6 +189,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 ### V1.0 Features
 
 #### 7. Gamification & Charms (10% of V1.0)
+
 **Status:** Not Started | **Progress:** 0%
 
 - [ ] Charm/badge display in user profile
@@ -167,6 +200,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - [ ] Leaderboard or achievement showcase
 
 **Success Criteria:**
+
 - Charms auto-award based on database triggers
 - Users see their earned badges
 - Progress toward next charm is visible
@@ -174,6 +208,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 ---
 
 #### 8. Advanced Search & Filters (10% of V1.0)
+
 **Status:** Not Started | **Progress:** 0%
 
 - [ ] Search by dish type (cross-venue queries using dish_types table)
@@ -183,6 +218,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - [ ] Search history and saved searches
 
 **Success Criteria:**
+
 - User can find "all Gumbos in New Orleans"
 - Filters work correctly and are performant
 - Search results are relevant and accurate
@@ -190,6 +226,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 ---
 
 #### 9. User Profiles & Social Features (8% of V1.0)
+
 **Status:** Not Started | **Progress:** 0%
 
 - [ ] Public user profile page (view other users)
@@ -200,6 +237,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - [ ] Profile editing (bio, location, profile photo)
 
 **Success Criteria:**
+
 - Tapping a username shows their public profile
 - Profile displays all user reviews and stats
 - Profile editing saves correctly
@@ -207,6 +245,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 ---
 
 #### 10. Review Management (7% of V1.0)
+
 **Status:** Not Started | **Progress:** 0%
 
 - [ ] Edit review functionality
@@ -216,6 +255,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - [ ] Flag inappropriate photos
 
 **Success Criteria:**
+
 - Users can edit their own reviews
 - Edit history tracked in database
 - Moderation flags work correctly
@@ -223,6 +263,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 ---
 
 #### 11. Venue & Dish Management (8% of V1.0)
+
 **Status:** Not Started | **Progress:** 0%
 
 - [ ] Add new venue flow (name, address, cuisine, hours)
@@ -232,6 +273,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - [ ] Venue/dish approval workflow (if needed)
 
 **Success Criteria:**
+
 - Users can add missing venues/dishes
 - Data validation prevents duplicates
 - Submissions are moderated (if required)
@@ -239,6 +281,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 ---
 
 #### 12. Price Tracking & History (5% of V1.0)
+
 **Status:** Not Started | **Progress:** 0%
 
 - [ ] Price history display on dish pages (chart or list)
@@ -247,6 +290,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - [ ] Price trend indicators (increasing/decreasing)
 
 **Success Criteria:**
+
 - Users see price changes over time
 - Users can report current prices
 - Price updates trigger verification flow
@@ -254,6 +298,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 ---
 
 #### 13. Verification Systems (7% of V1.0)
+
 **Status:** Not Started | **Progress:** 0%
 
 - [ ] AI photo verification integration (dish type detection)
@@ -263,6 +308,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - [ ] Verified user badge/status
 
 **Success Criteria:**
+
 - AI validates photos match dish type
 - GPS verification prevents armchair reviews
 - Moderators can approve/reject flagged content
@@ -270,6 +316,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 ---
 
 #### 14. Testing & Quality Assurance (10% of V1.0)
+
 **Status:** Not Started | **Progress:** 0%
 
 - [ ] Unit tests for utility functions
@@ -280,13 +327,15 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - [ ] CI/CD pipeline with automated testing
 
 **Success Criteria:**
-- >70% code coverage
+
+- > 70% code coverage
 - All critical flows have E2E tests
 - Tests run automatically on PRs
 
 ---
 
 #### 15. Production Polish (10% of V1.0)
+
 **Status:** Not Started | **Progress:** 0%
 
 - [ ] Error boundaries for crash prevention
@@ -299,6 +348,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - [ ] Crash reporting (Sentry or similar)
 
 **Success Criteria:**
+
 - App doesn't crash on common errors
 - Works in low/no connectivity
 - Meets accessibility standards
@@ -315,6 +365,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 ### V2.0 Feature Ideas
 
 #### 16. Advanced Social Features
+
 - [ ] User following system
 - [ ] Activity feed (friends' recent reviews)
 - [ ] Share to social media (Instagram, Twitter, etc.)
@@ -324,6 +375,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 ---
 
 #### 17. Restaurant Partnerships
+
 - [ ] Restaurant claim/verification
 - [ ] Restaurant analytics dashboard
 - [ ] Menu management for restaurants
@@ -333,6 +385,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 ---
 
 #### 18. Smart Recommendations
+
 - [ ] Personalized dish recommendations (ML-based)
 - [ ] "Similar dishes" suggestions
 - [ ] Taste preference profiling
@@ -341,6 +394,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 ---
 
 #### 19. Advanced Gamification
+
 - [ ] Seasonal challenges
 - [ ] Community events (e.g., "Pizza Week")
 - [ ] Referral system and rewards
@@ -350,6 +404,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 ---
 
 #### 20. Additional Features
+
 - [ ] Price alerts ("notify when under $X")
 - [ ] Dietary restriction deep filtering
 - [ ] Seasonal dish tracking
@@ -364,30 +419,31 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 
 ### Overall Progress by Phase
 
-| Phase | Features Complete | Total Features | Progress |
-|-------|-------------------|----------------|----------|
-| **Foundation** | 5/5 | 5 | 100% ✅ |
-| **MVP** | 0/6 | 6 | 0% |
-| **V1.0** | 0/9 | 9 | 0% |
-| **V2.0** | 0/5 | 5 | 0% |
-| **TOTAL** | 5/25 | 25 | **20%** |
+| Phase          | Features Complete | Total Features | Progress |
+| -------------- | ----------------- | -------------- | -------- |
+| **Foundation** | 5/5               | 5              | 100% ✅  |
+| **MVP**        | 0/6               | 6              | 0%       |
+| **V1.0**       | 0/9               | 9              | 0%       |
+| **V2.0**       | 0/5               | 5              | 0%       |
+| **TOTAL**      | 5/25              | 25             | **20%**  |
 
 ### MVP Progress Breakdown
 
-| Feature | Priority | Status | Progress |
-|---------|----------|--------|----------|
-| Core Rating Flow | Critical | Not Started | 0% |
-| Discovery & Browsing | Critical | Not Started | 0% |
-| Photo System | Critical | Not Started | 0% |
-| Review Display | Important | Not Started | 0% |
-| Data Layer & API | Critical | Not Started | 0% |
-| Basic UI Components | Important | Not Started | 0% |
+| Feature              | Priority  | Status      | Progress |
+| -------------------- | --------- | ----------- | -------- |
+| Core Rating Flow     | Critical  | Not Started | 0%       |
+| Discovery & Browsing | Critical  | Not Started | 0%       |
+| Photo System         | Critical  | Not Started | 0%       |
+| Review Display       | Important | Not Started | 0%       |
+| Data Layer & API     | Critical  | Not Started | 0%       |
+| Basic UI Components  | Important | Not Started | 0%       |
 
 ---
 
 ## Update Schedule
 
 This roadmap should be reviewed and updated:
+
 - **Weekly** during active MVP development
 - **Bi-weekly** during V1.0 development
 - **Monthly** during V2.0 planning
@@ -405,6 +461,7 @@ This roadmap should be reviewed and updated:
 ---
 
 **Next Steps:**
+
 1. Review and approve this roadmap
 2. Set target dates for MVP and V1.0
 3. Begin MVP Feature #1: Core Rating Flow

@@ -1,23 +1,35 @@
-import ForkedBrandingHeader from '@/components/forked-branding-header';
-import { ThemedButton } from '@/components/themed-button';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedTextInput } from '@/components/themed-text-input';
-import { Colors } from '@/constants/theme';
-import { useAuth } from '@/hooks/use-auth';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { validateDisplayName, validateEmail, validatePassword } from '@/lib/validators';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Link, useRouter } from 'expo-router';
-import { useState } from 'react';
-import { ImageBackground, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import ForkedBrandingHeader from "@/components/forked-branding-header";
+import { ThemedButton } from "@/components/themed-button";
+import { ThemedText } from "@/components/themed-text";
+import { ThemedTextInput } from "@/components/themed-text-input";
+import { Colors } from "@/constants/theme";
+import { useAuth } from "@/hooks/use-auth";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import {
+  validateDisplayName,
+  validateEmail,
+  validatePassword,
+} from "@/lib/validators";
+import { LinearGradient } from "expo-linear-gradient";
+import { Link, useRouter } from "expo-router";
+import { useState } from "react";
+import {
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function SignupScreen() {
   const router = useRouter();
   const { signup } = useAuth();
 
-  const [displayName, setDisplayName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,9 +41,9 @@ export default function SignupScreen() {
 
     if (nameError || emailError || passwordError) {
       setErrors({
-        displayName: nameError || '',
-        email: emailError || '',
-        password: passwordError || '',
+        displayName: nameError || "",
+        email: emailError || "",
+        password: passwordError || "",
       });
       return;
     }
@@ -53,28 +65,30 @@ export default function SignupScreen() {
       //   ]
       // );
     } catch (error: any) {
-      setErrors({ general: error.message || 'Failed to create account' });
+      setErrors({ general: error.message || "Failed to create account" });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const backgroundColor = useThemeColor({ light: Colors.dark.background }, 'background') as string;
-
+  const backgroundColor = useThemeColor(
+    { light: Colors.dark.background },
+    "background"
+  ) as string;
 
   return (
     <ImageBackground
-      source={require('@/assets/images/auth/auth-bg.jpg')}
+      source={require("@/assets/images/auth/auth-bg.jpg")}
       style={styles.background}
       resizeMode="cover"
     >
       <LinearGradient
-        colors={['rgba(0,0,0,0.4)', 'rgba(0,0,0,0.7)']}
+        colors={["rgba(0,0,0,0.4)", "rgba(0,0,0,0.7)"]}
         style={styles.gradient}
       >
         <View style={styles.container}>
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={styles.keyboardView}
           >
             <ScrollView
@@ -84,13 +98,23 @@ export default function SignupScreen() {
               <View style={styles.header}>
                 <ForkedBrandingHeader style={{ marginVertical: 20 }} />
 
-                <ThemedText lightColor='#FFFFFF' type="title">Create Account</ThemedText>
-                <ThemedText lightColor='#FFFFFF' style={styles.subtitle}>
+                <ThemedText lightColor="#FFFFFF" type="title">
+                  Create Account
+                </ThemedText>
+                <ThemedText lightColor="#FFFFFF" style={styles.subtitle}>
                   Sign up to get started
                 </ThemedText>
               </View>
 
-              <LinearGradient colors={['rgba(0,0,0,0.5)', 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.8)', backgroundColor]} style={styles.form}>
+              <LinearGradient
+                colors={[
+                  "rgba(0,0,0,0.5)",
+                  "rgba(0,0,0,0.6)",
+                  "rgba(0,0,0,0.8)",
+                  backgroundColor,
+                ]}
+                style={styles.form}
+              >
                 <ThemedTextInput
                   label="Display Name"
                   placeholder="Your name"
@@ -98,7 +122,7 @@ export default function SignupScreen() {
                   onChangeText={setDisplayName}
                   autoComplete="name"
                   error={errors.displayName}
-                  lightLabelColor='#FFFFFF'
+                  lightLabelColor="#FFFFFF"
                 />
 
                 <ThemedTextInput
@@ -110,7 +134,7 @@ export default function SignupScreen() {
                   autoCapitalize="none"
                   autoComplete="email"
                   error={errors.email}
-                  lightLabelColor='#FFFFFF'
+                  lightLabelColor="#FFFFFF"
                 />
 
                 <ThemedTextInput
@@ -122,7 +146,7 @@ export default function SignupScreen() {
                   autoCapitalize="none"
                   autoComplete="password-new"
                   error={errors.password}
-                  lightLabelColor='#FFFFFF'
+                  lightLabelColor="#FFFFFF"
                 />
 
                 {errors.general && (
@@ -132,14 +156,17 @@ export default function SignupScreen() {
                 )}
 
                 <ThemedButton
-                  title="Sign Up"
                   onPress={handleSignup}
                   loading={isLoading}
                   style={styles.signupButton}
-                />
+                >
+                  Sign Up
+                </ThemedButton>
 
                 <View style={styles.loginContainer}>
-                  <ThemedText lightColor='#FFFFFF'>Already have an account? </ThemedText>
+                  <ThemedText lightColor="#FFFFFF">
+                    Already have an account?{" "}
+                  </ThemedText>
                   <Link href="/(auth)/login" asChild>
                     <TouchableOpacity>
                       <ThemedText type="link">Login</ThemedText>
@@ -158,8 +185,8 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   gradient: {
     flex: 1,
@@ -172,11 +199,11 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     paddingTop: 24,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 40,
   },
   subtitle: {
@@ -184,20 +211,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   form: {
-    width: '100%',
+    width: "100%",
     padding: 24,
     paddingBottom: 48,
   },
   generalError: {
     marginBottom: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   signupButton: {
     marginBottom: 24,
   },
   loginContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

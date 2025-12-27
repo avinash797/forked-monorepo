@@ -1,43 +1,61 @@
 # Forked - Active TODO List
 
-**Last Updated:** 2025-12-25
+**Last Updated:** 2025-12-26
 
 This file tracks active work items and immediate next steps. For the full roadmap, see [ROADMAP.md](./ROADMAP.md).
 
 ---
 
-## 🎯 Current Sprint: Setting Up Tracking System
+## ✅ Recently Completed: MVP Feature #1 - Core Rating Flow
 
-**Goal:** Establish project management infrastructure
+**Goal:** Enable users to rate dishes with photos and GPS verification
 
-**Status:** In Progress
+**Status:** ✅ Complete (2025-12-26)
 
-- [x] Create ROADMAP.md with MVP/V1/V2 phases
-- [x] Create TODO.md for active work tracking
-- [x] Create PROGRESS.md for completion metrics
-- [x] Create DEVELOPMENT.md for workflow guidelines
-- [x] Set up GitHub infrastructure (.github/ templates)
-- [x] Create initial GitHub labels and milestones
-- [x] Review and approve tracking system with team
+- [x] Design rating flow screens (wireframes/mockups)
+- [x] Create StarRating component
+- [x] Build "Rate a Dish" home screen entry point (FloatingActionButton)
+- [x] Implement venue selection screen with search and GPS proximity
+- [x] Implement dish selection screen with create dish capability
+- [x] Implement rating submission screen
+- [x] Add photo upload functionality (camera + gallery)
+- [x] Integrate GPS location detection and verification
+- [x] Configure Supabase Storage bucket with RLS policies
+- [x] Connect to Supabase (submit review)
+- [x] Test end-to-end rating flow
+
+**Deliverables:**
+- 24 files created (5 screens, 6 components, 5 hooks, 1 context, types, migration)
+- Photo system fully functional
+- GPS verification with distance calculation
+- Complete modal flow from venue search to success
 
 ---
 
-## 🔥 Up Next: MVP Feature #1 - Core Rating Flow
+## 🎯 Current Sprint: MVP Feature #2 - Discovery & Browsing
 
-**Status:** Blocked (waiting for tracking system approval)
+**Goal:** Allow users to browse and discover rated dishes
 
-### Tasks
+**Status:** Not Started
 
-- [ ] Design rating flow screens (wireframes/mockups)
-- [ ] Create StarRating component
-- [ ] Build "Rate a Dish" home screen entry point
-- [ ] Implement venue selection screen
-- [ ] Implement dish selection screen
-- [ ] Implement rating submission screen
-- [ ] Add photo upload functionality
-- [ ] Integrate GPS location detection
-- [ ] Connect to Supabase (submit review)
-- [ ] Test end-to-end rating flow
+### High Priority Tasks
+
+- [ ] Design home feed UI/UX
+- [ ] Create ReviewCard component
+- [ ] Implement home feed with review list
+- [ ] Create dish detail page
+- [ ] Create venue detail page
+- [ ] Add basic search functionality
+- [ ] Implement review sorting (newest, highest rated, nearby)
+- [ ] Add photo gallery display
+- [ ] Connect helpful votes interaction
+
+### Next Steps
+
+1. Start with home feed design (review list on main screen)
+2. Build ReviewCard component showing dish photo, rating, venue
+3. Create dish detail page to view all reviews for a dish
+4. Add navigation from review cards to detail pages
 
 ---
 
@@ -45,37 +63,38 @@ This file tracks active work items and immediate next steps. For the full roadma
 
 ### MVP Features Waiting to Start
 
-1. **Discovery & Browsing**
+1. **Review Display & Interaction** (Part of Discovery)
 
-   - Home feed with top dishes
-   - Dish detail page
-   - Venue detail page
-   - Basic search functionality
+   - Helpful votes UI and interaction
+   - Review sorting options (newest, top-rated, nearby)
+   - Review flagging/reporting
 
-2. **Photo System**
+2. **Advanced Data Layer**
 
-   - Supabase Storage integration
-   - Camera/ImagePicker integration
-   - Photo gallery component
+   - React Query setup for caching
+   - Optimistic updates
+   - Offline support
 
-3. **Review Display**
+3. **Enhanced UI Components**
+   - ReviewCard with all metadata ✅ (needed for Discovery)
+   - PhotoGallery with lightbox
+   - Loading skeletons
+   - Error boundaries
 
-   - Review list component
-   - Helpful votes UI
-   - Review sorting
+### Completed Components (from Core Rating Flow)
 
-4. **Data Layer**
+- ✅ StarRating
+- ✅ VenueCard
+- ✅ DishCard
+- ✅ PhotoPicker
+- ✅ SearchInput
+- ✅ LocationStatusBanner
 
-   - Supabase query functions
-   - React Query setup
-   - State management
+### Completed Systems
 
-5. **UI Components**
-   - DishCard
-   - VenueCard
-   - ReviewCard
-   - PhotoGallery
-   - Loading/Error states
+- ✅ Photo System (Supabase Storage, Camera/ImagePicker)
+- ✅ GPS/Location Services
+- ✅ Basic Supabase query hooks
 
 ---
 
@@ -83,15 +102,20 @@ This file tracks active work items and immediate next steps. For the full roadma
 
 _None reported yet_
 
+**Note:** Test Core Rating Flow on physical device before marking as production-ready.
+
 ---
 
 ## 💡 Ideas / Future Considerations
 
-- Consider using Expo Image for better image performance
-- Evaluate React Query vs. SWR for data fetching
+- ✅ ~~Evaluate React Query vs. SWR for data fetching~~ (Deferred to V1.0)
+- ✅ ~~Consider using Expo Image for better image performance~~ (Using Expo ImagePicker)
 - Research AI photo verification APIs (Google Vision, AWS Rekognition, etc.)
 - Plan for app store submission requirements
 - Consider analytics platform (Amplitude, Mixpanel, PostHog)
+- Add image compression/optimization before upload (V1.0)
+- Implement pull-to-refresh on feed
+- Add infinite scroll for review lists
 
 ---
 

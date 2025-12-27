@@ -1,18 +1,24 @@
-import { StyleSheet, TouchableOpacity, ActivityIndicator, type TouchableOpacityProps } from 'react-native';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { ThemedText } from './themed-text';
+import { useThemeColor } from "@/hooks/use-theme-color";
+import type { ReactNode } from "react";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  TouchableOpacity,
+  type TouchableOpacityProps,
+} from "react-native";
+import { ThemedText } from "./themed-text";
 
 export type ThemedButtonProps = TouchableOpacityProps & {
-  title: string;
-  variant?: 'primary' | 'secondary';
+  children: ReactNode;
+  variant?: "primary" | "secondary";
   loading?: boolean;
   lightColor?: string;
   darkColor?: string;
 };
 
 export function ThemedButton({
-  title,
-  variant = 'primary',
+  children,
+  variant = "primary",
   loading = false,
   disabled,
   lightColor,
@@ -20,10 +26,13 @@ export function ThemedButton({
   style,
   ...rest
 }: ThemedButtonProps) {
-  const primaryColor = useThemeColor({ light: lightColor, dark: darkColor }, 'primary');
-  const surfaceColor = useThemeColor({}, 'surface');
-  const textColor = variant === 'primary' ? '#FFFFFF' : primaryColor;
-  const backgroundColor = variant === 'primary' ? primaryColor : surfaceColor;
+  const primaryColor = useThemeColor(
+    { light: lightColor, dark: darkColor },
+    "primary"
+  );
+  const surfaceColor = useThemeColor({}, "surface");
+  const textColor = variant === "primary" ? "#FFFFFF" : primaryColor;
+  const backgroundColor = variant === "primary" ? primaryColor : surfaceColor;
 
   const isDisabled = disabled || loading;
 
@@ -32,7 +41,10 @@ export function ThemedButton({
       style={[
         styles.button,
         { backgroundColor, opacity: isDisabled ? 0.5 : 1 },
-        variant === 'secondary' && { borderWidth: 1, borderColor: primaryColor },
+        variant === "secondary" && {
+          borderWidth: 1,
+          borderColor: primaryColor,
+        },
         style,
       ]}
       disabled={isDisabled}
@@ -41,10 +53,12 @@ export function ThemedButton({
     >
       {loading ? (
         <ActivityIndicator color={textColor} />
-      ) : (
+      ) : typeof children === "string" ? (
         <ThemedText style={[styles.text, { color: textColor }]}>
-          {title}
+          {children}
         </ThemedText>
+      ) : (
+        children
       )}
     </TouchableOpacity>
   );
@@ -54,12 +68,12 @@ const styles = StyleSheet.create({
   button: {
     height: 50,
     borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 24,
   },
   text: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

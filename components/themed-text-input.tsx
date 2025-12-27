@@ -60,7 +60,7 @@ export function ThemedTextInput({
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <IconSymbol
-              name={isPasswordVisible ? 'eye.slash.fill' : 'eye.fill'}
+              name={isPasswordVisible ? 'visibility-off' : 'visibility'}
               size={20}
               color={mutedColor}
             />

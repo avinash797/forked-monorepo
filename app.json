@@ -38,6 +38,19 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Forked to use your location to verify you're at the restaurant."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Forked to access your photos to upload dish images.",
+          "cameraPermission": "Allow Forked to access your camera to take photos of dishes."
+        }
       ]
     ],
     "experiments": {

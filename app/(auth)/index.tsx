@@ -1,19 +1,19 @@
-import ForkedBrandingHeader from '@/components/forked-branding-header';
-import { ThemedButton } from '@/components/themed-button';
-import { ThemedText } from '@/components/themed-text';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Link } from 'expo-router';
-import { ImageBackground, StyleSheet, View } from 'react-native';
+import ForkedBrandingHeader from "@/components/forked-branding-header";
+import { ThemedButton } from "@/components/themed-button";
+import { ThemedText } from "@/components/themed-text";
+import { LinearGradient } from "expo-linear-gradient";
+import { Link } from "expo-router";
+import { ImageBackground, StyleSheet, View } from "react-native";
 
 export default function OnboardingScreen() {
   return (
     <ImageBackground
-      source={require('@/assets/images/auth/auth-bg.jpg')}
+      source={require("@/assets/images/auth/auth-bg.jpg")}
       style={styles.background}
       resizeMode="cover"
     >
       <LinearGradient
-        colors={['rgba(0,0,0,0.4)', 'rgba(0,0,0,0.7)']}
+        colors={["rgba(0,0,0,0.4)", "rgba(0,0,0,0.7)"]}
         style={styles.gradient}
       >
         <View style={styles.container}>
@@ -26,13 +26,10 @@ export default function OnboardingScreen() {
               <ThemedText style={styles.tagline}>
                 Fork the restaurant.
               </ThemedText>
-              <ThemedText style={styles.tagline}>
-                Rate the dish.
-              </ThemedText>
+              <ThemedText style={styles.tagline}>Rate the dish.</ThemedText>
               <ThemedText style={styles.subtitle}>
-                Discover restaurants,
-                share your reviews, and help build the ultimate
-                community-driven food guide.
+                Discover restaurants, share your reviews, and help build the
+                ultimate community-driven food guide.
               </ThemedText>
             </View>
           </View>
@@ -40,17 +37,12 @@ export default function OnboardingScreen() {
           {/* Buttons Section */}
           <View style={styles.buttonContainer}>
             <Link href="/(auth)/login" asChild>
-              <ThemedButton
-                title="Sign in"
-                style={styles.signInButton}
-              />
+              <ThemedButton style={styles.signInButton}>Sign in</ThemedButton>
             </Link>
             <Link href="/(auth)/signup" asChild>
-              <ThemedButton
-                title="Sign up"
-                variant="secondary"
-                style={styles.signUpButton}
-              />
+              <ThemedButton variant="secondary" style={styles.signUpButton}>
+                Sign up
+              </ThemedButton>
             </Link>
           </View>
         </View>
@@ -62,8 +54,8 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   gradient: {
     flex: 1,
@@ -71,47 +63,47 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   content: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
     paddingBottom: 36,
-    alignItems: 'center',
+    alignItems: "center",
   },
   illustrationContainer: {
     marginBottom: 40,
-    alignItems: 'center',
-    position: 'relative',
+    alignItems: "center",
+    position: "relative",
   },
   illustration: {
     fontSize: 100,
-    textAlign: 'center',
+    textAlign: "center",
   },
   codeSymbol: {
     fontSize: 40,
-    color: '#ee6c2b',
-    fontWeight: '700',
-    position: 'absolute',
+    color: "#ee6c2b",
+    fontWeight: "700",
+    position: "absolute",
     bottom: -10,
-    right: '30%',
+    right: "30%",
     opacity: 0.9,
   },
   textContainer: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   tagline: {
     fontSize: 32,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    textAlign: 'center',
+    fontWeight: "700",
+    color: "#FFFFFF",
+    textAlign: "center",
     marginBottom: 4,
     letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.85)',
-    textAlign: 'center',
+    color: "rgba(255, 255, 255, 0.85)",
+    textAlign: "center",
     marginTop: 20,
     lineHeight: 24,
     paddingHorizontal: 30,
@@ -121,11 +113,11 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   signInButton: {
-    backgroundColor: '#ee6c2b',
+    backgroundColor: "#ee6c2b",
   },
   signUpButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: "#FFFFFF",
   },
 });
