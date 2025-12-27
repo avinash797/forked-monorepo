@@ -112,7 +112,7 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
           country: 'US',
           language: 'en',
           types: 'address,poi',
-          poi_category: 'restaurant, food, hospitality',
+          poi_category: 'restaurant,food,food and drink',
           limit: '5',
         };
 

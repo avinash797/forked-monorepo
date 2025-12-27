@@ -44,7 +44,32 @@ export function useVenueSearch(initialQuery: string = '') {
     return () => clearTimeout(debounceTimer);
   }, [initialQuery]);
 
-  return { venues, isLoading, error, searchVenues };
+  const getNearbyVenues = async (): Promise<Venue[]> => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { data, error: queryError } = await supabase
+        .from('venues')
+        .select('*')
+        .limit(50);
+
+      if (queryError) throw queryError;
+
+      const results = data || [];
+      // We don't overwrite search state "venues" here to avoid confusing the search UI state, 
+      // or we can? The UI separates dbVenues state. 
+      // Let's just return the data.
+      return results;
+    } catch (err: any) {
+      setError(err.message);
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { venues, isLoading, error, searchVenues, getNearbyVenues };
 }
 
 export function useCreateVenue() {

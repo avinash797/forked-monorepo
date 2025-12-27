@@ -7,7 +7,7 @@ import { useRatingFlow } from "@/contexts/rating-flow-context";
 import { useCreateDish, useVenueDishes } from "@/hooks/use-dishes";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, FlatList, ScrollView, StyleSheet } from "react-native";
+import { Alert, FlatList, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 
 export default function DishSelectionScreen() {
   const router = useRouter();
@@ -17,6 +17,7 @@ export default function DishSelectionScreen() {
   );
   const { createDish, isLoading: isCreating } = useCreateDish();
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const [newDish, setNewDish] = useState({
     name: "",
@@ -77,166 +78,191 @@ export default function DishSelectionScreen() {
   };
 
   return (
-    <ScrollView>
-      <ThemedView style={styles.container}>
-        <ThemedText style={styles.venueText} lightColor="#666" darkColor="#999">
-          At {state.selectedVenue.name}
-        </ThemedText>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={100} // Adjust based on header height
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <ThemedView style={styles.container}>
+          <ThemedText style={styles.venueText} lightColor="#666" darkColor="#999">
+            At {state.selectedVenue.name}
+          </ThemedText>
 
-        {!showAddForm && (
-          <>
-            {isLoading && (
-              <ThemedText style={styles.loadingText}>
-                Loading dishes...
-              </ThemedText>
-            )}
-
-            {!isLoading && dishes.length === 0 && (
-              <ThemedView style={styles.emptyState}>
-                <ThemedText
-                  style={styles.emptyText}
-                  lightColor="#666"
-                  darkColor="#999"
-                >
-                  No dishes found for this venue
+          {!showAddForm && (
+            <>
+              {isLoading && (
+                <ThemedText style={styles.loadingText}>
+                  Loading dishes...
                 </ThemedText>
-                <ThemedButton
-                  variant="secondary"
-                  onPress={() => setShowAddForm(true)}
-                  style={styles.addButton}
+              )}
+
+              {!isLoading && dishes.length === 0 && (
+                <ThemedView style={styles.emptyState}>
+                  <ThemedText
+                    style={styles.emptyText}
+                    lightColor="#666"
+                    darkColor="#999"
+                  >
+                    No dishes found for this venue
+                  </ThemedText>
+                  <ThemedButton
+                    variant="secondary"
+                    onPress={() => setShowAddForm(true)}
+                    style={styles.addButton}
+                  >
+                    Add a New Dish
+                  </ThemedButton>
+                </ThemedView>
+              )}
+
+              {dishes.length > 0 && (
+                <>
+                  <FlatList
+                    data={dishes}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                      <DishCard
+                        dish={item}
+                        onPress={() => handleDishSelect(item)}
+                      />
+                    )}
+                    contentContainerStyle={styles.listContent}
+                    scrollEnabled={false} // Nested FlatList in ScrollView needs this disabled or formatted differently, but here dishes list is conditional. 
+                  // Wait, if I wrap everything in ScrollView, FlatList inside is bad practice unless list is small. 
+                  // The original code had ScrollView wrapping everything.
+                  // The 'dishes' view has a FlatList. 
+                  // Ideally we shouldn't nest FlatList in ScrollView.
+                  // But I will stick to wrapping the existing structure for now to minimize refactor risk, 
+                  // assuming the list isn't huge or the user is fine with it (it was already there).
+                  />
+
+                  <ThemedButton
+                    variant="secondary"
+                    onPress={() => setShowAddForm(true)}
+                    style={styles.bottomButton}
+                  >
+                    Add a New Dish
+                  </ThemedButton>
+                </>
+              )}
+
+              {error && (
+                <ThemedText
+                  style={styles.errorText}
+                  lightColor="#f44336"
+                  darkColor="#ff6b6b"
                 >
-                  Add a New Dish
-                </ThemedButton>
-              </ThemedView>
-            )}
+                  {error}
+                </ThemedText>
+              )}
+            </>
+          )}
 
-            {dishes.length > 0 && (
-              <>
-                <FlatList
-                  data={dishes}
-                  keyExtractor={(item) => item.id}
-                  renderItem={({ item }) => (
-                    <DishCard
-                      dish={item}
-                      onPress={() => handleDishSelect(item)}
-                    />
-                  )}
-                  contentContainerStyle={styles.listContent}
-                />
+          {showAddForm && (
 
-                <ThemedButton
-                  variant="secondary"
-                  onPress={() => setShowAddForm(true)}
-                  style={styles.bottomButton}
-                >
-                  Add a New Dish
-                </ThemedButton>
-              </>
-            )}
+            <ThemedView style={styles.form}>
+              <ThemedText style={styles.formTitle}>Add New Dish</ThemedText>
 
-            {error && (
-              <ThemedText
-                style={styles.errorText}
-                lightColor="#f44336"
-                darkColor="#ff6b6b"
+              <ThemedTextInput
+                label="Dish Name"
+                value={newDish.name}
+                onChangeText={(value) =>
+                  setNewDish((prev) => ({ ...prev, name: value }))
+                }
+                placeholder="e.g., Margherita Pizza"
+              />
+
+              <ThemedTextInput
+                label="Category"
+                value={newDish.category}
+                onChangeText={(value) =>
+                  setNewDish((prev) => ({ ...prev, category: value }))
+                }
+                placeholder="e.g., Pizza, Pasta, Burger"
+              />
+
+              {newDish.name.length > 0 && newDish.category.length > 0 && (
+                <TouchableOpacity onPress={() => setShowAdvanced(!showAdvanced)} style={styles.advancedToggle}>
+                  <ThemedText type="defaultSemiBold" style={styles.advancedToggleText}>
+                    {showAdvanced ? "Hide Optional Details" : "Show Optional Details (Price, Description, etc.)"}
+                  </ThemedText>
+                </TouchableOpacity>
+              )}
+
+              {showAdvanced && (
+                <>
+                  <ThemedTextInput
+                    label="Variety (optional)"
+                    value={newDish.variety}
+                    onChangeText={(value) =>
+                      setNewDish((prev) => ({ ...prev, variety: value }))
+                    }
+                    placeholder="e.g., Large, Extra Cheese"
+                  />
+
+                  <ThemedTextInput
+                    label="Price (optional)"
+                    value={newDish.current_price}
+                    onChangeText={(value) =>
+                      setNewDish((prev) => ({ ...prev, current_price: value }))
+                    }
+                    placeholder="12.99"
+                    keyboardType="decimal-pad"
+                  />
+
+                  <ThemedTextInput
+                    label="Description (optional)"
+                    value={newDish.description}
+                    onChangeText={(value) =>
+                      setNewDish((prev) => ({ ...prev, description: value }))
+                    }
+                    placeholder="Brief description of the dish"
+                    multiline
+                    numberOfLines={3}
+                  />
+
+                  <ThemedTextInput
+                    label="Dietary Tags (comma-separated, optional)"
+                    value={newDish.dietary_tags}
+                    onChangeText={(value) =>
+                      setNewDish((prev) => ({ ...prev, dietary_tags: value }))
+                    }
+                    placeholder="Vegetarian, Vegan, Gluten-Free"
+                  />
+
+                  <ThemedTextInput
+                    label="Spice Level (0-5)"
+                    value={newDish.spice_level}
+                    onChangeText={(value) =>
+                      setNewDish((prev) => ({ ...prev, spice_level: value }))
+                    }
+                    placeholder="0"
+                    keyboardType="numeric"
+                  />
+                </>
+              )}
+
+              <ThemedButton
+                onPress={handleCreateDish}
+                loading={isCreating}
+                style={styles.createButton}
               >
-                {error}
-              </ThemedText>
-            )}
-          </>
-        )}
+                Create & Rate Dish
+              </ThemedButton>
 
-        {showAddForm && (
-
-          <ThemedView style={styles.form}>
-            <ThemedText style={styles.formTitle}>Add New Dish</ThemedText>
-
-            <ThemedTextInput
-              label="Dish Name"
-              value={newDish.name}
-              onChangeText={(value) =>
-                setNewDish((prev) => ({ ...prev, name: value }))
-              }
-              placeholder="e.g., Margherita Pizza"
-            />
-
-            <ThemedTextInput
-              label="Category"
-              value={newDish.category}
-              onChangeText={(value) =>
-                setNewDish((prev) => ({ ...prev, category: value }))
-              }
-              placeholder="e.g., Pizza, Pasta, Burger"
-            />
-
-            <ThemedTextInput
-              label="Variety (optional)"
-              value={newDish.variety}
-              onChangeText={(value) =>
-                setNewDish((prev) => ({ ...prev, variety: value }))
-              }
-              placeholder="e.g., Large, Extra Cheese"
-            />
-
-            <ThemedTextInput
-              label="Price (optional)"
-              value={newDish.current_price}
-              onChangeText={(value) =>
-                setNewDish((prev) => ({ ...prev, current_price: value }))
-              }
-              placeholder="12.99"
-              keyboardType="decimal-pad"
-            />
-
-            <ThemedTextInput
-              label="Description (optional)"
-              value={newDish.description}
-              onChangeText={(value) =>
-                setNewDish((prev) => ({ ...prev, description: value }))
-              }
-              placeholder="Brief description of the dish"
-              multiline
-              numberOfLines={3}
-            />
-
-            <ThemedTextInput
-              label="Dietary Tags (comma-separated, optional)"
-              value={newDish.dietary_tags}
-              onChangeText={(value) =>
-                setNewDish((prev) => ({ ...prev, dietary_tags: value }))
-              }
-              placeholder="Vegetarian, Vegan, Gluten-Free"
-            />
-
-            <ThemedTextInput
-              label="Spice Level (0-5)"
-              value={newDish.spice_level}
-              onChangeText={(value) =>
-                setNewDish((prev) => ({ ...prev, spice_level: value }))
-              }
-              placeholder="0"
-              keyboardType="numeric"
-            />
-
-            <ThemedButton
-              onPress={handleCreateDish}
-              loading={isCreating}
-              style={styles.createButton}
-            >
-              Create & Rate Dish
-            </ThemedButton>
-
-            <ThemedButton
-              variant="secondary"
-              onPress={() => setShowAddForm(false)}
-              style={styles.cancelButton}
-            >
-              Cancel
-            </ThemedButton>
-          </ThemedView>
-        )}
-      </ThemedView>
-    </ScrollView>
+              <ThemedButton
+                variant="secondary"
+                onPress={() => setShowAddForm(false)}
+                style={styles.cancelButton}
+              >
+                Cancel
+              </ThemedButton>
+            </ThemedView>
+          )}
+        </ThemedView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -288,6 +314,14 @@ const styles = StyleSheet.create({
   cancelButton: {
     marginTop: 12,
     marginBottom: 32,
+  },
+  advancedToggle: {
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  advancedToggleText: {
+    color: '#0a7ea4',
+    fontSize: 14,
   },
   errorText: {
     fontSize: 14,

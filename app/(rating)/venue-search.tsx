@@ -1,4 +1,3 @@
-import { LocationStatusBanner } from "@/components/rating/location-status-banner";
 import { SearchInput } from "@/components/rating/search-input";
 import { VenueCard } from "@/components/rating/venue-card";
 import { ThemedButton } from "@/components/themed-button";
@@ -7,7 +6,7 @@ import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useRatingFlow } from "@/contexts/rating-flow-context";
 import { useAddressSearch } from "@/hooks/use-address-search";
-import { useGPSVerification, useLocation } from "@/hooks/use-location";
+import { useLocation } from "@/hooks/use-location";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useCreateVenue, useVenueSearch } from "@/hooks/use-venues";
 import type { Venue, VenueWithDistance } from "@/types/rating";
@@ -21,20 +20,19 @@ type SearchResultItem =
 
 export default function VenueSearchScreen() {
   const router = useRouter();
-  const { setVenue, state } = useRatingFlow();
+  const { setVenue } = useRatingFlow();
   const [searchQuery, setSearchQuery] = useState("");
   const [dbVenues, setDbVenues] = useState<Venue[]>([]);
   const [mapboxSuggestions, setMapboxSuggestions] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
 
-  const { location, hasPermission, isLoading: locationLoading } = useLocation();
-  const gpsStatus = useGPSVerification(location, state.selectedVenue);
+  const { location, hasPermission } = useLocation();
   const { searchAddress, selectAddress } = useAddressSearch({
     proximity: location ? { latitude: location.latitude, longitude: location.longitude } : null
   });
 
-  const { searchVenues } = useVenueSearch();
+  const { searchVenues, getNearbyVenues } = useVenueSearch();
   const { createVenue, isLoading: isCreating } = useCreateVenue();
 
   const textColor = useThemeColor({}, 'text');
@@ -80,11 +78,13 @@ export default function VenueSearchScreen() {
 
       if (venues && venues.length > 0) {
         setDbVenues(venues);
-      } else {
-        // 2. If no DB results, search Mapbox
-        const suggestions = await searchAddress(query);
-        setMapboxSuggestions(suggestions);
       }
+      //TODO: Reenable this when moving to production, disabling right now to preserve cost
+      // else {
+      //   // 2. If no DB results, search Mapbox
+      //   const suggestions = await searchAddress(query);
+      //   setMapboxSuggestions(suggestions);
+      // }
     } catch (err: any) {
       console.error("Search error:", err);
       // searchVenues handles its own error state internally but returns [] on error mostly. 
@@ -95,8 +95,50 @@ export default function VenueSearchScreen() {
     }
   };
 
+  const fetchNearbySuggestions = async () => {
+    if (!location) return;
+
+    // Check if we are already searching or have typed something
+    if (searchQuery.length > 0) return;
+
+    setIsSearching(true);
+    try {
+      // Parallel fetch: DB venues + Mapbox near user
+      const [dbResults, mapboxResults] = await Promise.all([
+        getNearbyVenues(),
+        searchAddress("restaurant")
+      ]);
+
+      if (dbResults) {
+        const sortedResults = dbResults
+          .map((v) => ({ ...v, distance: calculateDistance(v) }))
+          .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity)).filter((v) => v.distance !== undefined && v.distance < 2000);
+        console.log("Sorted results:", sortedResults);
+        setDbVenues(sortedResults);
+      }
+      if (mapboxResults) setMapboxSuggestions(mapboxResults);
+    } catch (err) {
+      console.log("Error fetching nearby:", err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  useEffect(() => {
+    if (location && searchQuery === "") {
+      //TODO: Reenable this when moving to production, disabling right now to preserve cost
+      //fetchNearbySuggestions();
+    }
+  }, [location, searchQuery]);
+
   useEffect(() => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+    // If query is empty, we don't search (we might show nearby instead)
+    if (searchQuery.trim() === "") {
+      return;
+    }
+
     debounceTimer.current = setTimeout(() => {
       performSearch(searchQuery);
     }, 400); // Slightly longer debounce to wait for typing
@@ -210,10 +252,6 @@ export default function VenueSearchScreen() {
         isLoading={isSearching || isCreating}
       />
 
-      {!locationLoading && hasPermission && (
-        <LocationStatusBanner status={gpsStatus} />
-      )}
-
       {searchQuery.length === 0 && (
         <ThemedView style={styles.emptyState}>
           <ThemedText
@@ -264,7 +302,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   listContent: {
-    paddingBottom: 16,
+    paddingVertical: 16,
   },
   emptyState: {
     flex: 1,

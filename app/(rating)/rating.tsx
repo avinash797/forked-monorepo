@@ -11,6 +11,7 @@ import { useGPSVerification, useLocation } from "@/hooks/use-location";
 import { usePhotoUpload } from "@/hooks/use-photo-upload";
 import { useCreateReview } from "@/hooks/use-reviews";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
 import { Alert, ScrollView, StyleSheet } from "react-native";
 
 export default function RatingScreen() {
@@ -36,8 +37,13 @@ export default function RatingScreen() {
       : null
   );
 
+  useEffect(() => {
+    if (!state.selectedVenue || !state.selectedDish) {
+      router.back();
+    }
+  }, [state.selectedVenue, state.selectedDish, router]);
+
   if (!state.selectedVenue || !state.selectedDish) {
-    router.back();
     return null;
   }
 
