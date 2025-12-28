@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import type { Dish, CreateDishInput } from '@/types/rating';
+import type { CreateDishInput, Dish, DishType } from '@/types/rating';
+import { useEffect, useState } from 'react';
 
 export function useVenueDishes(venueId: string | null) {
   const [dishes, setDishes] = useState<Dish[]>([]);
@@ -66,7 +66,7 @@ export function useCreateDish() {
           ...input,
           currency: 'USD',
           added_by_user_id: user.id,
-        })
+        } as any)
         .select()
         .single();
 
@@ -81,4 +81,35 @@ export function useCreateDish() {
   };
 
   return { createDish, isLoading, error };
+}
+
+export function useDishTypes() {
+  const [dishTypes, setDishTypes] = useState<DishType[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchDishTypes = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const { data, error: queryError } = await supabase
+          .from('dish_types')
+          .select('*')
+          .order('name');
+
+        if (queryError) throw queryError;
+        setDishTypes(data || []);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDishTypes();
+  }, []);
+
+  return { dishTypes, isLoading, error };
 }

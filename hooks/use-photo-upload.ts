@@ -99,5 +99,24 @@ export function usePhotoUpload() {
     }
   };
 
-  return { pickImage, takePhoto, uploadPhoto, isLoading, error };
+  const deletePhoto = async (storagePath: string): Promise<boolean> => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { error: deleteError } = await supabase.storage
+        .from("review-photos")
+        .remove([storagePath]);
+
+      if (deleteError) throw deleteError;
+      return true;
+    } catch (err: any) {
+      setError(err.message);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { pickImage, takePhoto, uploadPhoto, deletePhoto, isLoading, error };
 }

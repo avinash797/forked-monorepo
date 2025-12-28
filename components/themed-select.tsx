@@ -1,10 +1,11 @@
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Modal,
   Pressable,
   ScrollView,
   StyleSheet,
+  TextInput,
   TouchableOpacity,
   View,
   type StyleProp,
@@ -30,6 +31,8 @@ export type ThemedSelectProps = {
   options: readonly SelectOption[];
   onValueChange?: (value: string) => void;
   style?: StyleProp<ViewStyle>;
+  searchable?: boolean;
+  searchPlaceholder?: string;
 };
 
 export function ThemedSelect({
@@ -44,8 +47,11 @@ export function ThemedSelect({
   value,
   options,
   onValueChange,
+  searchable = false,
+  searchPlaceholder = "Search...",
 }: ThemedSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const backgroundColor = useThemeColor(
     { light: lightColor, dark: darkColor },
@@ -60,9 +66,25 @@ export function ThemedSelect({
   const selectedOption = options.find((opt) => opt.value === value);
   const displayText = selectedOption?.label || placeholder;
 
+  const filteredOptions = useMemo(() => {
+    if (!searchable || !searchQuery.trim()) {
+      return options;
+    }
+    const query = searchQuery.toLowerCase();
+    return options.filter((opt) =>
+      opt.label.toLowerCase().includes(query)
+    );
+  }, [options, searchQuery, searchable]);
+
   const handleSelect = (optionValue: string) => {
     onValueChange?.(optionValue);
     setIsOpen(false);
+    setSearchQuery("");
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setSearchQuery("");
   };
 
   return (
@@ -112,11 +134,11 @@ export function ThemedSelect({
         visible={isOpen}
         transparent
         animationType="fade"
-        onRequestClose={() => setIsOpen(false)}
+        onRequestClose={handleClose}
       >
         <Pressable
           style={styles.modalOverlay}
-          onPress={() => setIsOpen(false)}
+          onPress={handleClose}
         >
           <View
             style={[
@@ -130,36 +152,59 @@ export function ThemedSelect({
                 {label || "Select an option"}
               </ThemedText>
               <TouchableOpacity
-                onPress={() => setIsOpen(false)}
+                onPress={handleClose}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <IconSymbol name="close" size={24} color={textColor} />
               </TouchableOpacity>
             </View>
-            <ScrollView style={styles.optionsList}>
-              {options.map((option) => (
-                <TouchableOpacity
-                  key={option.value}
+            {searchable && (
+              <View style={styles.searchContainer}>
+                <TextInput
                   style={[
-                    styles.option,
-                    option.value === value && {
-                      backgroundColor,
-                    },
+                    styles.searchInput,
+                    { backgroundColor, color: textColor, borderColor: mutedColor },
                   ]}
-                  onPress={() => handleSelect(option.value)}
-                >
-                  <ThemedText style={styles.optionText}>
-                    {option.label}
+                  placeholder={searchPlaceholder}
+                  placeholderTextColor={mutedColor}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  autoFocus
+                />
+              </View>
+            )}
+            <ScrollView style={styles.optionsList}>
+              {filteredOptions.length === 0 ? (
+                <View style={styles.emptyState}>
+                  <ThemedText style={[styles.emptyText, { color: mutedColor }]}>
+                    No options found
                   </ThemedText>
-                  {option.value === value && (
-                    <IconSymbol
-                      name="check"
-                      size={20}
-                      color={textColor}
-                    />
-                  )}
-                </TouchableOpacity>
-              ))}
+                </View>
+              ) : (
+                filteredOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[
+                      styles.option,
+                      option.value === value && {
+                        backgroundColor,
+                      },
+                    ]}
+                    onPress={() => handleSelect(option.value)}
+                  >
+                    <ThemedText style={styles.optionText}>
+                      {option.label}
+                    </ThemedText>
+                    {option.value === value && (
+                      <IconSymbol
+                        name="check"
+                        size={20}
+                        color={textColor}
+                      />
+                    )}
+                  </TouchableOpacity>
+                ))
+              )}
             </ScrollView>
           </View>
         </Pressable>
@@ -233,5 +278,24 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 16,
+  },
+  searchContainer: {
+    padding: 16,
+    paddingTop: 8,
+    paddingBottom: 8,
+  },
+  searchInput: {
+    height: 44,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    borderWidth: 1,
+  },
+  emptyState: {
+    padding: 32,
+    alignItems: "center",
+  },
+  emptyText: {
+    fontSize: 14,
   },
 });

@@ -19,11 +19,12 @@ export default function RatingScreen() {
   const { user } = useAuth();
   const { state, setStarRating, setReviewText, addPhoto, removePhoto } =
     useRatingFlow();
-  const { createReview, isLoading: isSubmitting } = useCreateReview();
+  const { createReview, isLoading: isSubmitting, error: createReviewError } = useCreateReview();
   const {
     pickImage,
     takePhoto,
     uploadPhoto,
+    deletePhoto,
     isLoading: isUploading,
   } = usePhotoUpload();
   const { location } = useLocation();
@@ -31,9 +32,9 @@ export default function RatingScreen() {
     location,
     state.selectedVenue
       ? {
-          latitude: state.selectedVenue.latitude,
-          longitude: state.selectedVenue.longitude,
-        }
+        latitude: state.selectedVenue.latitude,
+        longitude: state.selectedVenue.longitude,
+      }
       : null
   );
 
@@ -102,7 +103,9 @@ export default function RatingScreen() {
     if (review) {
       router.push("/(rating)/success");
     } else {
-      Alert.alert("Error", "Failed to submit review. Please try again.");
+      await deletePhoto(uploaded.storagePath);
+      Alert.alert("Error", createReviewError?.includes("duplicate key value") ? "You have already submitted a review for this dish" : "Failed to submit review. Please try again.");
+
     }
   };
 

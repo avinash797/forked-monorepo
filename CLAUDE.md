@@ -78,7 +78,7 @@ These accept `lightColor` and `darkColor` props to override theme defaults.
   - `parallax-scroll-view.tsx`: Scrollview with parallax header
   - `ui/`: UI primitives
     - `collapsible.tsx`: Collapsible section component
-    - `icon-symbol.tsx`: SF Symbols icon component (iOS-specific variant available)
+    - `icon-symbol.tsx`: Expo Material icon component
 
 - **`hooks/`**: Custom React hooks for theming and utilities
 

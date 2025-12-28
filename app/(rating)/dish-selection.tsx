@@ -1,13 +1,44 @@
 import { DishCard } from "@/components/rating/dish-card";
 import { ThemedButton } from "@/components/themed-button";
+import { ThemedSelect } from "@/components/themed-select";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedTextInput } from "@/components/themed-text-input";
 import { ThemedView } from "@/components/themed-view";
 import { useRatingFlow } from "@/contexts/rating-flow-context";
-import { useCreateDish, useVenueDishes } from "@/hooks/use-dishes";
+import { useCreateDish, useDishTypes, useVenueDishes } from "@/hooks/use-dishes";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, FlatList, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { Controller, useForm } from "react-hook-form";
+import { FlatList, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { z } from "zod";
+
+const dishFormSchema = z.object({
+  name: z.string().min(1, "Dish name is required"),
+  category: z.string().min(1, "Category is required"),
+  dish_type_id: z.string().min(1, "Dish type is required"),
+  variety: z.string().optional(),
+  current_price: z.string().optional().refine(
+    (val) => {
+      if (!val || val === "") return true;
+      const num = parseFloat(val);
+      return !isNaN(num) && num >= 0;
+    },
+    { message: "Price must be a valid number" }
+  ),
+  description: z.string().optional(),
+  dietary_tags: z.string().optional(),
+  spice_level: z.string().refine(
+    (val) => {
+      if (!val || val === "") return true;
+      const num = parseInt(val, 10);
+      return !isNaN(num) && num >= 0 && num <= 5;
+    },
+    { message: "Spice level must be between 0 and 5" }
+  ),
+});
+
+type DishFormData = z.infer<typeof dishFormSchema>;
 
 export default function DishSelectionScreen() {
   const router = useRouter();
@@ -15,18 +46,29 @@ export default function DishSelectionScreen() {
   const { dishes, isLoading, error } = useVenueDishes(
     state.selectedVenue?.id ?? null
   );
+  const { dishTypes, isLoading: isDishTypesLoading } = useDishTypes();
   const { createDish, isLoading: isCreating } = useCreateDish();
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
-  const [newDish, setNewDish] = useState({
-    name: "",
-    category: "",
-    variety: "",
-    current_price: "",
-    description: "",
-    dietary_tags: "",
-    spice_level: "0",
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<DishFormData>({
+    resolver: zodResolver(dishFormSchema),
+    defaultValues: {
+      name: "",
+      category: "",
+      dish_type_id: "",
+      variety: "",
+      current_price: "",
+      description: "",
+      dietary_tags: "",
+      spice_level: "0",
+    },
   });
 
   useEffect(() => {
@@ -42,42 +84,40 @@ export default function DishSelectionScreen() {
     router.push("/(rating)/rating");
   };
 
-  const handleCreateDish = async () => {
-    if (!newDish.name.trim() || !newDish.category.trim()) {
-      Alert.alert("Validation Error", "Dish name and category are required");
-      return;
-    }
+  const onSubmit = async (data: DishFormData) => {
+    const dietaryTags = data.dietary_tags
+      ? data.dietary_tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean)
+      : [];
 
-    const dietaryTags = newDish.dietary_tags
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean);
+    const price =
+      data.current_price && data.current_price !== ""
+        ? parseFloat(data.current_price)
+        : null;
 
-    const price = newDish.current_price
-      ? parseFloat(newDish.current_price)
-      : null;
+    const spiceLevel =
+      data.spice_level && data.spice_level !== ""
+        ? parseInt(data.spice_level, 10)
+        : 0;
 
-    const spiceLevel = parseInt(newDish.spice_level, 10);
-    if (spiceLevel < 0 || spiceLevel > 5) {
-      Alert.alert("Validation Error", "Spice level must be between 0 and 5");
-      return;
-    }
-
-    createDish({
+    const dish = await createDish({
       venue_id: state.selectedVenue!.id,
-      name: newDish.name.trim(),
-      category: newDish.category.trim(),
-      variety: newDish.variety.trim() || null,
+      name: data.name.trim(),
+      category: data.category.trim(),
+      dish_type_id: data.dish_type_id,
+      variety: data.variety?.trim() || null,
       current_price: price,
-      description: newDish.description.trim() || null,
+      description: data.description?.trim() || null,
       dietary_tags: dietaryTags,
       spice_level: spiceLevel,
-    }).then((dish) => {
-      if (dish) {
-        setDish(dish);
-        router.push("/(rating)/rating");
-      }
     });
+
+    if (dish) {
+      setDish(dish);
+      router.push("/(rating)/rating");
+    }
   };
 
   return (
@@ -111,7 +151,10 @@ export default function DishSelectionScreen() {
                   </ThemedText>
                   <ThemedButton
                     variant="secondary"
-                    onPress={() => setShowAddForm(true)}
+                    onPress={() => {
+                      reset();
+                      setShowAddForm(true);
+                    }}
                     style={styles.addButton}
                   >
                     Add a New Dish
@@ -131,18 +174,15 @@ export default function DishSelectionScreen() {
                       />
                     )}
                     contentContainerStyle={styles.listContent}
-                    scrollEnabled={false} // Nested FlatList in ScrollView needs this disabled or formatted differently, but here dishes list is conditional. 
-                  // Wait, if I wrap everything in ScrollView, FlatList inside is bad practice unless list is small. 
-                  // The original code had ScrollView wrapping everything.
-                  // The 'dishes' view has a FlatList. 
-                  // Ideally we shouldn't nest FlatList in ScrollView.
-                  // But I will stick to wrapping the existing structure for now to minimize refactor risk, 
-                  // assuming the list isn't huge or the user is fine with it (it was already there).
+                    scrollEnabled={false}
                   />
 
                   <ThemedButton
                     variant="secondary"
-                    onPress={() => setShowAddForm(true)}
+                    onPress={() => {
+                      reset();
+                      setShowAddForm(true);
+                    }}
                     style={styles.bottomButton}
                   >
                     Add a New Dish
@@ -163,91 +203,145 @@ export default function DishSelectionScreen() {
           )}
 
           {showAddForm && (
-
             <ThemedView style={styles.form}>
               <ThemedText style={styles.formTitle}>Add New Dish</ThemedText>
 
-              <ThemedTextInput
-                label="Dish Name"
-                value={newDish.name}
-                onChangeText={(value) =>
-                  setNewDish((prev) => ({ ...prev, name: value }))
-                }
-                placeholder="e.g., Margherita Pizza"
+              <Controller
+                control={control}
+                name="name"
+                render={({ field: { onChange, value } }) => (
+                  <ThemedTextInput
+                    label="Dish Name"
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="e.g., Margherita Pizza"
+                    error={errors.name?.message}
+                  />
+                )}
               />
 
-              <ThemedTextInput
-                label="Category"
-                value={newDish.category}
-                onChangeText={(value) =>
-                  setNewDish((prev) => ({ ...prev, category: value }))
-                }
-                placeholder="e.g., Pizza, Pasta, Burger"
+              <Controller
+                control={control}
+                name="category"
+                render={({ field: { onChange, value } }) => (
+                  <ThemedTextInput
+                    label="Category"
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="e.g., Appetizer, Main Course, Dessert, etc."
+                    error={errors.category?.message}
+                  />
+                )}
               />
 
-              {newDish.name.length > 0 && newDish.category.length > 0 && (
-                <TouchableOpacity onPress={() => setShowAdvanced(!showAdvanced)} style={styles.advancedToggle}>
-                  <ThemedText type="defaultSemiBold" style={styles.advancedToggleText}>
-                    {showAdvanced ? "Hide Optional Details" : "Show Optional Details (Price, Description, etc.)"}
-                  </ThemedText>
-                </TouchableOpacity>
-              )}
+              <Controller
+                control={control}
+                name="dish_type_id"
+                render={({ field: { onChange, value } }) => (
+                  <ThemedSelect
+                    label="Dish Type"
+                    value={value}
+                    onValueChange={onChange}
+                    options={dishTypes.map((dt) => ({
+                      label: dt.name,
+                      value: dt.id,
+                    }))}
+                    placeholder={isDishTypesLoading ? "Loading..." : "Select a dish type"}
+                    error={errors.dish_type_id?.message}
+                    searchable
+                    searchPlaceholder="Search dish types..."
+                  />
+                )}
+              />
+
+              <TouchableOpacity
+                onPress={() => setShowAdvanced(!showAdvanced)}
+                style={styles.advancedToggle}
+              >
+                <ThemedText type="defaultSemiBold" style={styles.advancedToggleText}>
+                  {showAdvanced
+                    ? "Hide Optional Details"
+                    : "Show Optional Details (Price, Description, etc.)"}
+                </ThemedText>
+              </TouchableOpacity>
 
               {showAdvanced && (
                 <>
-                  <ThemedTextInput
-                    label="Variety (optional)"
-                    value={newDish.variety}
-                    onChangeText={(value) =>
-                      setNewDish((prev) => ({ ...prev, variety: value }))
-                    }
-                    placeholder="e.g., Large, Extra Cheese"
+                  <Controller
+                    control={control}
+                    name="variety"
+                    render={({ field: { onChange, value } }) => (
+                      <ThemedTextInput
+                        label="Variety (optional)"
+                        value={value}
+                        onChangeText={onChange}
+                        placeholder="e.g., Large, Extra Cheese"
+                      />
+                    )}
                   />
 
-                  <ThemedTextInput
-                    label="Price (optional)"
-                    value={newDish.current_price}
-                    onChangeText={(value) =>
-                      setNewDish((prev) => ({ ...prev, current_price: value }))
-                    }
-                    placeholder="12.99"
-                    keyboardType="decimal-pad"
+                  <Controller
+                    control={control}
+                    name="current_price"
+                    render={({ field: { onChange, value } }) => (
+                      <ThemedTextInput
+                        label="Price (optional)"
+                        value={value}
+                        onChangeText={onChange}
+                        placeholder="12.99"
+                        keyboardType="decimal-pad"
+                        error={errors.current_price?.message}
+                      />
+                    )}
                   />
 
-                  <ThemedTextInput
-                    label="Description (optional)"
-                    value={newDish.description}
-                    onChangeText={(value) =>
-                      setNewDish((prev) => ({ ...prev, description: value }))
-                    }
-                    placeholder="Brief description of the dish"
-                    multiline
-                    numberOfLines={3}
+                  <Controller
+                    control={control}
+                    name="description"
+                    render={({ field: { onChange, value } }) => (
+                      <ThemedTextInput
+                        label="Description (optional)"
+                        value={value}
+                        onChangeText={onChange}
+                        placeholder="Brief description of the dish"
+                        multiline
+                        numberOfLines={3}
+                      />
+                    )}
                   />
 
-                  <ThemedTextInput
-                    label="Dietary Tags (comma-separated, optional)"
-                    value={newDish.dietary_tags}
-                    onChangeText={(value) =>
-                      setNewDish((prev) => ({ ...prev, dietary_tags: value }))
-                    }
-                    placeholder="Vegetarian, Vegan, Gluten-Free"
+                  <Controller
+                    control={control}
+                    name="dietary_tags"
+                    render={({ field: { onChange, value } }) => (
+                      <ThemedTextInput
+                        label="Dietary Tags (comma-separated, optional)"
+                        value={value}
+                        onChangeText={onChange}
+                        placeholder="Vegetarian, Vegan, Gluten-Free"
+                      />
+                    )}
                   />
 
-                  <ThemedTextInput
-                    label="Spice Level (0-5)"
-                    value={newDish.spice_level}
-                    onChangeText={(value) =>
-                      setNewDish((prev) => ({ ...prev, spice_level: value }))
-                    }
-                    placeholder="0"
-                    keyboardType="numeric"
+                  <Controller
+                    control={control}
+                    name="spice_level"
+                    render={({ field: { onChange, value } }) => (
+                      <ThemedTextInput
+                        label="Spice Level (0-5)"
+                        value={value}
+                        onChangeText={onChange}
+                        placeholder="0"
+                        keyboardType="numeric"
+                        error={errors.spice_level?.message}
+                      />
+                    )}
                   />
                 </>
               )}
 
               <ThemedButton
-                onPress={handleCreateDish}
+                onPress={handleSubmit(onSubmit)}
                 loading={isCreating}
                 style={styles.createButton}
               >
@@ -320,10 +414,10 @@ const styles = StyleSheet.create({
   },
   advancedToggle: {
     paddingVertical: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   advancedToggleText: {
-    color: '#0a7ea4',
+    color: "#0a7ea4",
     fontSize: 14,
   },
   errorText: {

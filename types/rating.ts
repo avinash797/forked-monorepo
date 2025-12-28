@@ -25,6 +25,18 @@ export interface Venue {
   added_by_user_id: string | null;
 }
 
+export interface DishType {
+  id: string;
+  name: string;
+  category: string;
+  description: string | null;
+  alternate_names: string[];
+  common_dietary_tags: string[];
+  created_at: string;
+  updated_at: string;
+  created_by_user_id: string | null;
+}
+
 export interface Dish {
   id: string;
   venue_id: string;
@@ -41,6 +53,7 @@ export interface Dish {
   date_added: string;
   updated_at: string;
   added_by_user_id: string | null;
+  dish_type_id: string;
 }
 
 export interface Review {
@@ -105,6 +118,7 @@ export interface CreateDishInput {
   venue_id: string;
   name: string;
   category: string;
+  dish_type_id: string;
   variety: string | null;
   current_price: number | null;
   description: string | null;
