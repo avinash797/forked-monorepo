@@ -4,17 +4,16 @@ import React from "react";
 import { CenterTabButton } from "@/components/center-tab-button";
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useTheme } from "@/contexts/theme-provider";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   const router = useRouter();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: theme.color.accent,
         headerShown: false,
         tabBarButton: HapticTab,
       }}

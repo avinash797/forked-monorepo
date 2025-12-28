@@ -1,4 +1,4 @@
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { useTheme } from "@/contexts/theme-provider";
 import { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 import { PlatformPressable } from "@react-navigation/elements";
 import * as Haptics from "expo-haptics";
@@ -6,14 +6,19 @@ import { StyleSheet, View } from "react-native";
 import { ForkLogo } from "./fork-logo";
 
 export function CenterTabButton(props: BottomTabBarButtonProps) {
-  const primaryColor = useThemeColor({}, "primary");
-  const backgroundColor = useThemeColor({}, "background");
+  const { theme } = useTheme();
 
   return (
     <View style={styles.container}>
       <PlatformPressable
         {...props}
-        style={[styles.button, { backgroundColor: primaryColor }]}
+        style={[
+          styles.button,
+          {
+            backgroundColor: theme.color.accent,
+            borderColor: theme.color.surface,
+          },
+        ]}
         onPressIn={(ev) => {
           if (process.env.EXPO_OS === "ios") {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -21,8 +26,13 @@ export function CenterTabButton(props: BottomTabBarButtonProps) {
           props.onPressIn?.(ev);
         }}
       >
-        <View style={[styles.innerButton, { backgroundColor: primaryColor }]}>
-          <ForkLogo size={32} color="#fff" />
+        <View
+          style={[
+            styles.innerButton,
+            { backgroundColor: theme.color.accent },
+          ]}
+        >
+          <ForkLogo size={32} color={theme.color.accentOn} />
         </View>
       </PlatformPressable>
       {/* Spacer to push other tabs to the side */}
@@ -52,7 +62,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
     borderWidth: 4,
-    borderColor: "#fff",
+    // borderColor applied via theme in component
   },
   innerButton: {
     width: 56,

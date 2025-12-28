@@ -1,22 +1,20 @@
 import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
+  ThemeProvider as NavigationThemeProvider,
+  type Theme as NavigationTheme,
 } from "@react-navigation/native";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import "react-native-reanimated";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ThemedView } from "@/components/themed-view";
-import { Colors } from "@/constants/theme";
 import { AuthProvider } from "@/contexts/auth-context";
 import { RatingFlowProvider } from "@/contexts/rating-flow-context";
+import { ThemeProvider, useTheme } from "@/contexts/theme-provider";
 import { useAuth } from "@/hooks/use-auth";
-import { useColorScheme } from "@/hooks/use-color-scheme";
 
 if (__DEV__) {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -25,9 +23,31 @@ if (__DEV__) {
 
 function RootLayoutNav() {
   const { isAuthenticated, isLoading } = useAuth();
-  const colorScheme = useColorScheme();
+  const { theme, isDark } = useTheme();
   const segments = useSegments();
   const router = useRouter();
+
+  // Create React Navigation theme from our active theme
+  const navigationTheme: NavigationTheme = useMemo(
+    () => ({
+      dark: isDark,
+      colors: {
+        primary: theme.color.accent,
+        background: theme.color.bg,
+        card: theme.color.surface,
+        text: theme.color.textPrimary,
+        border: theme.color.border,
+        notification: theme.color.accent,
+      },
+      fonts: {
+        regular: { fontFamily: theme.font.family.regular, fontWeight: theme.font.weight.regular },
+        medium: { fontFamily: theme.font.family.medium, fontWeight: theme.font.weight.medium },
+        bold: { fontFamily: theme.font.family.bold, fontWeight: theme.font.weight.bold },
+        heavy: { fontFamily: theme.font.family.mono, fontWeight: theme.font.weight.bold },
+      },
+    } as any),
+    [theme, isDark]
+  );
 
   useEffect(() => {
     if (isLoading) return;
@@ -49,20 +69,20 @@ function RootLayoutNav() {
       <ThemedView style={styles.loadingContainer}>
         <ActivityIndicator
           size="large"
-          color={Colors[colorScheme ?? "light"].primary}
+          color={theme.color.accent}
         />
       </ThemedView>
     );
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <NavigationThemeProvider value={navigationTheme}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(protected)" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
-    </ThemeProvider>
+    </NavigationThemeProvider>
   );
 }
 
@@ -70,11 +90,13 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <AuthProvider>
-          <RatingFlowProvider>
-            <RootLayoutNav />
-          </RatingFlowProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <RatingFlowProvider>
+              <RootLayoutNav />
+            </RatingFlowProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
