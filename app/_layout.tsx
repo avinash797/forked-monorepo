@@ -38,7 +38,7 @@ function RootLayoutNav() {
       router.replace("/(auth)");
     } else if (isAuthenticated && inAuthGroup) {
       // Redirect to tabs if authenticated
-      router.replace("/(tabs)");
+      router.replace("/(protected)/(tabs)");
     }
   }, [isAuthenticated, isLoading, segments]);
 
@@ -58,14 +58,7 @@ function RootLayoutNav() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen
-          name="(rating)"
-          options={{
-            presentation: "modal",
-            headerShown: false,
-          }}
-        />
+        <Stack.Screen name="(protected)" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
