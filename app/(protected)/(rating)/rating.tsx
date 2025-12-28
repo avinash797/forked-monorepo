@@ -1,6 +1,6 @@
 import { LocationStatusBanner } from "@/components/rating/location-status-banner";
 import { PhotoPicker } from "@/components/rating/photo-picker";
-import { StarRating } from "@/components/rating/star-rating";
+import { RatingInput } from "@/components/rating/rating-input";
 import { ThemedButton } from "@/components/themed-button";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedTextInput } from "@/components/themed-text-input";
@@ -12,7 +12,7 @@ import { usePhotoUpload } from "@/hooks/use-photo-upload";
 import { useCreateReview } from "@/hooks/use-reviews";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
-import { Alert, ScrollView, StyleSheet } from "react-native";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
 
 export default function RatingScreen() {
   const router = useRouter();
@@ -135,11 +135,12 @@ export default function RatingScreen() {
               *
             </ThemedText>
           </ThemedText>
-          <StarRating
-            value={state.starRating}
-            onChange={setStarRating}
-            size={40}
-          />
+          <View style={styles.ratingContainer}>
+            <RatingInput
+              value={state.starRating}
+              onChange={setStarRating}
+            />
+          </View>
         </ThemedView>
 
         <ThemedView style={styles.section}>
@@ -153,7 +154,7 @@ export default function RatingScreen() {
           />
         </ThemedView>
 
-        <ThemedView style={styles.section}>
+        {!state.photoUri && <ThemedView style={styles.section}>
           <PhotoPicker
             photos={state.photoUri ? [state.photoUri] : []}
             onAddPhoto={handleAddPhoto}
@@ -162,7 +163,7 @@ export default function RatingScreen() {
             isLoading={isUploading}
             required
           />
-        </ThemedView>
+        </ThemedView>}
 
         <ThemedButton
           onPress={handleSubmit}
@@ -204,6 +205,9 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 24,
+  },
+  ratingContainer: {
+    paddingHorizontal: 16,
   },
   label: {
     marginBottom: 12,

@@ -1,9 +1,9 @@
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 import { PlatformPressable } from "@react-navigation/elements";
 import * as Haptics from "expo-haptics";
 import { StyleSheet, View } from "react-native";
+import { ForkLogo } from "./fork-logo";
 
 export function CenterTabButton(props: BottomTabBarButtonProps) {
   const primaryColor = useThemeColor({}, "primary");
@@ -22,7 +22,7 @@ export function CenterTabButton(props: BottomTabBarButtonProps) {
         }}
       >
         <View style={[styles.innerButton, { backgroundColor: primaryColor }]}>
-          <IconSymbol name="add" size={32} color="#fff" />
+          <ForkLogo size={32} color="#fff" />
         </View>
       </PlatformPressable>
       {/* Spacer to push other tabs to the side */}

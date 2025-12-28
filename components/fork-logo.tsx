@@ -21,23 +21,23 @@ export function ForkLogo({ size = 40, color = '#F0F0F0' }: ForkLogoProps) {
         strokeLinejoin="bevel"
       />
       <Path
-        d="M7 2v20"
+        d="M9 2v20"
         stroke={color}
         strokeWidth="2"
         strokeLinecap="square"
         strokeLinejoin="bevel"
       />
       <Path
-        d="M17 2v20"
+        d="M15 2v20"
         stroke={color}
         strokeWidth="2"
         strokeLinecap="square"
         strokeLinejoin="bevel"
       />
       <Path
-        d="M12 12v10"
+        d="M12 12v8.5"
         stroke={color}
-        strokeWidth="2"
+        strokeWidth="5"
         strokeLinecap="square"
         strokeLinejoin="bevel"
       />
