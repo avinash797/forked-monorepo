@@ -10,20 +10,18 @@ import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import {
   Alert,
-  Image,
   StyleSheet,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 
 export default function TakePhotoScreen() {
   const router = useRouter();
   const { addPhoto } = useRatingFlow();
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
   const primaryColor = useThemeColor({}, 'primary');
-  const backgroundColor = useThemeColor({}, 'background');
+  const [flashMode, setFlashMode] = useState<'off' | 'on' | 'auto'>('off');
 
   // Request camera permission on mount
   if (!permission) {
@@ -66,7 +64,8 @@ export default function TakePhotoScreen() {
       });
 
       if (photo) {
-        setCapturedImage(photo.uri);
+        addPhoto(photo.uri);
+        router.push('/(protected)/(rating)/venue-search');
       }
     } catch (error: any) {
       Alert.alert('Error', 'Failed to take photo. Please try again.');
@@ -90,24 +89,14 @@ export default function TakePhotoScreen() {
       });
 
       if (!result.canceled && result.assets[0]) {
-        setCapturedImage(result.assets[0].uri);
+        addPhoto(result.assets[0].uri);
+        router.push('/(protected)/(rating)/venue-search');
       }
     } catch (error: any) {
       Alert.alert('Error', 'Failed to open gallery. Please try again.');
       console.error('Gallery error:', error);
     }
   }
-
-  const handleRetake = () => {
-    setCapturedImage(null);
-  };
-
-  const handleContinue = () => {
-    if (capturedImage) {
-      addPhoto(capturedImage);
-      router.push('/(rating)/venue-search');
-    }
-  };
 
   const handleSkip = () => {
     Alert.alert(
@@ -121,70 +110,79 @@ export default function TakePhotoScreen() {
         {
           text: 'Skip',
           style: 'destructive',
-          onPress: () => router.push('/(rating)/venue-search'),
+          onPress: () => router.push('/(protected)/(rating)/venue-search'),
         },
       ]
     );
   };
 
+  const handleToggleFlash = () => {
+    setFlashMode((current: 'off' | 'on' | 'auto') => {
+      if (current === 'off') return 'on';
+      if (current === 'on') return 'auto';
+      return 'off';
+    });
+  };
+
+  const getFlashIconName = () => {
+    switch (flashMode) {
+      case 'on':
+        return 'flash-on';
+      case 'auto':
+        return 'flash-auto';
+      default:
+        return 'flash-off';
+    }
+  };
+
   return (
     <View style={styles.container}>
-      {!capturedImage ? (
-        <>
-          {/* Live Camera View */}
-          <CameraView
-            ref={cameraRef}
-            style={styles.camera}
-            facing="back"
-            ratio="16:9"
-          />
 
-          {/* Camera Controls */}
-          <View style={[styles.controls]}>
-            <TouchableOpacity
-              style={styles.galleryButton}
-              onPress={handlePickFromGallery}
-            >
-              <IconSymbol name="photo-library" size={32} color={primaryColor} />
-              <ThemedText style={styles.galleryText}>Gallery</ThemedText>
-            </TouchableOpacity>
+      <>
 
-            <TouchableOpacity
-              style={[styles.captureButton, { borderColor: primaryColor }]}
-              onPress={handleTakePhoto}
-            >
-              <View style={[styles.captureInner, { backgroundColor: primaryColor }]} />
-            </TouchableOpacity>
+        {/* Live Camera View */}
+        <CameraView
+          ref={cameraRef}
+          style={styles.camera}
+          facing="back"
+          pictureSize='16:9'
+          flash={flashMode}
+        />
+        {/* Camera Top Controls */}
+        <View style={styles.topControls}>
+          <TouchableOpacity
+            style={styles.galleryButton}
+            onPress={handleToggleFlash}
+          >
+            <IconSymbol name={getFlashIconName()} size={32} color={primaryColor} />
+          </TouchableOpacity>
+        </View>
 
-            <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-              <ThemedText style={styles.skipText} lightColor="#666" darkColor="#999">
-                Skip
-              </ThemedText>
-            </TouchableOpacity>
-          </View>
-        </>
-      ) : (
-        <>
-          {/* Image Preview */}
-          <View style={styles.previewContainer}>
-            <Image source={{ uri: capturedImage }} style={styles.previewImage} />
-          </View>
+        {/* Camera Controls */}
+        <View style={[styles.controls]}>
+          <TouchableOpacity
+            style={styles.galleryButton}
+            onPress={handlePickFromGallery}
+          >
+            <IconSymbol name="photo-library" size={32} color={primaryColor} />
+            <ThemedText style={styles.galleryText}>Gallery</ThemedText>
+          </TouchableOpacity>
 
-          {/* Preview Controls */}
-          <View style={[styles.previewControls, { backgroundColor }]}>
-            <ThemedButton
-              variant="secondary"
-              onPress={handleRetake}
-              style={styles.retakeButton}
-            >
-              Retake
-            </ThemedButton>
-            <ThemedButton onPress={handleContinue} style={styles.continueButton}>
-              Continue
-            </ThemedButton>
-          </View>
-        </>
-      )}
+          <TouchableOpacity
+            style={[styles.captureButton, { borderColor: primaryColor }]}
+            onPress={handleTakePhoto}
+          >
+            <View style={[styles.captureInner, { backgroundColor: primaryColor }]} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+            <ThemedText style={styles.skipText} lightColor="#666" darkColor="#999">
+              Skip
+            </ThemedText>
+          </TouchableOpacity>
+        </View>
+      </>
+
     </View>
   );
 }
@@ -215,6 +213,17 @@ const styles = StyleSheet.create({
   camera: {
     flex: 1,
   },
+  topControls: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 64,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+  },
   controls: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -222,6 +231,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     paddingVertical: 32,
     paddingBottom: 48,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   galleryButton: {
     alignItems: 'center',

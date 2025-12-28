@@ -163,7 +163,7 @@ export default function VenueSearchScreen() {
 
   const handleVenueSelect = (venue: Venue) => {
     setVenue(venue);
-    router.push("/(rating)/dish-selection");
+    router.push("/(protected)/(rating)/dish-selection");
   };
 
   const handleMapboxSelect = async (suggestion: any) => {
@@ -191,7 +191,7 @@ export default function VenueSearchScreen() {
 
       if (newVenue) {
         setVenue(newVenue);
-        router.push("/(rating)/dish-selection");
+        router.push("/(protected)/(rating)/dish-selection");
       } else {
         throw new Error("Failed to create venue");
       }
@@ -204,7 +204,7 @@ export default function VenueSearchScreen() {
   };
 
   const handleCreateVenue = () => {
-    router.push("/(rating)/create-venue");
+    router.push("/(protected)/(rating)/create-venue");
   };
 
   const combinedData: SearchResultItem[] = [

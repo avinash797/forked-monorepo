@@ -101,7 +101,7 @@ export default function RatingScreen() {
     );
 
     if (review) {
-      router.push("/(rating)/success");
+      router.push("/(protected)/(rating)/success");
     } else {
       await deletePhoto(uploaded.storagePath);
       Alert.alert("Error", createReviewError?.includes("duplicate key value") ? "You have already submitted a review for this dish" : "Failed to submit review. Please try again.");

@@ -81,7 +81,7 @@ export default function DishSelectionScreen() {
 
   const handleDishSelect = (dish: any) => {
     setDish(dish);
-    router.push("/(rating)/rating");
+    router.push("/(protected)/(rating)/rating");
   };
 
   const onSubmit = async (data: DishFormData) => {
@@ -116,7 +116,7 @@ export default function DishSelectionScreen() {
 
     if (dish) {
       setDish(dish);
-      router.push("/(rating)/rating");
+      router.push("/(protected)/(rating)/rating");
     }
   };
 

@@ -1,11 +1,11 @@
-import { StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
-import { ThemedView } from '@/components/themed-view';
-import { ThemedText } from '@/components/themed-text';
 import { ThemedButton } from '@/components/themed-button';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useRatingFlow } from '@/contexts/rating-flow-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { useRouter } from 'expo-router';
+import { StyleSheet } from 'react-native';
 
 export default function SuccessScreen() {
   const router = useRouter();
@@ -14,12 +14,12 @@ export default function SuccessScreen() {
 
   const handleRateAnother = () => {
     reset();
-    router.replace('/(rating)/venue-search');
+    router.replace('/(protected)/(rating)/venue-search');
   };
 
   const handleGoHome = () => {
     reset();
-    router.replace('/(tabs)');
+    router.replace('/(protected)/(tabs)');
   };
 
   return (
