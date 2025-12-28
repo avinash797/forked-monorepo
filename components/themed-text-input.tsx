@@ -1,11 +1,14 @@
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View, type TextInputProps } from 'react-native';
+import { useState, useMemo } from 'react';
+import { TextInput, TouchableOpacity, View, type TextInputProps } from 'react-native';
+
+import { useTheme } from '@/contexts/theme-provider';
 import { ThemedText } from './themed-text';
 import { IconSymbol } from './ui/icon-symbol';
 
 export type ThemedTextInputProps = TextInputProps & {
+  /** @deprecated Use theme variants instead */
   lightColor?: string;
+  /** @deprecated Use theme variants instead */
   darkColor?: string;
   lightLabelColor?: string;
   darkLabelColor?: string;
@@ -27,88 +30,105 @@ export function ThemedTextInput({
   ...rest
 }: ThemedTextInputProps) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const { theme, colorScheme } = useTheme();
 
-  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'input') as string;
-  const textColor = useThemeColor({}, 'text') as string;
-  const errorColor = useThemeColor({}, 'error') as string;
-  const mutedColor = useThemeColor({}, 'muted') as string;
-  const borderColor = error ? errorColor : 'transparent';
+  // Support legacy color props (deprecated)
+  const customBgColor = useMemo(() => {
+    if (lightColor && colorScheme === 'light') return lightColor;
+    if (darkColor && colorScheme === 'dark') return darkColor;
+    return null;
+  }, [lightColor, darkColor, colorScheme]);
+
+  // Build input styles from theme tokens
+  const inputStyles = useMemo(() => ({
+    backgroundColor: customBgColor || theme.color.inputBg,
+    textColor: theme.color.textPrimary,
+    errorColor: theme.color.danger,
+    placeholderColor: theme.color.placeholder,
+    borderColor: error ? theme.color.danger : theme.color.inputBorder,
+    height: 50,
+    borderRadius: theme.radius.md,
+    paddingHorizontal: theme.space.md,
+    fontSize: theme.font.size.md,
+    marginBottom: theme.space.md,
+    labelFontSize: theme.font.size.sm,
+    labelMarginBottom: theme.space.xs,
+    errorFontSize: theme.font.size.xs,
+    errorMarginTop: theme.space.xxs,
+  }), [theme, error, customBgColor]);
 
   const shouldSecureText = showPasswordToggle ? !isPasswordVisible : secureTextEntry;
 
   return (
-    <View style={styles.container}>
+    <View style={{ marginBottom: inputStyles.marginBottom }}>
       {label && (
-        <ThemedText lightColor={lightLabelColor} darkColor={darkLabelColor} style={styles.label}>{label}</ThemedText>
+        <ThemedText
+          lightColor={lightLabelColor}
+          darkColor={darkLabelColor}
+          style={{
+            fontSize: inputStyles.labelFontSize,
+            fontWeight: theme.font.weight.semibold as any,
+            marginBottom: inputStyles.labelMarginBottom,
+          }}
+        >
+          {label}
+        </ThemedText>
       )}
-      <View style={styles.inputContainer}>
+      <View style={{ position: 'relative' }}>
         <TextInput
           style={[
-            styles.input,
-            { backgroundColor, color: textColor, borderColor },
-            showPasswordToggle && styles.inputWithToggle,
+            {
+              height: inputStyles.height,
+              borderRadius: inputStyles.borderRadius,
+              paddingHorizontal: inputStyles.paddingHorizontal,
+              fontSize: inputStyles.fontSize,
+              borderWidth: theme.border.hairline,
+              backgroundColor: inputStyles.backgroundColor,
+              color: inputStyles.textColor,
+              borderColor: inputStyles.borderColor,
+            },
+            showPasswordToggle && { paddingRight: 50 },
             style,
           ]}
-          placeholderTextColor={mutedColor}
+          placeholderTextColor={inputStyles.placeholderColor}
           secureTextEntry={shouldSecureText}
           {...rest}
         />
         {showPasswordToggle && (
           <TouchableOpacity
-            style={styles.toggleButton}
+            style={{
+              position: 'absolute',
+              right: 0,
+              top: 0,
+              height: inputStyles.height,
+              width: 50,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
             onPress={() => setIsPasswordVisible(!isPasswordVisible)}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <IconSymbol
               name={isPasswordVisible ? 'visibility-off' : 'visibility'}
               size={20}
-              color={mutedColor}
+              color={inputStyles.placeholderColor}
             />
           </TouchableOpacity>
         )}
       </View>
       {error && (
-        <ThemedText lightColor={lightLabelColor} darkColor={darkLabelColor} style={[styles.error, { color: errorColor }]}>
+        <ThemedText
+          lightColor={lightLabelColor}
+          darkColor={darkLabelColor}
+          style={{
+            color: inputStyles.errorColor,
+            fontSize: inputStyles.errorFontSize,
+            marginTop: inputStyles.errorMarginTop,
+          }}
+        >
           {error}
         </ThemedText>
       )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  inputContainer: {
-    position: 'relative',
-  },
-  input: {
-    height: 50,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    borderWidth: 1,
-  },
-  inputWithToggle: {
-    paddingRight: 50,
-  },
-  toggleButton: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    height: 50,
-    width: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  error: {
-    fontSize: 12,
-    marginTop: 4,
-  },
-});

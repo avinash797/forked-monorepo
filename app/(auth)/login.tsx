@@ -2,9 +2,8 @@ import ForkedBrandingHeader from "@/components/forked-branding-header";
 import { ThemedButton } from "@/components/themed-button";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedTextInput } from "@/components/themed-text-input";
-import { Colors } from "@/constants/theme";
+import { useTheme } from "@/contexts/theme-provider";
 import { useAuth } from "@/hooks/use-auth";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { validateEmail, validatePassword } from "@/lib/validators";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
@@ -21,6 +20,7 @@ import {
 
 export default function LoginScreen() {
   const { login } = useAuth();
+  const { theme } = useTheme();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -52,11 +52,6 @@ export default function LoginScreen() {
       setIsLoading(false);
     }
   };
-
-  const backgroundColor = useThemeColor(
-    { light: Colors.dark.background },
-    "background"
-  ) as string;
 
   return (
     <ImageBackground
@@ -92,7 +87,7 @@ export default function LoginScreen() {
                   "rgba(0,0,0,0.5)",
                   "rgba(0,0,0,0.6)",
                   "rgba(0,0,0,0.8)",
-                  backgroundColor,
+                  theme.color.bg,
                 ]}
                 style={styles.form}
               >

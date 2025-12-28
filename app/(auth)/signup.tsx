@@ -2,9 +2,8 @@ import ForkedBrandingHeader from "@/components/forked-branding-header";
 import { ThemedButton } from "@/components/themed-button";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedTextInput } from "@/components/themed-text-input";
-import { Colors } from "@/constants/theme";
+import { useTheme } from "@/contexts/theme-provider";
 import { useAuth } from "@/hooks/use-auth";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import {
   validateDisplayName,
   validateEmail,
@@ -26,6 +25,7 @@ import {
 export default function SignupScreen() {
   const router = useRouter();
   const { signup } = useAuth();
+  const { theme } = useTheme();
 
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
@@ -71,11 +71,6 @@ export default function SignupScreen() {
     }
   };
 
-  const backgroundColor = useThemeColor(
-    { light: Colors.dark.background },
-    "background"
-  ) as string;
-
   return (
     <ImageBackground
       source={require("@/assets/images/auth/auth-bg.jpg")}
@@ -111,7 +106,7 @@ export default function SignupScreen() {
                   "rgba(0,0,0,0.5)",
                   "rgba(0,0,0,0.6)",
                   "rgba(0,0,0,0.8)",
-                  backgroundColor,
+                  theme.color.bg,
                 ]}
                 style={styles.form}
               >

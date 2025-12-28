@@ -1,11 +1,14 @@
 import ForkedBrandingHeader from "@/components/forked-branding-header";
 import { ThemedButton } from "@/components/themed-button";
 import { ThemedText } from "@/components/themed-text";
+import { useTheme } from "@/contexts/theme-provider";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
 import { ImageBackground, StyleSheet, View } from "react-native";
 
 export default function OnboardingScreen() {
+  const { theme } = useTheme();
+
   return (
     <ImageBackground
       source={require("@/assets/images/auth/auth-bg.jpg")}
@@ -37,7 +40,13 @@ export default function OnboardingScreen() {
           {/* Buttons Section */}
           <View style={styles.buttonContainer}>
             <Link href="/(auth)/login" asChild>
-              <ThemedButton style={styles.signInButton}>Sign in</ThemedButton>
+              <ThemedButton
+                style={[
+                  styles.signInButton,
+                ]}
+              >
+                Sign in
+              </ThemedButton>
             </Link>
             <Link href="/(auth)/signup" asChild>
               <ThemedButton variant="secondary" style={styles.signUpButton}>
@@ -113,7 +122,7 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   signInButton: {
-    backgroundColor: "#ee6c2b",
+    // backgroundColor applied via theme in component
   },
   signUpButton: {
     backgroundColor: "rgba(255, 255, 255, 0.2)",
