@@ -17,7 +17,7 @@ import { Alert, ScrollView, StyleSheet, View } from "react-native";
 export default function RatingScreen() {
   const router = useRouter();
   const { user } = useAuth();
-  const { state, setStarRating, setReviewText, addPhoto, removePhoto } =
+  const { state, setRating, setReviewText, addPhoto, removePhoto } =
     useRatingFlow();
   const { createReview, isLoading: isSubmitting, error: createReviewError } = useCreateReview();
   const {
@@ -63,7 +63,7 @@ export default function RatingScreen() {
   };
 
   const handleSubmit = async () => {
-    if (state.starRating === 0) {
+    if (state.rating === 0) {
       Alert.alert("Rating Required", "Please select a star rating (1-5)");
       return;
     }
@@ -92,7 +92,7 @@ export default function RatingScreen() {
       {
         dish_id: state.selectedDish!.id,
         venue_id: state.selectedVenue!.id,
-        star_rating: state.starRating,
+        rating: state.rating,
         review_text: state.reviewText.trim() || null,
         location_latitude: location?.latitude ?? null,
         location_longitude: location?.longitude ?? null,
@@ -110,7 +110,7 @@ export default function RatingScreen() {
   };
 
   const canSubmit =
-    state.starRating > 0 &&
+    state.rating > 0 &&
     state.photoUri !== null &&
     !isSubmitting &&
     !isUploading;
@@ -137,8 +137,8 @@ export default function RatingScreen() {
           </ThemedText>
           <View style={styles.ratingContainer}>
             <RatingInput
-              value={state.starRating}
-              onChange={setStarRating}
+              value={state.rating}
+              onChange={setRating}
             />
           </View>
         </ThemedView>

@@ -1,10 +1,10 @@
+import type { Dish, Venue } from '@/types/rating';
 import React, { createContext, useContext, useState } from 'react';
-import type { Venue, Dish } from '@/types/rating';
 
 interface RatingFlowState {
   selectedVenue: Venue | null;
   selectedDish: Dish | null;
-  starRating: number;
+  rating: number;
   reviewText: string;
   photoUri: string | null;
 }
@@ -13,7 +13,7 @@ interface RatingFlowContextType {
   state: RatingFlowState;
   setVenue: (venue: Venue) => void;
   setDish: (dish: Dish) => void;
-  setStarRating: (rating: number) => void;
+  setRating: (rating: number) => void;
   setReviewText: (text: string) => void;
   addPhoto: (uri: string) => void;
   removePhoto: () => void;
@@ -27,7 +27,7 @@ const RatingFlowContext = createContext<RatingFlowContextType | undefined>(
 const initialState: RatingFlowState = {
   selectedVenue: null,
   selectedDish: null,
-  starRating: 0,
+  rating: 0,
   reviewText: '',
   photoUri: null,
 };
@@ -43,8 +43,8 @@ export function RatingFlowProvider({ children }: { children: React.ReactNode }) 
     setState((prev) => ({ ...prev, selectedDish: dish }));
   };
 
-  const setStarRating = (rating: number) => {
-    setState((prev) => ({ ...prev, starRating: rating }));
+  const setRating = (rating: number) => {
+    setState((prev) => ({ ...prev, rating: rating }));
   };
 
   const setReviewText = (text: string) => {
@@ -73,7 +73,7 @@ export function RatingFlowProvider({ children }: { children: React.ReactNode }) 
     state,
     setVenue,
     setDish,
-    setStarRating,
+    setRating,
     setReviewText,
     addPhoto,
     removePhoto,
