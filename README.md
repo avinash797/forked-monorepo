@@ -74,10 +74,10 @@ Forked solves the problem of venue-based ratings where a restaurant's overall vi
 
 ## 📊 Project Status
 
-**Current Progress: 30% Complete**
+**Current Progress: 37% Complete**
 
 - ✅ **Foundation (100%)**: Authentication, database schema, UI components, app architecture
-- 🚧 **MVP (0%)**: Core rating flow, discovery, photos, reviews - *IN PLANNING*
+- 🚧 **MVP (35%)**: Core rating flow ✅, photo system ✅, GPS verification ✅ - *Discovery & browsing in progress*
 - ⏳ **V1.0 (0%)**: Gamification, advanced search, verification, testing
 - 🌟 **V2.0 (0%)**: Social features, partnerships, smart recommendations
 
@@ -111,9 +111,25 @@ See [docs/ROADMAP.md](./docs/ROADMAP.md) for the full feature roadmap.
 forked/
 ├── app/                      # Expo Router pages
 │   ├── (auth)/              # Auth screens (login, signup, etc.)
-│   ├── (tabs)/              # Main app tabs (home, settings, etc.)
+│   ├── (protected)/         # Protected routes (require authentication)
+│   │   ├── (tabs)/          # Main app tabs (home, settings, etc.)
+│   │   └── (rating)/        # Rating flow screens ✅
+│   │       ├── index.tsx    # Take photo screen
+│   │       ├── venue-search.tsx  # Find venue screen
+│   │       ├── create-venue.tsx  # Add new venue modal
+│   │       ├── dish-selection.tsx # Select dish screen
+│   │       ├── rating.tsx   # Rate dish screen
+│   │       └── success.tsx  # Success confirmation
 │   └── _layout.tsx          # Root layout with auth routing
 ├── components/              # Reusable UI components
+│   ├── rating/              # Rating flow components ✅
+│   │   ├── photo-picker.tsx
+│   │   ├── rating-input.tsx
+│   │   ├── dish-card.tsx
+│   │   ├── venue-card.tsx
+│   │   ├── search-input.tsx
+│   │   └── location-status-banner.tsx
+│   └── ...                  # Other UI components
 ├── contexts/                # React contexts (auth, etc.)
 ├── hooks/                   # Custom React hooks
 ├── lib/                     # Utility libraries (Supabase, validators)
@@ -177,9 +193,9 @@ See [.github/GITHUB_SETUP.md](./.github/GITHUB_SETUP.md) for GitHub configuratio
 
 **Immediate priorities (MVP Phase):**
 
-1. **Core Rating Flow** - Rate a dish screen with venue/dish selection, star rating, photo upload
-2. **Discovery & Browsing** - Home feed, dish/venue detail pages, search
-3. **Photo System** - Camera integration, Supabase Storage, gallery display
+1. ~~**Core Rating Flow**~~ ✅ **COMPLETE** - Rate a dish screen with venue/dish selection, star rating, photo upload
+2. **Discovery & Browsing** - Home feed, dish/venue detail pages, search - *IN PROGRESS*
+3. ~~**Photo System**~~ ✅ **COMPLETE** - Camera integration, Supabase Storage, gallery display
 4. **Review Display** - Review lists, helpful votes, sorting
 5. **Data Layer** - Supabase queries, React Query setup, state management
 
