@@ -19,7 +19,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "softwareKeyboardLayoutMode": "pan"
     },
     "web": {
       "output": "static",
@@ -38,11 +39,39 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Forked to use your location to verify you're at the restaurant."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Forked to access your camera to take photos of dishes.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Forked to access your photos to upload dish images.",
+          "cameraPermission": "Allow Forked to access your camera to take photos of dishes."
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "49ad787b-e696-44f7-8f59-476e0297aefa"
+      }
+    },
+    "owner": "avinashj1"
   }
 }
