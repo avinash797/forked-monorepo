@@ -1,6 +1,6 @@
-import { StyleSheet } from 'react-native';
-import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { StyleSheet } from 'react-native';
 
 export default function HomeScreen() {
   return (
@@ -8,7 +8,7 @@ export default function HomeScreen() {
       <ThemedText type="title" style={styles.title}>
         Welcome to Forked
       </ThemedText>
-      <ThemedText style={styles.subtitle} lightColor="#666" darkColor="#999">
+      <ThemedText style={styles.subtitle}>
         Rate dishes, discover food, share experiences
       </ThemedText>
     </ThemedView>

@@ -80,24 +80,6 @@ const styles = StyleSheet.create({
     paddingBottom: 36,
     alignItems: "center",
   },
-  illustrationContainer: {
-    marginBottom: 40,
-    alignItems: "center",
-    position: "relative",
-  },
-  illustration: {
-    fontSize: 100,
-    textAlign: "center",
-  },
-  codeSymbol: {
-    fontSize: 40,
-    color: "#ee6c2b",
-    fontWeight: "700",
-    position: "absolute",
-    bottom: -10,
-    right: "30%",
-    opacity: 0.9,
-  },
   textContainer: {
     alignItems: "center",
   },
