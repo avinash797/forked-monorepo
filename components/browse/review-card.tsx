@@ -1,9 +1,10 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { PhotoGallery } from './photo-gallery';
+import { useTheme } from '@/contexts/theme-provider';
 import type { ReviewWithUserProfile } from '@/types/browse';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Image } from 'expo-image';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { PhotoGallery } from './photo-gallery';
 
 interface ReviewCardProps {
   review: ReviewWithUserProfile;
@@ -21,6 +22,8 @@ export function ReviewCard({
   onUserPress,
   onPhotoPress,
 }: ReviewCardProps) {
+  const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
 
   // Format date
   const reviewDate = new Date(review.created_at);
@@ -112,99 +115,100 @@ export function ReviewCard({
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    padding: 16,
-    marginBottom: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  userInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
-  },
-  avatarPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#007AFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  avatarText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  userTextContainer: {
-    flex: 1,
-  },
-  displayName: {
-    fontSize: 15,
-    marginBottom: 2,
-  },
-  username: {
-    fontSize: 13,
-    opacity: 0.6,
-  },
-  ratingBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: '#007AFF',
-  },
-  ratingText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  reviewText: {
-    fontSize: 15,
-    lineHeight: 22,
-    marginBottom: 12,
-  },
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-    gap: 12,
-  },
-  date: {
-    fontSize: 13,
-    opacity: 0.5,
-  },
-  helpfulContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  helpfulText: {
-    fontSize: 13,
-    opacity: 0.7,
-  },
-  verifiedBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 4,
-    backgroundColor: 'rgba(52, 199, 89, 0.1)',
-  },
-  verifiedText: {
-    fontSize: 11,
-    color: '#34C759',
-    fontWeight: '600',
-  },
-});
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    card: {
+      padding: theme.space.md,
+      marginBottom: theme.space.sm,
+      borderRadius: theme.radius.md,
+      borderWidth: theme.border.hairline,
+      borderColor: theme.color.border,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: theme.space.sm,
+    },
+    userInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    avatar: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      marginRight: theme.space.sm,
+    },
+    avatarPlaceholder: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: theme.color.info,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: theme.space.sm,
+    },
+    avatarText: {
+      fontSize: theme.font.size.lg,
+      fontWeight: theme.font.weight.semibold,
+      color: '#FFFFFF',
+    },
+    userTextContainer: {
+      flex: 1,
+    },
+    displayName: {
+      fontSize: theme.font.size.md,
+      marginBottom: theme.space.xxs,
+    },
+    username: {
+      fontSize: theme.font.size.sm,
+      opacity: theme.opacity.pressed - 0.1,
+    },
+    ratingBadge: {
+      paddingHorizontal: theme.space.xs + 2,
+      paddingVertical: theme.space.xxs + 2,
+      borderRadius: theme.radius.sm,
+      backgroundColor: theme.color.info,
+    },
+    ratingText: {
+      fontSize: theme.font.size.md,
+      fontWeight: theme.font.weight.bold,
+      color: '#FFFFFF',
+    },
+    reviewText: {
+      fontSize: theme.font.size.md,
+      lineHeight: theme.font.line.lg,
+      marginBottom: theme.space.sm,
+    },
+    footer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: theme.space.xs,
+      gap: theme.space.sm,
+    },
+    date: {
+      fontSize: theme.font.size.sm,
+      opacity: theme.opacity.disabled,
+    },
+    helpfulContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    helpfulText: {
+      fontSize: theme.font.size.sm,
+      opacity: theme.opacity.pressed - 0.0,
+    },
+    verifiedBadge: {
+      paddingHorizontal: theme.space.xs,
+      paddingVertical: theme.space.xxs - 1,
+      borderRadius: theme.radius.xs,
+      backgroundColor: theme.color.success + '1A',
+    },
+    verifiedText: {
+      fontSize: theme.font.size.xs,
+      color: theme.color.success,
+      fontWeight: theme.font.weight.semibold,
+    },
+  });

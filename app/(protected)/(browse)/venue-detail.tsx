@@ -14,10 +14,13 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '@/contexts/theme-provider';
 
 export default function VenueDetailScreen() {
   const router = useRouter();
   const { venueId } = useLocalSearchParams<{ venueId: string }>();
+  const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
 
   const { venue, dishes, reviewPhotos, isLoading, error } = useVenueDetail(venueId);
   const { location } = useLocation();
@@ -197,98 +200,99 @@ export default function VenueDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    marginTop: 16,
-    opacity: 0.6,
-  },
-  headerSection: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  venueName: {
-    fontSize: 28,
-    marginBottom: 12,
-  },
-  cuisinesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 12,
-  },
-  cuisineTag: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-    backgroundColor: 'rgba(52, 199, 89, 0.1)',
-  },
-  cuisineText: {
-    fontSize: 13,
-    color: '#34C759',
-    fontWeight: '500',
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  priceRange: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#34C759',
-  },
-  distance: {
-    fontSize: 16,
-    opacity: 0.7,
-  },
-  separator: {
-    fontSize: 16,
-    opacity: 0.4,
-    marginHorizontal: 8,
-  },
-  addressContainer: {
-    marginTop: 4,
-  },
-  address: {
-    fontSize: 15,
-    lineHeight: 22,
-    opacity: 0.7,
-  },
-  dishesSection: {
-    paddingTop: 8,
-  },
-  emptyDishes: {
-    paddingHorizontal: 16,
-    paddingVertical: 32,
-  },
-  dishesList: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
-  },
-  carouselContainer: {
-    marginBottom: 24,
-    marginHorizontal: -16,
-  },
-  carouselContent: {
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  carouselImage: {
-    width: 300,
-    height: 200,
-    borderRadius: 4,
-    backgroundColor: '#f5f5f5',
-  },
-});
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    safeArea: {
+      flex: 1,
+    },
+    container: {
+      flex: 1,
+    },
+    loadingContainer: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    loadingText: {
+      marginTop: theme.space.md,
+      opacity: theme.opacity.pressed - 0.1,
+    },
+    headerSection: {
+      padding: theme.space.md,
+      borderBottomWidth: theme.border.hairline,
+      borderBottomColor: theme.color.border,
+    },
+    venueName: {
+      fontSize: theme.font.size.xxl + 4,
+      marginBottom: theme.space.sm,
+    },
+    cuisinesContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: theme.space.xs,
+      marginBottom: theme.space.sm,
+    },
+    cuisineTag: {
+      paddingHorizontal: theme.space.sm,
+      paddingVertical: theme.space.xxs + 2,
+      borderRadius: theme.radius.sm - 2,
+      backgroundColor: theme.color.success + '1A',
+    },
+    cuisineText: {
+      fontSize: theme.font.size.sm,
+      color: theme.color.success,
+      fontWeight: theme.font.weight.medium,
+    },
+    metaRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: theme.space.sm,
+    },
+    priceRange: {
+      fontSize: theme.font.size.lg,
+      fontWeight: theme.font.weight.semibold,
+      color: theme.color.success,
+    },
+    distance: {
+      fontSize: theme.font.size.md,
+      opacity: theme.opacity.pressed - 0.1,
+    },
+    separator: {
+      fontSize: theme.font.size.md,
+      opacity: theme.opacity.disabled - 0.05,
+      marginHorizontal: theme.space.xs,
+    },
+    addressContainer: {
+      marginTop: theme.space.xxs,
+    },
+    address: {
+      fontSize: theme.font.size.md,
+      lineHeight: theme.font.line.relaxed,
+      opacity: theme.opacity.pressed - 0.1,
+    },
+    dishesSection: {
+      paddingTop: theme.space.xs,
+    },
+    emptyDishes: {
+      paddingHorizontal: theme.space.md,
+      paddingVertical: theme.space.xxl,
+    },
+    dishesList: {
+      paddingHorizontal: theme.space.md,
+      paddingBottom: theme.space.lg + theme.space.xs,
+    },
+    carouselContainer: {
+      marginBottom: theme.space.lg + theme.space.xs,
+      marginHorizontal: -theme.space.md,
+    },
+    carouselContent: {
+      paddingHorizontal: theme.space.md,
+      gap: theme.space.sm,
+    },
+    carouselImage: {
+      width: 300,
+      height: 200,
+      borderRadius: theme.radius.xs,
+      backgroundColor: theme.color.border + '66',
+    },
+  });

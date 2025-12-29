@@ -16,10 +16,13 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '@/contexts/theme-provider';
 
 export default function SearchScreen() {
   const router = useRouter();
   const [query, setQuery] = useState('');
+  const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
 
   const { results, isLoading, error } = useSearch(query);
 
@@ -88,7 +91,7 @@ export default function SearchScreen() {
             style={styles.backButton}
             activeOpacity={0.7}
           >
-            <IconSymbol name="arrow-back" size={24} color="#007AFF" />
+            <IconSymbol name="arrow-back" size={24} color={theme.color.info} />
           </TouchableOpacity>
 
           <View style={styles.searchInputContainer}>
@@ -176,53 +179,54 @@ export default function SearchScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  backButton: {
-    marginRight: 12,
-    padding: 4,
-  },
-  searchInputContainer: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  resultsContainer: {
-    paddingTop: 8,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionContent: {
-    paddingHorizontal: 16,
-  },
-  emptyContainer: {
-    flex: 1,
-    paddingTop: 120,
-    paddingHorizontal: 16,
-  },
-  hintContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 32,
-    alignItems: 'center',
-  },
-  hintText: {
-    fontSize: 14,
-    opacity: 0.6,
-    textAlign: 'center',
-  },
-});
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    safeArea: {
+      flex: 1,
+    },
+    container: {
+      flex: 1,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: theme.space.md,
+      paddingVertical: theme.space.sm,
+      borderBottomWidth: theme.border.hairline,
+      borderBottomColor: theme.color.border,
+    },
+    backButton: {
+      marginRight: theme.space.sm,
+      padding: theme.space.xxs,
+    },
+    searchInputContainer: {
+      flex: 1,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    resultsContainer: {
+      paddingTop: theme.space.xs,
+    },
+    section: {
+      marginBottom: theme.space.lg + theme.space.xs,
+    },
+    sectionContent: {
+      paddingHorizontal: theme.space.md,
+    },
+    emptyContainer: {
+      flex: 1,
+      paddingTop: 120,
+      paddingHorizontal: theme.space.md,
+    },
+    hintContainer: {
+      paddingHorizontal: theme.space.md,
+      paddingTop: theme.space.xxl,
+      alignItems: 'center',
+    },
+    hintText: {
+      fontSize: theme.font.size.sm,
+      opacity: theme.opacity.pressed - 0.1,
+      textAlign: 'center',
+    },
+  });

@@ -2,6 +2,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import type { DishWithVenue } from '@/types/browse';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '@/contexts/theme-provider';
 
 interface DishCardWithRatingProps {
   dish: DishWithVenue;
@@ -20,6 +21,8 @@ export function DishCardWithRating({
   onPress,
   showVenue = false,
 }: DishCardWithRatingProps) {
+  const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
 
   return (
     <TouchableOpacity
@@ -78,76 +81,77 @@ export function DishCardWithRating({
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    marginBottom: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    overflow: 'hidden',
-  },
-  cardContent: {
-    padding: 16,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 6,
-  },
-  name: {
-    flex: 1,
-    fontSize: 16,
-    marginRight: 8,
-  },
-  price: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  category: {
-    fontSize: 13,
-    opacity: 0.7,
-    marginBottom: 8,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  rating: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#007AFF',
-  },
-  separator: {
-    fontSize: 14,
-    opacity: 0.4,
-    marginHorizontal: 6,
-  },
-  reviewCount: {
-    fontSize: 14,
-    opacity: 0.6,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-  tag: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    backgroundColor: 'rgba(0, 122, 255, 0.1)',
-  },
-  tagText: {
-    fontSize: 11,
-    color: '#007AFF',
-    fontWeight: '500',
-  },
-  venueName: {
-    fontSize: 13,
-    opacity: 0.7,
-    marginTop: 8,
-    fontStyle: 'italic',
-  },
-});
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    card: {
+      marginBottom: theme.space.sm,
+      borderRadius: theme.radius.md,
+      borderWidth: theme.border.hairline,
+      borderColor: theme.color.border,
+      overflow: 'hidden',
+    },
+    cardContent: {
+      padding: theme.space.md,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: theme.space.xxs + 2,
+    },
+    name: {
+      flex: 1,
+      fontSize: theme.font.size.md,
+      marginRight: theme.space.xs,
+    },
+    price: {
+      fontSize: theme.font.size.md,
+      fontWeight: theme.font.weight.semibold,
+    },
+    category: {
+      fontSize: theme.font.size.xs + 1,
+      opacity: theme.opacity.pressed - 0.1,
+      marginBottom: theme.space.xs,
+    },
+    ratingContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: theme.space.xs,
+    },
+    rating: {
+      fontSize: theme.font.size.md,
+      fontWeight: theme.font.weight.bold,
+      color: theme.color.info,
+    },
+    separator: {
+      fontSize: theme.font.size.sm,
+      opacity: theme.opacity.disabled - 0.05,
+      marginHorizontal: theme.space.xxs + 2,
+    },
+    reviewCount: {
+      fontSize: theme.font.size.sm,
+      opacity: theme.opacity.pressed - 0.2,
+    },
+    tagsContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: theme.space.xxs + 2,
+    },
+    tag: {
+      paddingHorizontal: theme.space.xs,
+      paddingVertical: theme.space.xxs,
+      borderRadius: theme.radius.xs - 2,
+      backgroundColor: theme.color.info + '1A',
+    },
+    tagText: {
+      fontSize: theme.font.size.xs - 1,
+      color: theme.color.info,
+      fontWeight: theme.font.weight.medium,
+    },
+    venueName: {
+      fontSize: theme.font.size.xs + 1,
+      opacity: theme.opacity.pressed - 0.1,
+      marginTop: theme.space.xs,
+      fontStyle: 'italic',
+    },
+  });

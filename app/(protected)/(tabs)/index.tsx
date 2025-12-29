@@ -14,10 +14,13 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '@/contexts/theme-provider';
 
 export default function HomeScreen() {
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
+  const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
 
   // Fetch top dishes with pagination
   const { dishes, isLoading, error, hasMore, loadMore, refetch } = useTopDishes({
@@ -153,66 +156,67 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-  },
-  searchContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
-  },
-  listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
-  },
-  footer: {
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  // Loading skeleton styles
-  skeletonContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
-  },
-  skeletonCard: {
-    padding: 16,
-    marginBottom: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  skeletonHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  skeletonTitle: {
-    width: '60%',
-    height: 16,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 4,
-  },
-  skeletonPrice: {
-    width: '20%',
-    height: 16,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 4,
-  },
-  skeletonCategory: {
-    width: '40%',
-    height: 12,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 4,
-    marginBottom: 8,
-  },
-  skeletonRating: {
-    width: '50%',
-    height: 14,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 4,
-  },
-});
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    safeArea: {
+      flex: 1,
+    },
+    container: {
+      flex: 1,
+    },
+    searchContainer: {
+      paddingHorizontal: theme.space.md,
+      paddingTop: theme.space.md,
+      paddingBottom: theme.space.xs,
+    },
+    listContent: {
+      paddingHorizontal: theme.space.md,
+      paddingBottom: theme.space.lg + theme.space.xs,
+    },
+    footer: {
+      paddingVertical: theme.space.md,
+      alignItems: 'center',
+    },
+    // Loading skeleton styles
+    skeletonContainer: {
+      paddingHorizontal: theme.space.md,
+      paddingTop: theme.space.xs,
+    },
+    skeletonCard: {
+      padding: theme.space.md,
+      marginBottom: theme.space.sm,
+      borderRadius: theme.radius.md,
+      borderWidth: theme.border.hairline,
+      borderColor: theme.color.border,
+    },
+    skeletonHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: theme.space.xs,
+    },
+    skeletonTitle: {
+      width: '60%',
+      height: 16,
+      backgroundColor: theme.color.border,
+      borderRadius: theme.radius.xs,
+    },
+    skeletonPrice: {
+      width: '20%',
+      height: 16,
+      backgroundColor: theme.color.border,
+      borderRadius: theme.radius.xs,
+    },
+    skeletonCategory: {
+      width: '40%',
+      height: 12,
+      backgroundColor: theme.color.border,
+      borderRadius: theme.radius.xs,
+      marginBottom: theme.space.xs,
+    },
+    skeletonRating: {
+      width: '50%',
+      height: 14,
+      backgroundColor: theme.color.border,
+      borderRadius: theme.radius.xs,
+    },
+  });

@@ -1,6 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { StyleSheet, TouchableOpacity } from 'react-native';
+import { useTheme } from '@/contexts/theme-provider';
 
 interface SectionHeaderProps {
   title: string;
@@ -19,6 +20,9 @@ export function SectionHeader({
   onSeeAllPress,
   seeAllLabel = 'See All',
 }: SectionHeaderProps) {
+  const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
+
   return (
     <ThemedView style={styles.container}>
       <ThemedView style={styles.textContainer}>
@@ -45,30 +49,31 @@ export function SectionHeader({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 8,
-  },
-  textContainer: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 20,
-    marginBottom: 2,
-  },
-  subtitle: {
-    fontSize: 13,
-    opacity: 0.6,
-  },
-  seeAllButton: {
-    paddingLeft: 12,
-  },
-  seeAllText: {
-    fontSize: 14,
-  },
-});
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: theme.space.md,
+      paddingVertical: theme.space.sm,
+      marginBottom: theme.space.xs,
+    },
+    textContainer: {
+      flex: 1,
+    },
+    title: {
+      fontSize: theme.font.size.lg,
+      marginBottom: theme.space.xxs,
+    },
+    subtitle: {
+      fontSize: theme.font.size.sm,
+      opacity: theme.opacity.pressed - 0.1,
+    },
+    seeAllButton: {
+      paddingLeft: theme.space.sm,
+    },
+    seeAllText: {
+      fontSize: theme.font.size.sm,
+    },
+  });

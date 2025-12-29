@@ -1,6 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Image } from 'expo-image';
+import { useTheme } from '@/contexts/theme-provider';
 
 interface PhotoGalleryProps {
   photos: string[];
@@ -18,6 +19,9 @@ export function PhotoGallery({
   onPhotoPress,
   maxVisible = 6,
 }: PhotoGalleryProps) {
+  const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
+
   if (!photos || photos.length === 0) {
     return null;
   }
@@ -64,35 +68,36 @@ export function PhotoGallery({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    marginVertical: 8,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  photoContainer: {
-    width: '31%', // 3 columns with gap
-    aspectRatio: 1,
-    borderRadius: 8,
-    overflow: 'hidden',
-    backgroundColor: '#f0f0f0',
-  },
-  photo: {
-    width: '100%',
-    height: '100%',
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  overlayText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    container: {
+      marginVertical: theme.space.xs,
+    },
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: theme.space.xs,
+    },
+    photoContainer: {
+      width: '31%', // 3 columns with gap
+      aspectRatio: 1,
+      borderRadius: theme.radius.sm,
+      overflow: 'hidden',
+      backgroundColor: theme.color.border + '40',
+    },
+    photo: {
+      width: '100%',
+      height: '100%',
+    },
+    overlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    overlayText: {
+      color: '#FFFFFF',
+      fontSize: theme.font.size.md,
+      fontWeight: theme.font.weight.semibold,
+    },
+  });

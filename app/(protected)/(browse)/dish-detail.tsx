@@ -15,10 +15,13 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '@/contexts/theme-provider';
 
 export default function DishDetailScreen() {
   const router = useRouter();
   const { dishId } = useLocalSearchParams<{ dishId: string }>();
+  const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
 
   const { dish, reviews, isLoading, error } = useDishDetail(dishId);
 
@@ -177,100 +180,101 @@ export default function DishDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    marginTop: 16,
-    opacity: 0.6,
-  },
-  photoSection: {
-    padding: 16,
-  },
-  infoSection: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
-  },
-  dishName: {
-    fontSize: 28,
-    marginBottom: 8,
-  },
-  venueName: {
-    fontSize: 16,
-    marginBottom: 12,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  price: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  category: {
-    fontSize: 16,
-    opacity: 0.7,
-  },
-  separator: {
-    fontSize: 16,
-    opacity: 0.4,
-    marginHorizontal: 8,
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  rating: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#007AFF',
-  },
-  reviewCount: {
-    fontSize: 16,
-    opacity: 0.6,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 16,
-  },
-  tag: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-    backgroundColor: 'rgba(0, 122, 255, 0.1)',
-  },
-  tagText: {
-    fontSize: 13,
-    color: '#007AFF',
-    fontWeight: '500',
-  },
-  description: {
-    fontSize: 15,
-    lineHeight: 22,
-    opacity: 0.8,
-  },
-  reviewsSection: {
-    paddingTop: 8,
-  },
-  emptyReviews: {
-    paddingHorizontal: 16,
-    paddingVertical: 32,
-  },
-  rateButtonContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 32,
-  },
-});
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    safeArea: {
+      flex: 1,
+    },
+    container: {
+      flex: 1,
+    },
+    loadingContainer: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    loadingText: {
+      marginTop: theme.space.md,
+      opacity: theme.opacity.pressed - 0.1,
+    },
+    photoSection: {
+      padding: theme.space.md,
+    },
+    infoSection: {
+      paddingHorizontal: theme.space.md,
+      paddingBottom: theme.space.lg + theme.space.xs,
+    },
+    dishName: {
+      fontSize: theme.font.size.xxl + 4,
+      marginBottom: theme.space.xs,
+    },
+    venueName: {
+      fontSize: theme.font.size.md,
+      marginBottom: theme.space.sm,
+    },
+    metaRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: theme.space.sm,
+    },
+    price: {
+      fontSize: theme.font.size.lg,
+      fontWeight: theme.font.weight.semibold,
+    },
+    category: {
+      fontSize: theme.font.size.md,
+      opacity: theme.opacity.pressed - 0.1,
+    },
+    separator: {
+      fontSize: theme.font.size.md,
+      opacity: theme.opacity.disabled - 0.05,
+      marginHorizontal: theme.space.xs,
+    },
+    ratingRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: theme.space.sm,
+    },
+    rating: {
+      fontSize: theme.font.size.lg,
+      fontWeight: theme.font.weight.bold,
+      color: theme.color.info,
+    },
+    reviewCount: {
+      fontSize: theme.font.size.md,
+      opacity: theme.opacity.pressed - 0.1,
+    },
+    tagsContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: theme.space.xs,
+      marginBottom: theme.space.md,
+    },
+    tag: {
+      paddingHorizontal: theme.space.sm,
+      paddingVertical: theme.space.xxs + 2,
+      borderRadius: theme.radius.sm - 2,
+      backgroundColor: theme.color.info + '1A',
+    },
+    tagText: {
+      fontSize: theme.font.size.sm,
+      color: theme.color.info,
+      fontWeight: theme.font.weight.medium,
+    },
+    description: {
+      fontSize: theme.font.size.md,
+      lineHeight: theme.font.line.relaxed,
+      opacity: theme.opacity.pressed - 0.0,
+    },
+    reviewsSection: {
+      paddingTop: theme.space.xs,
+    },
+    emptyReviews: {
+      paddingHorizontal: theme.space.md,
+      paddingVertical: theme.space.xxl,
+    },
+    rateButtonContainer: {
+      paddingHorizontal: theme.space.md,
+      paddingBottom: theme.space.xxl,
+    },
+  });
