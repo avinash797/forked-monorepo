@@ -1,5 +1,7 @@
 import { supabase } from '@/lib/supabase';
+import { Profile } from '@/types/auth';
 import type { DishWithVenue, ReviewWithUserProfile } from '@/types/browse';
+import { Review } from '@/types/rating';
 import { useEffect, useState } from 'react';
 
 /**
@@ -24,7 +26,7 @@ export function useDishDetail(dishId: string | null) {
       setError(null);
 
       try {
-        // Fetch dish and reviews in parallel for better performance
+        // Fetch dish and reviews in parallel
         const [dishResult, reviewsResult] = await Promise.all([
           // Fetch dish with venue info
           supabase
@@ -38,15 +40,10 @@ export function useDishDetail(dishId: string | null) {
             .eq('id', dishId)
             .single(),
 
-          // Fetch reviews with user profiles
+          // Fetch reviews (without profile join - no direct FK exists)
           supabase
             .from('reviews')
-            .select(
-              `
-              *,
-              profile:profiles(username, display_name, profile_photo_url)
-            `
-            )
+            .select('*')
             .eq('dish_id', dishId)
             .eq('moderation_status', 'approved')
             .order('helpful_votes_count', { ascending: false })
@@ -63,7 +60,31 @@ export function useDishDetail(dishId: string | null) {
         if (reviewsResult.error) {
           throw new Error(reviewsResult.error.message || 'Failed to load reviews');
         }
-        setReviews((reviewsResult.data || []) as ReviewWithUserProfile[]);
+
+        const reviewsData: Review[] = reviewsResult.data || [];
+
+        // Fetch user profiles for all reviews separately
+        if (reviewsData.length > 0) {
+          const userIds = reviewsData.map((r) => r.user_id);
+          const { data: profilesData } = await supabase
+            .from('profiles')
+            .select('id, username, display_name, profile_photo_url')
+            .in('id', userIds);
+
+          // Map profiles to reviews
+          const profilesMap = new Map<string, Profile>(
+            (profilesData || [] as Profile[]).map((p) => [p.id, p])
+          );
+
+          const reviewsWithProfiles = reviewsData.map((review) => ({
+            ...review,
+            profile: profilesMap.get(review.user_id) || null,
+          }));
+
+          setReviews(reviewsWithProfiles as ReviewWithUserProfile[]);
+        } else {
+          setReviews([]);
+        }
       } catch (err: any) {
         setError(err.message || 'Failed to load dish details');
         setDish(null);

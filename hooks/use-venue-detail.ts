@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
-import type { Venue } from '@/types/rating';
 import type { DishWithVenue } from '@/types/browse';
+import type { Dish, Venue } from '@/types/rating';
 import { useEffect, useState } from 'react';
 
 /**
@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 export function useVenueDetail(venueId: string | null) {
   const [venue, setVenue] = useState<Venue | null>(null);
   const [dishes, setDishes] = useState<DishWithVenue[]>([]);
+  const [reviewPhotos, setReviewPhotos] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,6 +18,7 @@ export function useVenueDetail(venueId: string | null) {
     if (!venueId) {
       setVenue(null);
       setDishes([]);
+      setReviewPhotos([]);
       return;
     }
 
@@ -53,16 +55,32 @@ export function useVenueDetail(venueId: string | null) {
         }
 
         // Add venue reference to dishes for consistency
-        const dishesWithVenue = (dishesData || []).map((dish) => ({
+        const dishesWithVenue = ((dishesData || []) as Dish[]).map((dish) => ({
           ...dish,
           venue: venueData,
         })) as DishWithVenue[];
 
         setDishes(dishesWithVenue);
+
+        // Fetch recent review photos
+        const { data: reviewsData } = await supabase
+          .from('reviews')
+          .select('photo_urls')
+          .eq('venue_id', venueId)
+          .neq('photo_urls', '{}')
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        const photos = (reviewsData || [])
+          .flatMap((r: any) => r.photo_urls as string[])
+          .filter((url) => url && url.length > 0);
+
+        setReviewPhotos(photos);
       } catch (err: any) {
         setError(err.message || 'Failed to load venue details');
         setVenue(null);
         setDishes([]);
+        setReviewPhotos([]);
       } finally {
         setIsLoading(false);
       }
@@ -74,6 +92,7 @@ export function useVenueDetail(venueId: string | null) {
   return {
     venue,
     dishes,
+    reviewPhotos,
     isLoading,
     error,
   };
