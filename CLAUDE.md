@@ -12,6 +12,17 @@ This is an Expo React Native application using:
 - **React Native New Architecture** (enabled via `newArchEnabled: true`)
 - **Experimental features**: Typed routes and React Compiler
 
+### Rating System
+
+**IMPORTANT:** This app uses a **0-10 numeric rating scale** for dishes, NOT a 5-star system.
+
+- Database stores ratings as `rating` column (0-10 scale)
+- Display ratings numerically (e.g., "8.5/10" or "8.5")
+- NEVER use star symbols (★) or star-based visualization
+- NEVER use the word "star" when referring to ratings
+- Average ratings are calculated on 0-10 scale and stored in `dishes.average_rating`
+- UI should show ratings as numbers, progress bars, or other numeric visualizations
+
 ## Development Commands
 
 ### Starting the Development Server
