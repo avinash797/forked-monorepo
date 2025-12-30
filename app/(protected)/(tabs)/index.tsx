@@ -4,6 +4,7 @@ import { SectionHeader } from '@/components/browse/section-header';
 import { SearchInput } from '@/components/rating/search-input';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedView } from '@/components/themed-view';
+import { useTheme } from '@/contexts/theme-provider';
 import { useTopDishes } from '@/hooks/use-top-dishes';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -14,7 +15,6 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '@/contexts/theme-provider';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -110,14 +110,14 @@ export default function HomeScreen() {
           <SearchInput
             value=""
             onChangeText={() => { }}
-            placeholder="Search dishes and venues..."
+            placeholder="What are you craving?"
             onFocus={handleSearchPress}
             isLoading={false}
           />
         </View>
 
         {/* Section Header */}
-        <SectionHeader title="Top Rated Dishes" subtitle="Discover the best-rated dishes near you" />
+        <SectionHeader title="Trending Dishes Near You" />
 
         {/* Error State */}
         {error && renderErrorState()}
@@ -146,6 +146,7 @@ export default function HomeScreen() {
             removeClippedSubviews={true}
             maxToRenderPerBatch={10}
             initialNumToRender={10}
+
           />
         )}
 

@@ -1,5 +1,7 @@
+import { ScoreBadge } from '@/components/score-badge';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import type { ReviewWithUserProfile } from '@/types/browse';
 import { Image } from 'expo-image';
@@ -13,9 +15,8 @@ interface ReviewCardProps {
 }
 
 /**
- * Review card component displaying user info, rating, text, and photos
- * Uses 0-10 numeric rating scale (NOT stars)
- * Used in: Dish detail screen, review lists
+ * Enhanced review card component matching the premium design language
+ * Uses themed tokens, ScoreBadge, and consistent iconography
  */
 export function ReviewCard({
   review,
@@ -28,9 +29,9 @@ export function ReviewCard({
   // Format date
   const reviewDate = new Date(review.created_at);
   const formattedDate = reviewDate.toLocaleDateString('en-US', {
-    year: 'numeric',
     month: 'short',
     day: 'numeric',
+    year: 'numeric',
   });
 
   const displayName = review.profile?.display_name || review.profile?.username || 'Anonymous';
@@ -38,7 +39,7 @@ export function ReviewCard({
 
   return (
     <ThemedView style={styles.card}>
-      {/* User Header */}
+      {/* User Info & Rating Header */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => onUserPress?.(review.user_id)}
@@ -52,6 +53,7 @@ export function ReviewCard({
               source={{ uri: review.profile.profile_photo_url }}
               style={styles.avatar}
               contentFit="cover"
+              transition={200}
             />
           ) : (
             <View style={styles.avatarPlaceholder}>
@@ -61,21 +63,18 @@ export function ReviewCard({
             </View>
           )}
 
-          {/* User Name */}
           <View style={styles.userTextContainer}>
-            <ThemedText type="defaultSemiBold" style={styles.displayName}>
+            <ThemedText style={styles.displayName} numberOfLines={1}>
               {displayName}
             </ThemedText>
-            {username && (
-              <ThemedText style={styles.username}>@{username}</ThemedText>
-            )}
+            <ThemedText style={styles.date} numberOfLines={1}>
+              {formattedDate}
+            </ThemedText>
           </View>
         </TouchableOpacity>
 
-        {/* Rating (0-10 numeric scale) */}
-        <View style={styles.ratingBadge}>
-          <ThemedText style={styles.ratingText}>{review.rating.toFixed(1)}</ThemedText>
-        </View>
+        {/* Numeric Rating using ScoreBadge */}
+        <ScoreBadge score={review.rating} style={styles.ratingBadge} />
       </View>
 
       {/* Review Text */}
@@ -83,32 +82,41 @@ export function ReviewCard({
         <ThemedText style={styles.reviewText}>{review.review_text}</ThemedText>
       )}
 
-      {/* Photos */}
+      {/* Photos Carousel/Gallery */}
       {review.photo_urls && review.photo_urls.length > 0 && (
-        <PhotoGallery
-          photos={review.photo_urls}
-          onPhotoPress={onPhotoPress}
-          maxVisible={6}
-        />
+        <View style={styles.photoGalleryContainer}>
+          <PhotoGallery
+            photos={review.photo_urls}
+            onPhotoPress={onPhotoPress}
+            maxVisible={6}
+          />
+        </View>
       )}
 
-      {/* Footer: Date and Helpful Votes */}
+      {/* Footer: Helpful and Verified */}
       <View style={styles.footer}>
-        <ThemedText style={styles.date}>{formattedDate}</ThemedText>
+        <View style={styles.footerLeft}>
+          {review.helpful_votes_count > 0 && (
+            <View style={styles.helpfulBadge}>
+              <IconSymbol name="thumb-up" size={14} color={theme.color.textSecondary} />
+              <ThemedText style={styles.helpfulText}>
+                {review.helpful_votes_count}
+              </ThemedText>
+            </View>
+          )}
 
-        {review.helpful_votes_count > 0 && (
-          <View style={styles.helpfulContainer}>
-            <ThemedText style={styles.helpfulText}>
-              👍 Helpful ({review.helpful_votes_count})
-            </ThemedText>
-          </View>
-        )}
+          {review.is_gps_verified && (
+            <View style={styles.verifiedBadge}>
+              <IconSymbol name="verified" size={14} color={theme.color.success} />
+              <ThemedText style={styles.verifiedText}>Verified</ThemedText>
+            </View>
+          )}
+        </View>
 
-        {/* GPS Verified Badge */}
-        {review.is_gps_verified && (
-          <View style={styles.verifiedBadge}>
-            <ThemedText style={styles.verifiedText}>✓ Verified</ThemedText>
-          </View>
+        {username && (
+          <ThemedText style={styles.username} numberOfLines={1}>
+            @{username}
+          </ThemedText>
         )}
       </View>
     </ThemedView>
@@ -120,95 +128,118 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     card: {
       padding: theme.space.md,
       marginBottom: theme.space.sm,
-      borderRadius: theme.radius.md,
-      borderWidth: theme.border.hairline,
-      borderColor: theme.color.border,
+      borderRadius: theme.radius.lg,
+      backgroundColor: theme.color.surface,
+      borderWidth: 1,
+      borderColor: theme.color.border + '1A',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      elevation: 2,
     },
     header: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      alignItems: 'flex-start',
-      marginBottom: theme.space.sm,
+      alignItems: 'center',
+      marginBottom: theme.space.md,
     },
     userInfo: {
       flexDirection: 'row',
       alignItems: 'center',
       flex: 1,
-    },
-    avatar: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
       marginRight: theme.space.sm,
     },
+    avatar: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      marginRight: theme.space.sm,
+      backgroundColor: theme.color.surface2,
+    },
     avatarPlaceholder: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: theme.color.info,
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: theme.color.info + '22',
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: theme.space.sm,
     },
     avatarText: {
       fontSize: theme.font.size.lg,
-      fontWeight: theme.font.weight.semibold,
-      color: '#FFFFFF',
+      fontWeight: theme.font.weight.bold,
+      color: theme.color.info,
     },
     userTextContainer: {
       flex: 1,
     },
     displayName: {
       fontSize: theme.font.size.md,
-      marginBottom: theme.space.xxs,
+      fontWeight: theme.font.weight.bold,
+      color: theme.color.textPrimary,
     },
-    username: {
-      fontSize: theme.font.size.sm,
-      opacity: theme.opacity.pressed - 0.1,
+    date: {
+      fontSize: theme.font.size.xs,
+      color: theme.color.textTertiary,
+      marginTop: 2,
     },
     ratingBadge: {
-      paddingHorizontal: theme.space.xs + 2,
-      paddingVertical: theme.space.xxs + 2,
-      borderRadius: theme.radius.sm,
-      backgroundColor: theme.color.info,
-    },
-    ratingText: {
-      fontSize: theme.font.size.md,
-      fontWeight: theme.font.weight.bold,
-      color: '#FFFFFF',
+      shadowOpacity: 0, // ScoreBadge already has shadows, but we can override if needed
+      elevation: 0,
     },
     reviewText: {
       fontSize: theme.font.size.md,
-      lineHeight: theme.font.line.lg,
+      lineHeight: theme.font.line.md,
+      color: theme.color.textSecondary,
+      marginBottom: theme.space.md,
+    },
+    photoGalleryContainer: {
       marginBottom: theme.space.sm,
     },
     footer: {
       flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'space-between',
       marginTop: theme.space.xs,
-      gap: theme.space.sm,
     },
-    date: {
-      fontSize: theme.font.size.sm,
-      opacity: theme.opacity.disabled,
-    },
-    helpfulContainer: {
+    footerLeft: {
       flexDirection: 'row',
       alignItems: 'center',
+      gap: theme.space.sm,
+    },
+    helpfulBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: theme.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+      paddingHorizontal: theme.space.xs,
+      paddingVertical: 4,
+      borderRadius: theme.radius.sm,
     },
     helpfulText: {
-      fontSize: theme.font.size.sm,
-      opacity: theme.opacity.pressed - 0.0,
+      fontSize: theme.font.size.xs,
+      color: theme.color.textSecondary,
+      fontWeight: theme.font.weight.medium,
     },
     verifiedBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
       paddingHorizontal: theme.space.xs,
-      paddingVertical: theme.space.xxs - 1,
-      borderRadius: theme.radius.xs,
-      backgroundColor: theme.color.success + '1A',
+      paddingVertical: 4,
+      borderRadius: theme.radius.sm,
     },
     verifiedText: {
       fontSize: theme.font.size.xs,
       color: theme.color.success,
       fontWeight: theme.font.weight.semibold,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    username: {
+      fontSize: theme.font.size.xs,
+      color: theme.color.textTertiary,
+      fontStyle: 'italic',
     },
   });

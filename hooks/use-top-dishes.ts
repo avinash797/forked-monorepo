@@ -22,18 +22,22 @@ export function useTopDishes(filters: TopDishesFilters = {}) {
     try {
       const currentOffset = resetData ? 0 : offset;
 
-      // Build query
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 2);
+
       let query = supabase
         .from('dishes')
         .select(
           `
           *,
-          venue:venues(*)
+          venue:venues(*),
+          reviews(photo_urls)
         `,
           { count: 'exact' }
         )
         .not('average_rating', 'is', null)
         .eq('is_available', true)
+        .gte('updated_at', oneWeekAgo.toISOString())
         .order('average_rating', { ascending: false });
 
       // Apply filters
@@ -56,7 +60,19 @@ export function useTopDishes(filters: TopDishesFilters = {}) {
 
       if (queryError) throw queryError;
 
-      const newDishes = (data || []) as DishWithVenue[];
+      // Transform data to flatten review photos into the main photos array
+      const newDishes = (data || []).map((dish: any) => {
+        const reviewPhotos = dish.reviews?.flatMap((r: any) => r.photo_urls || []) || [];
+        const existingPhotos = dish.photos || [];
+
+        // Combine existing photos with review photos, removing duplicates if any
+        const allPhotos = Array.from(new Set([...existingPhotos, ...reviewPhotos]));
+
+        return {
+          ...dish,
+          photos: allPhotos,
+        };
+      }) as DishWithVenue[];
 
       if (resetData) {
         setDishes(newDishes);

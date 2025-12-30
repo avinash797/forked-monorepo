@@ -95,10 +95,13 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 
 **Implementation Details:**
 - 4 new screens (browse layout, search, dish detail, venue detail)
-- 5 browse components (ReviewCard, DishCardWithRating, PhotoGallery, SectionHeader, EmptyState)
+- 6 browse components (ReviewCard, DishCardWithRating, PhotoGallery, SectionHeader, EmptyState, ScoreBadge)
 - 4 new hooks (useTopDishes, useSearch, useDishDetail, useVenueDetail)
-- Pull-to-refresh and infinite scroll
+- Pull-to-refresh and pagination
 - Loading skeletons for better UX
+- **Hero image sections with parallax scrolling** (reanimated)
+- **Animated sticky headers** that appear on scroll
+- **Color-coded rating badges** (green/yellow/red based on score)
 
 ---
 

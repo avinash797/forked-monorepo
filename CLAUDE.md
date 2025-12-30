@@ -10,6 +10,9 @@ This is an Expo React Native application using:
 - **Expo Router v6** for file-based navigation
 - **TypeScript** with strict mode enabled
 - **React Native New Architecture** (enabled via `newArchEnabled: true`)
+- **React Native Reanimated** for smooth 60fps animations
+- **Expo Linear Gradient** for visual polish
+- **Expo Image** for optimized image loading
 - **Experimental features**: Typed routes and React Compiler
 
 ### Rating System
@@ -121,11 +124,12 @@ These accept `lightColor` and `darkColor` props to override theme defaults.
     - `search-input.tsx`: Reusable search input component
     - `location-status-banner.tsx`: GPS verification status display
   - **`browse/`**: Browse and discovery components ✅
-    - `review-card.tsx`: Display review with rating, text, photos, and user info
-    - `dish-card-with-rating.tsx`: Enhanced dish card with average rating display
+    - `review-card.tsx`: Display review with ScoreBadge, text, photos, and user info
+    - `dish-card-with-rating.tsx`: Photo-dominant card with gradient overlay and ScoreBadge
     - `photo-gallery.tsx`: Grid-based photo gallery with modal viewer
     - `section-header.tsx`: Consistent section titles with optional subtitle
     - `empty-state.tsx`: Empty state component for no data scenarios
+  - `score-badge.tsx`: Color-coded rating badge (green ≥7.0, yellow 4.0-6.9, red <4.0) with gradient
   - `ui/`: UI primitives
     - `collapsible.tsx`: Collapsible section component
     - `icon-symbol.tsx`: Expo Material icon component
@@ -194,33 +198,45 @@ The browse and discovery system allows users to explore top-rated dishes, search
    - Navigate to dish or venue detail pages
 
 3. **Dish Detail** (`app/(protected)/(browse)/dish-detail.tsx`)
-   - View dish information (name, price, category, rating)
+   - **Hero image section** with parallax scrolling effect
+   - **Animated sticky header** that fades in on scroll
+   - View dish information (name, price, category, rating with ScoreBadge)
    - Photo gallery with all review photos
    - List of all reviews using `ReviewCard` component
    - Navigate to venue detail
    - "Rate This Dish" button to start rating flow
+   - Uses `react-native-reanimated` for smooth animations
 
 4. **Venue Detail** (`app/(protected)/(browse)/venue-detail.tsx`)
+   - **Hero image section** with parallax scrolling effect
+   - **Animated sticky header** that fades in on scroll
    - View venue information (name, address, cuisine, hours)
    - List all dishes at the venue
    - Reviews for the venue
    - Navigate to dish details
+   - Uses `react-native-reanimated` for smooth animations
 
 ### Key Features
 
 - **Pagination**: Load more dishes as user scrolls
 - **Search**: Fast search across dishes and venues
+- **Hero Images**: Full-screen hero sections with parallax scrolling
+- **Animated Headers**: Sticky headers that fade in smoothly on scroll
+- **Color-Coded Ratings**: ScoreBadge component (green/yellow/red)
+- **Photo-Dominant Design**: Cards with gradient overlays for better text readability
 - **Photo Gallery**: Grid-based photo display with modal viewer
 - **Empty States**: Friendly messages when no data available
 - **Loading Skeletons**: Better perceived performance
+- **Smooth Animations**: React Native Reanimated for 60fps interactions
 
 ### Components
 
-- `ReviewCard`: Displays review with 0-10 rating, text, photos, user info
-- `DishCardWithRating`: Enhanced dish card with average rating
+- `ReviewCard`: Displays review with ScoreBadge, text, photos, user info
+- `DishCardWithRating`: Photo-dominant card with gradient overlay and ScoreBadge
 - `PhotoGallery`: Grid-based photo viewer
 - `SectionHeader`: Consistent section titles
 - `EmptyState`: No data scenarios with action buttons
+- `ScoreBadge`: Color-coded rating badge with gradient (uses expo-linear-gradient)
 
 ### Data Flow
 

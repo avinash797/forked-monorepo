@@ -26,11 +26,14 @@ This file tracks active work items and immediate next steps. For the full roadma
 - [x] Create custom hooks (useTopDishes, useSearch, useDishDetail, useVenueDetail)
 
 **Deliverables:**
-- 13 files created (4 screens, 5 components, 4 hooks)
+- 14 files created (4 screens, 6 components, 4 hooks)
 - Home feed fully functional with pagination
 - Search working for dishes and venues
-- Complete browse and detail screens
+- Complete browse and detail screens with hero images
 - **Rating system changed from 1-5 stars to 0-10 numeric scale**
+- **Premium UI:** Parallax scrolling, animated sticky headers
+- **ScoreBadge component:** Color-coded rating badges
+- **Photo-dominant design:** Gradient overlays and modern aesthetics
 
 ---
 
@@ -117,11 +120,12 @@ This file tracks active work items and immediate next steps. For the full roadma
 - ✅ LocationStatusBanner
 
 **Browse/Discovery:**
-- ✅ ReviewCard
-- ✅ DishCardWithRating
+- ✅ ReviewCard (with ScoreBadge)
+- ✅ DishCardWithRating (photo-dominant design)
 - ✅ PhotoGallery
 - ✅ SectionHeader
 - ✅ EmptyState
+- ✅ ScoreBadge (color-coded ratings)
 
 ### Completed Systems
 

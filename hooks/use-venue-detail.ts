@@ -44,7 +44,7 @@ export function useVenueDetail(venueId: string | null) {
         // Sort by average rating (highest first), then by name
         const { data: dishesData, error: dishesError } = await supabase
           .from('dishes')
-          .select('*')
+          .select(`*, reviews(photo_urls)`)
           .eq('venue_id', venueId)
           .eq('is_available', true)
           .order('average_rating', { ascending: false, nullsFirst: false })
@@ -55,25 +55,19 @@ export function useVenueDetail(venueId: string | null) {
         }
 
         // Add venue reference to dishes for consistency
-        const dishesWithVenue = ((dishesData || []) as Dish[]).map((dish) => ({
-          ...dish,
-          venue: venueData,
-        })) as DishWithVenue[];
+        const dishesWithVenue = ((dishesData || []) as Array<Dish & { reviews?: any[] }>).map((dish) => {
+          const reviewPhotos = dish.reviews?.flatMap((r: any) => r.photo_urls || []) || [];
+          return {
+            ...dish,
+            venue: venueData,
+            photos: reviewPhotos,
+          };
+        }) as DishWithVenue[];
 
         setDishes(dishesWithVenue);
 
-        // Fetch recent review photos
-        const { data: reviewsData } = await supabase
-          .from('reviews')
-          .select('photo_urls')
-          .eq('venue_id', venueId)
-          .neq('photo_urls', '{}')
-          .order('created_at', { ascending: false })
-          .limit(5);
-
-        const photos = (reviewsData || [])
-          .flatMap((r: any) => r.photo_urls as string[])
-          .filter((url) => url && url.length > 0);
+        const photos = (dishesWithVenue || [])
+          .flatMap((d) => d.photos || []);
 
         setReviewPhotos(photos);
       } catch (err: any) {
