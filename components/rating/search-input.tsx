@@ -1,6 +1,6 @@
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { ActivityIndicator, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, TextInput, Pressable, View } from 'react-native';
 
 interface SearchInputProps {
   value: string;
@@ -48,9 +48,13 @@ export function SearchInput({
       {isLoading && <ActivityIndicator size="small" color={iconColor} />}
 
       {!isLoading && value.length > 0 && (
-        <TouchableOpacity onPress={handleClear} activeOpacity={0.7}>
+        <Pressable
+          onPress={handleClear}
+          style={({ pressed }) => [pressed && { opacity: 0.7 }]}
+          android_ripple={{ color: 'rgba(0, 0, 0, 0.1)', radius: 16, borderless: true }}
+        >
           <IconSymbol name="cancel" size={20} color={placeholderColor} />
-        </TouchableOpacity>
+        </Pressable>
       )}
     </View>
   );

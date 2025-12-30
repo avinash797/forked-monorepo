@@ -6,17 +6,17 @@ import { VenueCard } from '@/components/rating/venue-card';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useTheme } from '@/contexts/theme-provider';
 import { useSearch } from '@/hooks/use-search';
 import { useRouter } from 'expo-router';
-import { useState, } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  ScrollView,
+  Pressable,
+  SectionList,
   StyleSheet,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '@/contexts/theme-provider';
 
 export default function SearchScreen() {
   const router = useRouter();
@@ -29,6 +29,31 @@ export default function SearchScreen() {
   // Group results by type
   const dishResults = results.filter((r) => r.type === 'dish');
   const venueResults = results.filter((r) => r.type === 'venue');
+
+  // Create sections for SectionList
+  const sections: any = useMemo(() => {
+    const sectionData = [];
+
+    if (dishResults.length > 0) {
+      sectionData.push({
+        title: 'Dishes',
+        subtitle: `${dishResults.length} ${dishResults.length === 1 ? 'result' : 'results'}`,
+        data: dishResults,
+        type: 'dish' as const,
+      });
+    }
+
+    if (venueResults.length > 0) {
+      sectionData.push({
+        title: 'Venues',
+        subtitle: `${venueResults.length} ${venueResults.length === 1 ? 'result' : 'results'}`,
+        data: venueResults,
+        type: 'venue' as const,
+      });
+    }
+
+    return sectionData;
+  }, [dishResults, venueResults]);
 
   // Navigate to dish detail
   const handleDishPress = (dishId: string) => {
@@ -86,13 +111,16 @@ export default function SearchScreen() {
       <ThemedView style={styles.container}>
         {/* Custom Header with Back Button and Search */}
         <View style={styles.header}>
-          <TouchableOpacity
+          <Pressable
             onPress={() => router.back()}
-            style={styles.backButton}
-            activeOpacity={0.7}
+            style={({ pressed }) => [
+              styles.backButton,
+              pressed && { opacity: 0.7 }
+            ]}
+            android_ripple={{ color: 'rgba(0, 0, 0, 0.1)', radius: 20, borderless: true }}
           >
             <IconSymbol name="arrow-back" size={24} color={theme.color.info} />
-          </TouchableOpacity>
+          </Pressable>
 
           <View style={styles.searchInputContainer}>
             <SearchInput
@@ -105,75 +133,56 @@ export default function SearchScreen() {
           </View>
         </View>
 
-        {/* Search Results */}
-        <ScrollView
-          style={styles.scrollView}
+        {/* Search Results using SectionList */}
+        <SectionList
+          sections={sections}
+          keyExtractor={(item) => item.data.id}
+          renderItem={({ item, section }) => {
+            if (section.type === 'dish') {
+              return (
+                <DishCardWithRating
+                  dish={item.data}
+                  onPress={() => handleDishPress(item.data.id)}
+                  showVenue={true}
+                />
+              );
+            } else {
+              return (
+                <VenueCard
+                  venue={item.data}
+                  onPress={() => handleVenuePress(item.data.id)}
+                  showDistance={false}
+                />
+              );
+            }
+          }}
+          renderSectionHeader={({ section }) => (
+            <SectionHeader
+              title={section.title}
+              subtitle={section.subtitle}
+            />
+          )}
+          stickySectionHeadersEnabled={false}
+          contentContainerStyle={styles.sectionListContent}
+          contentInsetAdjustmentBehavior="automatic"
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
-        >
-          {/* Error State */}
-          {error && renderError()}
-
-          {/* Empty Query State */}
-          {!error && query.length === 0 && renderEmptyQuery()}
-
-          {/* No Results State */}
-          {!error && query.length >= 2 && !isLoading && results.length === 0 && renderNoResults()}
-
-          {/* Results */}
-          {!error && query.length >= 2 && results.length > 0 && (
-            <View style={styles.resultsContainer}>
-              {/* Dishes Section */}
-              {dishResults.length > 0 && (
-                <View style={styles.section}>
-                  <SectionHeader
-                    title="Dishes"
-                    subtitle={`${dishResults.length} ${dishResults.length === 1 ? 'result' : 'results'}`}
-                  />
-                  <View style={styles.sectionContent}>
-                    {dishResults.map((result) => (
-                      <DishCardWithRating
-                        key={result.data.id}
-                        dish={result.data}
-                        onPress={() => handleDishPress(result.data.id)}
-                        showVenue={true}
-                      />
-                    ))}
-                  </View>
+          ListEmptyComponent={() => {
+            if (error) return renderError();
+            if (query.length === 0) return renderEmptyQuery();
+            if (query.length >= 2 && !isLoading && results.length === 0) return renderNoResults();
+            if (query.length > 0 && query.length < 2) {
+              return (
+                <View style={styles.hintContainer}>
+                  <ThemedText style={styles.hintText}>
+                    Type at least 2 characters to search
+                  </ThemedText>
                 </View>
-              )}
-
-              {/* Venues Section */}
-              {venueResults.length > 0 && (
-                <View style={styles.section}>
-                  <SectionHeader
-                    title="Venues"
-                    subtitle={`${venueResults.length} ${venueResults.length === 1 ? 'result' : 'results'}`}
-                  />
-                  <View style={styles.sectionContent}>
-                    {venueResults.map((result) => (
-                      <VenueCard
-                        key={result.data.id}
-                        venue={result.data}
-                        onPress={() => handleVenuePress(result.data.id)}
-                        showDistance={false}
-                      />
-                    ))}
-                  </View>
-                </View>
-              )}
-            </View>
-          )}
-
-          {/* Loading indicator for query < 2 chars */}
-          {query.length > 0 && query.length < 2 && (
-            <View style={styles.hintContainer}>
-              <ThemedText style={styles.hintText}>
-                Type at least 2 characters to search
-              </ThemedText>
-            </View>
-          )}
-        </ScrollView>
+              );
+            }
+            return null;
+          }}
+        />
       </ThemedView>
     </SafeAreaView>
   );
@@ -202,17 +211,9 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     searchInputContainer: {
       flex: 1,
     },
-    scrollView: {
-      flex: 1,
-    },
-    resultsContainer: {
-      paddingTop: theme.space.xs,
-    },
-    section: {
-      marginBottom: theme.space.lg + theme.space.xs,
-    },
-    sectionContent: {
+    sectionListContent: {
       paddingHorizontal: theme.space.md,
+      paddingTop: theme.space.xs,
     },
     emptyContainer: {
       flex: 1,

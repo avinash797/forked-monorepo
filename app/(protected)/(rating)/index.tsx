@@ -11,7 +11,7 @@ import { useRef, useState } from 'react';
 import {
   Alert,
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
   View
 } from 'react-native';
 
@@ -150,36 +150,56 @@ export default function TakePhotoScreen() {
         />
         {/* Camera Top Controls */}
         <View style={styles.topControls}>
-          <TouchableOpacity
-            style={styles.galleryButton}
+          <Pressable
+            style={({ pressed }) => [
+              styles.galleryButton,
+              pressed && { opacity: 0.7 }
+            ]}
             onPress={handleToggleFlash}
+            android_ripple={{ color: 'rgba(0, 0, 0, 0.1)', radius: 25, borderless: true }}
           >
             <IconSymbol name={getFlashIconName()} size={32} color={primaryColor} />
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {/* Camera Controls */}
         <View style={[styles.controls]}>
-          <TouchableOpacity
-            style={styles.galleryButton}
+          <Pressable
+            style={({ pressed }) => [
+              styles.galleryButton,
+              pressed && { opacity: 0.7 }
+            ]}
             onPress={handlePickFromGallery}
+            android_ripple={{ color: 'rgba(0, 0, 0, 0.1)', radius: 35 }}
           >
             <IconSymbol name="photo-library" size={32} color={primaryColor} />
             <ThemedText style={styles.galleryText}>Gallery</ThemedText>
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity
-            style={[styles.captureButton, { borderColor: primaryColor }]}
+          <Pressable
+            style={({ pressed }) => [
+              styles.captureButton,
+              { borderColor: primaryColor },
+              pressed && { opacity: 0.8 }
+            ]}
             onPress={handleTakePhoto}
+            android_ripple={{ color: 'rgba(255, 255, 255, 0.3)', radius: 40 }}
           >
             <View style={[styles.captureInner, { backgroundColor: primaryColor }]} />
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.skipButton,
+              pressed && { opacity: 0.7 }
+            ]}
+            onPress={handleSkip}
+            android_ripple={{ color: 'rgba(0, 0, 0, 0.1)', radius: 30 }}
+          >
             <ThemedText style={styles.skipText} lightColor="#666" darkColor="#999">
               Skip
             </ThemedText>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </>
 

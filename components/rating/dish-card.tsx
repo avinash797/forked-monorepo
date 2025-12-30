@@ -1,4 +1,4 @@
-import { TouchableOpacity, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import type { Dish } from '@/types/rating';
@@ -18,7 +18,11 @@ export function DishCard({ dish, onPress }: DishCardProps) {
   const variety = dish.variety ? ` (${dish.variety})` : '';
 
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [pressed && { opacity: 0.7 }]}
+      android_ripple={{ color: 'rgba(0, 0, 0, 0.05)' }}
+    >
       <ThemedView style={styles.card}>
         <ThemedView style={styles.header}>
           <ThemedText type="defaultSemiBold" style={styles.name}>
@@ -51,7 +55,7 @@ export function DishCard({ dish, onPress }: DishCardProps) {
           </ThemedText>
         )}
       </ThemedView>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 

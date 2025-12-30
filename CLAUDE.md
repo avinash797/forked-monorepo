@@ -86,13 +86,21 @@ The app uses Expo Router's file-based routing system located in the `app/` direc
 
 ### Theme System
 
-The app implements a comprehensive light/dark theme system:
+The app implements a comprehensive light/dark theme system, and follows token based design system.
 
-- **`constants/theme.ts`**: Defines Colors and Fonts for both light and dark modes
-- **`hooks/use-color-scheme.ts`**: Platform-specific color scheme detection
-  - Native: Re-exports React Native's `useColorScheme`
-  - Web: Custom implementation in `use-color-scheme.web.ts`
-- **`hooks/use-theme-color.ts`**: Hook for consuming theme colors with prop overrides
+- **`lib/theme/token.default.ts`**: Defines Colors and Fonts for both light and dark modes
+  - **`context/theme-context.tsx`**: Theme context provider for consuming theme colors with prop overrides that returns the following properties:
+    {/** The active theme object with all tokens */
+    theme: ActiveTheme;
+    /** The current theme name (default, genZ, foodies, critics) */
+    themeName: ThemeName;
+    /** The current color scheme (light or dark) */
+    colorScheme: ThemeMode;
+    /** Change the theme variant */
+    setThemeName: (name: ThemeName) => void;
+    /** Check if the theme is currently using dark mode */
+    isDark: boolean;
+    }
 
 ### Themed Components
 
@@ -100,6 +108,9 @@ Reusable components that automatically adapt to light/dark mode:
 
 - **`ThemedText`** (`components/themed-text.tsx`): Typed text variants (default, title, subtitle, link, defaultSemiBold)
 - **`ThemedView`** (`components/themed-view.tsx`): View with automatic background color
+- **`ThemedButton`** (`components/themed-button.tsx`): Button with automatic background color
+- **`ThemedTextInput`** (`components/themed-text-input.tsx`): Text input with automatic background color
+- **`ThemedSelect`** (`components/themed-select.tsx`): Select/picker with automatic background color
 
 These accept `lightColor` and `darkColor` props to override theme defaults.
 
@@ -364,3 +375,14 @@ Configured for iOS, Android, and Web:
 - React Native Gesture Handler installed for touch interactions
 - Color scheme automatically follows system preference
 - VSCode is configured to auto-fix, organize imports, and sort members on save
+
+
+## Development Patterns to follow strictly
+
+- Prefer `Pressable` over `Touchable opacity` both offered by react-native for touch events
+- Use platform file extensions instead of runtime checks for platform specific code
+- Avoid `modals` when a `bottom sheet` works better
+- Prefer `FlatList` over `ScrollView` for large lists of items
+- When using a `Scrollview` as the root of a screen, instead of wrapping it in a `SafeAreaView`, use the `contentInsetAdjustmentBehavior` prop and set it to `automatic`
+- Keep the file `_layout.tsx` the root layout file focused only on navigation/routing
+- Always use theme tokens for colors, fonts, and spacing. If a new color is needed, add it to the theme tokens and use it

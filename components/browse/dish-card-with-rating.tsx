@@ -4,7 +4,7 @@ import { useTheme } from '@/contexts/theme-provider';
 import type { DishWithVenue } from '@/types/browse';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Pressable, View } from 'react-native';
 
 interface DishCardWithRatingProps {
   dish: DishWithVenue;
@@ -30,10 +30,13 @@ export function DishCardWithRating({
   const photoUrl = hasPhoto ? dish.photos[0] : null;
 
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
-      activeOpacity={0.9}
-      style={styles.card}
+      style={({ pressed }) => [
+        styles.card,
+        pressed && { opacity: 0.9 }
+      ]}
+      android_ripple={{ color: 'rgba(255, 255, 255, 0.1)' }}
     >
       {/* Background Image */}
       {photoUrl ? (
@@ -95,7 +98,7 @@ export function DishCardWithRating({
           )}
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 

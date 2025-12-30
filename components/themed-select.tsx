@@ -1,16 +1,20 @@
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
   View,
   type StyleProp,
   type ViewStyle,
 } from "react-native";
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
+import type { BottomSheetDefaultBackdropProps } from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types";
 import { ThemedText } from "./themed-text";
 import { IconSymbol } from "./ui/icon-symbol";
 
@@ -50,7 +54,7 @@ export function ThemedSelect({
   searchable = false,
   searchPlaceholder = "Search...",
 }: ThemedSelectProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const backgroundColor = useThemeColor(
@@ -78,14 +82,29 @@ export function ThemedSelect({
 
   const handleSelect = (optionValue: string) => {
     onValueChange?.(optionValue);
-    setIsOpen(false);
+    bottomSheetRef.current?.dismiss();
     setSearchQuery("");
   };
 
+  const handleOpen = () => {
+    bottomSheetRef.current?.present();
+  };
+
   const handleClose = () => {
-    setIsOpen(false);
     setSearchQuery("");
   };
+
+  const renderBackdrop = useCallback(
+    (props: BottomSheetDefaultBackdropProps) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        opacity={0.5}
+      />
+    ),
+    []
+  );
 
   return (
     <View style={styles.container}>
@@ -98,13 +117,15 @@ export function ThemedSelect({
           {label}
         </ThemedText>
       )}
-      <TouchableOpacity
-        onPress={() => setIsOpen(true)}
-        style={[
+      <Pressable
+        onPress={handleOpen}
+        style={({ pressed }) => [
           styles.selectButton,
           { backgroundColor, borderColor },
+          pressed && { opacity: 0.7 },
           style,
         ]}
+        android_ripple={{ color: "rgba(0, 0, 0, 0.1)" }}
       >
         <ThemedText
           style={[
@@ -119,7 +140,7 @@ export function ThemedSelect({
           size={20}
           color={mutedColor}
         />
-      </TouchableOpacity>
+      </Pressable>
       {error && (
         <ThemedText
           lightColor={lightLabelColor}
@@ -130,85 +151,79 @@ export function ThemedSelect({
         </ThemedText>
       )}
 
-      <Modal
-        visible={isOpen}
-        transparent
-        animationType="fade"
-        onRequestClose={handleClose}
+      <BottomSheetModal
+        ref={bottomSheetRef}
+        snapPoints={["50%", "70%"]}
+        backdropComponent={renderBackdrop}
+        onDismiss={handleClose}
+        backgroundStyle={{ backgroundColor: surfaceColor }}
+        handleIndicatorStyle={{ backgroundColor: mutedColor }}
       >
-        <Pressable
-          style={styles.modalOverlay}
-          onPress={handleClose}
-        >
-          <View
-            style={[
-              styles.modalContent,
-              { backgroundColor: surfaceColor },
-            ]}
-            onStartShouldSetResponder={() => true}
-          >
-            <View style={styles.modalHeader}>
-              <ThemedText style={styles.modalTitle}>
-                {label || "Select an option"}
-              </ThemedText>
-              <TouchableOpacity
-                onPress={handleClose}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <IconSymbol name="close" size={24} color={textColor} />
-              </TouchableOpacity>
-            </View>
-            {searchable && (
-              <View style={styles.searchContainer}>
-                <TextInput
-                  style={[
-                    styles.searchInput,
-                    { backgroundColor, color: textColor, borderColor: mutedColor },
-                  ]}
-                  placeholder={searchPlaceholder}
-                  placeholderTextColor={mutedColor}
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                  autoFocus
-                />
-              </View>
-            )}
-            <ScrollView style={styles.optionsList}>
-              {filteredOptions.length === 0 ? (
-                <View style={styles.emptyState}>
-                  <ThemedText style={[styles.emptyText, { color: mutedColor }]}>
-                    No options found
-                  </ThemedText>
-                </View>
-              ) : (
-                filteredOptions.map((option) => (
-                  <TouchableOpacity
-                    key={option.value}
-                    style={[
-                      styles.option,
-                      option.value === value && {
-                        backgroundColor,
-                      },
-                    ]}
-                    onPress={() => handleSelect(option.value)}
-                  >
-                    <ThemedText style={styles.optionText}>
-                      {option.label}
-                    </ThemedText>
-                    {option.value === value && (
-                      <IconSymbol
-                        name="check"
-                        size={20}
-                        color={textColor}
-                      />
-                    )}
-                  </TouchableOpacity>
-                ))
-              )}
-            </ScrollView>
+        <BottomSheetView style={styles.bottomSheetContent}>
+          <View style={styles.modalHeader}>
+            <ThemedText style={styles.modalTitle}>
+              {label || "Select an option"}
+            </ThemedText>
+            <Pressable
+              onPress={() => bottomSheetRef.current?.dismiss()}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              android_ripple={{ color: "rgba(0, 0, 0, 0.1)", radius: 20, borderless: true }}
+            >
+              <IconSymbol name="close" size={24} color={textColor} />
+            </Pressable>
           </View>
-        </Pressable>
-      </Modal>
+          {searchable && (
+            <View style={styles.searchContainer}>
+              <TextInput
+                style={[
+                  styles.searchInput,
+                  { backgroundColor, color: textColor, borderColor: mutedColor },
+                ]}
+                placeholder={searchPlaceholder}
+                placeholderTextColor={mutedColor}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                autoFocus
+              />
+            </View>
+          )}
+          <ScrollView style={styles.optionsList}>
+            {filteredOptions.length === 0 ? (
+              <View style={styles.emptyState}>
+                <ThemedText style={[styles.emptyText, { color: mutedColor }]}>
+                  No options found
+                </ThemedText>
+              </View>
+            ) : (
+              filteredOptions.map((option) => (
+                <Pressable
+                  key={option.value}
+                  style={({ pressed }) => [
+                    styles.option,
+                    option.value === value && {
+                      backgroundColor,
+                    },
+                    pressed && { opacity: 0.7 },
+                  ]}
+                  onPress={() => handleSelect(option.value)}
+                  android_ripple={{ color: "rgba(0, 0, 0, 0.05)" }}
+                >
+                  <ThemedText style={styles.optionText}>
+                    {option.label}
+                  </ThemedText>
+                  {option.value === value && (
+                    <IconSymbol
+                      name="check"
+                      size={20}
+                      color={textColor}
+                    />
+                  )}
+                </Pressable>
+              ))
+            )}
+          </ScrollView>
+        </BottomSheetView>
+      </BottomSheetModal>
     </View>
   );
 }
@@ -239,19 +254,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
   },
-  modalOverlay: {
+  bottomSheetContent: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  modalContent: {
-    width: "100%",
-    maxWidth: 400,
-    maxHeight: "80%",
-    borderRadius: 12,
-    overflow: "hidden",
   },
   modalHeader: {
     flexDirection: "row",

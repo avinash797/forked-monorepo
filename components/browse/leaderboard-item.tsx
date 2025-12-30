@@ -4,7 +4,7 @@ import { useTheme } from '@/contexts/theme-provider';
 import type { LeaderboardItem as LeaderboardItemType } from '@/types/browse';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Pressable, View } from 'react-native';
 
 interface LeaderboardItemProps {
   item: LeaderboardItemType;
@@ -22,10 +22,13 @@ export function LeaderboardItem({ item, onPress }: LeaderboardItemProps) {
   const photoUrl = hasPhoto ? item.dish.photos[0] : null;
 
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
-      activeOpacity={0.8}
-      style={styles.container}
+      style={({ pressed }) => [
+        styles.container,
+        pressed && { opacity: 0.8 }
+      ]}
+      android_ripple={{ color: 'rgba(0, 0, 0, 0.05)' }}
     >
       {/* Medal Border for Top 3 */}
       {item.medal && (
@@ -92,7 +95,7 @@ export function LeaderboardItem({ item, onPress }: LeaderboardItemProps) {
           />
         )}
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 

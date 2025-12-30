@@ -6,14 +6,16 @@ import { useTheme } from '@/contexts/theme-provider';
 import { useLeaderboard } from '@/hooks/use-leaderboard';
 import type { LeaderboardItem as LeaderboardItemType } from '@/types/browse';
 import { Stack, useRouter } from 'expo-router';
+import { useMemo } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   ListRenderItem,
+  Platform,
+  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import Animated, {
@@ -88,7 +90,7 @@ export default function LeaderboardScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { theme, isDark } = useTheme();
-  const styles = createThemedStyles(theme, insets);
+  const styles = useMemo(() => createThemedStyles(theme, insets), [theme, insets]);
 
   const {
     dishTypes,
@@ -200,28 +202,40 @@ export default function LeaderboardScreen() {
                       key={dishType.id}
                       entering={FadeInDown.delay(index * 50).duration(400)}
                     >
-                      <TouchableOpacity
-                        onPress={() => selectDishType(dishType.id)}
-                        activeOpacity={0.7}
+                      <Animated.View
                         style={[
                           styles.chip,
                           isSelected && styles.chipSelected,
+                          isSelected && styles.chipWrapperSelected
                         ]}
                       >
-                        <MaterialCommunityIcons
-                          name={getDishIcon(dishType.name)}
-                          size={20}
-                          color={isSelected ? theme.color.accentOn : theme.color.textSecondary}
-                        />
-                        <ThemedText
-                          style={[
-                            styles.chipText,
-                            isSelected && styles.chipTextSelected,
+                        <Pressable
+                          onPress={() => selectDishType(dishType.id)}
+                          style={({ pressed }) => [
+                            styles.chipPressable,
+                            pressed && Platform.OS === 'ios' && { opacity: 0.7 }
                           ]}
+                          android_ripple={{
+                            color: isSelected ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)',
+                            borderless: false,
+                            foreground: true
+                          }}
                         >
-                          {dishType.name}
-                        </ThemedText>
-                      </TouchableOpacity>
+                          <MaterialCommunityIcons
+                            name={getDishIcon(dishType.name)}
+                            size={20}
+                            color={isSelected ? theme.color.accentOn : theme.color.textSecondary}
+                          />
+                          <ThemedText
+                            style={[
+                              styles.chipText,
+                              isSelected && styles.chipTextSelected,
+                            ]}
+                          >
+                            {dishType.name}
+                          </ThemedText>
+                        </Pressable>
+                      </Animated.View>
                     </Animated.View>
                   );
                 })}
@@ -321,21 +335,28 @@ const createThemedStyles = (
       paddingBottom: theme.space.xs,
     },
     chip: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: theme.space.md,
-      paddingVertical: theme.space.sm - 2,
       borderRadius: theme.radius.pill,
       backgroundColor: theme.color.surface,
       borderWidth: 1.5,
       borderColor: theme.color.border,
       marginRight: theme.space.xs,
-      gap: theme.space.xs,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.05,
       shadowRadius: 4,
       elevation: 2,
+      overflow: 'hidden',
+    },
+    chipPressable: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: theme.space.md,
+      paddingVertical: theme.space.sm - 2,
+      gap: theme.space.xs,
+    },
+    chipWrapperSelected: {
+      transform: [{ scale: 1.05 }],
+      zIndex: 1,
     },
     chipSelected: {
       backgroundColor: theme.color.accent,
@@ -344,7 +365,6 @@ const createThemedStyles = (
       shadowOpacity: 0.3,
       shadowRadius: 8,
       elevation: 4,
-      transform: [{ scale: 1.05 }],
     },
     chipText: {
       fontSize: theme.font.size.md,
