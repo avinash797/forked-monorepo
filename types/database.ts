@@ -1,5 +1,5 @@
-import type { Profile, Charm } from './auth';
-import type { Venue, Dish, Review, Photo } from './rating';
+import type { Charm, Profile } from './auth';
+import type { Dish, DishType, Photo, Review, Venue } from './rating';
 
 export interface Database {
   public: {
@@ -27,6 +27,13 @@ export interface Database {
           id?: string;
         };
         Update: Partial<Omit<Dish, 'id' | 'venue_id' | 'date_added'>>;
+      };
+      dish_types: {
+        Row: DishType;
+        Insert: Omit<DishType, 'id' | 'created_at' | 'updated_at'> & {
+          id?: string;
+        };
+        Update: Partial<Omit<DishType, 'id' | 'created_at'>>;
       };
       reviews: {
         Row: Review;

@@ -40,6 +40,11 @@ export const genZ = {
                 focusRing: "rgba(255,59,48,0.40)",
                 selection: "rgba(255,59,48,0.18)",
 
+                // Medals / Boarders
+                gold: "#FBBF24",
+                silver: "#D1D5DB",
+                bronze: "#CD7F32",
+
                 // Badges
                 badgeBg: "#1B1B1F",
                 badgeText: "#F5F5F7",
@@ -84,6 +89,11 @@ export const genZ = {
 
                 focusRing: "rgba(225,37,27,0.28)",
                 selection: "rgba(225,37,27,0.14)",
+
+                // Medals / Boarders
+                gold: "#F59E0B",
+                silver: "#9CA3AF",
+                bronze: "#B45309",
 
                 badgeBg: "#FFFFFF",
                 badgeText: "#111114",

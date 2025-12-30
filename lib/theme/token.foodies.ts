@@ -33,6 +33,11 @@ export const foodies = {
                 focusRing: "rgba(192,57,43,0.40)",
                 selection: "rgba(192,57,43,0.18)",
 
+                // Medals / Boarders
+                gold: "#FBBF24",
+                silver: "#D1D5DB",
+                bronze: "#CD7F32",
+
                 badgeBg: "#1E1E21",
                 badgeText: "#F3F1EE",
             },
@@ -75,6 +80,11 @@ export const foodies = {
 
                 focusRing: "rgba(184,50,39,0.28)",
                 selection: "rgba(184,50,39,0.14)",
+
+                // Medals / Boarders
+                gold: "#F59E0B",
+                silver: "#9CA3AF",
+                bronze: "#B45309",
 
                 badgeBg: "#FFFFFF",
                 badgeText: "#1A1714",

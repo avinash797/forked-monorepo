@@ -1,9 +1,9 @@
+import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { ThemedButton } from '@/components/themed-button';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { StyleSheet } from 'react-native';
 import { useTheme } from '@/contexts/theme-provider';
+import { StyleSheet } from 'react-native';
 
 interface EmptyStateProps {
   icon?: 'search' | 'restaurant' | 'location-on' | 'warning' | 'error';
@@ -34,7 +34,7 @@ export function EmptyState({
       <IconSymbol
         name={icon}
         size={64}
-        color={theme.color.text}
+        color={theme.color.textPrimary}
         style={styles.icon}
       />
 

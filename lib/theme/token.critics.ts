@@ -33,6 +33,12 @@ export const critics = {
                 focusRing: "rgba(142,44,44,0.42)",
                 selection: "rgba(142,44,44,0.18)",
 
+
+                // Medals / Boarders
+                gold: "#FBBF24",
+                silver: "#D1D5DB",
+                bronze: "#CD7F32",
+
                 badgeBg: "#1C1C20",
                 badgeText: "#F2F2F4",
             },
@@ -75,6 +81,11 @@ export const critics = {
 
                 focusRing: "rgba(122,31,31,0.30)",
                 selection: "rgba(122,31,31,0.14)",
+
+                // Medals / Boarders
+                gold: "#F59E0B",
+                silver: "#9CA3AF",
+                bronze: "#B45309",
 
                 badgeBg: "#FFFFFF",
                 badgeText: "#101014",

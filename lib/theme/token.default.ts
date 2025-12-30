@@ -40,6 +40,11 @@ export const defaultTheme = {
                 focusRing: "rgba(238,108,43,0.40)",
                 selection: "rgba(238,108,43,0.18)",
 
+                // Medals / Boarders
+                gold: "#FBBF24",
+                silver: "#D1D5DB",
+                bronze: "#CD7F32",
+
                 // Badges
                 badgeBg: "#342219",
                 badgeText: "#ECEDEE",
@@ -91,6 +96,11 @@ export const defaultTheme = {
                 // Focus / highlight
                 focusRing: "rgba(238,108,43,0.28)",
                 selection: "rgba(238,108,43,0.14)",
+
+                // Medals / Boarders
+                gold: "#F59E0B",
+                silver: "#9CA3AF",
+                bronze: "#B45309",
 
                 // Badges
                 badgeBg: "#ffffff",
