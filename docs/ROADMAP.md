@@ -12,9 +12,9 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 
 ---
 
-## Current Status: 57% Complete (+20% from Discovery & Browsing)
+## Current Status: 67% Complete (+10% from Leaderboard & Rankings)
 
-### ✅ Completed (Foundation + MVP Features #1 & #2)
+### ✅ Completed (Foundation + MVP Features #1, #2, #3, #6, #7)
 
 - Authentication system (signup, login, password reset, profile management)
 - Database schema (17 migrations: 11 tables + 1 storage bucket + seed data)
@@ -25,6 +25,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - **Photo System** (camera, gallery, Supabase Storage upload, photo gallery display)
 - **GPS Verification** (location services, distance calculation)
 - **Discovery & Browsing** (home feed, search, dish/venue detail pages) 🎉
+- **Leaderboard & Rankings** (dish type chips, top dishes by category, medal borders, dramatic animations) 🎉
 
 ### 🚧 In Progress
 
@@ -183,6 +184,37 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - ✅ Reusable components work across all screens
 - ✅ Consistent design language
 - ✅ Proper theme support (light/dark mode)
+
+---
+
+#### 7. Leaderboard & Rankings (Important - 10% of MVP) ✅ COMPLETE
+
+**Status:** ✅ Complete | **Progress:** 100% | **Completed:** 2025-12-29
+
+- [x] Horizontal scrollable chip selector for dish types
+- [x] Fetch dish types with ≥3 dishes that have average_rating populated
+- [x] Leaderboard flat list with compact tiles (dish + venue + rating badge)
+- [x] Medal borders for top 3 (gold #1, silver #2, bronze #3)
+- [x] Filter leaderboard items based on selected dish type chip
+- [x] Dramatic animations following dish-detail/venue-detail patterns
+- [x] Pull-to-refresh and loading states
+
+**Success Criteria:** ✅ ALL MET
+
+- ✅ User can browse dish types with sufficient rated dishes
+- ✅ User can see top dishes ranked by average rating per type
+- ✅ Top 3 dishes have distinctive medal borders (with crown emoji for #1, oversized photos)
+- ✅ Animations are smooth and dramatic like other detail screens
+
+**Implementation Details:**
+- New tab between home and add-review tabs with "leaderboard" icon
+- `useLeaderboard` hook for data fetching (optimized with in-memory aggregation)
+- `LeaderboardItem` component with gradient medal borders and playful design
+- Medal colors use existing `theme.color.gold`, `theme.color.silver`, `theme.color.bronze`
+- Reanimated for smooth 60fps staggered fade-in animations
+- Dish type chips with category icons using MaterialCommunityIcons
+- Crown emoji (👑) for #1 position with rotation transform
+- Oversized photos for top 3 with enhanced shadows and borders
 
 ---
 
@@ -438,21 +470,22 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 | Phase          | Features Complete | Total Features | Progress |
 | -------------- | ----------------- | -------------- | -------- |
 | **Foundation** | 5/5               | 5              | 100% ✅  |
-| **MVP**        | 3/6               | 6              | 50% 🚧   |
+| **MVP**        | 5/7               | 7              | 71% 🚧   |
 | **V1.0**       | 0/9               | 9              | 0%       |
 | **V2.0**       | 0/5               | 5              | 0%       |
-| **TOTAL**      | 8/25              | 25             | **32%**  |
+| **TOTAL**      | 10/26             | 26             | **38%**  |
 
 ### MVP Progress Breakdown
 
-| Feature              | Priority  | Status      | Progress |
-| -------------------- | --------- | ----------- | -------- |
-| Core Rating Flow     | Critical  | ✅ Complete | 100%     |
-| Discovery & Browsing | Critical  | ✅ Complete | 100%     |
-| Photo System         | Critical  | ✅ Complete | 100%     |
-| Review Display       | Important | 🚧 Partial  | 60%      |
-| Data Layer & API     | Critical  | 🚧 Partial  | 80%      |
-| Basic UI Components  | Important | ✅ Complete | 100%     |
+| Feature                | Priority  | Status      | Progress |
+| ---------------------- | --------- | ----------- | -------- |
+| Core Rating Flow       | Critical  | ✅ Complete | 100%     |
+| Discovery & Browsing   | Critical  | ✅ Complete | 100%     |
+| Photo System           | Critical  | ✅ Complete | 100%     |
+| Review Display         | Important | 🚧 Partial  | 60%      |
+| Data Layer & API       | Critical  | 🚧 Partial  | 80%      |
+| Basic UI Components    | Important | ✅ Complete | 100%     |
+| Leaderboard & Rankings | Important | ✅ Complete | 100%     |
 
 ---
 
@@ -481,6 +514,7 @@ This roadmap should be reviewed and updated:
 1. ✅ ~~Review and approve this roadmap~~
 2. ✅ ~~Begin MVP Feature #1: Core Rating Flow~~ (Complete)
 3. ✅ ~~Begin MVP Feature #2: Discovery & Browsing~~ (Complete)
-4. Complete MVP Feature #4: Review Display & Interaction (helpful votes, sorting)
-5. Set target dates for MVP beta release
-6. Update progress weekly in this file
+4. ✅ ~~Begin MVP Feature #7: Leaderboard & Rankings~~ (Complete)
+5. Complete MVP Feature #4: Review Display & Interaction (helpful votes, sorting)
+6. Set target dates for MVP beta release
+7. Update progress weekly in this file

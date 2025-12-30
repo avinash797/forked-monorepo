@@ -71,3 +71,34 @@ export interface PaginationState {
   hasMore: boolean;
   isLoadingMore: boolean;
 }
+
+// ============================================================================
+// Leaderboard Types
+// ============================================================================
+
+/**
+ * Dish type that qualifies for leaderboard display
+ * Must have at least 3 dishes with ratings
+ */
+export interface DishTypeForLeaderboard {
+  id: string;
+  name: string;
+  category: string;
+  /** Number of rated dishes for this type */
+  rated_dish_count: number;
+}
+
+/**
+ * Single leaderboard entry with rank and medal
+ * Used in: Leaderboard screen
+ */
+export interface LeaderboardItem {
+  /** Rank position (1-indexed) */
+  rank: number;
+  /** The dish information */
+  dish: Dish;
+  /** The venue where this dish is served */
+  venue: Venue;
+  /** Medal type for top 3 */
+  medal?: 'gold' | 'silver' | 'bronze';
+}
