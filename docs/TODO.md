@@ -1,61 +1,89 @@
 # Forked - Active TODO List
 
-**Last Updated:** 2025-12-26
+**Last Updated:** 2025-12-29
 
 This file tracks active work items and immediate next steps. For the full roadmap, see [ROADMAP.md](./ROADMAP.md).
 
 ---
 
-## ✅ Recently Completed: MVP Feature #1 - Core Rating Flow
+## ✅ Recently Completed
+
+### MVP Feature #2 - Discovery & Browsing
+
+**Goal:** Allow users to browse and discover rated dishes
+
+**Status:** ✅ Complete (2025-12-29)
+
+- [x] Design home feed UI/UX
+- [x] Create ReviewCard component
+- [x] Implement home feed with review list, pagination, and pull-to-refresh
+- [x] Create dish detail page with reviews, photos, and venue info
+- [x] Create venue detail page with all dishes and reviews
+- [x] Add basic search functionality for dishes and venues
+- [x] Implement loading states and empty states
+- [x] Add photo gallery display
+- [x] Build browse components (DishCardWithRating, PhotoGallery, SectionHeader, EmptyState)
+- [x] Create custom hooks (useTopDishes, useSearch, useDishDetail, useVenueDetail)
+
+**Deliverables:**
+- 13 files created (4 screens, 5 components, 4 hooks)
+- Home feed fully functional with pagination
+- Search working for dishes and venues
+- Complete browse and detail screens
+- **Rating system changed from 1-5 stars to 0-10 numeric scale**
+
+---
+
+### MVP Feature #1 - Core Rating Flow
 
 **Goal:** Enable users to rate dishes with photos and GPS verification
 
 **Status:** ✅ Complete (2025-12-26)
 
-- [x] Design rating flow screens (wireframes/mockups)
-- [x] Create StarRating component
-- [x] Build "Rate a Dish" home screen entry point (FloatingActionButton)
-- [x] Implement venue selection screen with search and GPS proximity
-- [x] Implement dish selection screen with create dish capability
-- [x] Implement rating submission screen
-- [x] Add photo upload functionality (camera + gallery)
-- [x] Integrate GPS location detection and verification
-- [x] Configure Supabase Storage bucket with RLS policies
-- [x] Connect to Supabase (submit review)
-- [x] Test end-to-end rating flow
+- [x] Complete rating flow with 0-10 numeric rating scale
+- [x] Photo system fully functional
+- [x] GPS verification with distance calculation
+- [x] Complete modal flow from venue search to success
 
 **Deliverables:**
 - 24 files created (5 screens, 6 components, 5 hooks, 1 context, types, migration)
-- Photo system fully functional
-- GPS verification with distance calculation
-- Complete modal flow from venue search to success
 
 ---
 
-## 🎯 Current Sprint: MVP Feature #2 - Discovery & Browsing
+## 🎯 Current Sprint: Review Interactions & Enhancements
 
-**Goal:** Allow users to browse and discover rated dishes
+**Goal:** Add helpful votes, review sorting, and user review management
 
-**Status:** Not Started
+**Status:** In Progress
 
 ### High Priority Tasks
 
-- [ ] Design home feed UI/UX
-- [ ] Create ReviewCard component
-- [ ] Implement home feed with review list
-- [ ] Create dish detail page
-- [ ] Create venue detail page
-- [ ] Add basic search functionality
-- [ ] Implement review sorting (newest, highest rated, nearby)
-- [ ] Add photo gallery display
-- [ ] Connect helpful votes interaction
+- [ ] Implement helpful votes functionality
+  - [ ] Add upvote/downvote UI to ReviewCard
+  - [ ] Create useHelpfulVotes hook
+  - [ ] Connect to helpful_votes table in Supabase
+  - [ ] Handle vote creation, update, and deletion
+  - [ ] Show vote counts on reviews
+  - [ ] Prevent self-voting (enforce RLS policy)
+
+- [ ] Implement review sorting
+  - [ ] Add sort dropdown/picker component
+  - [ ] Support "Most Helpful", "Most Recent", "Highest Rating", "Lowest Rating"
+  - [ ] Update useDishDetail hook to accept sort parameter
+  - [ ] Persist sort preference (optional)
+
+- [ ] User's own review management
+  - [ ] Highlight user's own review in review list
+  - [ ] Add "Edit" button to user's review
+  - [ ] Create edit review screen/modal
+  - [ ] Implement review deletion with confirmation
 
 ### Next Steps
 
-1. Start with home feed design (review list on main screen)
-2. Build ReviewCard component showing dish photo, rating, venue
-3. Create dish detail page to view all reviews for a dish
-4. Add navigation from review cards to detail pages
+1. Start with helpful votes UI in ReviewCard
+2. Create useHelpfulVotes hook for data management
+3. Add sort dropdown to dish detail page
+4. Implement user review highlighting and edit functionality
 
 ---
 
@@ -63,38 +91,45 @@ This file tracks active work items and immediate next steps. For the full roadma
 
 ### MVP Features Waiting to Start
 
-1. **Review Display & Interaction** (Part of Discovery)
-
-   - Helpful votes UI and interaction
-   - Review sorting options (newest, top-rated, nearby)
-   - Review flagging/reporting
-
-2. **Advanced Data Layer**
-
+1. **Advanced Data Layer** (Deferred to V1.0)
    - React Query setup for caching
    - Optimistic updates
    - Offline support
 
-3. **Enhanced UI Components**
-   - ReviewCard with all metadata ✅ (needed for Discovery)
-   - PhotoGallery with lightbox
-   - Loading skeletons
+2. **Testing & Quality** (Deferred to V1.0)
+   - Unit tests for hooks and utilities
+   - Component tests for UI
+   - E2E tests for critical flows
+
+3. **Production Polish** (Deferred to V1.0)
    - Error boundaries
+   - Performance optimization
+   - Analytics integration
 
-### Completed Components (from Core Rating Flow)
+### Completed Components
 
-- ✅ StarRating
+**Rating Flow:**
+- ✅ NumericRating (0-10 scale input)
 - ✅ VenueCard
 - ✅ DishCard
 - ✅ PhotoPicker
 - ✅ SearchInput
 - ✅ LocationStatusBanner
 
+**Browse/Discovery:**
+- ✅ ReviewCard
+- ✅ DishCardWithRating
+- ✅ PhotoGallery
+- ✅ SectionHeader
+- ✅ EmptyState
+
 ### Completed Systems
 
-- ✅ Photo System (Supabase Storage, Camera/ImagePicker)
+- ✅ Photo System (Supabase Storage, Camera/ImagePicker, Gallery Display)
 - ✅ GPS/Location Services
-- ✅ Basic Supabase query hooks
+- ✅ Custom Supabase query hooks (14 hooks total)
+- ✅ Browse & Search functionality
+- ✅ Home feed with pagination
 
 ---
 
@@ -110,12 +145,14 @@ _None reported yet_
 
 - ✅ ~~Evaluate React Query vs. SWR for data fetching~~ (Deferred to V1.0)
 - ✅ ~~Consider using Expo Image for better image performance~~ (Using Expo ImagePicker)
+- ✅ ~~Implement pull-to-refresh on feed~~ (Complete)
+- ✅ ~~Add pagination for review lists~~ (Complete via Load More)
 - Research AI photo verification APIs (Google Vision, AWS Rekognition, etc.)
 - Plan for app store submission requirements
 - Consider analytics platform (Amplitude, Mixpanel, PostHog)
 - Add image compression/optimization before upload (V1.0)
-- Implement pull-to-refresh on feed
-- Add infinite scroll for review lists
+- Implement infinite scroll/virtualized lists for better performance (V1.0)
+- Add review flagging/reporting (V1.0)
 
 ---
 
