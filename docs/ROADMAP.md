@@ -79,10 +79,10 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 
 **Status:** Not Started | **Progress:** 0%
 
-- [x] Home feed showing top-rated dishes (nearby or trending)
-- [x] Dish detail page (ratings, photos, reviews, venue info)
-- [x] Venue detail page (all dishes, location, hours, photos)
-- [x] Basic search (by dish name or venue name)
+- [ ] Home feed showing top-rated dishes (nearby or trending)
+- [ ] Dish detail page (ratings, photos, reviews, venue info)
+- [ ] Venue detail page (all dishes, location, hours, photos)
+- [ ] Basic search (by dish name or venue name)
 - [ ] Filter by location (city/radius)
 
 **Success Criteria:**
