@@ -104,16 +104,17 @@ export default function VenueSearchScreen() {
     setIsSearching(true);
     try {
       // Parallel fetch: DB venues + Mapbox near user
-      const [dbResults, mapboxResults] = await Promise.all([
+      //TODO: Reenable this when moving to production, disabling right now to preserve cost, move mapbox back in the promise resolver
+      const mapboxResults = null;
+      const [dbResults] = await Promise.all([
         getNearbyVenues(),
-        searchAddress("restaurant")
+        // searchAddress("restaurant")
       ]);
 
       if (dbResults) {
         const sortedResults = dbResults
           .map((v) => ({ ...v, distance: calculateDistance(v) }))
-          .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity)).filter((v) => v.distance !== undefined && v.distance < 2000);
-        console.log("Sorted results:", sortedResults);
+          .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
         setDbVenues(sortedResults);
       }
       if (mapboxResults) setMapboxSuggestions(mapboxResults);
@@ -127,7 +128,7 @@ export default function VenueSearchScreen() {
   useEffect(() => {
     if (location && searchQuery === "") {
       //TODO: Reenable this when moving to production, disabling right now to preserve cost
-      //fetchNearbySuggestions();
+      fetchNearbySuggestions();
     }
   }, [location, searchQuery]);
 
@@ -308,7 +309,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 32,
+    padding: 8,
   },
   emptyText: {
     fontSize: 16,

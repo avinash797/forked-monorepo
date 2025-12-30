@@ -1,0 +1,401 @@
+-- Seed data: Reviews for diverse New Orleans dishes
+-- Reviews from 3 users across multiple cuisines with ratings ranging from 6-10
+insert into public.reviews (
+    id,
+    user_id,
+    dish_id,
+    venue_id,
+    rating,
+    review_text,
+    photo_urls,
+    location_latitude,
+    location_longitude,
+    is_gps_verified,
+    is_photo_verified,
+    moderation_status,
+    created_at
+  )
+values -- Commander's Palace - Turtle Soup
+  (
+    '6a111111-1111-1111-1111-111111111111',
+    '39cdf2cc-4cd6-483e-8553-f5882897b77d',
+    'f1111111-1111-1111-1111-111111111111',
+    '66666666-6666-6666-6666-666666666666',
+    9.0,
+    'Rich and complex! The sherry adds a wonderful depth. This is old-school New Orleans dining at its finest. A must-try if you''re feeling adventurous.',
+    ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+    29.92587200,
+    -90.08532000,
+    true,
+    true,
+    'approved',
+    now() - interval '14 days'
+  );
+-- Commander's Palace - Pecan Crusted Gulf Fish
+-- (
+--   '6a111112-1111-1111-1111-111111111111',
+--   'cf57c6e4-9a09-408c-9ad3-cc1a58cbca3c',
+--   'f2222222-2222-2222-2222-222222222222',
+--   '66666666-6666-6666-6666-666666666666',
+--   10,
+--   'Absolutely divine! The fish was perfectly cooked and the pecan crust added amazing texture. The meuniere sauce was buttery perfection. Worth every penny!',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.92587400,
+--   -90.08532200,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '11 days'
+-- ),
+-- -- Café Du Monde - Beignets
+-- (
+--   '7a111111-1111-1111-1111-111111111111',
+--   '10acd8a2-b256-49d4-989d-2852c22279ce',
+--   'f4444444-4444-4444-4444-444444444444',
+--   '77777777-7777-7777-7777-777777777777',
+--   10,
+--   'A New Orleans ICON! Hot, fresh, and covered in powdered sugar. Get the café au lait with it. Perfect breakfast or late-night treat. An absolute must when visiting NOLA!',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.95779600,
+--   -90.06209200,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '8 days'
+-- ),
+-- -- Domenica - Pizza Margherita
+-- (
+--   '8a111111-1111-1111-1111-111111111111',
+--   '39cdf2cc-4cd6-483e-8553-f5882897b77d',
+--   'f5555555-5555-5555-5555-555555555555',
+--   '88888888-8888-8888-8888-888888888888',
+--   9,
+--   'Outstanding wood-fired pizza! The crust is perfectly charred and chewy. Fresh mozzarella and basil. Simple but executed to perfection. Best pizza in New Orleans!',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.95139000,
+--   -90.07083400,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '6 days'
+-- ),
+-- -- Domenica - Meatballs Pomodoro
+-- (
+--   '8a111112-1111-1111-1111-111111111111',
+--   'cf57c6e4-9a09-408c-9ad3-cc1a58cbca3c',
+--   'f6666666-6666-6666-6666-666666666666',
+--   '88888888-8888-8888-8888-888888888888',
+--   8,
+--   'Fantastic meatballs! Tender and flavorful with a rich tomato sauce. The grilled bread is perfect for soaking up the sauce. Solid Italian comfort food.',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.95138800,
+--   -90.07083200,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '13 days'
+-- ),
+-- -- Juan's Flying Burrito - Blackened Fish Tacos
+-- (
+--   '9a111111-1111-1111-1111-111111111111',
+--   '10acd8a2-b256-49d4-989d-2852c22279ce',
+--   'f8888888-8888-8888-8888-888888888888',
+--   '99999999-9999-9999-9999-999999999999',
+--   8,
+--   'Delicious fish tacos with a NOLA twist! The blackening seasoning is perfect and the chipotle aioli ties it all together. Fun atmosphere and good vibes.',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.92856800,
+--   -90.08691300,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '5 days'
+-- ),
+-- -- Willie Mae's - Fried Chicken
+-- (
+--   'aa111111-1111-1111-1111-111111111111',
+--   '39cdf2cc-4cd6-483e-8553-f5882897b77d',
+--   'faaaaaaa-aaaa-aaaa-aaaa-111111111111',
+--   'aaaaaaaa-aaaa-aaaa-aaaa-111111111111',
+--   10,
+--   'THE BEST fried chicken in America! Crispy, juicy, perfectly seasoned. James Beard Award winner for a reason. Worth the wait. This is bucket list food!',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.96890500,
+--   -90.08523700,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '16 days'
+-- ),
+-- -- Willie Mae's - Mac and Cheese
+-- (
+--   'aa111112-1111-1111-1111-111111111111',
+--   'cf57c6e4-9a09-408c-9ad3-cc1a58cbca3c',
+--   'fbbbbbbb-bbbb-bbbb-bbbb-111111111111',
+--   'aaaaaaaa-aaaa-aaaa-aaaa-111111111111',
+--   9,
+--   'Creamy, cheesy perfection! The perfect side for the fried chicken. Homestyle comfort food done right. Get this with your order!',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.96890600,
+--   -90.08523800,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '12 days'
+-- ),
+-- -- Brennan's - Eggs Sardou
+-- (
+--   'bb111111-1111-1111-1111-111111111111',
+--   '10acd8a2-b256-49d4-989d-2852c22279ce',
+--   'fccccccc-cccc-cccc-cccc-111111111111',
+--   'bbbbbbbb-bbbb-bbbb-bbbb-111111111111',
+--   9,
+--   'Elegant brunch dish! The hollandaise is silky smooth and the artichoke bottoms are tender. A decadent start to any day. Classic New Orleans breakfast.',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.95387300,
+--   -90.06542900,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '7 days'
+-- ),
+-- -- Brennan's - Bananas Foster
+-- (
+--   'bb111112-1111-1111-1111-111111111111',
+--   '39cdf2cc-4cd6-483e-8553-f5882897b77d',
+--   'fddddddd-dddd-dddd-dddd-111111111111',
+--   'bbbbbbbb-bbbb-bbbb-bbbb-111111111111',
+--   10,
+--   'Spectacular dessert! They flambe it tableside which is a show in itself. The caramelized bananas with rum and ice cream is heavenly. Created here in 1951!',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.95387400,
+--   -90.06543000,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '18 days'
+-- ),
+-- -- Peche - Shrimp & Grits
+-- (
+--   'cc111111-1111-1111-1111-111111111111',
+--   'cf57c6e4-9a09-408c-9ad3-cc1a58cbca3c',
+--   'f0000000-0000-0000-0000-222222222222',
+--   'cccccccc-cccc-cccc-cccc-111111111111',
+--   9,
+--   'Incredible! The shrimp are perfectly cooked and the andouille adds a nice kick. The grits are creamy and rich. Modern take on a Louisiana classic.',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.94193900,
+--   -90.07265500,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '9 days'
+-- ),
+-- -- Peche - Catfish Étouffée
+-- (
+--   'cc111112-1111-1111-1111-111111111111',
+--   '10acd8a2-b256-49d4-989d-2852c22279ce',
+--   'f0000000-0000-0000-0000-333333333333',
+--   'cccccccc-cccc-cccc-cccc-111111111111',
+--   8,
+--   'Delicious smothered catfish! The roux-based sauce is rich and flavorful with good spice level. The catfish is fresh and flaky. Great Louisiana comfort food.',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.94194000,
+--   -90.07265600,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '10 days'
+-- ),
+-- -- Ninja - Spicy Tuna Roll
+-- (
+--   'ee111111-1111-1111-1111-111111111111',
+--   '39cdf2cc-4cd6-483e-8553-f5882897b77d',
+--   'f0000000-0000-0000-0000-777777777777',
+--   'eeeeeeee-eeee-eeee-eeee-111111111111',
+--   9,
+--   'Fresh and delicious! The tuna is high quality and the spice level is perfect. Great balance of flavors. One of the best spicy tuna rolls in the city!',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.96095700,
+--   -90.12197900,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '4 days'
+-- ),
+-- -- Ninja - Dragon Roll
+-- (
+--   'ee111112-1111-1111-1111-111111111111',
+--   'cf57c6e4-9a09-408c-9ad3-cc1a58cbca3c',
+--   'f0000000-0000-0000-0000-888888888888',
+--   'eeeeeeee-eeee-eeee-eeee-111111111111',
+--   10,
+--   'Stunning presentation and incredible taste! The shrimp tempura is crispy, the eel is perfectly grilled, and the avocado is buttery. A work of art!',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.96095800,
+--   -90.12198000,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '15 days'
+-- ),
+-- -- Ninja - Sashimi Platter
+-- (
+--   'ee111113-1111-1111-1111-111111111111',
+--   '10acd8a2-b256-49d4-989d-2852c22279ce',
+--   'f0000000-0000-0000-0000-bbbbbbbbbbbb',
+--   'eeeeeeee-eeee-eeee-eeee-111111111111',
+--   8,
+--   'Very fresh fish! The chef''s selection was excellent with tuna, salmon, and yellowtail. Beautifully plated. Great for sharing.',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.96095500,
+--   -90.12197700,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '11 days'
+-- ),
+-- -- Rock-n-Sake - California Roll
+-- (
+--   'ff111111-1111-1111-1111-111111111111',
+--   '39cdf2cc-4cd6-483e-8553-f5882897b77d',
+--   'f0000000-0000-0000-0000-cccccccccccc',
+--   'ffffffff-ffff-ffff-ffff-111111111111',
+--   7,
+--   'Solid California roll. Nothing fancy but well-made with fresh ingredients. Good for sushi beginners. The atmosphere is fun and lively!',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.94281600,
+--   -90.06887300,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '6 days'
+-- ),
+-- -- Rock-n-Sake - Rainbow Roll
+-- (
+--   'ff111112-1111-1111-1111-111111111111',
+--   'cf57c6e4-9a09-408c-9ad3-cc1a58cbca3c',
+--   'f0000000-0000-0000-0000-dddddddddddd',
+--   'ffffffff-ffff-ffff-ffff-111111111111',
+--   9,
+--   'Beautiful and delicious! The variety of fresh fish on top is amazing. Every bite is different. Great value for the quality and quantity.',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.94281700,
+--   -90.06887400,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '13 days'
+-- ),
+-- -- Rock-n-Sake - Volcano Roll
+-- (
+--   'ff111113-1111-1111-1111-111111111111',
+--   '10acd8a2-b256-49d4-989d-2852c22279ce',
+--   'f0000000-0000-0000-0000-eeeeeeeeeeee',
+--   'ffffffff-ffff-ffff-ffff-111111111111',
+--   8,
+--   'Delicious and rich! The baked scallops on top are creamy and the spicy tuna inside provides nice heat. Creative and well-executed specialty roll.',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.94281800,
+--   -90.06887500,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '8 days'
+-- ),
+-- -- Hana - Tonkotsu Ramen
+-- (
+--   '10111111-1111-1111-1111-111111111111',
+--   '39cdf2cc-4cd6-483e-8553-f5882897b77d',
+--   'f1000000-0000-0000-0000-222222222222',
+--   '10101010-1010-1010-1010-101010101010',
+--   9,
+--   'Fantastic ramen! The pork bone broth is rich and creamy. The chashu pork melts in your mouth and the egg is perfectly soft-boiled. Comfort in a bowl!',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.95863300,
+--   -90.11847700,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '5 days'
+-- ),
+-- -- Hana - Spicy Miso Ramen
+-- (
+--   '10111112-1111-1111-1111-111111111111',
+--   'cf57c6e4-9a09-408c-9ad3-cc1a58cbca3c',
+--   'f1000000-0000-0000-0000-333333333333',
+--   '10101010-1010-1010-1010-101010101010',
+--   8,
+--   'Great spicy kick! The miso broth is flavorful and the heat level is perfect. Lots of toppings and generous portion. Very satisfying on a cold day.',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.95863400,
+--   -90.11847800,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '12 days'
+-- ),
+-- -- Hana - Philadelphia Roll
+-- (
+--   '10111113-1111-1111-1111-111111111111',
+--   '10acd8a2-b256-49d4-989d-2852c22279ce',
+--   'f1000000-0000-0000-0000-111111111111',
+--   '10101010-1010-1010-1010-101010101010',
+--   7,
+--   'Classic Philly roll done well. The smoked salmon and cream cheese combination is always a winner. Good for those who don''t like raw fish.',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.95863500,
+--   -90.11847900,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '14 days'
+-- ),
+-- -- Dat Dog - Crawfish Étouffée Dog (lower rating)
+-- (
+--   'dd111111-1111-1111-1111-111111111111',
+--   '39cdf2cc-4cd6-483e-8553-f5882897b77d',
+--   'f0000000-0000-0000-0000-444444444444',
+--   'dddddddd-dddd-dddd-dddd-111111111111',
+--   6,
+--   'Interesting concept but the execution is just okay. The étouffée is decent but doesn''t really work on a hot dog for me. Fun place though with good beer selection.',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.93465900,
+--   -90.10298800,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '3 days'
+-- ),
+-- -- Juan's Flying Burrito - Loaded Nachos
+-- (
+--   '9a111112-1111-1111-1111-111111111111',
+--   'cf57c6e4-9a09-408c-9ad3-cc1a58cbca3c',
+--   'f9999999-9999-9999-9999-999999999999',
+--   '99999999-9999-9999-9999-999999999999',
+--   8,
+--   'Huge portion of nachos! Loaded with toppings and perfect for sharing. The guac is fresh and everything tastes great. Excellent value for money.',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.92856900,
+--   -90.08691400,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '17 days'
+-- ),
+-- -- Commander's Palace - Bread Pudding Soufflé (mixed review)
+-- (
+--   '6a111113-1111-1111-1111-111111111111',
+--   '10acd8a2-b256-49d4-989d-2852c22279ce',
+--   'f3333333-3333-3333-3333-333333333333',
+--   '66666666-6666-6666-6666-666666666666',
+--   7,
+--   'The whiskey sauce is amazing but the soufflé itself was a bit too eggy for my taste. Still a signature dish worth trying. Service was impeccable though!',
+--   ARRAY ['https://bqxhinoabxmpsvzntrlq.supabase.co/storage/v1/object/public/review-photos/review/39cdf2cc-4cd6-483e-8553-f5882897b77d/1766963765827.png'],
+--   29.92587500,
+--   -90.08532300,
+--   true,
+--   true,
+--   'approved',
+--   now() - interval '19 days'
+-- );

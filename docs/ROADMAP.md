@@ -12,22 +12,23 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 
 ---
 
-## Current Status: 37% Complete (+7% from Core Rating Flow)
+## Current Status: 57% Complete (+20% from Discovery & Browsing)
 
-### ✅ Completed (Foundation + MVP Feature #1)
+### ✅ Completed (Foundation + MVP Features #1 & #2)
 
 - Authentication system (signup, login, password reset, profile management)
-- Database schema (12 migrations: 11 tables + 1 storage bucket)
+- Database schema (17 migrations: 11 tables + 1 storage bucket + seed data)
 - UI component library (themed components, navigation structure)
 - App architecture (Expo Router, TypeScript, theme system)
 - User profile viewing
-- **Core Rating Flow** (venue search, dish selection, rating submission) 🎉
-- **Photo System** (camera, gallery, Supabase Storage upload)
+- **Core Rating Flow** (venue search, dish selection, rating submission with 0-10 scale) 🎉
+- **Photo System** (camera, gallery, Supabase Storage upload, photo gallery display)
 - **GPS Verification** (location services, distance calculation)
+- **Discovery & Browsing** (home feed, search, dish/venue detail pages) 🎉
 
 ### 🚧 In Progress
 
-- Discovery & Browsing (next priority)
+- Review display enhancements (helpful votes, sorting)
 
 ### ❌ Not Started
 
@@ -53,7 +54,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - [x] "Rate a Dish" entry point on home screen (FloatingActionButton)
 - [x] Venue selection screen (search + GPS proximity)
 - [x] Dish selection screen (browse existing or add new)
-- [x] Rating submission screen (star rating, photo, review text)
+- [x] Rating submission screen (0-10 numeric rating, photo, review text)
 - [x] Photo capture/upload functionality (camera + gallery)
 - [x] GPS location detection and verification (with Haversine distance)
 - [x] Review confirmation and submission to Supabase
@@ -63,7 +64,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 
 - ✅ User can find a nearby venue
 - ✅ User can select or create a dish
-- ✅ User can rate with 1-5 stars + photo (required) + optional text
+- ✅ User can rate with 0-10 scale + photo (required) + optional text
 - ✅ Review saves to database with GPS verification status
 
 **Implementation Details:**
@@ -75,98 +76,113 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 
 ---
 
-#### 2. Discovery & Browsing (Critical - 20% of MVP)
+#### 2. Discovery & Browsing (Critical - 20% of MVP) ✅ COMPLETE
 
-**Status:** Not Started | **Progress:** 0%
+**Status:** ✅ Complete | **Progress:** 100% | **Completed:** 2025-12-29
 
-- [ ] Home feed showing top-rated dishes (nearby or trending)
-- [ ] Dish detail page (ratings, photos, reviews, venue info)
-- [ ] Venue detail page (all dishes, location, hours, photos)
-- [ ] Basic search (by dish name or venue name)
-- [ ] Filter by location (city/radius)
+- [x] Home feed showing top-rated dishes with pagination and pull-to-refresh
+- [x] Dish detail page (ratings, photos, reviews, venue info)
+- [x] Venue detail page (all dishes, location, reviews, photos)
+- [x] Basic search (by dish name or venue name)
+- [x] Loading states and empty states for all screens
+- [ ] Advanced filters (location radius, price range) - deferred to V1.0
 
-**Success Criteria:**
+**Success Criteria:** ✅ ALL MET
 
-- User can browse top dishes on home screen
-- User can view all reviews for a dish
-- User can find specific dishes or venues via search
+- ✅ User can browse top dishes on home screen
+- ✅ User can view all reviews for a dish
+- ✅ User can find specific dishes or venues via search
+
+**Implementation Details:**
+- 4 new screens (browse layout, search, dish detail, venue detail)
+- 6 browse components (ReviewCard, DishCardWithRating, PhotoGallery, SectionHeader, EmptyState, ScoreBadge)
+- 4 new hooks (useTopDishes, useSearch, useDishDetail, useVenueDetail)
+- Pull-to-refresh and pagination
+- Loading skeletons for better UX
+- **Hero image sections with parallax scrolling** (reanimated)
+- **Animated sticky headers** that appear on scroll
+- **Color-coded rating badges** (green/yellow/red based on score)
 
 ---
 
 #### 3. Photo System (Critical - 15% of MVP) ✅ COMPLETE
 
-**Status:** ✅ Complete | **Progress:** 100% | **Completed:** 2025-12-26
+**Status:** ✅ Complete | **Progress:** 100% | **Completed:** 2025-12-29
 
 - [x] Photo upload to Supabase Storage (review-photos bucket)
 - [x] Camera integration (Expo ImagePicker - camera + gallery)
 - [x] Photo picker component with preview and delete
 - [x] Photo requirement enforcement (required for ratings)
 - [x] Storage bucket RLS policies configured
-- [ ] Photo gallery display (deferred to Discovery & Browsing feature)
+- [x] Photo gallery display on dish detail pages
 - [ ] Basic image compression/optimization (deferred to V1.0)
 - [ ] Photo moderation status display (deferred to V1.0)
 
-**Success Criteria:** ✅ CORE FUNCTIONALITY MET
+**Success Criteria:** ✅ ALL MET
 
 - ✅ User can take or upload photos during rating
 - ✅ Photos stored securely in Supabase Storage
-- ⏳ Photos display in review lists (upcoming in Discovery feature)
+- ✅ Photos display in review lists and galleries
 
 ---
 
 #### 4. Review Display & Interaction (Important - 15% of MVP)
 
-**Status:** Not Started | **Progress:** 0%
+**Status:** 🚧 Partial | **Progress:** 60%
 
-- [ ] Review list component (display all reviews for a dish)
-- [ ] Review card component (star rating, text, photos, user info)
+- [x] Review list component (display all reviews for a dish)
+- [x] Review card component (0-10 rating, text, photos, user info)
 - [ ] Helpful votes functionality (upvote/downvote reviews)
 - [ ] Sort reviews (most helpful, most recent, highest/lowest rating)
 - [ ] User's own review display (with edit option)
 
 **Success Criteria:**
 
-- All reviews display correctly on dish pages
-- Users can vote on review helpfulness
-- Review sorting works correctly
+- ✅ All reviews display correctly on dish pages
+- ⏳ Users can vote on review helpfulness (upcoming)
+- ⏳ Review sorting works correctly (upcoming)
 
 ---
 
 #### 5. Data Layer & API (Critical - 15% of MVP)
 
-**Status:** Not Started | **Progress:** 0%
+**Status:** 🚧 Partial | **Progress:** 80%
 
-- [ ] Supabase query functions (dishes, venues, reviews, photos)
-- [ ] React Query setup for data fetching and caching
-- [ ] Context/state management for global app state
-- [ ] Error handling and loading states
-- [ ] Optimistic updates for better UX
+- [x] Supabase query functions (dishes, venues, reviews, photos)
+- [x] Custom hooks for data fetching (useTopDishes, useSearch, useDishDetail, etc.)
+- [x] Context/state management for global app state (RatingContext, AuthContext)
+- [x] Error handling and loading states
+- [ ] React Query setup for data fetching and caching (deferred to V1.0)
+- [ ] Optimistic updates for better UX (deferred to V1.0)
 
 **Success Criteria:**
 
-- All data fetches from Supabase efficiently
-- Loading states display correctly
-- Errors handled gracefully
-- App feels fast with proper caching
+- ✅ All data fetches from Supabase efficiently
+- ✅ Loading states display correctly
+- ✅ Errors handled gracefully
+- ⏳ App feels fast with proper caching (upcoming with React Query)
 
 ---
 
-#### 6. Basic UI Components (Important - 10% of MVP)
+#### 6. Basic UI Components (Important - 10% of MVP) ✅ COMPLETE
 
-**Status:** Not Started | **Progress:** 0%
+**Status:** ✅ Complete | **Progress:** 100% | **Completed:** 2025-12-29
 
-- [ ] StarRating component (input and display variants)
-- [ ] DishCard component (for lists/grids)
-- [ ] VenueCard component (for lists/grids)
-- [ ] ReviewCard component (user review display)
-- [ ] PhotoGallery component (swipeable photo viewer)
-- [ ] LoadingState and ErrorState components
+- [x] NumericRating component (0-10 scale input and display variants)
+- [x] DishCard component (for lists/grids)
+- [x] DishCardWithRating component (enhanced with ratings display)
+- [x] VenueCard component (for lists/grids)
+- [x] ReviewCard component (user review display)
+- [x] PhotoGallery component (grid-based photo viewer with modal)
+- [x] EmptyState component (for no data scenarios)
+- [x] SectionHeader component (consistent section titles)
+- [x] Loading skeletons for better UX
 
-**Success Criteria:**
+**Success Criteria:** ✅ ALL MET
 
-- Reusable components work across all screens
-- Consistent design language
-- Proper theme support (light/dark mode)
+- ✅ Reusable components work across all screens
+- ✅ Consistent design language
+- ✅ Proper theme support (light/dark mode)
 
 ---
 
@@ -422,21 +438,21 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 | Phase          | Features Complete | Total Features | Progress |
 | -------------- | ----------------- | -------------- | -------- |
 | **Foundation** | 5/5               | 5              | 100% ✅  |
-| **MVP**        | 0/6               | 6              | 0%       |
+| **MVP**        | 3/6               | 6              | 50% 🚧   |
 | **V1.0**       | 0/9               | 9              | 0%       |
 | **V2.0**       | 0/5               | 5              | 0%       |
-| **TOTAL**      | 5/25              | 25             | **20%**  |
+| **TOTAL**      | 8/25              | 25             | **32%**  |
 
 ### MVP Progress Breakdown
 
 | Feature              | Priority  | Status      | Progress |
 | -------------------- | --------- | ----------- | -------- |
-| Core Rating Flow     | Critical  | Not Started | 0%       |
-| Discovery & Browsing | Critical  | Not Started | 0%       |
-| Photo System         | Critical  | Not Started | 0%       |
-| Review Display       | Important | Not Started | 0%       |
-| Data Layer & API     | Critical  | Not Started | 0%       |
-| Basic UI Components  | Important | Not Started | 0%       |
+| Core Rating Flow     | Critical  | ✅ Complete | 100%     |
+| Discovery & Browsing | Critical  | ✅ Complete | 100%     |
+| Photo System         | Critical  | ✅ Complete | 100%     |
+| Review Display       | Important | 🚧 Partial  | 60%      |
+| Data Layer & API     | Critical  | 🚧 Partial  | 80%      |
+| Basic UI Components  | Important | ✅ Complete | 100%     |
 
 ---
 
@@ -462,7 +478,9 @@ This roadmap should be reviewed and updated:
 
 **Next Steps:**
 
-1. Review and approve this roadmap
-2. Set target dates for MVP and V1.0
-3. Begin MVP Feature #1: Core Rating Flow
-4. Update progress weekly in this file
+1. ✅ ~~Review and approve this roadmap~~
+2. ✅ ~~Begin MVP Feature #1: Core Rating Flow~~ (Complete)
+3. ✅ ~~Begin MVP Feature #2: Discovery & Browsing~~ (Complete)
+4. Complete MVP Feature #4: Review Display & Interaction (helpful votes, sorting)
+5. Set target dates for MVP beta release
+6. Update progress weekly in this file

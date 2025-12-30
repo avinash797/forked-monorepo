@@ -54,6 +54,8 @@ export interface Dish {
   updated_at: string;
   added_by_user_id: string | null;
   dish_type_id: string;
+  average_rating: number;
+  review_count: number;
 }
 
 export interface Review {
@@ -61,7 +63,7 @@ export interface Review {
   user_id: string;
   dish_id: string;
   venue_id: string;
-  star_rating: number;
+  rating: number;
   review_text: string | null;
   photo_urls: string[];
   created_at: string;
@@ -129,7 +131,7 @@ export interface CreateDishInput {
 export interface CreateReviewInput {
   dish_id: string;
   venue_id: string;
-  star_rating: number;
+  rating: number;
   review_text: string | null;
   location_latitude: number | null;
   location_longitude: number | null;

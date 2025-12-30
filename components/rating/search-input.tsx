@@ -1,12 +1,14 @@
-import { View, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { ActivityIndicator, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface SearchInputProps {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
   isLoading?: boolean;
+  onFocus?: () => void;
+  autoFocus?: boolean;
 }
 
 export function SearchInput({
@@ -14,6 +16,8 @@ export function SearchInput({
   onChangeText,
   placeholder = 'Search...',
   isLoading = false,
+  onFocus,
+  autoFocus = false,
 }: SearchInputProps) {
   const backgroundColor = useThemeColor({}, 'input');
   const textColor = useThemeColor({}, 'text');
@@ -37,6 +41,8 @@ export function SearchInput({
         autoCapitalize="none"
         autoCorrect={false}
         clearButtonMode="never"
+        onFocus={onFocus}
+        autoFocus={autoFocus}
       />
 
       {isLoading && <ActivityIndicator size="small" color={iconColor} />}
