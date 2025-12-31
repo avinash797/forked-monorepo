@@ -234,11 +234,6 @@ export default function LeaderboardScreen() {
           />
         }
       />
-      {isLoadingLeaderboard && leaderboardItems.length > 0 && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator color={theme.color.accent} />
-        </View>
-      )}
     </ThemedView>
   );
 }
