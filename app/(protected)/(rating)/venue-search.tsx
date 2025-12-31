@@ -8,7 +8,6 @@ import { useRatingFlow } from "@/contexts/rating-flow-context";
 import { useTheme } from "@/contexts/theme-provider";
 import { useAddressSearch } from "@/hooks/use-address-search";
 import { useLocation } from "@/hooks/use-location";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { useCreateVenue, useVenueSearch } from "@/hooks/use-venues";
 import type { Venue, VenueWithDistance } from "@/types/rating";
 import { useRouter } from "expo-router";
@@ -38,8 +37,10 @@ export default function VenueSearchScreen() {
   const { searchVenues, getNearbyVenues } = useVenueSearch();
   const { createVenue, isLoading: isCreating } = useCreateVenue();
 
-  const textColor = useThemeColor({}, 'text');
-  const iconColor = useThemeColor({}, 'icon');
+
+
+  const textColor = theme.color.textPrimary;
+  const iconColor = theme.color.textTertiary;
 
   const debounceTimer = useRef<NodeJS.Timeout | number>(0);
 

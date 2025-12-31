@@ -3,15 +3,15 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useRatingFlow } from '@/contexts/rating-flow-context';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { useTheme } from '@/contexts/theme-provider';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import {
   Alert,
-  StyleSheet,
   Pressable,
+  StyleSheet,
   View
 } from 'react-native';
 
@@ -20,7 +20,8 @@ export default function TakePhotoScreen() {
   const { addPhoto } = useRatingFlow();
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
-  const primaryColor = useThemeColor({}, 'primary');
+  const { theme } = useTheme();
+  const primaryColor = theme.color.accent;
   const [flashMode, setFlashMode] = useState<'off' | 'on' | 'auto'>('off');
 
   // Request camera permission on mount

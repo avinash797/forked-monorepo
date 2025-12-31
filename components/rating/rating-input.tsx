@@ -1,4 +1,4 @@
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { useTheme } from '@/contexts/theme-provider';
 import React, { useEffect, useState } from 'react';
 import { LayoutChangeEvent, StyleSheet, Text, View } from 'react-native';
 import {
@@ -37,13 +37,13 @@ export function RatingInput({
   const [width, setWidth] = useState(0);
   const translateX = useSharedValue(0);
   const isDragging = useSharedValue(false);
+  const { theme, colorScheme } = useTheme();
 
-  const activeColor = useThemeColor(
-    { light: lightColor, dark: darkColor },
-    'primary'
-  );
-  const inactiveColor = useThemeColor({}, 'muted');
-  const thumbColor = useThemeColor({}, 'text');
+  const activeColor =
+    colorScheme === 'light' ? lightColor : darkColor || theme.color.accent;
+
+  const inactiveColor = theme.color.textSecondary; // mapped to muted
+  const thumbColor = theme.color.textPrimary;
 
   // Update position when value changes externally (and not dragging)
   useEffect(() => {

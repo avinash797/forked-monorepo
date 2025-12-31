@@ -1,8 +1,8 @@
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { getTheme, type ThemeMode, type ThemeName } from '@/lib/theme';
 import type { ActiveTheme } from '@/lib/theme/makeStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { useColorScheme } from 'react-native';
 
 const THEME_STORAGE_KEY = '@forked/theme-name';
 

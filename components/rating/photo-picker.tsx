@@ -1,8 +1,8 @@
-import { View, Pressable, Image, StyleSheet, ActivityIndicator, Alert } from 'react-native';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { ThemedView } from '@/components/themed-view';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useTheme } from '@/contexts/theme-provider';
+import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, View } from 'react-native';
 
 interface PhotoPickerProps {
   photos: string[];
@@ -21,9 +21,10 @@ export function PhotoPicker({
   isLoading = false,
   required = false,
 }: PhotoPickerProps) {
-  const primaryColor = useThemeColor({}, 'primary');
-  const backgroundColor = useThemeColor({}, 'surface');
-  const textColor = useThemeColor({}, 'text');
+  const { theme } = useTheme();
+  const primaryColor = theme.color.accent;
+  const backgroundColor = theme.color.surface;
+  const textColor = theme.color.textPrimary;
 
   const handleAddPress = () => {
     if (photos.length >= maxPhotos) {

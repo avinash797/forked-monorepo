@@ -1,9 +1,10 @@
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { useTheme } from '@/contexts/theme-provider';
 import { Stack } from 'expo-router';
 
 export default function AuthLayout() {
-  const backgroundColor = useThemeColor({}, 'background') as string;
-  const textColor = useThemeColor({}, 'text') as string;
+  const { theme } = useTheme();
+  const backgroundColor = theme.color.bg;
+  const textColor = theme.color.textPrimary;
 
   return (
     <Stack

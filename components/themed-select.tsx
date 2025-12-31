@@ -1,4 +1,10 @@
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { useTheme } from "@/contexts/theme-provider";
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
+import type { BottomSheetDefaultBackdropProps } from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types";
 import { useCallback, useMemo, useRef, useState } from "react";
 import {
   Pressable,
@@ -9,12 +15,6 @@ import {
   type StyleProp,
   type ViewStyle,
 } from "react-native";
-import {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
-import type { BottomSheetDefaultBackdropProps } from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types";
 import { ThemedText } from "./themed-text";
 import { IconSymbol } from "./ui/icon-symbol";
 
@@ -56,15 +56,15 @@ export function ThemedSelect({
 }: ThemedSelectProps) {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const { theme, colorScheme } = useTheme();
 
-  const backgroundColor = useThemeColor(
-    { light: lightColor, dark: darkColor },
-    "input"
-  ) as string;
-  const textColor = useThemeColor({}, "text") as string;
-  const errorColor = useThemeColor({}, "error") as string;
-  const mutedColor = useThemeColor({}, "muted") as string;
-  const surfaceColor = useThemeColor({}, "surface") as string;
+  const backgroundColor =
+    colorScheme === 'light' ? lightColor : darkColor || theme.color.inputBg;
+
+  const textColor = theme.color.textPrimary;
+  const errorColor = theme.color.danger;
+  const mutedColor = theme.color.textSecondary;
+  const surfaceColor = theme.color.surface;
   const borderColor = error ? errorColor : "transparent";
 
   const selectedOption = options.find((opt) => opt.value === value);
