@@ -1,7 +1,7 @@
-import { Pressable, StyleSheet } from 'react-native';
-import { ThemedView } from '@/components/themed-view';
-import { ThemedText } from '@/components/themed-text';
+import { useTheme } from '@/contexts/theme-provider';
+import { buildComponentStyles } from '@/lib/theme/componentStyles';
 import type { Venue, VenueWithDistance } from '@/types/rating';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface VenueCardProps {
   venue: Venue | VenueWithDistance;
@@ -10,6 +10,11 @@ interface VenueCardProps {
 }
 
 export function VenueCard({ venue, onPress, showDistance = true }: VenueCardProps) {
+  const { theme } = useTheme();
+  const builtStyles = buildComponentStyles(theme);
+  const styles = createThemedStyles(theme);
+
+
   const address = `${venue.address_city}, ${venue.address_state}`;
   const cuisines = venue.cuisine_types.join(', ');
   const distance = 'distanceMeters' in venue ? venue.distanceMeters : null;
@@ -30,69 +35,42 @@ export function VenueCard({ venue, onPress, showDistance = true }: VenueCardProp
       style={({ pressed }) => [pressed && { opacity: 0.7 }]}
       android_ripple={{ color: 'rgba(0, 0, 0, 0.05)' }}
     >
-      <ThemedView style={styles.card}>
-        <ThemedView style={styles.header}>
-          <ThemedText type="defaultSemiBold" style={styles.name}>
+      <View style={builtStyles.card} >
+        <View style={styles.header}>
+          <Text style={builtStyles.h2}>
             {venue.name}
-          </ThemedText>
+          </Text>
           {priceRange && (
-            <ThemedText style={styles.price}>{priceRange}</ThemedText>
+            <Text style={builtStyles.body}>{priceRange}</Text>
           )}
-        </ThemedView>
+        </View>
 
         {cuisines && (
-          <ThemedText style={styles.cuisines} lightColor="#666" darkColor="#999">
+          <Text style={builtStyles.caption}>
             {cuisines}
-          </ThemedText>
+          </Text>
         )}
 
-        <ThemedText style={styles.address} lightColor="#666" darkColor="#999">
+        <Text style={builtStyles.caption}>
           {address}
-        </ThemedText>
+        </Text>
 
         {showDistance && distance !== null && (
-          <ThemedText style={styles.distance} lightColor="#ee6c2b" darkColor="#ff8c50">
+          <Text style={builtStyles.accentTag}>
             {formatDistance(distance)}
-          </ThemedText>
+          </Text>
         )}
-      </ThemedView>
+      </View>
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) => StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
-  },
-  name: {
-    fontSize: 16,
-    flex: 1,
-  },
-  price: {
-    fontSize: 14,
-    marginLeft: 8,
-  },
-  cuisines: {
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  address: {
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  distance: {
-    fontSize: 13,
-    fontWeight: '600',
-    marginTop: 4,
+    marginBottom: theme.space.xxs,
+    backgroundColor: 'transparent',
   },
 });

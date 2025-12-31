@@ -14,6 +14,7 @@ export const buildComponentStyles = (t: ActiveTheme) =>
             borderWidth: t.border.hairline,
             borderColor: t.color.border,
             padding: t.space.md,
+            gap: t.space.xs,
             ...(makeShadow(t, "sm") as object),
         },
 
@@ -29,6 +30,12 @@ export const buildComponentStyles = (t: ActiveTheme) =>
             lineHeight: t.font.line.xl,
             fontWeight: t.font.weight.semibold as any,
         },
+        h3: {
+            color: t.color.textPrimary,
+            fontSize: t.font.size.lg,
+            lineHeight: t.font.line.lg,
+            fontWeight: t.font.weight.semibold as any,
+        },
         body: {
             color: t.color.textPrimary,
             fontSize: t.font.size.md,
@@ -40,7 +47,12 @@ export const buildComponentStyles = (t: ActiveTheme) =>
             fontSize: t.font.size.sm,
             lineHeight: t.font.line.sm,
         },
-
+        accentTag: {
+            color: t.color.accent,
+            fontSize: t.font.size.xs,
+            lineHeight: t.font.line.xs,
+            fontWeight: t.font.weight.medium as any,
+        },
         input: {
             backgroundColor: t.color.inputBg,
             borderColor: t.color.inputBorder,

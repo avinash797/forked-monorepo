@@ -4,7 +4,7 @@ import { useTheme } from '@/contexts/theme-provider';
 import type { LeaderboardItem as LeaderboardItemType } from '@/types/browse';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, Pressable, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 interface LeaderboardItemProps {
   item: LeaderboardItemType;
@@ -47,8 +47,6 @@ export function LeaderboardItem({ item, onPress }: LeaderboardItemProps) {
         {item.rank === 1 && (
           <ThemedText style={styles.crown}>👑</ThemedText>
         )}
-        <View style={styles.rankContainer}>
-        </View>
 
         {/* Dish Photo - Oversized for Top 3 */}
         <View style={[styles.photoContainer, item.medal && styles.photoContainerOversized]}>
@@ -161,19 +159,14 @@ const createThemedStyles = (
     content: {
       flexDirection: 'row',
       alignItems: 'center',
-      padding: theme.space.sm,
+      paddingVertical: theme.space.sm,
       backgroundColor: theme.color.surface,
       margin: medal ? 3 : 0,
       borderRadius: medal ? theme.radius.lg - 3 : theme.radius.lg,
       overflow: medal ? 'visible' : 'hidden',
+      position: 'relative',
     },
-    rankContainer: {
-      width: medal ? 24 : 12,
-      height: 'auto',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginRight: theme.space.xs,
-    },
+
     crown: {
       fontSize: 45,
       position: 'absolute',
@@ -188,6 +181,10 @@ const createThemedStyles = (
     },
     photoContainerOversized: {
       marginRight: theme.space.md,
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      transform: [{ rotate: '-5deg' }],
     },
     photo: {
       width: 64,
@@ -196,14 +193,14 @@ const createThemedStyles = (
       backgroundColor: theme.color.surface2,
     },
     photoOversized: {
-      width: 86,
-      height: 86,
-      borderRadius: theme.radius.lg,
+      width: 110,
+      height: 110,
+      borderRadius: theme.radius.md,
       marginTop: -12,
       marginBottom: -12,
       marginLeft: -10,
       borderWidth: 2,
-      borderColor: theme.color.surface,
+      borderColor: theme.color.textPrimary,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.3,
@@ -213,6 +210,8 @@ const createThemedStyles = (
       flex: 1,
       justifyContent: 'center',
       marginRight: theme.space.xs,
+      paddingLeft: medal ? theme.space.xxl + 72 : theme.space.sm,
+
     },
     dishName: {
       fontSize: theme.font.size.md,

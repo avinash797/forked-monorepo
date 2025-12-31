@@ -7,7 +7,7 @@ import { ThemedView } from "@/components/themed-view";
 import { useRatingFlow } from "@/contexts/rating-flow-context";
 import { useCreateDish, useDishTypes, useVenueDishes } from "@/hooks/use-dishes";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { FlatList, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
@@ -126,11 +126,9 @@ export default function DishSelectionScreen() {
       style={{ flex: 1 }}
       keyboardVerticalOffset={100} // Adjust based on header height
     >
+      <Stack.Screen options={{ title: state.selectedVenue?.name }} />
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <ThemedView style={styles.container}>
-          <ThemedText style={styles.venueText} lightColor="#666" darkColor="#999">
-            At {state.selectedVenue.name}
-          </ThemedText>
 
           {!showAddForm && (
             <>

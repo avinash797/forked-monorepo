@@ -1,7 +1,7 @@
-import { Pressable, StyleSheet } from 'react-native';
-import { ThemedView } from '@/components/themed-view';
-import { ThemedText } from '@/components/themed-text';
+import { useTheme } from '@/contexts/theme-provider';
+import { buildComponentStyles } from '@/lib/theme/componentStyles';
 import type { Dish } from '@/types/rating';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface DishCardProps {
   dish: Dish;
@@ -13,6 +13,10 @@ export function DishCard({ dish, onPress }: DishCardProps) {
     if (price === null) return null;
     return `$${price.toFixed(2)}`;
   };
+  const { theme } = useTheme();
+  const builtStyles = buildComponentStyles(theme);
+  const styles = createThemedStyles(theme);
+
 
   const price = formatPrice(dish.current_price);
   const variety = dish.variety ? ` (${dish.variety})` : '';
@@ -23,86 +27,53 @@ export function DishCard({ dish, onPress }: DishCardProps) {
       style={({ pressed }) => [pressed && { opacity: 0.7 }]}
       android_ripple={{ color: 'rgba(0, 0, 0, 0.05)' }}
     >
-      <ThemedView style={styles.card}>
-        <ThemedView style={styles.header}>
-          <ThemedText type="defaultSemiBold" style={styles.name}>
+      <View style={builtStyles.card}>
+        <View style={styles.header}>
+          <Text style={builtStyles.h3}>
             {dish.name}{variety}
-          </ThemedText>
+          </Text>
           {price && (
-            <ThemedText style={styles.price}>{price}</ThemedText>
+            <Text style={builtStyles.body}>{price}</Text>
           )}
-        </ThemedView>
+        </View>
 
-        <ThemedText style={styles.category} lightColor="#666" darkColor="#999">
+        <Text style={builtStyles.caption}>
           {dish.category}
-        </ThemedText>
+        </Text>
 
         {dish.dietary_tags.length > 0 && (
-          <ThemedView style={styles.tags}>
+          <View style={styles.tags}>
             {dish.dietary_tags.map((tag) => (
-              <ThemedView key={tag} style={styles.tag}>
-                <ThemedText style={styles.tagText} lightColor="#666" darkColor="#999">
+              <View key={tag} style={builtStyles.badge}>
+                <Text style={builtStyles.badgeText}>
                   {tag}
-                </ThemedText>
-              </ThemedView>
+                </Text>
+              </View>
             ))}
-          </ThemedView>
+          </View>
         )}
 
         {dish.description && (
-          <ThemedText style={styles.description} lightColor="#666" darkColor="#999" numberOfLines={2}>
+          <Text style={builtStyles.caption} numberOfLines={2}>
             {dish.description}
-          </ThemedText>
+          </Text>
         )}
-      </ThemedView>
+      </View>
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) => StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
-  },
-  name: {
-    fontSize: 16,
-    flex: 1,
-  },
-  price: {
-    fontSize: 15,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  category: {
-    fontSize: 14,
-    marginBottom: 6,
+    marginBottom: theme.space.xs,
   },
   tags: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
-    marginBottom: 6,
-  },
-  tag: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    backgroundColor: '#f0f0f0',
-  },
-  tagText: {
-    fontSize: 12,
-  },
-  description: {
-    fontSize: 14,
-    marginTop: 4,
+    gap: theme.space.xxs,
+    marginBottom: theme.space.xxs,
   },
 });

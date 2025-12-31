@@ -1,4 +1,4 @@
-import { DishCardWithRating } from '@/components/browse/dish-card-with-rating';
+import { CompactDishCardWithRating } from '@/components/browse/compact-dish-card-with-rating';
 import { EmptyState } from '@/components/browse/empty-state';
 import { SectionHeader } from '@/components/browse/section-header';
 import { SearchInput } from '@/components/rating/search-input';
@@ -119,7 +119,7 @@ export default function SearchScreen() {
             ]}
             android_ripple={{ color: 'rgba(0, 0, 0, 0.1)', radius: 20, borderless: true }}
           >
-            <IconSymbol name="arrow-back" size={24} color={theme.color.info} />
+            <IconSymbol name="arrow-back" size={24} color={theme.color.textPrimary} />
           </Pressable>
 
           <View style={styles.searchInputContainer}>
@@ -140,7 +140,7 @@ export default function SearchScreen() {
           renderItem={({ item, section }) => {
             if (section.type === 'dish') {
               return (
-                <DishCardWithRating
+                <CompactDishCardWithRating
                   dish={item.data}
                   onPress={() => handleDishPress(item.data.id)}
                   showVenue={true}
@@ -212,7 +212,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
       flex: 1,
     },
     sectionListContent: {
-      paddingHorizontal: theme.space.md,
+      paddingHorizontal: theme.space.sm,
       paddingTop: theme.space.xs,
     },
     emptyContainer: {
