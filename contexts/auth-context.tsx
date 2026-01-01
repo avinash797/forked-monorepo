@@ -50,14 +50,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: { user } } = await supabase.auth.getUser();
 
+    const { data: charms } = await supabase
+      .from(
+        'user_charms'
+      )
+      .select('id:charm_id, timestamp: unlocked_at')
+      .eq(
+        'user_id'
+        , userId);
+
     setState({
       user: user ? {
         id: user.id,
         email: user.email!,
         display_name: profile?.display_name ?? undefined,
-        profile_photo_url: profile?.profile_photo_url ?? undefined,
+        avatar_url: profile?.avatar_url ?? undefined,
       } : null,
-      profile,
+      profile: { ...profile, charms } as Profile,
       isAuthenticated: !!user,
       isLoading: false,
     });
