@@ -146,7 +146,7 @@ forked/
 
 **11 tables with comprehensive RLS policies:**
 
-1. **Profiles** - User profiles extending auth.users
+1. **Users** - User profiles extending auth.users
 2. **Venues** - Restaurants/eateries
 3. **Dishes** - Menu items tied to venues
 4. **Dish Types** - Normalized dish categories (for cross-venue queries)

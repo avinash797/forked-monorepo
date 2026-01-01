@@ -166,7 +166,7 @@ Overall Progress         ███████████░░░░░░░�
 - **New Dependencies:** expo-linear-gradient, react-native-reanimated
 
 ### Database Coverage
-- ✅ Users/Profiles
+- ✅ Users
 - ✅ Venues
 - ✅ Dishes
 - ✅ Dish Types
