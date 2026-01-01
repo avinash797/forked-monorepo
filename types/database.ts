@@ -4,7 +4,7 @@ import type { Dish, DishType, Photo, Review, Venue } from './rating';
 export interface Database {
   public: {
     Tables: {
-      profiles: {
+      users: {
         Row: Profile;
         Insert: Omit<Profile, 'created_at' | 'updated_at' | 'reputation_score' | 'charms' | 'phone_verified' | 'email_verified'> & {
           reputation_score?: number;

@@ -67,7 +67,7 @@ export function useDishDetail(dishId: string | null) {
         if (reviewsData.length > 0) {
           const userIds = reviewsData.map((r) => r.user_id);
           const { data: profilesData } = await supabase
-            .from('profiles')
+            .from('users')
             .select('id, username, display_name, profile_photo_url')
             .in('id', userIds);
 
