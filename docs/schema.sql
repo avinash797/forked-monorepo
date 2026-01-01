@@ -56,6 +56,10 @@ CREATE TABLE public.dishes (
         AND average_rating <= 10::numeric
     ),
     review_count integer NOT NULL DEFAULT 0,
+    tags ARRAY,
+    elo_rating double precision DEFAULT 1400.0,
+    comparison_count integer DEFAULT 0,
+    embedding USER - DEFINED,
     CONSTRAINT dishes_pkey PRIMARY KEY (id),
     CONSTRAINT dishes_venue_id_fkey FOREIGN KEY (venue_id) REFERENCES public.venues(id),
     CONSTRAINT dishes_added_by_user_id_fkey FOREIGN KEY (added_by_user_id) REFERENCES auth.users(id),
@@ -121,23 +125,6 @@ CREATE TABLE public.price_history (
     CONSTRAINT price_history_reported_by_user_id_fkey FOREIGN KEY (reported_by_user_id) REFERENCES auth.users(id),
     CONSTRAINT price_history_verified_by_user_id_fkey FOREIGN KEY (verified_by_user_id) REFERENCES auth.users(id)
 );
-CREATE TABLE public.profiles (
-    id uuid NOT NULL,
-    username text UNIQUE,
-    display_name text,
-    email text NOT NULL UNIQUE,
-    location text,
-    created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
-    phone_verified boolean NOT NULL DEFAULT false,
-    email_verified boolean NOT NULL DEFAULT false,
-    charms jsonb NOT NULL DEFAULT '[]'::jsonb,
-    reputation_score integer NOT NULL DEFAULT 0,
-    profile_photo_url text,
-    bio text,
-    updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
-    CONSTRAINT profiles_pkey PRIMARY KEY (id),
-    CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
-);
 CREATE TABLE public.reviews (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     user_id uuid NOT NULL,
@@ -190,6 +177,24 @@ CREATE TABLE public.user_charms (
     CONSTRAINT user_charms_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
     CONSTRAINT user_charms_charm_id_fkey FOREIGN KEY (charm_id) REFERENCES public.charms(id)
 );
+CREATE TABLE public.users (
+    id uuid NOT NULL,
+    username text UNIQUE,
+    display_name text,
+    email text NOT NULL UNIQUE,
+    location text,
+    created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+    phone_verified boolean NOT NULL DEFAULT false,
+    email_verified boolean NOT NULL DEFAULT false,
+    charms jsonb NOT NULL DEFAULT '[]'::jsonb,
+    reputation_score numeric NOT NULL DEFAULT 0.50,
+    avatar_url text,
+    bio text,
+    updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+    taste_profile USER - DEFINED,
+    CONSTRAINT users_pkey PRIMARY KEY (id),
+    CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
+);
 CREATE TABLE public.venues (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     name text NOT NULL,
@@ -212,6 +217,9 @@ CREATE TABLE public.venues (
     created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
     updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
     added_by_user_id uuid,
+    google_place_id text UNIQUE,
+    location USER - DEFINED,
+    is_verified boolean DEFAULT false,
     CONSTRAINT venues_pkey PRIMARY KEY (id),
     CONSTRAINT venues_parent_chain_id_fkey FOREIGN KEY (parent_chain_id) REFERENCES public.venues(id),
     CONSTRAINT venues_added_by_user_id_fkey FOREIGN KEY (added_by_user_id) REFERENCES auth.users(id)
