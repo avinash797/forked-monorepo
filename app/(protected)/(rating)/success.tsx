@@ -3,14 +3,15 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useRatingFlow } from '@/contexts/rating-flow-context';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { useTheme } from '@/contexts/theme-provider';
 import { useRouter } from 'expo-router';
 import { StyleSheet } from 'react-native';
 
 export default function SuccessScreen() {
   const router = useRouter();
   const { reset } = useRatingFlow();
-  const successColor = useThemeColor({}, 'success');
+  const { theme } = useTheme();
+  const successColor = theme.color.success;
 
   const handleRateAnother = () => {
     reset();

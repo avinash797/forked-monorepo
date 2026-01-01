@@ -9,6 +9,7 @@ import { ActivityIndicator, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import "react-native-reanimated";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 import { ThemedView } from "@/components/themed-view";
 import { AuthProvider } from "@/contexts/auth-context";
@@ -90,13 +91,15 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <ThemeProvider>
-          <AuthProvider>
-            <RatingFlowProvider>
-              <RootLayoutNav />
-            </RatingFlowProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <BottomSheetModalProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <RatingFlowProvider>
+                <RootLayoutNav />
+              </RatingFlowProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </BottomSheetModalProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

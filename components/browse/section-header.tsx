@@ -1,7 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/contexts/theme-provider';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 
 interface SectionHeaderProps {
   title: string;
@@ -55,8 +55,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      paddingHorizontal: theme.space.md,
-      paddingVertical: theme.space.sm,
+      paddingHorizontal: theme.space.xs,
       marginBottom: theme.space.xs,
     },
     textContainer: {

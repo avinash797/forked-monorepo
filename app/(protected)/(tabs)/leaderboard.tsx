@@ -6,23 +6,20 @@ import { useTheme } from '@/contexts/theme-provider';
 import { useLeaderboard } from '@/hooks/use-leaderboard';
 import type { LeaderboardItem as LeaderboardItemType } from '@/types/browse';
 import { Stack, useRouter } from 'expo-router';
+import { useMemo } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   ListRenderItem,
+  Platform,
+  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import Animated, {
-  Extrapolation,
-  FadeInDown,
-  interpolate,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue
+  FadeInDown
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -88,7 +85,7 @@ export default function LeaderboardScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { theme, isDark } = useTheme();
-  const styles = createThemedStyles(theme, insets);
+  const styles = useMemo(() => createThemedStyles(theme, insets), [theme, insets]);
 
   const {
     dishTypes,
@@ -101,31 +98,6 @@ export default function LeaderboardScreen() {
     refetch,
   } = useLeaderboard();
 
-  // Animation values
-  const scrollY = useSharedValue(0);
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollY.value = event.contentOffset.y;
-    },
-  });
-
-  // Animated sticky header style
-  const animatedHeaderStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollY.value,
-      [60, 100],
-      [0, 1],
-      Extrapolation.CLAMP
-    );
-
-    return {
-      opacity,
-      transform: [
-        { translateY: interpolate(scrollY.value, [60, 100], [-10, 0], Extrapolation.CLAMP) }
-      ],
-    };
-  });
 
   const handleDishPress = (dishId: string, venueId: string) => {
     router.push({
@@ -174,61 +146,70 @@ export default function LeaderboardScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <View style={styles.listHeader}>
+        <View style={styles.titleSection}>
+          <ThemedText style={styles.mainTitle}>Rankings</ThemedText>
+          <ThemedText style={styles.mainSubtitle}>The best dishes in the city</ThemedText>
+        </View>
+
+        {/* Dish Type Chip Selector */}
+        <View style={styles.chipContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.chipScrollContent}
+          >
+            {dishTypes.map((dishType, index) => {
+              const isSelected = dishType.id === selectedDishTypeId;
+              return (
+                <Animated.View
+                  key={dishType.id}
+                  entering={FadeInDown.delay(index * 50).duration(400)}
+                >
+                  <Animated.View
+                    style={[
+                      styles.chip,
+                      isSelected && styles.chipSelected,
+                      isSelected && styles.chipWrapperSelected
+                    ]}
+                  >
+                    <Pressable
+                      onPress={() => selectDishType(dishType.id)}
+                      style={({ pressed }) => [
+                        styles.chipPressable,
+                        pressed && Platform.OS === 'ios' && { opacity: 0.7 }
+                      ]}
+                      android_ripple={{
+                        color: isSelected ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)',
+                        borderless: false,
+                        foreground: true
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name={getDishIcon(dishType.name)}
+                        size={20}
+                        color={isSelected ? theme.color.accentOn : theme.color.textSecondary}
+                      />
+                      <ThemedText
+                        style={[
+                          styles.chipText,
+                          isSelected && styles.chipTextSelected,
+                        ]}
+                      >
+                        {dishType.name}
+                      </ThemedText>
+                    </Pressable>
+                  </Animated.View>
+                </Animated.View>
+              );
+            })}
+          </ScrollView>
+        </View>
+      </View>
       <AnimatedFlatList
         data={leaderboardItems}
         keyExtractor={(item: LeaderboardItemType) => item.dish.id}
-        onScroll={scrollHandler}
         scrollEventThrottle={16}
-        ListHeaderComponent={
-          <View style={styles.listHeader}>
-            <View style={styles.titleSection}>
-              <ThemedText style={styles.mainTitle}>Rankings</ThemedText>
-              <ThemedText style={styles.mainSubtitle}>The best dishes in the city</ThemedText>
-            </View>
-
-            {/* Dish Type Chip Selector */}
-            <View style={styles.chipContainer}>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.chipScrollContent}
-              >
-                {dishTypes.map((dishType, index) => {
-                  const isSelected = dishType.id === selectedDishTypeId;
-                  return (
-                    <Animated.View
-                      key={dishType.id}
-                      entering={FadeInDown.delay(index * 50).duration(400)}
-                    >
-                      <TouchableOpacity
-                        onPress={() => selectDishType(dishType.id)}
-                        activeOpacity={0.7}
-                        style={[
-                          styles.chip,
-                          isSelected && styles.chipSelected,
-                        ]}
-                      >
-                        <MaterialCommunityIcons
-                          name={getDishIcon(dishType.name)}
-                          size={20}
-                          color={isSelected ? theme.color.accentOn : theme.color.textSecondary}
-                        />
-                        <ThemedText
-                          style={[
-                            styles.chipText,
-                            isSelected && styles.chipTextSelected,
-                          ]}
-                        >
-                          {dishType.name}
-                        </ThemedText>
-                      </TouchableOpacity>
-                    </Animated.View>
-                  );
-                })}
-              </ScrollView>
-            </View>
-          </View>
-        }
         renderItem={renderLeaderboardItem}
         ListEmptyComponent={
           !isLoadingLeaderboard ? (
@@ -253,11 +234,6 @@ export default function LeaderboardScreen() {
           />
         }
       />
-      {isLoadingLeaderboard && leaderboardItems.length > 0 && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator color={theme.color.accent} />
-        </View>
-      )}
     </ThemedView>
   );
 }
@@ -271,18 +247,6 @@ const createThemedStyles = (
       flex: 1,
       backgroundColor: theme.color.bg,
     },
-    stickyHeader: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      height: HEADER_HEIGHT + insets.top,
-      zIndex: 100,
-      justifyContent: 'flex-end',
-      paddingBottom: theme.space.sm,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: theme.color.border,
-    },
     headerContent: {
       alignItems: 'center',
       paddingHorizontal: theme.space.md,
@@ -294,7 +258,7 @@ const createThemedStyles = (
     },
     listHeader: {
       paddingTop: insets.top + theme.space.xl,
-      marginBottom: theme.space.md,
+      marginBottom: theme.space.sm,
     },
     titleSection: {
       paddingHorizontal: theme.space.md,
@@ -318,24 +282,30 @@ const createThemedStyles = (
     },
     chipScrollContent: {
       paddingHorizontal: theme.space.md,
-      paddingBottom: theme.space.xs,
     },
     chip: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: theme.space.md,
-      paddingVertical: theme.space.sm - 2,
       borderRadius: theme.radius.pill,
       backgroundColor: theme.color.surface,
       borderWidth: 1.5,
       borderColor: theme.color.border,
       marginRight: theme.space.xs,
-      gap: theme.space.xs,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.05,
       shadowRadius: 4,
       elevation: 2,
+      overflow: 'hidden',
+    },
+    chipPressable: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: theme.space.md,
+      paddingVertical: theme.space.sm - 2,
+      gap: theme.space.xs,
+    },
+    chipWrapperSelected: {
+      transform: [{ scale: 1.05 }],
+      zIndex: 1,
     },
     chipSelected: {
       backgroundColor: theme.color.accent,
@@ -344,7 +314,6 @@ const createThemedStyles = (
       shadowOpacity: 0.3,
       shadowRadius: 8,
       elevation: 4,
-      transform: [{ scale: 1.05 }],
     },
     chipText: {
       fontSize: theme.font.size.md,
@@ -358,6 +327,7 @@ const createThemedStyles = (
     listContent: {
       paddingHorizontal: theme.space.md,
       paddingBottom: insets.bottom + theme.space.xl,
+      paddingTop: theme.space.xl,
     },
     emptyContainer: {
       paddingTop: 80,

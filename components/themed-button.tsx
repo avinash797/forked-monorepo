@@ -1,15 +1,15 @@
 import type { ReactNode } from "react";
+import { useMemo } from "react";
 import {
   ActivityIndicator,
-  TouchableOpacity,
-  type TouchableOpacityProps,
+  Pressable,
+  type PressableProps,
 } from "react-native";
-import { useMemo } from "react";
 
 import { useTheme } from "@/contexts/theme-provider";
 import { ThemedText } from "./themed-text";
 
-export type ThemedButtonProps = TouchableOpacityProps & {
+export type ThemedButtonProps = PressableProps & {
   children: ReactNode;
   variant?: "primary" | "secondary";
   loading?: boolean;
@@ -60,8 +60,8 @@ export function ThemedButton({
   const isDisabled = disabled || loading;
 
   return (
-    <TouchableOpacity
-      style={[
+    <Pressable
+      style={({ pressed }) => [
         {
           height: buttonStyle.height,
           borderRadius: buttonStyle.borderRadius,
@@ -69,16 +69,18 @@ export function ThemedButton({
           justifyContent: "center",
           alignItems: "center",
           paddingHorizontal: buttonStyle.paddingHorizontal,
-          opacity: isDisabled ? theme.opacity.disabled : 1,
+          opacity: isDisabled ? theme.opacity.disabled : pressed ? theme.opacity.pressed : 1,
         },
         variant === "secondary" && {
           borderWidth: theme.border.hairline,
           borderColor: buttonStyle.borderColor,
         },
-        style,
+        typeof style === 'function' ? style({ pressed } as any) : style,
       ]}
       disabled={isDisabled}
-      activeOpacity={theme.opacity.pressed}
+      android_ripple={{
+        color: variant === "primary" ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)',
+      }}
       {...rest}
     >
       {loading ? (
@@ -96,6 +98,6 @@ export function ThemedButton({
       ) : (
         children
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 }

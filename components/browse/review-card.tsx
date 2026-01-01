@@ -5,7 +5,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import type { ReviewWithUserProfile } from '@/types/browse';
 import { Image } from 'expo-image';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Pressable, View } from 'react-native';
 import { PhotoGallery } from './photo-gallery';
 
 interface ReviewCardProps {
@@ -41,11 +41,14 @@ export function ReviewCard({
     <ThemedView style={styles.card}>
       {/* User Info & Rating Header */}
       <View style={styles.header}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => onUserPress?.(review.user_id)}
-          activeOpacity={0.7}
-          style={styles.userInfo}
+          style={({ pressed }) => [
+            styles.userInfo,
+            pressed && { opacity: 0.7 }
+          ]}
           disabled={!onUserPress}
+          android_ripple={{ color: 'rgba(0, 0, 0, 0.05)' }}
         >
           {/* Profile Photo */}
           {review.profile?.profile_photo_url ? (
@@ -71,7 +74,7 @@ export function ReviewCard({
               {formattedDate}
             </ThemedText>
           </View>
-        </TouchableOpacity>
+        </Pressable>
 
         {/* Numeric Rating using ScoreBadge */}
         <ScoreBadge score={review.rating} style={styles.ratingBadge} />

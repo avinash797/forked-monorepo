@@ -1,8 +1,8 @@
-import { View, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Alert } from 'react-native';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { ThemedView } from '@/components/themed-view';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useTheme } from '@/contexts/theme-provider';
+import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, View } from 'react-native';
 
 interface PhotoPickerProps {
   photos: string[];
@@ -21,9 +21,10 @@ export function PhotoPicker({
   isLoading = false,
   required = false,
 }: PhotoPickerProps) {
-  const primaryColor = useThemeColor({}, 'primary');
-  const backgroundColor = useThemeColor({}, 'surface');
-  const textColor = useThemeColor({}, 'text');
+  const { theme } = useTheme();
+  const primaryColor = theme.color.accent;
+  const backgroundColor = theme.color.surface;
+  const textColor = theme.color.textPrimary;
 
   const handleAddPress = () => {
     if (photos.length >= maxPhotos) {
@@ -84,29 +85,37 @@ export function PhotoPicker({
         {photos.map((uri) => (
           <View key={uri} style={styles.photoContainer}>
             <Image source={{ uri }} style={styles.photo} />
-            <TouchableOpacity
-              style={[styles.removeButton, { backgroundColor: '#ee6c2b' }]}
+            <Pressable
+              style={({ pressed }) => [
+                styles.removeButton,
+                { backgroundColor: '#ee6c2b' },
+                pressed && { opacity: 0.8 }
+              ]}
               onPress={() => handleRemovePress(uri)}
-              activeOpacity={0.8}
+              android_ripple={{ color: 'rgba(255, 255, 255, 0.3)', radius: 16, borderless: true }}
             >
               <IconSymbol name="close" size={16} color="#fff" />
-            </TouchableOpacity>
+            </Pressable>
           </View>
         ))}
 
         {photos.length < maxPhotos && (
-          <TouchableOpacity
-            style={[styles.addButton, { backgroundColor, borderColor: primaryColor }]}
+          <Pressable
+            style={({ pressed }) => [
+              styles.addButton,
+              { backgroundColor, borderColor: primaryColor },
+              pressed && { opacity: 0.7 }
+            ]}
             onPress={handleAddPress}
             disabled={isLoading}
-            activeOpacity={0.7}
+            android_ripple={{ color: 'rgba(0, 0, 0, 0.1)' }}
           >
             {isLoading ? (
               <ActivityIndicator color={primaryColor} />
             ) : (
               <IconSymbol name="camera-alt" size={32} color={primaryColor} />
             )}
-          </TouchableOpacity>
+          </Pressable>
         )}
       </View>
 

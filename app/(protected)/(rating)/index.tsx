@@ -3,15 +3,15 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useRatingFlow } from '@/contexts/rating-flow-context';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { useTheme } from '@/contexts/theme-provider';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import {
   Alert,
+  Pressable,
   StyleSheet,
-  TouchableOpacity,
   View
 } from 'react-native';
 
@@ -20,7 +20,8 @@ export default function TakePhotoScreen() {
   const { addPhoto } = useRatingFlow();
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
-  const primaryColor = useThemeColor({}, 'primary');
+  const { theme } = useTheme();
+  const primaryColor = theme.color.accent;
   const [flashMode, setFlashMode] = useState<'off' | 'on' | 'auto'>('off');
 
   // Request camera permission on mount
@@ -150,36 +151,56 @@ export default function TakePhotoScreen() {
         />
         {/* Camera Top Controls */}
         <View style={styles.topControls}>
-          <TouchableOpacity
-            style={styles.galleryButton}
+          <Pressable
+            style={({ pressed }) => [
+              styles.galleryButton,
+              pressed && { opacity: 0.7 }
+            ]}
             onPress={handleToggleFlash}
+            android_ripple={{ color: 'rgba(0, 0, 0, 0.1)', radius: 25, borderless: true }}
           >
             <IconSymbol name={getFlashIconName()} size={32} color={primaryColor} />
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {/* Camera Controls */}
         <View style={[styles.controls]}>
-          <TouchableOpacity
-            style={styles.galleryButton}
+          <Pressable
+            style={({ pressed }) => [
+              styles.galleryButton,
+              pressed && { opacity: 0.7 }
+            ]}
             onPress={handlePickFromGallery}
+            android_ripple={{ color: 'rgba(0, 0, 0, 0.1)', radius: 35 }}
           >
             <IconSymbol name="photo-library" size={32} color={primaryColor} />
             <ThemedText style={styles.galleryText}>Gallery</ThemedText>
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity
-            style={[styles.captureButton, { borderColor: primaryColor }]}
+          <Pressable
+            style={({ pressed }) => [
+              styles.captureButton,
+              { borderColor: primaryColor },
+              pressed && { opacity: 0.8 }
+            ]}
             onPress={handleTakePhoto}
+            android_ripple={{ color: 'rgba(255, 255, 255, 0.3)', radius: 40 }}
           >
             <View style={[styles.captureInner, { backgroundColor: primaryColor }]} />
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.skipButton,
+              pressed && { opacity: 0.7 }
+            ]}
+            onPress={handleSkip}
+            android_ripple={{ color: 'rgba(0, 0, 0, 0.1)', radius: 30 }}
+          >
             <ThemedText style={styles.skipText} lightColor="#666" darkColor="#999">
               Skip
             </ThemedText>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </>
 

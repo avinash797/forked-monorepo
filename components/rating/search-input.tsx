@@ -1,6 +1,6 @@
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { ActivityIndicator, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '@/contexts/theme-provider';
+import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 interface SearchInputProps {
   value: string;
@@ -19,10 +19,12 @@ export function SearchInput({
   onFocus,
   autoFocus = false,
 }: SearchInputProps) {
-  const backgroundColor = useThemeColor({}, 'input');
-  const textColor = useThemeColor({}, 'text');
-  const placeholderColor = useThemeColor({}, 'muted');
-  const iconColor = useThemeColor({}, 'icon');
+  const { theme } = useTheme();
+
+  const backgroundColor = theme.color.inputBg;
+  const textColor = theme.color.textPrimary;
+  const placeholderColor = theme.color.textSecondary;
+  const iconColor = theme.color.textTertiary;
 
   const handleClear = () => {
     onChangeText('');
@@ -48,9 +50,13 @@ export function SearchInput({
       {isLoading && <ActivityIndicator size="small" color={iconColor} />}
 
       {!isLoading && value.length > 0 && (
-        <TouchableOpacity onPress={handleClear} activeOpacity={0.7}>
+        <Pressable
+          onPress={handleClear}
+          style={({ pressed }) => [pressed && { opacity: 0.7 }]}
+          android_ripple={{ color: 'rgba(0, 0, 0, 0.1)', radius: 16, borderless: true }}
+        >
           <IconSymbol name="cancel" size={20} color={placeholderColor} />
-        </TouchableOpacity>
+        </Pressable>
       )}
     </View>
   );

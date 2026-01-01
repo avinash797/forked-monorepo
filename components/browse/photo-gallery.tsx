@@ -1,5 +1,5 @@
 import { ThemedText } from '@/components/themed-text';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Pressable, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useTheme } from '@/contexts/theme-provider';
 
@@ -38,12 +38,15 @@ export function PhotoGallery({
           const showOverlay = isLast && hasMore;
 
           return (
-            <TouchableOpacity
+            <Pressable
               key={index}
               onPress={() => onPhotoPress?.(index)}
-              activeOpacity={0.8}
-              style={styles.photoContainer}
+              style={({ pressed }) => [
+                styles.photoContainer,
+                pressed && { opacity: 0.8 }
+              ]}
               disabled={!onPhotoPress}
+              android_ripple={{ color: 'rgba(0, 0, 0, 0.1)' }}
             >
               <Image
                 source={{ uri: photoUrl }}
@@ -60,7 +63,7 @@ export function PhotoGallery({
                   </ThemedText>
                 </View>
               )}
-            </TouchableOpacity>
+            </Pressable>
           );
         })}
       </View>

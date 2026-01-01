@@ -1,7 +1,7 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { useTheme } from "@/contexts/theme-provider";
 import { AddressData, useAddressSearch } from "@/hooks/use-address-search";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { useLocation } from "@/hooks/use-location";
 import React, { useState } from "react";
 import {
@@ -40,18 +40,13 @@ export function AddressAutocomplete({
   });
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const { theme } = useTheme();
 
-  const textColor = useThemeColor({}, "text");
-  const backgroundColor = useThemeColor({}, "background");
-  const borderColor = useThemeColor({ light: "#ccc", dark: "#444" }, "text");
-  const placeholderColor = useThemeColor(
-    { light: "#999", dark: "#666" },
-    "text"
-  );
-  const suggestionBg = useThemeColor(
-    { light: "#f5f5f5", dark: "#2a2a2a" },
-    "background"
-  );
+  const textColor = theme.color.textPrimary;
+  const backgroundColor = theme.color.bg;
+  const borderColor = theme.color.border;
+  const placeholderColor = theme.color.placeholder;
+  const suggestionBg = theme.color.surface;
 
   const handleSelect = async (suggestionId: string) => {
     setShowSuggestions(false);

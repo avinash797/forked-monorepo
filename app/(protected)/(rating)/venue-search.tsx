@@ -5,9 +5,9 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useRatingFlow } from "@/contexts/rating-flow-context";
+import { useTheme } from "@/contexts/theme-provider";
 import { useAddressSearch } from "@/hooks/use-address-search";
 import { useLocation } from "@/hooks/use-location";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { useCreateVenue, useVenueSearch } from "@/hooks/use-venues";
 import type { Venue, VenueWithDistance } from "@/types/rating";
 import { useRouter } from "expo-router";
@@ -20,6 +20,8 @@ type SearchResultItem =
 
 export default function VenueSearchScreen() {
   const router = useRouter();
+  const { theme } = useTheme();
+  const styles = createThemedStyles(theme);
   const { setVenue } = useRatingFlow();
   const [searchQuery, setSearchQuery] = useState("");
   const [dbVenues, setDbVenues] = useState<Venue[]>([]);
@@ -35,8 +37,10 @@ export default function VenueSearchScreen() {
   const { searchVenues, getNearbyVenues } = useVenueSearch();
   const { createVenue, isLoading: isCreating } = useCreateVenue();
 
-  const textColor = useThemeColor({}, 'text');
-  const iconColor = useThemeColor({}, 'icon');
+
+
+  const textColor = theme.color.textPrimary;
+  const iconColor = theme.color.textTertiary;
 
   const debounceTimer = useRef<NodeJS.Timeout | number>(0);
 
@@ -297,54 +301,55 @@ export default function VenueSearchScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) => StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: theme.space.md,
   },
   listContent: {
-    paddingVertical: 16,
+    paddingVertical: theme.space.md,
+    gap: theme.space.md,
   },
   emptyState: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 8,
+    padding: theme.space.sm,
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: theme.font.size.md,
     textAlign: "center",
-    marginBottom: 16,
+    marginBottom: theme.space.sm,
   },
   createButton: {
-    marginTop: 16,
+    marginTop: theme.space.md,
   },
   errorText: {
-    fontSize: 14,
-    marginTop: 12,
+    fontSize: theme.font.size.sm,
+    marginTop: theme.space.sm,
     textAlign: "center",
   },
   mapboxItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: theme.space.md,
     backgroundColor: 'rgba(150, 150, 150, 0.1)',
-    borderRadius: 12,
-    marginBottom: 12,
+    borderRadius: theme.radius.md,
+    marginBottom: theme.space.md,
   },
   mapboxIcon: {
-    marginRight: 12,
+    marginRight: theme.space.sm,
   },
   mapboxContent: {
     flex: 1,
   },
   mapboxAddress: {
-    fontSize: 14,
-    marginTop: 2,
+    fontSize: theme.font.size.md,
+    marginTop: theme.space.xxs,
   },
   mapboxMeta: {
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: '600',
+    fontSize: theme.font.size.xs,
+    marginTop: theme.space.xxs,
+    fontWeight: theme.font.weight.semibold,
   }
 });
