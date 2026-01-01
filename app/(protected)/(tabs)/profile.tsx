@@ -1,8 +1,10 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { Charm } from "@/components/ui/charm";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useTheme } from "@/contexts/theme-provider";
 import { useAuth } from "@/hooks/use-auth";
+import { buildComponentStyles } from "@/lib/theme/componentStyles";
 import { Link } from "expo-router";
 import { Image, Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,6 +12,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function ProfileScreen() {
   const { user, profile } = useAuth();
   const { theme } = useTheme();
+  const builtStyles = buildComponentStyles(theme);
+  const styles = createThemedStyles(theme);
 
   const getInitials = (name?: string | null) => {
     if (!name) return "U";
@@ -29,80 +33,60 @@ export default function ProfileScreen() {
   const avatarUrl = profile?.avatar_url || user?.avatar_url;
 
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView edges={["top"]} style={styles.safeArea}>
-        <View style={styles.header}>
-          <Link href="/(protected)/settings" asChild>
-            <Pressable style={styles.settingsButton}>
-              <IconSymbol
-                name="settings"
-                size={28}
-                color={theme.color.textPrimary}
-              />
-            </Pressable>
-          </Link>
+    <SafeAreaView edges={["top"]} style={builtStyles.screen}>
+      <View style={styles.header}>
+        <Link href="/(protected)/settings" asChild>
+          <Pressable style={styles.settingsButton}>
+            <IconSymbol
+              name="settings"
+              size={28}
+              color={theme.color.textPrimary}
+            />
+          </Pressable>
+        </Link>
+      </View>
+
+      <View style={styles.profileSection}>
+        <View style={styles.avatarContainer}>
+          {avatarUrl ? (
+            <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+          ) : (
+            <ThemedView
+              style={[
+                styles.avatarPlaceholder,
+                { backgroundColor: theme.color.surface },
+              ]}
+            >
+              <ThemedText style={styles.avatarInitials}>
+                {getInitials(displayName)}
+              </ThemedText>
+            </ThemedView>
+          )}
         </View>
 
-        <View style={styles.profileSection}>
-          <View style={styles.avatarContainer}>
-            {avatarUrl ? (
-              <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+        <ThemedText type="title" style={styles.name}>
+          {displayName}
+        </ThemedText>
+
+        <View style={styles.charmsSection}>
+          <View style={styles.charmsContainer}>
+            {profile?.charms && profile.charms.length > 0 ? (
+              profile.charms.map((charm, index) => (
+                <Charm charm={charm} key={index} showName />
+              ))
             ) : (
-              <ThemedView
-                style={[
-                  styles.avatarPlaceholder,
-                  { backgroundColor: theme.color.surface },
-                ]}
-              >
-                <ThemedText style={styles.avatarInitials}>
-                  {getInitials(displayName)}
-                </ThemedText>
-              </ThemedView>
+              <ThemedText style={styles.noCharmsText}>
+                No charms yet
+              </ThemedText>
             )}
           </View>
-
-          <ThemedText type="title" style={styles.name}>
-            {displayName}
-          </ThemedText>
-
-          <View style={styles.charmsSection}>
-            <ThemedText type="subtitle" style={styles.charmsTitle}>
-              Charms Earned
-            </ThemedText>
-            <View style={styles.charmsContainer}>
-              {profile?.charms && profile.charms.length > 0 ? (
-                profile.charms.map((charm, index) => (
-                  <View
-                    key={index}
-                    style={[
-                      styles.charmBadge,
-                      { backgroundColor: theme.color.surface },
-                    ]}
-                  >
-                    <IconSymbol
-                      name="emoji-events"
-                      size={24}
-                      color={theme.color.accent}
-                    />
-                  </View>
-                ))
-              ) : (
-                <ThemedText style={styles.noCharmsText}>
-                  No charms yet
-                </ThemedText>
-              )}
-            </View>
-          </View>
         </View>
-      </SafeAreaView>
-    </ThemedView>
+      </View>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) => StyleSheet.create({
   safeArea: {
     flex: 1,
   },
@@ -110,22 +94,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-end",
     alignItems: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 16,
+    paddingHorizontal: theme.space.xl,
   },
   settingsButton: {
-    padding: 8,
-    marginRight: -8, // Align icon visually with the edge
+    marginRight: -theme.space.xs,
   },
   profileSection: {
     flex: 1,
     alignItems: "center",
-    paddingTop: 16,
-    paddingHorizontal: 24,
+    paddingVertical: theme.space.md,
   },
   avatarContainer: {
-    marginBottom: 24,
-    shadowColor: "#000",
+    marginBottom: theme.space.md,
+    shadowColor: theme.color.bg,
     shadowOffset: {
       width: 0,
       height: 4,
@@ -146,40 +127,30 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "rgba(128,128,128,0.1)",
+    borderColor: theme.color.border,
   },
   avatarInitials: {
     fontSize: 40,
     fontWeight: "bold",
   },
   name: {
-    marginBottom: 48,
+    marginBottom: theme.space.md,
     textAlign: "center",
-    fontSize: 28,
+    fontSize: theme.font.size.xl,
   },
   charmsSection: {
     width: "100%",
   },
-  charmsTitle: {
-    marginBottom: 16,
-    opacity: 0.8,
-  },
   charmsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 16,
-  },
-  charmBadge: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
     justifyContent: "center",
-    alignItems: "center",
+    gap: theme.space.md,
   },
   noCharmsText: {
     opacity: 0.5,
     fontStyle: "italic",
-    marginTop: 8,
+    marginTop: theme.space.xs,
   },
 });
 
