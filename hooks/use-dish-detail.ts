@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabase';
-import { Profile } from '@/types/auth';
 import type { DishWithVenue, ReviewWithUserProfile } from '@/types/browse';
 import { Review } from '@/types/rating';
 import { useEffect, useState } from 'react';
@@ -68,20 +67,18 @@ export function useDishDetail(dishId: string | null) {
           const userIds = reviewsData.map((r) => r.user_id);
           const { data: profilesData } = await supabase
             .from('users')
-            .select('id, username, display_name, profile_photo_url')
+            .select('id, username, display_name, avatar_url')
             .in('id', userIds);
 
           // Map profiles to reviews
-          const profilesMap = new Map<string, Profile>(
-            (profilesData || [] as Profile[]).map((p) => [p.id, p])
-          );
+          const profilesMap = new Map((profilesData || []).map((p) => [p.id, p]));
 
           const reviewsWithProfiles = reviewsData.map((review) => ({
             ...review,
             profile: profilesMap.get(review.user_id) || null,
           }));
 
-          setReviews(reviewsWithProfiles as ReviewWithUserProfile[]);
+          setReviews(reviewsWithProfiles);
         } else {
           setReviews([]);
         }

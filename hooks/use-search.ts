@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import type { SearchResult } from '@/types/browse';
-import type { Dish, Venue } from '@/types/rating';
+import type { Venue } from '@/types/rating';
 import { useEffect, useState } from 'react';
 
 /**
@@ -60,7 +60,7 @@ export function useSearch(query: string) {
         if (venuesResult.error) throw venuesResult.error;
 
         // Combine results into discriminated union
-        const dishResults: SearchResult[] = ((dishesResult.data || []) as Array<Dish & { review_photos: string[] }>).map(
+        const dishResults = ((dishesResult.data || [])).map(
           (dish) => {
             const reviewPhotos = dish.review_photos?.flatMap((r: any) => r.photo_urls || []) || [];
             return {
@@ -89,10 +89,10 @@ export function useSearch(query: string) {
         while (dishIndex < dishResults.length || venueIndex < venueResults.length) {
           // Add 2 dishes
           if (dishIndex < dishResults.length) {
-            combined.push(dishResults[dishIndex++]);
+            combined.push(dishResults[dishIndex++] as any);
           }
           if (dishIndex < dishResults.length) {
-            combined.push(dishResults[dishIndex++]);
+            combined.push(dishResults[dishIndex++] as any);
           }
 
           // Add 1 venue

@@ -140,7 +140,7 @@ export function useLeaderboard() {
           },
           venue: dish.venue,
           medal,
-        };
+        } as LeaderboardItem;
       });
 
       setLeaderboardItems(items);

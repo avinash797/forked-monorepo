@@ -1,6 +1,6 @@
 // Discovery & Browsing Feature Types
 
-import type { Dish, Venue, Review } from './rating';
+import type { Dish, Review, Venue } from './rating';
 
 // ============================================================================
 // Display Types for Browse Feature
@@ -22,8 +22,8 @@ export interface ReviewWithUserProfile extends Review {
   profile?: {
     username: string | null;
     display_name: string | null;
-    profile_photo_url: string | null;
-  };
+    avatar_url: string | null;
+  } | null;
 }
 
 /**
