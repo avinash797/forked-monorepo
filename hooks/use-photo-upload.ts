@@ -60,8 +60,9 @@ export function usePhotoUpload() {
 
   const uploadPhoto = async (
     uri: string,
-    entityType: "review" | "dish" | "venue",
-    userId: string
+    entityType: "review" | "dish" | "venue" | "avatar",
+    userId: string,
+    bucket: string = "review-photos"
   ): Promise<UploadedPhoto | null> => {
     setIsLoading(true);
     setError(null);
@@ -74,7 +75,7 @@ export function usePhotoUpload() {
       const fileName = `${entityType}/${userId}/${Date.now()}.${fileExt}`;
 
       const { data, error: uploadError } = await supabase.storage
-        .from("review-photos")
+        .from(bucket)
         .upload(fileName, arrayBuffer, {
           contentType: `image/${fileExt}`,
           cacheControl: "3600",
@@ -84,7 +85,7 @@ export function usePhotoUpload() {
 
       const {
         data: { publicUrl },
-      } = supabase.storage.from("review-photos").getPublicUrl(fileName);
+      } = supabase.storage.from(bucket).getPublicUrl(fileName);
 
       return {
         uri,
@@ -99,13 +100,13 @@ export function usePhotoUpload() {
     }
   };
 
-  const deletePhoto = async (storagePath: string): Promise<boolean> => {
+  const deletePhoto = async (storagePath: string, bucket: string = "review-photos"): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
 
     try {
       const { error: deleteError } = await supabase.storage
-        .from("review-photos")
+        .from(bucket)
         .remove([storagePath]);
 
       if (deleteError) throw deleteError;

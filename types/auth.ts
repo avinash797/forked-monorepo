@@ -14,7 +14,7 @@ export interface Profile {
   email_verified: boolean;
   charms: Charm[];
   reputation_score: number;
-  profile_photo_url: string | null;
+  avatar_url: string | null;
   bio: string | null;
   updated_at: string;
 }
@@ -23,7 +23,7 @@ export interface User {
   id: string;
   email: string;
   display_name?: string;
-  profile_photo_url?: string;
+  avatar_url?: string;
 }
 
 export interface AuthState {
