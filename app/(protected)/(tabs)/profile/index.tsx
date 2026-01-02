@@ -1,3 +1,4 @@
+import { ThemedButton } from "@/components/themed-button";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Charm } from "@/components/ui/charm";
@@ -35,7 +36,7 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView edges={["top"]} style={builtStyles.screen}>
       <View style={styles.header}>
-        <Link href="/(protected)/settings" asChild>
+        <Link href="/profile/settings" asChild>
           <Pressable style={styles.settingsButton}>
             <IconSymbol
               name="settings"
@@ -67,6 +68,15 @@ export default function ProfileScreen() {
         <ThemedText type="title" style={styles.name}>
           {displayName}
         </ThemedText>
+
+        <Link href="/profile/edit" asChild>
+          <ThemedButton
+            variant="secondary"
+            style={styles.editProfileButton}
+          >
+            Edit Profile
+          </ThemedButton>
+        </Link>
 
         <View style={styles.charmsSection}>
           <View style={styles.charmsContainer}>
@@ -137,6 +147,10 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) => Styl
     marginBottom: theme.space.md,
     textAlign: "center",
     fontSize: theme.font.size.xl,
+  },
+  editProfileButton: {
+    alignSelf: "center",
+    marginBottom: theme.space.lg,
   },
   charmsSection: {
     width: "100%",

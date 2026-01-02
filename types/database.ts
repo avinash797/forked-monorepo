@@ -1,4 +1,4 @@
-import type { Charm, Profile } from './auth';
+import { Charm, Profile } from './auth';
 import type { Dish, DishType, Photo, Review, Venue } from './rating';
 
 export interface Database {
