@@ -1,12 +1,61 @@
 # Forked - Active TODO List
 
-**Last Updated:** 2025-12-29
+**Last Updated:** 2026-01-02
 
 This file tracks active work items and immediate next steps. For the full roadmap, see [ROADMAP.md](./ROADMAP.md).
 
 ---
 
 ## ✅ Recently Completed
+
+### MVP Feature #8 - Profile System
+
+**Goal:** Enable users to view and edit their profile with avatar and charms
+
+**Status:** ✅ Complete (2026-01-02)
+
+- [x] Design profile nested stack navigation
+- [x] Create profile viewing screen (avatar, bio, charms display)
+- [x] Implement profile editing with form validation (react-hook-form + zod)
+- [x] Add avatar upload to Supabase Storage (user-avatars bucket)
+- [x] Create settings screen with theme switching (4 variants)
+- [x] Build Charm component for user achievements
+- [x] Update auth context to fetch user charms
+- [x] Delete old flat settings.tsx
+
+**Deliverables:**
+
+- 4 screens created (profile stack: _layout, index, edit, settings)
+- 1 component created (Charm)
+- Form validation with react-hook-form + zod
+- Avatar upload fully functional
+- Theme switching between 4 variants (default, genZ, foodies, critics)
+
+---
+
+### MVP Feature #5 - Data Layer & React Query Integration
+
+**Goal:** Migrate all data fetching to React Query for robust caching and state management
+
+**Status:** ✅ Complete (2026-01-02)
+
+- [x] Install and configure @tanstack/react-query
+- [x] Create QueryClientProvider wrapper
+- [x] Migrate all 14 hooks to React Query patterns
+- [x] Implement useQuery for data fetching
+- [x] Implement useMutation for data modifications
+- [x] Implement useInfiniteQuery for pagination
+- [x] Add query invalidation on mutations
+- [x] Update error handling to use React Query patterns
+
+**Deliverables:**
+
+- All hooks migrated to React Query
+- Consistent query key patterns
+- Automatic cache invalidation
+- Better loading and error states
+
+---
 
 ### MVP Feature #2 - Discovery & Browsing
 
@@ -59,7 +108,7 @@ This file tracks active work items and immediate next steps. For the full roadma
 
 **Goal:** Add helpful votes, review sorting, and user review management
 
-**Status:** In Progress
+**Status:** Not Started (Next Priority)
 
 ### High Priority Tasks
 
@@ -126,18 +175,30 @@ This file tracks active work items and immediate next steps. For the full roadma
 
 - ✅ ReviewCard (with ScoreBadge)
 - ✅ DishCardWithRating (photo-dominant design)
+- ✅ CompactDishCardWithRating (for search results)
+- ✅ LeaderboardItem (with medal borders)
 - ✅ PhotoGallery
 - ✅ SectionHeader
 - ✅ EmptyState
 - ✅ ScoreBadge (color-coded ratings)
 
+**Profile:**
+
+- ✅ Charm (user achievement display with SVG/image icons)
+
+**Themed Components:**
+
+- ✅ ThemedText, ThemedView, ThemedButton, ThemedTextInput, ThemedSelect
+
 ### Completed Systems
 
-- ✅ Photo System (Supabase Storage, Camera/ImagePicker, Gallery Display)
+- ✅ Photo System (Supabase Storage, Camera/ImagePicker, Gallery Display, Avatar Upload)
 - ✅ GPS/Location Services
-- ✅ Custom Supabase query hooks (14 hooks total)
+- ✅ React Query Integration (all 14 hooks migrated)
 - ✅ Browse & Search functionality
 - ✅ Home feed with pagination
+- ✅ Leaderboard with rankings
+- ✅ Profile System (view/edit/settings with theme switching)
 
 ---
 
@@ -151,16 +212,19 @@ _None reported yet_
 
 ## 💡 Ideas / Future Considerations
 
-- ✅ ~~Evaluate React Query vs. SWR for data fetching~~ (Deferred to V1.0)
+- ✅ ~~Evaluate React Query vs. SWR for data fetching~~ (Complete - React Query chosen and integrated)
 - ✅ ~~Consider using Expo Image for better image performance~~ (Using Expo ImagePicker)
 - ✅ ~~Implement pull-to-refresh on feed~~ (Complete)
 - ✅ ~~Add pagination for review lists~~ (Complete via Load More)
+- ✅ ~~Profile system with avatar upload~~ (Complete)
+- ✅ ~~Theme switching functionality~~ (Complete - 4 variants)
 - Research AI photo verification APIs (Google Vision, AWS Rekognition, etc.)
 - Plan for app store submission requirements
 - Consider analytics platform (Amplitude, Mixpanel, PostHog)
 - Add image compression/optimization before upload (V1.0)
 - Implement infinite scroll/virtualized lists for better performance (V1.0)
 - Add review flagging/reporting (V1.0)
+- Add charm unlock notifications and progress tracking (V1.0)
 
 ---
 

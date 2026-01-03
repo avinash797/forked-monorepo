@@ -1,6 +1,6 @@
 # Forked - Product Roadmap
 
-**Last Updated:** 2025-12-26
+**Last Updated:** 2026-01-02
 
 ## Overview
 
@@ -12,20 +12,21 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 
 ---
 
-## Current Status: 67% Complete (+10% from Leaderboard & Rankings)
+## Current Status: 60% Complete
 
-### ✅ Completed (Foundation + MVP Features #1, #2, #3, #6, #7)
+### ✅ Completed (Foundation + MVP Features #1, #2, #3, #5, #6, #7, #8)
 
 - Authentication system (signup, login, password reset, profile management)
-- Database schema (17 migrations: 11 tables + 1 storage bucket + seed data)
-- UI component library (themed components, navigation structure)
-- App architecture (Expo Router, TypeScript, theme system)
-- User profile viewing
+- Database schema (27+ migrations: 11 tables + 2 storage buckets + seed data + schema updates)
+- UI component library (30+ themed components, navigation structure)
+- App architecture (Expo Router v6, TypeScript, React Query, theme system with 4 variants)
 - **Core Rating Flow** (venue search, dish selection, rating submission with 0-10 scale) 🎉
-- **Photo System** (camera, gallery, Supabase Storage upload, photo gallery display)
-- **GPS Verification** (location services, distance calculation)
+- **Photo System** (camera, gallery, Supabase Storage upload, photo gallery display, avatar upload) 🎉
+- **GPS Verification** (location services, distance calculation) 🎉
 - **Discovery & Browsing** (home feed, search, dish/venue detail pages) 🎉
 - **Leaderboard & Rankings** (dish type chips, top dishes by category, medal borders, dramatic animations) 🎉
+- **Profile System** (view/edit profile, avatar upload, charms display, settings with theme switching) 🎉
+- **Data Layer** (React Query integration complete, all hooks migrated) 🎉
 
 ### 🚧 In Progress
 
@@ -33,10 +34,10 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 
 ### ❌ Not Started
 
-- Review display & interaction
 - Advanced search & filters
-- User profiles & social features
-- Gamification UI
+- User social features (follow, activity feed)
+- Gamification UI (charm unlock notifications, progress tracking)
+- Review management (edit/delete own reviews)
 
 ---
 
@@ -147,23 +148,33 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 
 ---
 
-#### 5. Data Layer & API (Critical - 15% of MVP)
+#### 5. Data Layer & API (Critical - 15% of MVP) ✅ COMPLETE
 
-**Status:** 🚧 Partial | **Progress:** 80%
+**Status:** ✅ Complete | **Progress:** 100% | **Completed:** 2026-01-02
 
 - [x] Supabase query functions (dishes, venues, reviews, photos)
 - [x] Custom hooks for data fetching (useTopDishes, useSearch, useDishDetail, etc.)
-- [x] Context/state management for global app state (RatingContext, AuthContext)
+- [x] Context/state management for global app state (RatingContext, AuthContext, ThemeProvider)
 - [x] Error handling and loading states
 - [x] React Query setup for data fetching and caching
+- [x] All 14 hooks migrated to @tanstack/react-query
 - [ ] Optimistic updates for better UX (deferred to V1.0)
 
-**Success Criteria:**
+**Success Criteria:** ✅ ALL MET
 
 - ✅ All data fetches from Supabase efficiently
 - ✅ Loading states display correctly
 - ✅ Errors handled gracefully
-- ⏳ App feels fast with proper caching (upcoming with React Query)
+- ✅ App feels fast with proper caching (React Query provides excellent caching)
+
+**Implementation Details:**
+
+- Dependencies: @tanstack/react-query v5.90.16
+- Query keys are semantic and hierarchical
+- Mutations invalidate related queries automatically
+- All hooks follow consistent patterns (useQuery, useMutation, useInfiniteQuery)
+- Error handling via React Query's built-in error boundaries
+- Loading states from isLoading, isFetching, isPending
 
 ---
 
@@ -221,11 +232,43 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 
 ---
 
+#### 8. Profile System (Important - 10% of MVP) ✅ COMPLETE
+
+**Status:** ✅ Complete | **Progress:** 100% | **Completed:** 2026-01-02
+
+- [x] Profile nested stack navigation (_layout, index, edit, settings)
+- [x] Profile viewing screen with avatar, bio, and charms display
+- [x] Profile editing with form validation (react-hook-form + zod)
+- [x] Avatar upload to Supabase Storage (user-avatars bucket)
+- [x] Settings screen with theme switching (4 variants: default, genZ, foodies, critics)
+- [x] Charm component for displaying earned user achievements
+- [x] Auth context updated to fetch user charms
+- [x] Profile photo display across app
+
+**Success Criteria:** ✅ ALL MET
+
+- ✅ User can view their own profile with avatar and charms
+- ✅ User can edit profile information (bio, display name)
+- ✅ User can upload/change avatar photo
+- ✅ User can switch between 4 theme variants
+- ✅ Charms display correctly with icons
+
+**Implementation Details:**
+
+- Deleted old flat `settings.tsx`, created profile nested stack
+- Form validation: react-hook-form v7.69.0 + zod v4.2.1
+- Avatar storage bucket: `user-avatars` with RLS policies
+- Theme switching: 4 variants (default, genZ, foodies, critics) in light/dark modes
+- Charm component: SVG/image icon support with fallback
+- Profile screens: app/(protected)/(tabs)/profile/{_layout,index,edit,settings}.tsx
+
+---
+
 ### MVP Nice-to-Haves (If Time Permits)
 
-- [ ] Pull-to-refresh on feed screens
-- [ ] Infinite scroll/pagination for long lists
-- [ ] Image zoom/lightbox for photos
+- [x] Pull-to-refresh on feed screens ✅
+- [x] Infinite scroll/pagination for long lists ✅
+- [x] Image zoom/lightbox for photos ✅
 - [ ] Share review functionality
 - [ ] Basic analytics tracking (screen views, rating submissions)
 
@@ -473,10 +516,10 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 | Phase          | Features Complete | Total Features | Progress |
 | -------------- | ----------------- | -------------- | -------- |
 | **Foundation** | 5/5               | 5              | 100% ✅  |
-| **MVP**        | 5/7               | 7              | 71% 🚧   |
+| **MVP**        | 7/8               | 8              | 88% 🚧   |
 | **V1.0**       | 0/9               | 9              | 0%       |
 | **V2.0**       | 0/5               | 5              | 0%       |
-| **TOTAL**      | 10/26             | 26             | **38%**  |
+| **TOTAL**      | 12/27             | 27             | **44%**  |
 
 ### MVP Progress Breakdown
 
@@ -486,9 +529,10 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 | Discovery & Browsing   | Critical  | ✅ Complete | 100%     |
 | Photo System           | Critical  | ✅ Complete | 100%     |
 | Review Display         | Important | 🚧 Partial  | 60%      |
-| Data Layer & API       | Critical  | 🚧 Partial  | 80%      |
+| Data Layer & API       | Critical  | ✅ Complete | 100%     |
 | Basic UI Components    | Important | ✅ Complete | 100%     |
 | Leaderboard & Rankings | Important | ✅ Complete | 100%     |
+| Profile System         | Important | ✅ Complete | 100%     |
 
 ---
 
@@ -518,6 +562,8 @@ This roadmap should be reviewed and updated:
 2. ✅ ~~Begin MVP Feature #1: Core Rating Flow~~ (Complete)
 3. ✅ ~~Begin MVP Feature #2: Discovery & Browsing~~ (Complete)
 4. ✅ ~~Begin MVP Feature #7: Leaderboard & Rankings~~ (Complete)
-5. Complete MVP Feature #4: Review Display & Interaction (helpful votes, sorting)
-6. Set target dates for MVP beta release
-7. Update progress weekly in this file
+5. ✅ ~~Begin MVP Feature #5: Data Layer & API (React Query)~~ (Complete)
+6. ✅ ~~Begin MVP Feature #8: Profile System~~ (Complete)
+7. Complete MVP Feature #4: Review Display & Interaction (helpful votes, sorting)
+8. Set target dates for MVP beta release
+9. Update progress weekly in this file
