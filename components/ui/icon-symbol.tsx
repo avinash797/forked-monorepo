@@ -10,15 +10,17 @@ export type IconSymbolName = ComponentProps<typeof MaterialIcons>['name'];
  * See available icons at https://icons.expo.fyi/Index/MaterialIcons
  */
 export function IconSymbol({
-  name,
-  size = 24,
-  color,
-  style,
+    name,
+    size = 24,
+    color,
+    style,
 }: {
-  name: IconSymbolName;
-  size?: number;
-  color: string | OpaqueColorValue;
-  style?: StyleProp<TextStyle>;
+    name: IconSymbolName;
+    size?: number;
+    color: string | OpaqueColorValue;
+    style?: StyleProp<TextStyle>;
 }) {
-  return <MaterialIcons color={color} size={size} name={name} style={style} />;
+    return (
+        <MaterialIcons color={color} size={size} name={name} style={style} />
+    );
 }

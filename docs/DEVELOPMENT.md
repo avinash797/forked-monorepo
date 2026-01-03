@@ -19,35 +19,40 @@ This guide covers the development workflow, coding standards, and contribution g
 ### Initial Setup
 
 1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd forked
-   ```
+
+    ```bash
+    git clone <repository-url>
+    cd forked
+    ```
 
 2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+
+    ```bash
+    npm install
+    ```
 
 3. **Set up environment variables:**
-   ```bash
-   cp .env.example .env
-   ```
-   Then edit `.env` and add your Supabase credentials:
-   ```
-   EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
-   EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
+
+    ```bash
+    cp .env.example .env
+    ```
+
+    Then edit `.env` and add your Supabase credentials:
+
+    ```
+    EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
+    EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+    ```
 
 4. **Run database migrations:**
-   - Open your Supabase dashboard
-   - Navigate to SQL Editor
-   - Run each migration file in `supabase/migrations/` in order (000000 → 000010)
+    - Open your Supabase dashboard
+    - Navigate to SQL Editor
+    - Run each migration file in `supabase/migrations/` in order (000000 → 000010)
 
 5. **Start the development server:**
-   ```bash
-   npm start
-   ```
+    ```bash
+    npm start
+    ```
 
 ---
 
@@ -125,6 +130,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 - `chore:` - Maintenance tasks
 
 **Examples:**
+
 ```
 feat: add star rating component
 fix: resolve GPS verification bug
@@ -138,21 +144,21 @@ chore: update dependencies
 ### Pull Request Process
 
 1. **Create PR from feature branch to `develop`:**
-   - Use the PR template (once created in `.github/`)
-   - Fill out the description, checklist, and testing notes
+    - Use the PR template (once created in `.github/`)
+    - Fill out the description, checklist, and testing notes
 
 2. **Ensure CI passes:**
-   - Linting (ESLint)
-   - Type checking (TypeScript)
-   - Tests (once implemented)
+    - Linting (ESLint)
+    - Type checking (TypeScript)
+    - Tests (once implemented)
 
 3. **Request review:**
-   - Tag relevant reviewers
-   - Address feedback promptly
+    - Tag relevant reviewers
+    - Address feedback promptly
 
 4. **Merge:**
-   - Squash and merge for clean history
-   - Delete feature branch after merge
+    - Squash and merge for clean history
+    - Delete feature branch after merge
 
 ---
 
@@ -212,6 +218,7 @@ npm run test:coverage
 - **Import order:** React → Third-party → Local absolute (`@/`) → Local relative
 
 **Example:**
+
 ```typescript
 import React, { useState } from 'react';
 import { View, Text } from 'react-native';
@@ -238,7 +245,7 @@ import { styles } from './styles';
 
 - **Authentication:** Context API (`AuthContext`)
 - **Theme:** React Navigation's ThemeProvider
-- **Data Fetching:** [TBD - React Query recommended]
+- **Data Fetching:** React Query recommended
 
 ### Adding New Contexts
 
@@ -255,16 +262,24 @@ import { styles } from './styles';
 
 ```typescript
 // Example: Fetch dishes for a venue
-export async function getVenueDishes(venueId: string) {
-  const { data, error } = await supabase
-    .from('dishes')
-    .select('*, dish_types(*)')
-    .eq('venue_id', venueId)
-    .eq('is_available', true)
-    .order('name');
+export function useVenueDishes(venueId: string | null) {
+    return useQuery({
+        queryKey: ['dishes', 'venue', venueId],
+        queryFn: async (): Promise<Dish[]> => {
+            if (!venueId) return [];
 
-  if (error) throw error;
-  return data;
+            const { data, error } = await supabase
+                .from('dishes')
+                .select('*')
+                .eq('venue_id', venueId)
+                .eq('is_available', true)
+                .order('name');
+
+            if (error) throw error;
+            return data || [];
+        },
+        enabled: !!venueId,
+    });
 }
 ```
 
@@ -280,13 +295,13 @@ export async function getVenueDishes(venueId: string) {
 ```typescript
 // Example: Upload photo to Supabase Storage
 export async function uploadPhoto(file: File, bucket: string) {
-  const fileName = `${Date.now()}-${file.name}`;
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .upload(fileName, file);
+    const fileName = `${Date.now()}-${file.name}`;
+    const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, file);
 
-  if (error) throw error;
-  return data;
+    if (error) throw error;
+    return data;
 }
 ```
 
@@ -317,12 +332,15 @@ When implementing a new feature:
 ### Common Issues
 
 **Issue:** "Supabase client not initialized"
+
 - **Fix:** Ensure `.env` has correct `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY`
 
 **Issue:** "RLS policy prevents query"
+
 - **Fix:** Check Supabase RLS policies, ensure user is authenticated
 
 **Issue:** "Images not loading"
+
 - **Fix:** Check Supabase Storage policies, verify file paths are correct
 
 ### Debugging Tools
@@ -373,6 +391,7 @@ When implementing a new feature:
 - **Use JSDoc:** For exported functions and components
 
 **Example:**
+
 ```typescript
 /**
  * Verifies if user's GPS coordinates are within specified distance of venue.
@@ -383,10 +402,10 @@ When implementing a new feature:
  * @returns Boolean indicating if GPS verification passed
  */
 export async function verifyReviewGPS(
-  reviewId: string,
-  maxDistanceMeters: number = 500
+    reviewId: string,
+    maxDistanceMeters: number = 500
 ): Promise<boolean> {
-  // Implementation...
+    // Implementation...
 }
 ```
 
@@ -415,6 +434,7 @@ We use [Semantic Versioning](https://semver.org/):
 - **Patch (0.0.X):** Bug fixes, backwards-compatible
 
 **Examples:**
+
 - `0.1.0` - MVP Beta Release
 - `1.0.0` - V1.0 Full Release
 - `1.1.0` - Added advanced search
@@ -446,17 +466,20 @@ We use [Semantic Versioning](https://semver.org/):
 ## 📚 Resources
 
 ### Documentation
+
 - [Expo Docs](https://docs.expo.dev/)
 - [React Native Docs](https://reactnative.dev/docs/getting-started)
 - [Supabase Docs](https://supabase.com/docs)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 
 ### Design
+
 - [React Navigation Theming](https://reactnavigation.org/docs/themes)
 - [iOS Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/)
 - [Material Design](https://material.io/design)
 
 ### Tools
+
 - [Expo Snack](https://snack.expo.dev/) - Test components online
 - [React Native Debugger](https://github.com/jhen0409/react-native-debugger)
 - [Supabase Dashboard](https://app.supabase.com/)
@@ -466,15 +489,18 @@ We use [Semantic Versioning](https://semver.org/):
 ## 💬 Communication
 
 ### Daily Updates
+
 - Post progress in team channel
 - Mention blockers immediately
 
 ### Weekly Sync
+
 - Review TODO.md and PROGRESS.md
 - Discuss upcoming features and priorities
 - Demo completed work
 
 ### Questions
+
 - Use GitHub Discussions for feature discussions
 - Use GitHub Issues for bug reports
 - Use team chat for quick questions
@@ -484,6 +510,7 @@ We use [Semantic Versioning](https://semver.org/):
 ## 📞 Support
 
 For questions or issues:
+
 - **Technical Issues:** Create a GitHub issue
 - **Feature Requests:** Create a GitHub issue with `feature-request` label
 - **Security Issues:** Email security@forked.app (or equivalent)

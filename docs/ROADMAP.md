@@ -69,6 +69,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - ✅ Review saves to database with GPS verification status
 
 **Implementation Details:**
+
 - 24 files created (5 screens, 6 components, 5 hooks, 1 context, types, migration)
 - Modal presentation for clean UX
 - Distance-based venue sorting
@@ -95,6 +96,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - ✅ User can find specific dishes or venues via search
 
 **Implementation Details:**
+
 - 4 new screens (browse layout, search, dish detail, venue detail)
 - 6 browse components (ReviewCard, DishCardWithRating, PhotoGallery, SectionHeader, EmptyState, ScoreBadge)
 - 4 new hooks (useTopDishes, useSearch, useDishDetail, useVenueDetail)
@@ -153,7 +155,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - [x] Custom hooks for data fetching (useTopDishes, useSearch, useDishDetail, etc.)
 - [x] Context/state management for global app state (RatingContext, AuthContext)
 - [x] Error handling and loading states
-- [ ] React Query setup for data fetching and caching (deferred to V1.0)
+- [x] React Query setup for data fetching and caching
 - [ ] Optimistic updates for better UX (deferred to V1.0)
 
 **Success Criteria:**
@@ -207,6 +209,7 @@ This roadmap tracks the development of Forked from its current foundation (30% c
 - ✅ Animations are smooth and dramatic like other detail screens
 
 **Implementation Details:**
+
 - New tab between home and add-review tabs with "leaderboard" icon
 - `useLeaderboard` hook for data fetching (optimized with in-memory aggregation)
 - `LeaderboardItem` component with gradient medal borders and playful design

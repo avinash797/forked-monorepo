@@ -1,115 +1,71 @@
 import { supabase } from '@/lib/supabase';
 import type { CreateDishInput, Dish, DishType } from '@/types/rating';
-import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export function useVenueDishes(venueId: string | null) {
-  const [dishes, setDishes] = useState<Dish[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+    return useQuery({
+        queryKey: ['dishes', 'venue', venueId],
+        queryFn: async (): Promise<Dish[]> => {
+            if (!venueId) return [];
 
-  useEffect(() => {
-    if (!venueId) {
-      setDishes([]);
-      return;
-    }
+            const { data, error } = await supabase
+                .from('dishes')
+                .select('*')
+                .eq('venue_id', venueId)
+                .eq('is_available', true)
+                .order('name');
 
-    const fetchDishes = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const { data, error: queryError } = await supabase
-          .from('dishes')
-          .select('*')
-          .eq('venue_id', venueId)
-          .eq('is_available', true)
-          .order('name');
-
-        if (queryError) throw queryError;
-        setDishes(data || []);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchDishes();
-  }, [venueId]);
-
-  const refetch = () => {
-    if (venueId) {
-      setDishes([]);
-    }
-  };
-
-  return { dishes, isLoading, error, refetch };
+            if (error) throw error;
+            return data || [];
+        },
+        enabled: !!venueId,
+    });
 }
 
 export function useCreateDish() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
 
-  const createDish = async (input: CreateDishInput): Promise<Dish | null> => {
-    setIsLoading(true);
-    setError(null);
+    return useMutation({
+        mutationFn: async (input: CreateDishInput): Promise<Dish> => {
+            const {
+                data: { user },
+            } = await supabase.auth.getUser();
+            if (!user) throw new Error('Not authenticated');
 
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+            const { data, error } = await supabase
+                .from('dishes')
+                .insert({
+                    ...input,
+                    currency: 'USD',
+                    added_by_user_id: user.id,
+                } as any)
+                .select()
+                .single();
 
-      const { data, error: insertError } = await supabase
-        .from('dishes')
-        .insert({
-          ...input,
-          currency: 'USD',
-          added_by_user_id: user.id,
-        } as any)
-        .select()
-        .single();
-
-      if (insertError) throw insertError;
-      return data;
-    } catch (err: any) {
-      setError(err.message);
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { createDish, isLoading, error };
+            if (error) throw error;
+            return data;
+        },
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({
+                queryKey: ['dishes', 'venue', variables.venue_id],
+            });
+        },
+    });
 }
 
 export function useDishTypes() {
-  const [dishTypes, setDishTypes] = useState<DishType[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+    return useQuery({
+        queryKey: ['dish_types'],
+        queryFn: async (): Promise<DishType[]> => {
+            const { data, error } = await supabase
+                .from('dish_types')
+                .select('*')
+                .order('name');
 
-  useEffect(() => {
-    const fetchDishTypes = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const { data, error: queryError } = await supabase
-          .from('dish_types')
-          .select('*')
-          .order('name');
-
-        if (queryError) throw queryError;
-        setDishTypes(data || []);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchDishTypes();
-  }, []);
-
-  return { dishTypes, isLoading, error };
+            if (error) throw error;
+            return data || [];
+        },
+        // Cache heavily as dish types rarely change
+        staleTime: 1000 * 60 * 60, // 1 hour
+    });
 }

@@ -1,6 +1,6 @@
 // Discovery & Browsing Feature Types
 
-import type { Dish, Venue, Review } from './rating';
+import type { Dish, Review, Venue } from './rating';
 
 // ============================================================================
 // Display Types for Browse Feature
@@ -11,7 +11,7 @@ import type { Dish, Venue, Review } from './rating';
  * Used in: Home feed, search results, venue detail
  */
 export interface DishWithVenue extends Dish {
-  venue?: Venue;
+    venue?: Venue;
 }
 
 /**
@@ -19,11 +19,11 @@ export interface DishWithVenue extends Dish {
  * Used in: Dish detail screen, review lists
  */
 export interface ReviewWithUserProfile extends Review {
-  profile?: {
-    username: string | null;
-    display_name: string | null;
-    profile_photo_url: string | null;
-  };
+    profile?: {
+        username: string | null;
+        display_name: string | null;
+        avatar_url: string | null;
+    } | null;
 }
 
 /**
@@ -31,7 +31,7 @@ export interface ReviewWithUserProfile extends Review {
  * Used in: Venue detail screen
  */
 export interface VenueWithDishes extends Venue {
-  dishes?: Dish[];
+    dishes?: Dish[];
 }
 
 // ============================================================================
@@ -43,8 +43,8 @@ export interface VenueWithDishes extends Venue {
  * Allows rendering different card types in a unified list
  */
 export type SearchResult =
-  | { type: 'dish'; data: DishWithVenue }
-  | { type: 'venue'; data: Venue };
+    | { type: 'dish'; data: DishWithVenue }
+    | { type: 'venue'; data: Venue };
 
 // ============================================================================
 // Filter & Pagination Types
@@ -55,21 +55,21 @@ export type SearchResult =
  * Used in: Home feed, filtered browse views
  */
 export interface TopDishesFilters {
-  city?: string;
-  minRating?: number;
-  dish_type_id?: string; // Use dish_types table for structured filtering
-  limit?: number;
-  offset?: number;
+    city?: string;
+    minRating?: number;
+    dish_type_id?: string; // Use dish_types table for structured filtering
+    limit?: number;
+    offset?: number;
 }
 
 /**
  * Pagination state for "Load More" button
  */
 export interface PaginationState {
-  offset: number;
-  limit: number;
-  hasMore: boolean;
-  isLoadingMore: boolean;
+    offset: number;
+    limit: number;
+    hasMore: boolean;
+    isLoadingMore: boolean;
 }
 
 // ============================================================================
@@ -81,11 +81,11 @@ export interface PaginationState {
  * Must have at least 3 dishes with ratings
  */
 export interface DishTypeForLeaderboard {
-  id: string;
-  name: string;
-  category: string;
-  /** Number of rated dishes for this type */
-  rated_dish_count: number;
+    id: string;
+    name: string;
+    category: string;
+    /** Number of rated dishes for this type */
+    rated_dish_count: number;
 }
 
 /**
@@ -93,12 +93,12 @@ export interface DishTypeForLeaderboard {
  * Used in: Leaderboard screen
  */
 export interface LeaderboardItem {
-  /** Rank position (1-indexed) */
-  rank: number;
-  /** The dish information */
-  dish: Dish;
-  /** The venue where this dish is served */
-  venue: Venue;
-  /** Medal type for top 3 */
-  medal?: 'gold' | 'silver' | 'bronze';
+    /** Rank position (1-indexed) */
+    rank: number;
+    /** The dish information */
+    dish: Dish;
+    /** The venue where this dish is served */
+    venue: Venue;
+    /** Medal type for top 3 */
+    medal?: 'gold' | 'silver' | 'bronze';
 }

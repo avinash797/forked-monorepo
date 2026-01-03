@@ -1,93 +1,69 @@
 import { supabase } from '@/lib/supabase';
 import type { DishWithVenue } from '@/types/browse';
 import type { Dish, Venue } from '@/types/rating';
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 /**
  * Hook to fetch venue details with all dishes
  * Used in: Venue detail screen
  */
 export function useVenueDetail(venueId: string | null) {
-  const [venue, setVenue] = useState<Venue | null>(null);
-  const [dishes, setDishes] = useState<DishWithVenue[]>([]);
-  const [reviewPhotos, setReviewPhotos] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+    return useQuery({
+        queryKey: ['venue', venueId],
+        queryFn: async () => {
+            if (!venueId) throw new Error('No venue ID provided');
 
-  useEffect(() => {
-    if (!venueId) {
-      setVenue(null);
-      setDishes([]);
-      setReviewPhotos([]);
-      return;
-    }
+            // Fetch venue
+            const { data: venueData, error: venueError } = await supabase
+                .from('venues')
+                .select('*')
+                .eq('id', venueId)
+                .single();
 
-    const fetchVenueAndDishes = async () => {
-      setIsLoading(true);
-      setError(null);
+            if (venueError) {
+                throw new Error(venueError.message || 'Venue not found');
+            }
 
-      try {
-        // Fetch venue
-        const { data: venueData, error: venueError } = await supabase
-          .from('venues')
-          .select('*')
-          .eq('id', venueId)
-          .single();
+            const venue = venueData as Venue;
 
-        if (venueError) {
-          throw new Error(venueError.message || 'Venue not found');
-        }
+            // Fetch all dishes for this venue
+            // Sort by average rating (highest first), then by name
+            const { data: dishesData, error: dishesError } = await supabase
+                .from('dishes')
+                .select(`*, reviews(photo_urls)`)
+                .eq('venue_id', venueId)
+                .eq('is_available', true)
+                .order('average_rating', {
+                    ascending: false,
+                    nullsFirst: false,
+                })
+                .order('name');
 
-        setVenue(venueData as Venue);
+            if (dishesError) {
+                throw new Error(dishesError.message || 'Failed to load dishes');
+            }
 
-        // Fetch all dishes for this venue
-        // Sort by average rating (highest first), then by name
-        const { data: dishesData, error: dishesError } = await supabase
-          .from('dishes')
-          .select(`*, reviews(photo_urls)`)
-          .eq('venue_id', venueId)
-          .eq('is_available', true)
-          .order('average_rating', { ascending: false, nullsFirst: false })
-          .order('name');
+            // Add venue reference to dishes for consistency
+            const dishes = (
+                (dishesData || []) as Array<Dish & { reviews?: any[] }>
+            ).map((dish) => {
+                const reviewPhotos =
+                    dish.reviews?.flatMap((r: any) => r.photo_urls || []) || [];
+                return {
+                    ...dish,
+                    venue: venue,
+                    photos: reviewPhotos, // Note: existing logic overwrites dish.photos with reviewPhotos?
+                    // Looking at previous code: "const existingPhotos = dish.photos || [];" was NOT used in original code for this file?
+                    // Wait, original code: "const reviewPhotos = dish.reviews?.flatMap... || []; return { ...dish, venue, photos: reviewPhotos }"
+                    // Yes, it overwrites photos with reviewPhotos. It seems consistent with original implementation here.
+                };
+            }) as DishWithVenue[];
 
-        if (dishesError) {
-          throw new Error(dishesError.message || 'Failed to load dishes');
-        }
+            const reviewPhotos = dishes.flatMap((d) => d.photos || []);
 
-        // Add venue reference to dishes for consistency
-        const dishesWithVenue = ((dishesData || []) as Array<Dish & { reviews?: any[] }>).map((dish) => {
-          const reviewPhotos = dish.reviews?.flatMap((r: any) => r.photo_urls || []) || [];
-          return {
-            ...dish,
-            venue: venueData,
-            photos: reviewPhotos,
-          };
-        }) as DishWithVenue[];
-
-        setDishes(dishesWithVenue);
-
-        const photos = (dishesWithVenue || [])
-          .flatMap((d) => d.photos || []);
-
-        setReviewPhotos(photos);
-      } catch (err: any) {
-        setError(err.message || 'Failed to load venue details');
-        setVenue(null);
-        setDishes([]);
-        setReviewPhotos([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchVenueAndDishes();
-  }, [venueId]);
-
-  return {
-    venue,
-    dishes,
-    reviewPhotos,
-    isLoading,
-    error,
-  };
+            return { venue, dishes, reviewPhotos };
+        },
+        enabled: !!venueId,
+        select: (data) => data, // Pass through
+    });
 }

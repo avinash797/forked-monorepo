@@ -135,9 +135,9 @@ Multiple verification methods to ensure authenticity:
 - Timestamp
 - Location coordinates (where review was submitted - for verification)
 - Verification flags:
-  - GPS verified (was user at location?)
-  - Photo verified (AI confirmed dish type?)
-  - Human review flag (if needed for quality check)
+    - GPS verified (was user at location?)
+    - Photo verified (AI confirmed dish type?)
+    - Human review flag (if needed for quality check)
 - Helpful votes (count of other users who found this useful)
 - Edit history (if edits allowed)
 
@@ -192,36 +192,32 @@ Multiple verification methods to ensure authenticity:
 1. **Entry Point**: User opens app → "Rate a Dish"
 
 2. **Location Detection**:
-
-   - App automatically detects nearby restaurants (GPS + venue database)
-   - Shows venues within ~0.5 mile radius
-   - User selects restaurant OR searches by name
+    - App automatically detects nearby restaurants (GPS + venue database)
+    - Shows venues within ~0.5 mile radius
+    - User selects restaurant OR searches by name
 
 3. **Dish Selection**:
-
-   - If venue exists: Show existing dishes at venue
-   - User scrolls/searches for their dish
-   - If dish doesn't exist: "Add new dish" button
+    - If venue exists: Show existing dishes at venue
+    - User scrolls/searches for their dish
+    - If dish doesn't exist: "Add new dish" button
 
 4. **New Dish Flow** (if needed):
-
-   - Dish name (text input)
-   - Category (dropdown: appetizer, entree, etc.)
-   - Variety (optional: "seafood", "spicy", etc.)
-   - Price (number input)
-   - Dietary tags (multi-select: vegetarian, vegan, gluten-free, spicy level)
+    - Dish name (text input)
+    - Category (dropdown: appetizer, entree, etc.)
+    - Variety (optional: "seafood", "spicy", etc.)
+    - Price (number input)
+    - Dietary tags (multi-select: vegetarian, vegan, gluten-free, spicy level)
 
 5. **Rating Submission**:
-
-   - Star rating (1-5, required)
-   - Photo upload (required for verification)
-   - Written review (optional)
-   - Price confirmation ("Is this still $X?")
+    - Star rating (1-5, required)
+    - Photo upload (required for verification)
+    - Written review (optional)
+    - Price confirmation ("Is this still $X?")
 
 6. **Verification Layer** (backend, invisible):
-   - GPS verification: Was user at location?
-   - Photo AI check: Does this match the dish category?
-   - Flag for manual review if verification fails
+    - GPS verification: Was user at location?
+    - Photo AI check: Does this match the dish category?
+    - Flag for manual review if verification fails
 
 ### Secondary Flow: Adding New Venue
 
@@ -240,21 +236,19 @@ If restaurant doesn't exist in database:
 **Target Users for Paid Seeding**:
 
 1. **College Students**
-
-   - Eat out frequently
-   - Price-conscious (care about finding actually good food)
-   - Social media native
-   - Structure: Campus ambassador program with pay-per-verified-submission
+    - Eat out frequently
+    - Price-conscious (care about finding actually good food)
+    - Social media native
+    - Structure: Campus ambassador program with pay-per-verified-submission
 
 2. **Food Critics**
-
-   - Provide credibility and reach
-   - Hybrid model: Pay for initial seed content + premium "Verified Critic" status
-   - Reviews carry multiplier effect on visibility
+    - Provide credibility and reach
+    - Hybrid model: Pay for initial seed content + premium "Verified Critic" status
+    - Reviews carry multiplier effect on visibility
 
 3. **Influencers**
-   - Built-in audience for awareness
-   - Similar hybrid model as critics
+    - Built-in audience for awareness
+    - Similar hybrid model as critics
 
 ### Launch Strategy
 

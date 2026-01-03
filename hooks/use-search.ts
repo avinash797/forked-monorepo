@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import type { SearchResult } from '@/types/browse';
-import type { Dish, Venue } from '@/types/rating';
+import type { Venue } from '@/types/rating';
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
 /**
@@ -8,125 +9,106 @@ import { useEffect, useState } from 'react';
  * Used in: Search screen
  */
 export function useSearch(query: string) {
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+    const [debouncedQuery, setDebouncedQuery] = useState(query);
 
-  useEffect(() => {
-    // Clear results if query is too short
-    if (query.length < 2) {
-      setResults([]);
-      setError(null);
-      setIsLoading(false);
-      return;
-    }
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedQuery(query);
+        }, 350);
 
-    // Debounce search to avoid excessive API calls
-    const debounceTimer = setTimeout(async () => {
-      setIsLoading(true);
-      setError(null);
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [query]);
 
-      // Create abort controller for canceling in-flight requests
-      const abortController = new AbortController();
+    return useQuery({
+        queryKey: ['search', debouncedQuery],
+        queryFn: async ({ signal }): Promise<SearchResult[]> => {
+            if (debouncedQuery.length < 2) {
+                return [];
+            }
 
-      try {
-        // Search dishes and venues in parallel
-        const [dishesResult, venuesResult] = await Promise.all([
-          // Search dishes by name
-          supabase
-            .from('dishes')
-            .select(
-              `
-              *,
-              venue:venues(name, address_city, address_state),
-              review_photos:reviews(photo_urls)
-            `,
-              { signal: abortController.signal } as any
-            )
-            .ilike('name', `%${query}%`)
-            .eq('is_available', true)
-            .limit(20),
+            // Search dishes and venues in parallel
+            const [dishesResult, venuesResult] = await Promise.all([
+                // Search dishes by name
+                supabase
+                    .from('dishes')
+                    .select(
+                        `
+            *,
+            venue:venues(name, address_city, address_state),
+            review_photos:reviews(photo_urls)
+          `
+                    )
+                    .ilike('name', `%${debouncedQuery}%`)
+                    .eq('is_available', true)
+                    .limit(20)
+                    .abortSignal(signal),
 
-          // Search venues by name or city
-          supabase
-            .from('venues')
-            .select('*', { signal: abortController.signal } as any)
-            .or(`name.ilike.%${query}%,address_city.ilike.%${query}%`)
-            .limit(20),
-        ]);
+                // Search venues by name or city
+                supabase
+                    .from('venues')
+                    .select('*')
+                    .or(
+                        `name.ilike.%${debouncedQuery}%,address_city.ilike.%${debouncedQuery}%`
+                    )
+                    .limit(20)
+                    .abortSignal(signal),
+            ]);
 
-        // Handle errors
-        if (dishesResult.error) throw dishesResult.error;
-        if (venuesResult.error) throw venuesResult.error;
+            // Handle errors
+            if (dishesResult.error) throw dishesResult.error;
+            if (venuesResult.error) throw venuesResult.error;
 
-        // Combine results into discriminated union
-        const dishResults: SearchResult[] = ((dishesResult.data || []) as Array<Dish & { review_photos: string[] }>).map(
-          (dish) => {
-            const reviewPhotos = dish.review_photos?.flatMap((r: any) => r.photo_urls || []) || [];
-            return {
-              type: 'dish' as const,
-              data: {
-                ...dish,
-                photos: reviewPhotos,
-              },
-            };
-          }
-        );
+            // Combine results into discriminated union
+            const dishResults = (dishesResult.data || []).map((dish) => {
+                const reviewPhotos =
+                    dish.review_photos?.flatMap(
+                        (r: any) => r.photo_urls || []
+                    ) || [];
+                return {
+                    type: 'dish' as const,
+                    data: {
+                        ...dish,
+                        photos: reviewPhotos,
+                    },
+                };
+            });
 
-        const venueResults: SearchResult[] = (venuesResult.data || []).map(
-          (venue) => ({
-            type: 'venue' as const,
-            data: venue as Venue,
-          })
-        );
+            const venueResults: SearchResult[] = (venuesResult.data || []).map(
+                (venue) => ({
+                    type: 'venue' as const,
+                    data: venue as Venue,
+                })
+            );
 
-        // Interleave results for better UX
-        // Pattern: dish, dish, venue, dish, dish, venue...
-        const combined: SearchResult[] = [];
-        let dishIndex = 0;
-        let venueIndex = 0;
+            // Interleave results for better UX
+            // Pattern: dish, dish, venue, dish, dish, venue...
+            const combined: SearchResult[] = [];
+            let dishIndex = 0;
+            let venueIndex = 0;
 
-        while (dishIndex < dishResults.length || venueIndex < venueResults.length) {
-          // Add 2 dishes
-          if (dishIndex < dishResults.length) {
-            combined.push(dishResults[dishIndex++]);
-          }
-          if (dishIndex < dishResults.length) {
-            combined.push(dishResults[dishIndex++]);
-          }
+            while (
+                dishIndex < dishResults.length ||
+                venueIndex < venueResults.length
+            ) {
+                // Add 2 dishes
+                if (dishIndex < dishResults.length) {
+                    combined.push(dishResults[dishIndex++] as any);
+                }
+                if (dishIndex < dishResults.length) {
+                    combined.push(dishResults[dishIndex++] as any);
+                }
 
-          // Add 1 venue
-          if (venueIndex < venueResults.length) {
-            combined.push(venueResults[venueIndex++]);
-          }
-        }
+                // Add 1 venue
+                if (venueIndex < venueResults.length) {
+                    combined.push(venueResults[venueIndex++]);
+                }
+            }
 
-        setResults(combined);
-      } catch (err: any) {
-        // Don't set error if request was aborted
-        if (err.name !== 'AbortError') {
-          setError(err.message || 'Search failed');
-          setResults([]);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-
-      // Cleanup function: abort request if component unmounts or query changes
-      return () => {
-        abortController.abort();
-      };
-    }, 350); // 350ms debounce delay
-
-    // Cleanup debounce timer
-    return () => {
-      clearTimeout(debounceTimer);
-    };
-  }, [query]);
-
-  return {
-    results,
-    isLoading,
-    error,
-  };
+            return combined;
+        },
+        enabled: debouncedQuery.length >= 2,
+        placeholderData: (previousData) => previousData, // Keep previous results while fetching new ones
+    });
 }

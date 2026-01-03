@@ -25,15 +25,12 @@ export function CompactDishCardWithRating({
     const styles = createThemedStyles(theme);
 
     const hasPhoto = dish.photos && dish.photos.length > 0;
-    const photoUrl = hasPhoto ? dish.photos[0] : null;
+    const photoUrl = hasPhoto ? dish.photos?.[0] : null;
 
     return (
         <Pressable
             onPress={onPress}
-            style={({ pressed }) => [
-                styles.card,
-                pressed && { opacity: 0.9 }
-            ]}
+            style={({ pressed }) => [styles.card, pressed && { opacity: 0.9 }]}
             android_ripple={{ color: 'rgba(255, 255, 255, 0.1)' }}
         >
             <View style={styles.content}>
@@ -46,15 +43,17 @@ export function CompactDishCardWithRating({
                         transition={200}
                     />
                 ) : (
-                    <View style={[styles.photo, { backgroundColor: theme.color.surface }]} />
+                    <View
+                        style={[
+                            styles.photo,
+                            { backgroundColor: theme.color.surface },
+                        ]}
+                    />
                 )}
 
                 {/* Dish & Venue Info */}
                 <View style={styles.infoContainer}>
-                    <ThemedText
-                        style={styles.dishName}
-                        numberOfLines={1}
-                    >
+                    <ThemedText style={styles.dishName} numberOfLines={1}>
                         {dish.name}
                     </ThemedText>
                     <ThemedText style={styles.venueName} numberOfLines={1}>
@@ -67,16 +66,15 @@ export function CompactDishCardWithRating({
                             </ThemedText>
                         )}
                         <ThemedText style={styles.reviewCount}>
-                            {dish.review_count} {dish.review_count === 1 ? 'review' : 'reviews'}
+                            {dish.review_count}{' '}
+                            {dish.review_count === 1 ? 'review' : 'reviews'}
                         </ThemedText>
                     </View>
                 </View>
 
                 {/* Rating Badge */}
                 {dish.average_rating !== null && (
-                    <ScoreBadge
-                        score={dish.average_rating}
-                    />
+                    <ScoreBadge score={dish.average_rating} />
                 )}
             </View>
         </Pressable>
@@ -120,7 +118,6 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             borderRadius: theme.radius.md,
             backgroundColor: theme.color.surface2,
             marginRight: theme.space.sm,
-
         },
         infoContainer: {
             flex: 1,
@@ -153,4 +150,3 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             color: theme.color.textTertiary,
         },
     });
-

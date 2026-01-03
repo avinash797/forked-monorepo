@@ -4,7 +4,6 @@ description: This workflow creates a PR description for the current branch again
 
 Check the git diff against origin development branch, then create a draft markdown file, that has the PR description prepared strictly in the following template:
 
-
 # Pull Request
 
 ## Description
@@ -35,10 +34,12 @@ Closes #[issue number]
 ## Changes Made
 
 ### Files Modified
+
 - `path/to/file1.tsx` - Description of changes
 - `path/to/file2.ts` - Description of changes
 
 ### Key Changes
+
 - Change 1
 - Change 2
 - Change 3
@@ -55,7 +56,9 @@ Closes #[issue number]
 - [ ] E2E tests
 
 ### Test Cases
+
 Describe the test cases you ran to verify your changes:
+
 1. Test case 1
 2. Test case 2
 3. Test case 3
@@ -71,6 +74,7 @@ Describe the test cases you ran to verify your changes:
 ## Checklist
 
 ### Code Quality
+
 - [ ] My code follows the project's coding standards
 - [ ] I have performed a self-review of my own code
 - [ ] I have commented my code, particularly in hard-to-understand areas
@@ -78,22 +82,26 @@ Describe the test cases you ran to verify your changes:
 - [ ] I have removed any console.logs or debugging code
 
 ### Documentation
+
 - [ ] I have updated the documentation (if needed)
 - [ ] I have updated ROADMAP.md or TODO.md (if needed)
 - [ ] I have updated PROGRESS.md (if feature complete)
 - [ ] I have added JSDoc comments to exported functions
 
 ### Testing
+
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
 - [ ] I have tested on both iOS and Android (or marked as platform-specific)
 
 ### Database
+
 - [ ] Database migrations have been added (if needed)
 - [ ] RLS policies have been updated (if needed)
 - [ ] Database changes are documented
 
 ### Dependencies
+
 - [ ] No new dependencies added
 - [ ] New dependencies added and justified in PR description
 - [ ] Dependencies are compatible with project requirements
@@ -101,6 +109,7 @@ Describe the test cases you ran to verify your changes:
 ## Breaking Changes
 
 **Does this PR introduce any breaking changes?**
+
 - [ ] Yes (describe below)
 - [ ] No
 
@@ -109,6 +118,7 @@ Describe the test cases you ran to verify your changes:
 ## Performance Impact
 
 **Does this PR affect performance?**
+
 - [ ] Improves performance
 - [ ] No impact on performance
 - [ ] May impact performance (describe below)
@@ -129,6 +139,7 @@ Add any other context about the PR here.
 ## Reviewer Checklist
 
 _For reviewers:_
+
 - [ ] Code is clean and well-structured
 - [ ] Logic is sound and efficient
 - [ ] Tests are adequate and passing

@@ -11,9 +11,11 @@ This document explains the project management and tracking system for Forked.
 The tracking system consists of **two layers** working together:
 
 ### 1. Markdown Files (Local, Version-Controlled)
+
 Fast, offline-friendly documentation in the `docs/` directory.
 
 ### 2. GitHub Infrastructure (Cloud-Based, Collaborative)
+
 Issue tracking, project boards, and CI/CD automation.
 
 ---
@@ -21,9 +23,11 @@ Issue tracking, project boards, and CI/CD automation.
 ## 📂 Markdown Files
 
 ### [ROADMAP.md](./ROADMAP.md)
+
 **Purpose:** High-level feature roadmap organized by phases (MVP → V1.0 → V2.0)
 
 **What it contains:**
+
 - Current project status (30% complete)
 - MVP features (6 major features) - Target: 80% complete
 - V1.0 features (9 major features) - Target: 100% complete
@@ -32,12 +36,14 @@ Issue tracking, project boards, and CI/CD automation.
 - Success criteria for each feature
 
 **When to update:**
+
 - When features are added/removed
 - When priorities change
 - Weekly during active MVP development
 - After completing major features
 
 **Who uses it:**
+
 - Product owners to track vision and scope
 - Developers to understand big-picture priorities
 - Stakeholders to see progress toward release
@@ -45,9 +51,11 @@ Issue tracking, project boards, and CI/CD automation.
 ---
 
 ### [TODO.md](./TODO.md)
+
 **Purpose:** Active work tracking for current sprint (1-2 weeks)
 
 **What it contains:**
+
 - Current sprint goals and status
 - Tasks in progress
 - Next 1-2 sprints in backlog
@@ -55,12 +63,14 @@ Issue tracking, project boards, and CI/CD automation.
 - Ideas for future consideration
 
 **When to update:**
+
 - Daily as tasks progress
 - Weekly sprint planning
 - When starting/completing tasks
 - When blockers are discovered
 
 **Who uses it:**
+
 - Developers for day-to-day work tracking
 - Team leads for sprint planning
 - Anyone wondering "what's being worked on right now?"
@@ -68,9 +78,11 @@ Issue tracking, project boards, and CI/CD automation.
 ---
 
 ### [PROGRESS.md](./PROGRESS.md)
+
 **Purpose:** Completion metrics and historical progress tracking
 
 **What it contains:**
+
 - Overall project completion percentage (currently 30%)
 - Progress by phase (Foundation 100%, MVP 0%, V1.0 0%, V2.0 0%)
 - Progress by feature area
@@ -79,12 +91,14 @@ Issue tracking, project boards, and CI/CD automation.
 - Milestone tracking
 
 **When to update:**
+
 - Weekly during active development
 - After completing features
 - When milestones are reached
 - Monthly for V2.0 planning
 
 **Who uses it:**
+
 - Project managers to report progress
 - Developers to celebrate wins
 - Stakeholders to track velocity
@@ -92,9 +106,11 @@ Issue tracking, project boards, and CI/CD automation.
 ---
 
 ### [DEVELOPMENT.md](./DEVELOPMENT.md)
+
 **Purpose:** Developer workflow and contribution guide
 
 **What it contains:**
+
 - Getting started guide
 - Project structure explanation
 - Development workflow (branching, commits, PRs)
@@ -106,12 +122,14 @@ Issue tracking, project boards, and CI/CD automation.
 - Release process
 
 **When to update:**
+
 - When workflow changes
 - When new patterns are introduced
 - When tooling is added/updated
 - Quarterly review for accuracy
 
 **Who uses it:**
+
 - New developers onboarding
 - Contributors following conventions
 - Anyone setting up the project locally
@@ -119,9 +137,11 @@ Issue tracking, project boards, and CI/CD automation.
 ---
 
 ### [app-idea.md](./app-idea.md)
+
 **Purpose:** Original product specification (reference document)
 
 **What it contains:**
+
 - Core concept and differentiators
 - Feature specifications
 - Data architecture
@@ -130,11 +150,13 @@ Issue tracking, project boards, and CI/CD automation.
 - Open questions
 
 **When to update:**
+
 - RARELY - only when product requirements fundamentally change
 - Product vision shifts
 - Major pivots
 
 **Who uses it:**
+
 - Everyone to understand the product vision
 - Product owners for requirements
 - Designers for UX guidance
@@ -147,21 +169,25 @@ Issue tracking, project boards, and CI/CD automation.
 ### Issue Templates (`.github/ISSUE_TEMPLATE/`)
 
 **feature_request.md**
+
 - For proposing new features
 - Includes phase assignment (MVP/V1.0/V2.0)
 - Tracks problem statement, solution, technical considerations
 
 **bug_report.md**
+
 - For reporting bugs
 - Includes severity levels, reproduction steps, environment details
 - Tracks frequency and impact
 
 **task.md**
+
 - For development tasks
 - Includes acceptance criteria, effort estimates, dependencies
 - Links to parent features
 
 **When to use:**
+
 - Create issues directly from ROADMAP.md features
 - Bug reports from testing or user feedback
 - Break down large features into smaller tasks
@@ -173,6 +199,7 @@ Issue tracking, project boards, and CI/CD automation.
 **Purpose:** Standardize PR descriptions and checklists
 
 **What it includes:**
+
 - Description and related issues
 - Type of change (feature, bug, refactor, etc.)
 - Testing checklist
@@ -181,6 +208,7 @@ Issue tracking, project boards, and CI/CD automation.
 - Security considerations
 
 **When to use:**
+
 - Every PR to `develop` or `main`
 - Ensures consistent quality and documentation
 
@@ -191,12 +219,14 @@ Issue tracking, project boards, and CI/CD automation.
 **Purpose:** Automated code quality checks
 
 **What it does:**
+
 - Runs ESLint on every PR
 - Runs TypeScript type checking
 - (Future) Runs automated tests
 - (Future) Uploads code coverage
 
 **When it runs:**
+
 - On every push to `develop` or `main`
 - On every pull request
 
@@ -207,6 +237,7 @@ Issue tracking, project boards, and CI/CD automation.
 **Purpose:** Step-by-step guide to configure GitHub repository
 
 **What it covers:**
+
 - Creating labels (priority, type, phase, status, area)
 - Setting up milestones (MVP, V1.0, V2.0)
 - Creating project board (Kanban-style)
@@ -216,6 +247,7 @@ Issue tracking, project boards, and CI/CD automation.
 - Team setup
 
 **When to use:**
+
 - Initial repository setup
 - Onboarding new maintainers
 - Reference when configuring new repos
@@ -227,6 +259,7 @@ Issue tracking, project boards, and CI/CD automation.
 ### Weekly Workflow
 
 **Monday - Sprint Planning:**
+
 1. Review ROADMAP.md to prioritize features
 2. Create/update GitHub issues for current sprint
 3. Move issues to "Ready" on project board
@@ -234,6 +267,7 @@ Issue tracking, project boards, and CI/CD automation.
 5. Assign issues to team members
 
 **During the Week - Daily Updates:**
+
 1. Move assigned issues to "In Progress" when starting
 2. Update TODO.md task status ([ ] → [~] → [x])
 3. Create PRs when features are ready
@@ -242,6 +276,7 @@ Issue tracking, project boards, and CI/CD automation.
 6. Move issues to "Done" on project board
 
 **Friday - Weekly Review:**
+
 1. Update PROGRESS.md with completed features
 2. Calculate new completion percentages
 3. Update ROADMAP.md progress metrics
@@ -258,6 +293,7 @@ Issue tracking, project boards, and CI/CD automation.
 **Overall % = (Foundation × 30 + MVP × 40 + V1.0 × 25 + V2.0 × 5) / 100**
 
 **Current Calculation:**
+
 - Foundation: 100% × 30 = 30 points
 - MVP: 0% × 40 = 0 points
 - V1.0: 0% × 25 = 0 points
@@ -267,6 +303,7 @@ Issue tracking, project boards, and CI/CD automation.
 ### Feature Progress Tracking
 
 Each feature area tracks completion as:
+
 - 0% - Not started
 - 25% - Designed/Planned
 - 50% - In progress
@@ -338,18 +375,22 @@ Each feature area tracks completion as:
 ## 🚀 Getting Started with the Tracking System
 
 ### Step 1: Review the Roadmap
+
 Read [ROADMAP.md](./ROADMAP.md) to understand the feature plan.
 
 ### Step 2: Set Up GitHub (Optional)
+
 Follow [GITHUB_SETUP.md](../.github/GITHUB_SETUP.md) to configure labels, milestones, and project board.
 
 ### Step 3: Start Your First Sprint
+
 1. Pick the first MVP feature from ROADMAP.md
 2. Add tasks to TODO.md
 3. (Optional) Create GitHub issue
 4. Start coding!
 
 ### Step 4: Track Your Progress
+
 1. Update TODO.md as you work
 2. When feature is complete, update PROGRESS.md
 3. Update ROADMAP.md progress percentage

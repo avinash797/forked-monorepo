@@ -15,19 +15,21 @@ This folder contains SQL migration files for the Supabase database schema.
 ### Option 2: Using Supabase CLI (Recommended for Production)
 
 1. Install Supabase CLI:
-   ```bash
-   npm install -g supabase
-   ```
+
+    ```bash
+    npm install -g supabase
+    ```
 
 2. Link your project:
-   ```bash
-   supabase link --project-ref bqxhinoabxmpsvzntrlq
-   ```
+
+    ```bash
+    supabase link --project-ref bqxhinoabxmpsvzntrlq
+    ```
 
 3. Run migrations:
-   ```bash
-   supabase db push
-   ```
+    ```bash
+    supabase db push
+    ```
 
 ### Option 3: Manual Migration via API
 
@@ -40,107 +42,107 @@ Migrations are named with the format: `YYYYMMDDHHMMSS_description.sql`
 ### Current Migrations
 
 - **20250101000000_create_profiles_table.sql**
-  - Creates the `profiles` table
-  - Sets up Row Level Security policies
-  - Creates triggers for automatic profile creation on signup
-  - Creates triggers for auto-updating timestamps
-  - Adds indexes for performance
+    - Creates the `profiles` table
+    - Sets up Row Level Security policies
+    - Creates triggers for automatic profile creation on signup
+    - Creates triggers for auto-updating timestamps
+    - Adds indexes for performance
 
 - **20250101000001_create_venues_table.sql**
-  - Creates the `venues` table for restaurants/dining locations
-  - Structured address fields (street, city, state, zip, country)
-  - Coordinates for location verification (latitude/longitude)
-  - Cuisine types as array
-  - Chain support with self-referencing foreign key
-  - Hours of operation as JSONB
-  - Price range indicator (1-4)
-  - RLS policies for public read, authenticated write
-  - Indexes for name, location, cuisine search
+    - Creates the `venues` table for restaurants/dining locations
+    - Structured address fields (street, city, state, zip, country)
+    - Coordinates for location verification (latitude/longitude)
+    - Cuisine types as array
+    - Chain support with self-referencing foreign key
+    - Hours of operation as JSONB
+    - Price range indicator (1-4)
+    - RLS policies for public read, authenticated write
+    - Indexes for name, location, cuisine search
 
 - **20250101000002_create_dishes_table.sql**
-  - Creates the `dishes` table for menu items
-  - Foreign key to venues table
-  - Category and variety fields
-  - Price caching for quick access
-  - Dietary tags array (vegetarian, vegan, gluten-free, etc.)
-  - Spice level indicator (0-5)
-  - Availability status
-  - RLS policies for public read, authenticated write
-  - Indexes for venue lookups, category, dietary filters
+    - Creates the `dishes` table for menu items
+    - Foreign key to venues table
+    - Category and variety fields
+    - Price caching for quick access
+    - Dietary tags array (vegetarian, vegan, gluten-free, etc.)
+    - Spice level indicator (0-5)
+    - Availability status
+    - RLS policies for public read, authenticated write
+    - Indexes for venue lookups, category, dietary filters
 
 - **20250101000003_create_dish_types_table.sql**
-  - Creates the `dish_types` table for normalized dish definitions
-  - Enables cross-venue queries (e.g., "all Gumbos in New Orleans")
-  - Unique constraint on name + category
-  - Alternate names array for search flexibility
-  - Common dietary tags for each dish type
-  - RLS policies for public read, authenticated write
-  - Includes example dish types (Gumbo, Lobster Roll, etc.)
+    - Creates the `dish_types` table for normalized dish definitions
+    - Enables cross-venue queries (e.g., "all Gumbos in New Orleans")
+    - Unique constraint on name + category
+    - Alternate names array for search flexibility
+    - Common dietary tags for each dish type
+    - RLS policies for public read, authenticated write
+    - Includes example dish types (Gumbo, Lobster Roll, etc.)
 
 - **20250101000004_create_price_history_table.sql**
-  - Creates the `price_history` table for tracking price changes
-  - Foreign key to dishes with cascade delete
-  - Source tracking (user-reported, restaurant-updated, admin-verified)
-  - Verification system with verifier tracking
-  - Automatic sync to dishes.current_price via triggers
-  - Helper function to get current verified price
-  - RLS policies for public read, authenticated write
-  - Indexes for time-series queries
+    - Creates the `price_history` table for tracking price changes
+    - Foreign key to dishes with cascade delete
+    - Source tracking (user-reported, restaurant-updated, admin-verified)
+    - Verification system with verifier tracking
+    - Automatic sync to dishes.current_price via triggers
+    - Helper function to get current verified price
+    - RLS policies for public read, authenticated write
+    - Indexes for time-series queries
 
 - **20250101000005_add_dish_type_to_dishes.sql**
-  - Adds `dish_type_id` foreign key to dishes table
-  - Links venue-specific dishes to normalized dish types
-  - Composite indexes for efficient cross-venue queries
-  - Helper function `find_dishes_by_type()` for searching
-  - Enables queries like "all instances of Gumbo across venues"
+    - Adds `dish_type_id` foreign key to dishes table
+    - Links venue-specific dishes to normalized dish types
+    - Composite indexes for efficient cross-venue queries
+    - Helper function `find_dishes_by_type()` for searching
+    - Enables queries like "all instances of Gumbo across venues"
 
 - **20250101000006_create_reviews_table.sql**
-  - Creates the `reviews` table for user ratings and reviews
-  - Star rating (1-5) with optional review text
-  - GPS location verification (coordinates + validation function)
-  - Verification flags (GPS, photo, human review)
-  - Helpful votes counter with automatic sync
-  - Edit history tracking in JSONB
-  - Moderation status workflow
-  - Unique constraint: one review per user per dish
-  - Helper function `verify_review_gps()` to check location accuracy
+    - Creates the `reviews` table for user ratings and reviews
+    - Star rating (1-5) with optional review text
+    - GPS location verification (coordinates + validation function)
+    - Verification flags (GPS, photo, human review)
+    - Helpful votes counter with automatic sync
+    - Edit history tracking in JSONB
+    - Moderation status workflow
+    - Unique constraint: one review per user per dish
+    - Helper function `verify_review_gps()` to check location accuracy
 
 - **20250101000007_create_photos_table.sql**
-  - Creates the `photos` table with polymorphic associations
-  - Can associate with review, dish, or venue
-  - Polymorphic validation via trigger
-  - AI verification support (dish type detection, confidence score)
-  - EXIF data storage (camera metadata, location)
-  - Moderation workflow (pending, approved, flagged, rejected)
-  - Helper function `get_entity_photos()` for querying
-  - Display ordering support
+    - Creates the `photos` table with polymorphic associations
+    - Can associate with review, dish, or venue
+    - Polymorphic validation via trigger
+    - AI verification support (dish type detection, confidence score)
+    - EXIF data storage (camera metadata, location)
+    - Moderation workflow (pending, approved, flagged, rejected)
+    - Helper function `get_entity_photos()` for querying
+    - Display ordering support
 
 - **20250101000008_create_helpful_votes_table.sql**
-  - Creates the `helpful_votes` table to track review helpfulness
-  - Prevents duplicate votes (composite PK: user + review)
-  - Automatic sync to `reviews.helpful_votes_count` via triggers
-  - Constraint prevents self-voting
-  - Helper function `get_top_helpful_reviews()` for ranking
-  - Future support for negative votes (-1 value)
+    - Creates the `helpful_votes` table to track review helpfulness
+    - Prevents duplicate votes (composite PK: user + review)
+    - Automatic sync to `reviews.helpful_votes_count` via triggers
+    - Constraint prevents self-voting
+    - Helper function `get_top_helpful_reviews()` for ranking
+    - Future support for negative votes (-1 value)
 
 - **20250101000009_create_charms_table.sql**
-  - Creates the `charms` table for gamification/achievements
-  - Unlock criteria stored as JSONB (flexible requirements)
-  - Rarity tiers (common, uncommon, rare, epic, legendary)
-  - Includes 10 example charms (The OG, Taco King, etc.)
-  - Support for both icon URLs and inline SVG
-  - Display order and active status management
+    - Creates the `charms` table for gamification/achievements
+    - Unlock criteria stored as JSONB (flexible requirements)
+    - Rarity tiers (common, uncommon, rare, epic, legendary)
+    - Includes 10 example charms (The OG, Taco King, etc.)
+    - Support for both icon URLs and inline SVG
+    - Display order and active status management
 
 - **20250101000010_create_user_charms_table.sql**
-  - Creates the `user_charms` junction table
-  - Tracks which users earned which charms
-  - Progress tracking in JSONB for incremental charms
-  - Featured charm support for profiles
-  - `grant_charm()` function for safe charm awarding
-  - `check_and_grant_charms()` automatically evaluates criteria
-  - Automatic charm checking on review creation (trigger)
-  - Helper function `get_user_charms()` for profile display
-  - Prevents deletion (charms are permanent)
+    - Creates the `user_charms` junction table
+    - Tracks which users earned which charms
+    - Progress tracking in JSONB for incremental charms
+    - Featured charm support for profiles
+    - `grant_charm()` function for safe charm awarding
+    - `check_and_grant_charms()` automatically evaluates criteria
+    - Automatic charm checking on review creation (trigger)
+    - Helper function `get_user_charms()` for profile display
+    - Prevents deletion (charms are permanent)
 
 ## Schema Overview
 
@@ -149,12 +151,14 @@ Migrations are named with the format: `YYYYMMDDHHMMSS_description.sql`
 User profile information that extends `auth.users`.
 
 **Key Features:**
+
 - Automatically created when user signs up (via trigger)
 - RLS enabled for data protection
 - Public read access, users can only edit their own profile
 - Includes username, location, bio, verification status, charms, and reputation
 
 **Columns:**
+
 - `id` (uuid, PK) - References auth.users.id
 - `username` (text, unique) - Optional unique username
 - `display_name` (text) - Display name
@@ -174,6 +178,7 @@ User profile information that extends `auth.users`.
 Restaurant and dining venue information.
 
 **Key Features:**
+
 - Public read access for all users
 - Authenticated users can add new venues
 - Structured address with geocoding coordinates
@@ -181,6 +186,7 @@ Restaurant and dining venue information.
 - Chain relationship support
 
 **Columns:**
+
 - `id` (uuid, PK) - Unique venue identifier
 - `name` (text, required) - Venue name
 - `address_street` (text, required) - Street address
@@ -205,6 +211,7 @@ Restaurant and dining venue information.
 Menu items available at venues.
 
 **Key Features:**
+
 - Public read access for all users
 - Authenticated users can add new dishes
 - Cascading delete when venue is removed
@@ -212,6 +219,7 @@ Menu items available at venues.
 - Cached pricing for performance
 
 **Columns:**
+
 - `id` (uuid, PK) - Unique dish identifier
 - `venue_id` (uuid, FK, required) - Parent venue
 - `name` (text, required) - Dish name
@@ -234,6 +242,7 @@ Menu items available at venues.
 Normalized dish type definitions for cross-venue queries.
 
 **Key Features:**
+
 - Enables queries like "all Gumbos in New Orleans"
 - Unique constraint on name + category (case-insensitive)
 - Alternate names for search flexibility
@@ -241,6 +250,7 @@ Normalized dish type definitions for cross-venue queries.
 - Authenticated users can add new dish types
 
 **Columns:**
+
 - `id` (uuid, PK) - Unique dish type identifier
 - `name` (text, required) - Canonical dish name (e.g., "Gumbo")
 - `category` (text, required) - Dish category
@@ -252,6 +262,7 @@ Normalized dish type definitions for cross-venue queries.
 - `created_by_user_id` (uuid, FK) - User who created this type
 
 **Example Query:**
+
 ```sql
 -- Find all Gumbos in New Orleans
 SELECT * FROM find_dishes_by_type(
@@ -265,6 +276,7 @@ SELECT * FROM find_dishes_by_type(
 Historical price tracking with crowd-sourced verification.
 
 **Key Features:**
+
 - Track price trends over time
 - Multiple sources (user-reported, restaurant-updated, admin-verified)
 - Verification system to ensure accuracy
@@ -272,6 +284,7 @@ Historical price tracking with crowd-sourced verification.
 - Enables future features (price alerts, value rankings)
 
 **Columns:**
+
 - `id` (uuid, PK) - Unique price history entry
 - `dish_id` (uuid, FK, required) - Reference to dish
 - `price` (decimal, required) - Price value
@@ -286,10 +299,12 @@ Historical price tracking with crowd-sourced verification.
 - `created_at` (timestamp) - Entry creation date
 
 **Automatic Features:**
+
 - Trigger automatically updates `dishes.current_price` when verified price is added
 - Helper function `get_current_dish_price(dish_id)` returns most recent verified price
 
 **Data Integrity:**
+
 - Users can only create user-reported entries with their own ID
 - Users can update/delete their own unverified reports
 - Verified entries are locked from modification
@@ -299,6 +314,7 @@ Historical price tracking with crowd-sourced verification.
 User ratings and reviews of dishes.
 
 **Key Features:**
+
 - One review per user per dish (unique constraint)
 - Star rating (1-5) with optional review text
 - GPS location verification with distance calculation
@@ -308,6 +324,7 @@ User ratings and reviews of dishes.
 - Verification flags for GPS, photos, and manual review
 
 **Columns:**
+
 - `id` (uuid, PK) - Unique review identifier
 - `user_id` (uuid, FK, required) - Reviewer
 - `dish_id` (uuid, FK, required) - Dish being reviewed
@@ -328,6 +345,7 @@ User ratings and reviews of dishes.
 - `flagged_reason` (text) - Reason if flagged/rejected
 
 **Helper Functions:**
+
 - `verify_review_gps(review_id, max_distance_meters)` - Check if review location is near venue
 
 ### `public.photos`
@@ -335,6 +353,7 @@ User ratings and reviews of dishes.
 Photos with polymorphic associations to reviews, dishes, or venues.
 
 **Key Features:**
+
 - Polymorphic entity association (review/dish/venue)
 - AI-powered dish type detection
 - EXIF metadata storage
@@ -343,6 +362,7 @@ Photos with polymorphic associations to reviews, dishes, or venues.
 - Validated entity references via trigger
 
 **Columns:**
+
 - `id` (uuid, PK) - Unique photo identifier
 - `uploaded_by_user_id` (uuid, FK, required) - Uploader
 - `entity_type` (enum, required) - review, dish, or venue
@@ -362,6 +382,7 @@ Photos with polymorphic associations to reviews, dishes, or venues.
 - `display_order` (integer) - Display order for sorting
 
 **Helper Functions:**
+
 - `get_entity_photos(entity_type, entity_id, limit)` - Get approved photos for an entity
 
 ### `public.helpful_votes`
@@ -369,18 +390,21 @@ Photos with polymorphic associations to reviews, dishes, or venues.
 Tracks which users found reviews helpful.
 
 **Key Features:**
+
 - Prevents duplicate votes (composite PK)
 - Automatic sync to reviews.helpful_votes_count
 - Prevents self-voting (constraint)
 - Future support for negative votes
 
 **Columns:**
+
 - `user_id` (uuid, FK, PK) - User who voted
 - `review_id` (uuid, FK, PK) - Review being voted on
 - `vote_value` (integer) - 1 for helpful, -1 for not helpful (future)
 - `voted_at` (timestamp) - When vote was cast
 
 **Helper Functions:**
+
 - `user_voted_helpful(user_id, review_id)` - Check if user voted
 - `get_top_helpful_reviews(dish_id, limit)` - Get top-rated reviews for a dish
 
@@ -389,6 +413,7 @@ Tracks which users found reviews helpful.
 Achievements/badges users can earn.
 
 **Key Features:**
+
 - JSONB unlock criteria for flexible requirements
 - Rarity tiers (common → legendary)
 - Includes 10 starter charms
@@ -396,6 +421,7 @@ Achievements/badges users can earn.
 - Active/inactive status management
 
 **Columns:**
+
 - `id` (uuid, PK) - Unique charm identifier
 - `name` (text, unique, required) - Charm name
 - `description` (text, required) - Description
@@ -409,6 +435,7 @@ Achievements/badges users can earn.
 - `updated_at` (timestamp) - Last update
 
 **Example Charms:**
+
 - The OG (legendary) - Early adopter
 - First Review (common) - Posted first review
 - Review Veteran (epic) - 100+ reviews
@@ -425,6 +452,7 @@ Achievements/badges users can earn.
 Junction table tracking user-earned charms.
 
 **Key Features:**
+
 - Permanent charm awards (no deletion)
 - Progress tracking for incremental charms
 - Featured charm support for profiles
@@ -432,6 +460,7 @@ Junction table tracking user-earned charms.
 - Safe charm granting via functions only
 
 **Columns:**
+
 - `user_id` (uuid, FK, PK) - User who earned charm
 - `charm_id` (uuid, FK, PK) - Charm earned
 - `unlocked_at` (timestamp) - When earned
@@ -439,11 +468,13 @@ Junction table tracking user-earned charms.
 - `is_featured` (boolean) - Featured on profile
 
 **Helper Functions:**
+
 - `grant_charm(user_id, charm_id)` - Award charm to user (idempotent)
 - `check_and_grant_charms(user_id)` - Check all criteria and award matching charms
 - `get_user_charms(user_id)` - Get user's earned charms with details
 
 **Automatic Triggers:**
+
 - Checks and awards charms automatically when user posts a review
 
 ## Best Practices
@@ -519,6 +550,7 @@ Key Relationships:
 ## Future Migrations
 
 Potential future enhancements:
+
 - `followers` table - User follow relationships (social features)
 - `notifications` table - User notification system (in-app notifications)
 - `tags` table - User-generated tags for venues/dishes
@@ -528,17 +560,17 @@ Potential future enhancements:
 - `check_ins` table - User check-ins at venues
 - `dish_reports` table - User reports for incorrect dish info
 - Advanced search:
-  - Full-text search indexes using tsvector
-  - Geospatial indexes using PostGIS for location queries
+    - Full-text search indexes using tsvector
+    - Geospatial indexes using PostGIS for location queries
 - Aggregated views:
-  - Materialized view for trending dishes (by recent review count)
-  - Materialized view for top-rated venues by city
-  - Materialized view for dish average ratings
+    - Materialized view for trending dishes (by recent review count)
+    - Materialized view for top-rated venues by city
+    - Materialized view for dish average ratings
 - Analytics tables:
-  - User activity metrics
-  - Venue popularity trends
-  - Price trend analysis
+    - User activity metrics
+    - Venue popularity trends
+    - Price trend analysis
 - Admin features:
-  - Moderation queue views
-  - User reports/flags
-  - Content approval workflows
+    - Moderation queue views
+    - User reports/flags
+    - Content approval workflows
