@@ -1,7 +1,6 @@
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Charm } from '@/components/ui/charm';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
@@ -77,23 +76,6 @@ export default function ProfileScreen() {
                         Edit Profile
                     </ThemedButton>
                 </Link>
-
-                <View style={styles.charmsSection}>
-                    <View style={styles.charmsContainer}>
-                        {(profile as any)?.charms &&
-                        (profile as any).charms.length > 0 ? (
-                            (profile as any).charms.map(
-                                (charm: any, index: number) => (
-                                    <Charm charm={charm} key={index} showName />
-                                )
-                            )
-                        ) : (
-                            <ThemedText style={styles.noCharmsText}>
-                                No charms yet
-                            </ThemedText>
-                        )}
-                    </View>
-                </View>
             </View>
         </SafeAreaView>
     );
@@ -108,7 +90,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             flexDirection: 'row',
             justifyContent: 'flex-end',
             alignItems: 'center',
-            paddingHorizontal: theme.space.xl,
+            padding: theme.space.xl,
         },
         settingsButton: {
             marginRight: -theme.space.xs,
@@ -155,19 +137,5 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         editProfileButton: {
             alignSelf: 'center',
             marginBottom: theme.space.lg,
-        },
-        charmsSection: {
-            width: '100%',
-        },
-        charmsContainer: {
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            gap: theme.space.md,
-        },
-        noCharmsText: {
-            opacity: 0.5,
-            fontStyle: 'italic',
-            marginTop: theme.space.xs,
         },
     });
