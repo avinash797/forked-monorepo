@@ -4,7 +4,6 @@ about: Suggest a new feature for Forked
 title: '[FEATURE] '
 labels: 'feature-request'
 assignees: ''
-
 ---
 
 ## Feature Description
@@ -13,6 +12,7 @@ assignees: ''
 A clear and concise description of the feature.
 
 **Which phase does this belong to?**
+
 - [ ] MVP
 - [ ] V1.0
 - [ ] V2.0
@@ -24,6 +24,7 @@ A clear and concise description of the feature.
 Describe the user need or pain point this feature addresses.
 
 **Who is this for?**
+
 - [ ] End users (people rating dishes)
 - [ ] Restaurant owners
 - [ ] Moderators/admins
@@ -40,6 +41,7 @@ Link to designs, screenshots, or examples from other apps.
 ## Technical Considerations
 
 **Database changes needed:**
+
 - [ ] New table(s)
 - [ ] New column(s)
 - [ ] Migration required
@@ -49,6 +51,7 @@ Link to designs, screenshots, or examples from other apps.
 List any features or infrastructure this depends on.
 
 **Estimated complexity:**
+
 - [ ] Small (< 1 day)
 - [ ] Medium (1-3 days)
 - [ ] Large (> 3 days)

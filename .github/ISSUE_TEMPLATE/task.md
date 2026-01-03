@@ -4,7 +4,6 @@ about: Create a task for development tracking
 title: ''
 labels: 'task'
 assignees: ''
-
 ---
 
 ## Task Description
@@ -25,6 +24,7 @@ A clear description of the task.
 ## Phase/Sprint
 
 **Which phase does this belong to?**
+
 - [ ] MVP
 - [ ] V1.0
 - [ ] V2.0
@@ -40,10 +40,12 @@ A clear description of the task.
 ## Implementation Notes
 
 **Files to modify:**
+
 - `path/to/file1.tsx`
 - `path/to/file2.ts`
 
 **Dependencies:**
+
 - Blocked by: #123
 - Blocks: #456
 

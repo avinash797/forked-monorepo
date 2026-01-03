@@ -26,6 +26,7 @@ This file tracks active work items and immediate next steps. For the full roadma
 - [x] Create custom hooks (useTopDishes, useSearch, useDishDetail, useVenueDetail)
 
 **Deliverables:**
+
 - 14 files created (4 screens, 6 components, 4 hooks)
 - Home feed fully functional with pagination
 - Search working for dishes and venues
@@ -49,6 +50,7 @@ This file tracks active work items and immediate next steps. For the full roadma
 - [x] Complete modal flow from venue search to success
 
 **Deliverables:**
+
 - 24 files created (5 screens, 6 components, 5 hooks, 1 context, types, migration)
 
 ---
@@ -62,24 +64,24 @@ This file tracks active work items and immediate next steps. For the full roadma
 ### High Priority Tasks
 
 - [ ] Implement helpful votes functionality
-  - [ ] Add upvote/downvote UI to ReviewCard
-  - [ ] Create useHelpfulVotes hook
-  - [ ] Connect to helpful_votes table in Supabase
-  - [ ] Handle vote creation, update, and deletion
-  - [ ] Show vote counts on reviews
-  - [ ] Prevent self-voting (enforce RLS policy)
+    - [ ] Add upvote/downvote UI to ReviewCard
+    - [ ] Create useHelpfulVotes hook
+    - [ ] Connect to helpful_votes table in Supabase
+    - [ ] Handle vote creation, update, and deletion
+    - [ ] Show vote counts on reviews
+    - [ ] Prevent self-voting (enforce RLS policy)
 
 - [ ] Implement review sorting
-  - [ ] Add sort dropdown/picker component
-  - [ ] Support "Most Helpful", "Most Recent", "Highest Rating", "Lowest Rating"
-  - [ ] Update useDishDetail hook to accept sort parameter
-  - [ ] Persist sort preference (optional)
+    - [ ] Add sort dropdown/picker component
+    - [ ] Support "Most Helpful", "Most Recent", "Highest Rating", "Lowest Rating"
+    - [ ] Update useDishDetail hook to accept sort parameter
+    - [ ] Persist sort preference (optional)
 
 - [ ] User's own review management
-  - [ ] Highlight user's own review in review list
-  - [ ] Add "Edit" button to user's review
-  - [ ] Create edit review screen/modal
-  - [ ] Implement review deletion with confirmation
+    - [ ] Highlight user's own review in review list
+    - [ ] Add "Edit" button to user's review
+    - [ ] Create edit review screen/modal
+    - [ ] Implement review deletion with confirmation
 
 ### Next Steps
 
@@ -95,23 +97,24 @@ This file tracks active work items and immediate next steps. For the full roadma
 ### MVP Features Waiting to Start
 
 1. **Advanced Data Layer** (Deferred to V1.0)
-   - React Query setup for caching
-   - Optimistic updates
-   - Offline support
+    - React Query setup for caching
+    - Optimistic updates
+    - Offline support
 
 2. **Testing & Quality** (Deferred to V1.0)
-   - Unit tests for hooks and utilities
-   - Component tests for UI
-   - E2E tests for critical flows
+    - Unit tests for hooks and utilities
+    - Component tests for UI
+    - E2E tests for critical flows
 
 3. **Production Polish** (Deferred to V1.0)
-   - Error boundaries
-   - Performance optimization
-   - Analytics integration
+    - Error boundaries
+    - Performance optimization
+    - Analytics integration
 
 ### Completed Components
 
 **Rating Flow:**
+
 - ✅ NumericRating (0-10 scale input)
 - ✅ VenueCard
 - ✅ DishCard
@@ -120,6 +123,7 @@ This file tracks active work items and immediate next steps. For the full roadma
 - ✅ LocationStatusBanner
 
 **Browse/Discovery:**
+
 - ✅ ReviewCard (with ScoreBadge)
 - ✅ DishCardWithRating (photo-dominant design)
 - ✅ PhotoGallery

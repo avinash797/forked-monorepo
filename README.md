@@ -9,6 +9,7 @@
 Forked solves the problem of venue-based ratings where a restaurant's overall vibe might boost ratings despite mediocre food. Instead of rating restaurants, users rate **individual dishes** with photo verification and GPS location tracking.
 
 **Key Features:**
+
 - Rate individual dishes (not venues)
 - Photo-required submissions for authenticity
 - GPS verification to prevent armchair reviews
@@ -16,6 +17,7 @@ Forked solves the problem of venue-based ratings where a restaurant's overall vi
 - Cross-venue dish queries (e.g., "all Gumbos in New Orleans")
 
 **Tech Stack:**
+
 - Expo SDK 54 + React Native 0.81.5
 - React 19.1.0
 - TypeScript (strict mode)
@@ -36,39 +38,45 @@ Forked solves the problem of venue-based ratings where a restaurant's overall vi
 ### Installation
 
 1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd forked
-   ```
+
+    ```bash
+    git clone <repository-url>
+    cd forked
+    ```
 
 2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+
+    ```bash
+    npm install
+    ```
 
 3. **Set up environment variables:**
-   ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` and add your Supabase credentials:
-   ```
-   EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
-   EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
+
+    ```bash
+    cp .env.example .env
+    ```
+
+    Edit `.env` and add your Supabase credentials:
+
+    ```
+    EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
+    EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+    ```
 
 4. **Run database migrations:**
-   - Open your Supabase dashboard → SQL Editor
-   - Run each migration file in `supabase/migrations/` in order (000000 → 000010)
+    - Open your Supabase dashboard → SQL Editor
+    - Run each migration file in `supabase/migrations/` in order (000000 → 000010)
 
 5. **Start the development server:**
-   ```bash
-   npm start
-   ```
 
-   Then open in:
-   - [iOS Simulator](https://docs.expo.dev/workflow/ios-simulator/)
-   - [Android Emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-   - [Web Browser](http://localhost:8081)
+    ```bash
+    npm start
+    ```
+
+    Then open in:
+    - [iOS Simulator](https://docs.expo.dev/workflow/ios-simulator/)
+    - [Android Emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+    - [Web Browser](http://localhost:8081)
 
 ---
 
@@ -77,7 +85,7 @@ Forked solves the problem of venue-based ratings where a restaurant's overall vi
 **Current Progress: 37% Complete**
 
 - ✅ **Foundation (100%)**: Authentication, database schema, UI components, app architecture
-- 🚧 **MVP (35%)**: Core rating flow ✅, photo system ✅, GPS verification ✅ - *Discovery & browsing in progress*
+- 🚧 **MVP (35%)**: Core rating flow ✅, photo system ✅, GPS verification ✅ - _Discovery & browsing in progress_
 - ⏳ **V1.0 (0%)**: Gamification, advanced search, verification, testing
 - 🌟 **V2.0 (0%)**: Social features, partnerships, smart recommendations
 
@@ -88,6 +96,7 @@ See [docs/ROADMAP.md](./docs/ROADMAP.md) for the full feature roadmap.
 ## 📚 Documentation
 
 ### For Developers
+
 - **[DEVELOPMENT.md](./docs/DEVELOPMENT.md)** - Development workflow, coding standards, contribution guide
 - **[ROADMAP.md](./docs/ROADMAP.md)** - Feature roadmap organized by MVP/V1.0/V2.0 phases
 - **[TODO.md](./docs/TODO.md)** - Active work tracking for current sprint
@@ -96,9 +105,11 @@ See [docs/ROADMAP.md](./docs/ROADMAP.md) for the full feature roadmap.
 - **[CLAUDE.md](./CLAUDE.md)** - Claude Code project instructions
 
 ### For Product & Design
+
 - **[app-idea.md](./docs/app-idea.md)** - Original product specification and vision
 
 ### For Contributors
+
 - **[GITHUB_SETUP.md](./.github/GITHUB_SETUP.md)** - GitHub infrastructure setup guide
 - **Issue Templates:** Feature requests, bug reports, tasks
 - **PR Template:** Pull request checklist
@@ -194,7 +205,7 @@ See [.github/GITHUB_SETUP.md](./.github/GITHUB_SETUP.md) for GitHub configuratio
 **Immediate priorities (MVP Phase):**
 
 1. ~~**Core Rating Flow**~~ ✅ **COMPLETE** - Rate a dish screen with venue/dish selection, star rating, photo upload
-2. **Discovery & Browsing** - Home feed, dish/venue detail pages, search - *IN PROGRESS*
+2. **Discovery & Browsing** - Home feed, dish/venue detail pages, search - _IN PROGRESS_
 3. ~~**Photo System**~~ ✅ **COMPLETE** - Camera integration, Supabase Storage, gallery display
 4. **Review Display** - Review lists, helpful votes, sorting
 5. **Data Layer** - Supabase queries, React Query setup, state management

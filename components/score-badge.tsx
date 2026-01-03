@@ -12,28 +12,47 @@ export function ScoreBadge({ score, style }: ScoreBadgeProps) {
     const { theme } = useTheme();
 
     // Determine text and gradient colors using tokens
-    const textDark = theme.mode === 'dark' ? theme.color.bg : theme.color.textPrimary;
+    const textDark =
+        theme.mode === 'dark' ? theme.color.bg : theme.color.textPrimary;
     const textLight = theme.color.textOnImage;
 
     const getBadgeConfig = (score: number) => {
         if (score >= 7.0) {
             return {
-                colors: [theme.color.success, theme.mode === 'dark' ? '#10B981' : '#059669'] as const,
+                colors: [
+                    theme.color.success,
+                    theme.mode === 'dark' ? '#10B981' : '#059669',
+                ] as const,
                 text: theme.mode === 'dark' ? textDark : textLight,
-                borderColor: theme.mode === 'dark' ? 'rgba(52, 211, 153, 0.4)' : 'rgba(16, 185, 129, 0.3)',
+                borderColor:
+                    theme.mode === 'dark'
+                        ? 'rgba(52, 211, 153, 0.4)'
+                        : 'rgba(16, 185, 129, 0.3)',
             };
         }
         if (score >= 4.0) {
             return {
-                colors: [theme.color.warning, theme.mode === 'dark' ? '#F59E0B' : '#D97706'] as const,
+                colors: [
+                    theme.color.warning,
+                    theme.mode === 'dark' ? '#F59E0B' : '#D97706',
+                ] as const,
                 text: textDark,
-                borderColor: theme.mode === 'dark' ? 'rgba(251, 191, 36, 0.4)' : 'rgba(245, 158, 11, 0.3)',
+                borderColor:
+                    theme.mode === 'dark'
+                        ? 'rgba(251, 191, 36, 0.4)'
+                        : 'rgba(245, 158, 11, 0.3)',
             };
         }
         return {
-            colors: [theme.color.danger, theme.mode === 'dark' ? '#EF4444' : '#DC2626'] as const,
+            colors: [
+                theme.color.danger,
+                theme.mode === 'dark' ? '#EF4444' : '#DC2626',
+            ] as const,
             text: theme.mode === 'dark' ? textDark : textLight,
-            borderColor: theme.mode === 'dark' ? 'rgba(248, 113, 113, 0.4)' : 'rgba(239, 68, 68, 0.3)',
+            borderColor:
+                theme.mode === 'dark'
+                    ? 'rgba(248, 113, 113, 0.4)'
+                    : 'rgba(239, 68, 68, 0.3)',
         };
     };
 
@@ -64,7 +83,7 @@ export function ScoreBadge({ score, style }: ScoreBadgeProps) {
             fontWeight: '800',
             fontSize: theme.font.size.sm,
             letterSpacing: -0.2,
-        }
+        },
     });
 
     return (

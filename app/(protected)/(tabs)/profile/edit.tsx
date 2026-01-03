@@ -1,13 +1,14 @@
-import { ThemedButton } from "@/components/themed-button";
-import { ThemedTextInput } from "@/components/themed-text-input";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useTheme } from "@/contexts/theme-provider";
-import { useAuth } from "@/hooks/use-auth";
-import { usePhotoUpload } from "@/hooks/use-photo-upload";
-import { supabase } from "@/lib/supabase";
+import { ThemedButton } from '@/components/themed-button';
+import { ThemedTextInput } from '@/components/themed-text-input';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useTheme } from '@/contexts/theme-provider';
+import { useAuth } from '@/hooks/use-auth';
+import { usePhotoUpload } from '@/hooks/use-photo-upload';
+import { supabase } from '@/lib/supabase';
 
-import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import {
     Alert,
     Image,
@@ -17,17 +18,23 @@ import {
     StyleSheet,
     TouchableOpacity,
     View,
-} from "react-native";
+} from 'react-native';
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 const profileSchema = z.object({
-    display_name: z.string().min(2, "Display name must be at least 2 characters"),
-    username: z.string().min(3, "Username must be at least 3 characters").optional().or(z.literal("")),
+    display_name: z
+        .string()
+        .min(2, 'Display name must be at least 2 characters'),
+    username: z
+        .string()
+        .min(3, 'Username must be at least 3 characters')
+        .optional()
+        .or(z.literal('')),
     location: z.string().optional(),
-    bio: z.string().max(160, "Bio must be less than 160 characters").optional(),
+    bio: z.string().max(160, 'Bio must be less than 160 characters').optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -37,33 +44,46 @@ export default function EditProfileScreen() {
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
     const router = useRouter();
-    const { pickImage, takePhoto, uploadPhoto, isLoading: isUploading } = usePhotoUpload();
+    const {
+        pickImage,
+        takePhoto,
+        uploadPhoto,
+        isLoading: isUploading,
+    } = usePhotoUpload();
 
-    const [isLoading, setIsLoading] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url);
 
-    const { control, handleSubmit, formState: { errors } } = useForm<ProfileFormValues>({
+    const {
+        control,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
-            display_name: profile?.display_name || "",
-            username: profile?.username || "",
-            location: profile?.location || "",
-            bio: profile?.bio || "",
+            display_name: profile?.display_name || '',
+            username: profile?.username || '',
+            location: profile?.location || '',
+            bio: profile?.bio || '',
         },
     });
 
     const handleAvatarPress = () => {
-        Alert.alert("Change Avatar", "Choose an option", [
+        Alert.alert('Change Avatar', 'Choose an option', [
             {
-                text: "Cancel",
-                style: "cancel",
+                text: 'Cancel',
+                style: 'cancel',
             },
             {
-                text: "Take Photo",
+                text: 'Take Photo',
                 onPress: async () => {
                     const uri = await takePhoto();
                     if (uri && user) {
-                        const result = await uploadPhoto(uri, "avatar", user.id, "user-avatars");
+                        const result = await uploadPhoto(
+                            uri,
+                            'avatar',
+                            user.id,
+                            'user-avatars'
+                        );
                         if (result) {
                             setAvatarUrl(result.url);
                         }
@@ -71,11 +91,16 @@ export default function EditProfileScreen() {
                 },
             },
             {
-                text: "Choose from Library",
+                text: 'Choose from Library',
                 onPress: async () => {
                     const uri = await pickImage();
                     if (uri && user) {
-                        const result = await uploadPhoto(uri, "avatar", user.id, "user-avatars");
+                        const result = await uploadPhoto(
+                            uri,
+                            'avatar',
+                            user.id,
+                            'user-avatars'
+                        );
                         if (result) {
                             setAvatarUrl(result.url);
                         }
@@ -85,45 +110,66 @@ export default function EditProfileScreen() {
         ]);
     };
 
+    const queryClient = useQueryClient();
+    const { mutateAsync: updateProfile, isPending: isUpdatingProfile } =
+        useMutation({
+            mutationFn: async ({
+                updates,
+                userId,
+            }: {
+                updates: any;
+                userId: string;
+            }) => {
+                const { error } = await supabase
+                    .from('users')
+                    .update(updates)
+                    .eq('id', userId);
+                if (error) throw error;
+            },
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['profile'] });
+                router.back();
+            },
+            onError: (error: any) => {
+                Alert.alert('Error', error.message);
+            },
+        });
+
     const onSubmit = async (data: ProfileFormValues) => {
         if (!user) return;
-        setIsLoading(true);
 
-        try {
-            const updates = {
-                display_name: data.display_name,
-                username: data.username,
-                location: data.location,
-                bio: data.bio,
-                avatar_url: avatarUrl,
-                updated_at: new Date().toISOString(),
-            };
+        const updates = {
+            display_name: data.display_name,
+            username: data.username,
+            location: data.location,
+            bio: data.bio,
+            avatar_url: avatarUrl,
+            updated_at: new Date().toISOString(),
+        };
 
-            const { error } = await supabase.from("users").update(updates).eq('id', user.id);
-
-            if (error) throw error;
-
-            router.back();
-        } catch (error: any) {
-            Alert.alert("Error", error.message);
-        } finally {
-            setIsLoading(false);
-        }
+        updateProfile({ updates, userId: user.id });
     };
 
     return (
         <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
         >
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.avatarContainer}>
                     <TouchableOpacity onPress={handleAvatarPress}>
                         {avatarUrl ? (
-                            <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+                            <Image
+                                source={{ uri: avatarUrl }}
+                                style={styles.avatar}
+                            />
                         ) : (
                             <View style={styles.avatarPlaceholder}>
-                                <IconSymbol name="photo-camera" size={40} color={theme.color.textSecondary} />
+                                <IconSymbol
+                                    name="photo-camera"
+                                    size={40}
+                                    color={theme.color.textSecondary}
+                                />
                             </View>
                         )}
                         <View style={styles.editIconContainer}>
@@ -197,8 +243,8 @@ export default function EditProfileScreen() {
                 <View style={styles.buttonContainer}>
                     <ThemedButton
                         onPress={handleSubmit(onSubmit)}
-                        loading={isLoading || isUploading}
-                        disabled={isLoading || isUploading}
+                        loading={isUpdatingProfile || isUploading}
+                        disabled={isUpdatingProfile || isUploading}
                     >
                         Save Changes
                     </ThemedButton>
@@ -208,52 +254,53 @@ export default function EditProfileScreen() {
     );
 }
 
-const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) => StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: theme.color.bg,
-    },
-    scrollContent: {
-        padding: 24,
-    },
-    avatarContainer: {
-        alignItems: "center",
-        marginBottom: 32,
-    },
-    avatar: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-    },
-    avatarPlaceholder: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        backgroundColor: theme.color.surface,
-        justifyContent: "center",
-        alignItems: "center",
-        borderWidth: 1,
-        borderColor: theme.color.border,
-    },
-    editIconContainer: {
-        position: "absolute",
-        bottom: 0,
-        right: 0,
-        backgroundColor: theme.color.accent,
-        padding: 8,
-        borderRadius: 20,
-        borderWidth: 2,
-        borderColor: theme.color.bg,
-    },
-    form: {
-        gap: 16,
-        marginBottom: 32,
-    },
-    bioInput: {
-        height: 100,
-        textAlignVertical: "top",
-    },
-    buttonContainer: {
-        marginBottom: 32,
-    },
-});
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+    StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.color.bg,
+        },
+        scrollContent: {
+            padding: 24,
+        },
+        avatarContainer: {
+            alignItems: 'center',
+            marginBottom: 32,
+        },
+        avatar: {
+            width: 120,
+            height: 120,
+            borderRadius: 60,
+        },
+        avatarPlaceholder: {
+            width: 120,
+            height: 120,
+            borderRadius: 60,
+            backgroundColor: theme.color.surface,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderWidth: 1,
+            borderColor: theme.color.border,
+        },
+        editIconContainer: {
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            backgroundColor: theme.color.accent,
+            padding: 8,
+            borderRadius: 20,
+            borderWidth: 2,
+            borderColor: theme.color.bg,
+        },
+        form: {
+            gap: 16,
+            marginBottom: 32,
+        },
+        bioInput: {
+            height: 100,
+            textAlignVertical: 'top',
+        },
+        buttonContainer: {
+            marginBottom: 32,
+        },
+    });

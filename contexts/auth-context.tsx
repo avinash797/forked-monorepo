@@ -1,106 +1,138 @@
 import { supabase } from '@/lib/supabase';
 import type { AuthState, Profile } from '@/types/auth';
-import React, { createContext, useEffect, useState, type ReactNode } from 'react';
+import React, {
+    createContext,
+    useEffect,
+    useState,
+    type ReactNode,
+} from 'react';
 
 interface AuthContextType extends AuthState {
-  login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string, displayName: string) => Promise<void>;
-  logout: () => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
+    login: (email: string, password: string) => Promise<void>;
+    signup: (
+        email: string,
+        password: string,
+        displayName: string
+    ) => Promise<void>;
+    logout: () => Promise<void>;
+    resetPassword: (email: string) => Promise<void>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+    undefined
+);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>({
-    user: null,
-    profile: null,
-    isAuthenticated: false,
-    isLoading: true,
-  });
-
-  useEffect(() => {
-    // Check active session on mount
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        loadUserProfile(session.user.id);
-      } else {
-        setState({ user: null, profile: null, isAuthenticated: false, isLoading: false });
-      }
+    const [state, setState] = useState<AuthState>({
+        user: null,
+        profile: null,
+        isAuthenticated: false,
+        isLoading: true,
     });
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        await loadUserProfile(session.user.id);
-      } else {
-        setState({ user: null, profile: null, isAuthenticated: false, isLoading: false });
-      }
-    });
+    useEffect(() => {
+        // Check active session on mount
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user) {
+                loadUserProfile(session.user.id);
+            } else {
+                setState({
+                    user: null,
+                    profile: null,
+                    isAuthenticated: false,
+                    isLoading: false,
+                });
+            }
+        });
 
-    return () => subscription.unsubscribe();
-  }, []);
+        // Listen for auth changes
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange(async (_event, session) => {
+            if (session?.user) {
+                await loadUserProfile(session.user.id);
+            } else {
+                setState({
+                    user: null,
+                    profile: null,
+                    isAuthenticated: false,
+                    isLoading: false,
+                });
+            }
+        });
 
-  const loadUserProfile = async (userId: string) => {
-    const { data: profile } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', userId)
-      .single() as { data: Profile | null };
+        return () => subscription.unsubscribe();
+    }, []);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const loadUserProfile = async (userId: string) => {
+        const { data: profile } = (await supabase
+            .from('users')
+            .select('*')
+            .eq('id', userId)
+            .single()) as { data: Profile | null };
 
-    const { data: charms } = await supabase
-      .from(
-        'user_charms'
-      )
-      .select('id:charm_id, timestamp: unlocked_at')
-      .eq(
-        'user_id'
-        , userId);
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
 
-    setState({
-      user: user ? {
-        id: user.id,
-        email: user.email!,
-        display_name: profile?.display_name ?? undefined,
-        avatar_url: profile?.avatar_url ?? undefined,
-      } : null,
-      profile: { ...profile, charms } as Profile,
-      isAuthenticated: !!user,
-      isLoading: false,
-    });
-  };
+        const { data: charms } = await supabase
+            .from('user_charms')
+            .select('id:charm_id, timestamp: unlocked_at')
+            .eq('user_id', userId);
 
-  const login = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-  };
+        setState({
+            user: user
+                ? {
+                      id: user.id,
+                      email: user.email!,
+                      display_name: profile?.display_name ?? undefined,
+                      avatar_url: profile?.avatar_url ?? undefined,
+                  }
+                : null,
+            profile: { ...profile, charms } as Profile,
+            isAuthenticated: !!user,
+            isLoading: false,
+        });
+    };
 
-  const signup = async (email: string, password: string, displayName: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { display_name: displayName },
-      },
-    });
-    if (error) throw error;
-  };
+    const login = async (email: string, password: string) => {
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+        if (error) throw error;
+    };
 
-  const logout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-  };
+    const signup = async (
+        email: string,
+        password: string,
+        displayName: string
+    ) => {
+        const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: { display_name: displayName },
+            },
+        });
+        if (error) throw error;
+    };
 
-  const resetPassword = async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    if (error) throw error;
-  };
+    const logout = async () => {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+    };
 
-  return (
-    <AuthContext.Provider value={{ ...state, login, signup, logout, resetPassword }}>
-      {children}
-    </AuthContext.Provider>
-  );
+    const resetPassword = async (email: string) => {
+        const { error } = await supabase.auth.resetPasswordForEmail(email);
+        if (error) throw error;
+    };
+
+    return (
+        <AuthContext.Provider
+            value={{ ...state, login, signup, logout, resetPassword }}
+        >
+            {children}
+        </AuthContext.Provider>
+    );
 }

@@ -55,7 +55,14 @@ export function Charm({ charm, showName }: CharmProps) {
     }, [charm.id]);
 
     if (loading) {
-        return <View style={[styles.placeholder, { backgroundColor: theme.color.surface2 }]} />;
+        return (
+            <View
+                style={[
+                    styles.placeholder,
+                    { backgroundColor: theme.color.surface2 },
+                ]}
+            />
+        );
     }
 
     if (!data) return null;
@@ -64,11 +71,19 @@ export function Charm({ charm, showName }: CharmProps) {
         <View style={styles.container}>
             <View style={styles.iconContainer}>
                 {data.icon_url ? (
-                    <Image source={{ uri: data.icon_url }} style={styles.icon} contentFit="contain" />
+                    <Image
+                        source={{ uri: data.icon_url }}
+                        style={styles.icon}
+                        contentFit="contain"
+                    />
                 ) : data.icon_svg ? (
                     <SvgXml xml={data.icon_svg} width={32} height={32} />
                 ) : (
-                    <Ionicons name="trophy-outline" size={24} color={theme.color.accent} />
+                    <Ionicons
+                        name="trophy-outline"
+                        size={24}
+                        color={theme.color.accent}
+                    />
                 )}
             </View>
 
@@ -81,41 +96,41 @@ export function Charm({ charm, showName }: CharmProps) {
     );
 }
 
-const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) => StyleSheet.create({
-    container: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 4,
-        flexDirection: 'row',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: theme.shadow.md.y },
-        shadowOpacity: theme.shadow.md.opacity,
-        shadowRadius: theme.shadow.md.radius,
-        elevation: 2,
-        backgroundColor: theme.color.surface,
-        borderRadius: theme.radius.sm,
-        padding: theme.space.xxs,
-    },
-    iconContainer: {
-        width: 24,
-        height: 24,
-        alignItems: 'center',
-        justifyContent: 'center',
-
-    },
-    icon: {
-        width: 24,
-        height: 24,
-    },
-    name: {
-        fontSize: 12,
-        fontWeight: '600',
-        textAlign: 'center',
-        marginTop: 4,
-    },
-    placeholder: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-    },
-});
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+    StyleSheet.create({
+        container: {
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 4,
+            flexDirection: 'row',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: theme.shadow.md.y },
+            shadowOpacity: theme.shadow.md.opacity,
+            shadowRadius: theme.shadow.md.radius,
+            elevation: 2,
+            backgroundColor: theme.color.surface,
+            borderRadius: theme.radius.sm,
+            padding: theme.space.xxs,
+        },
+        iconContainer: {
+            width: 24,
+            height: 24,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        icon: {
+            width: 24,
+            height: 24,
+        },
+        name: {
+            fontSize: 12,
+            fontWeight: '600',
+            textAlign: 'center',
+            marginTop: 4,
+        },
+        placeholder: {
+            width: 48,
+            height: 48,
+            borderRadius: 24,
+        },
+    });

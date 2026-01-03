@@ -1,6 +1,6 @@
-import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
-import { ForkLogo } from "./fork-logo";
-import { ThemedText } from "./themed-text";
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { ForkLogo } from './fork-logo';
+import { ThemedText } from './themed-text';
 
 export default function ForkedBrandingHeader({
     style,
@@ -34,4 +34,4 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: '#FFFFFF',
     },
-})
+});

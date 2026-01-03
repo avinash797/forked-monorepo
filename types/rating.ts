@@ -1,6 +1,6 @@
 // Core Rating Flow Types
 
-import { Database } from "./database";
+import { Database } from './database';
 
 // ============================================================================
 // Database Entity Types
@@ -21,37 +21,37 @@ export type Photo = Database['public']['Tables']['photos']['Row'];
 // ============================================================================
 
 export interface CreateVenueInput {
-  name: string;
-  address_street: string;
-  address_city: string;
-  address_state: string;
-  address_zip: string;
-  address_country: string;
-  latitude: number | null;
-  longitude: number | null;
-  cuisine_types: string[];
-  price_range: number | null;
+    name: string;
+    address_street: string;
+    address_city: string;
+    address_state: string;
+    address_zip: string;
+    address_country: string;
+    latitude: number | null;
+    longitude: number | null;
+    cuisine_types: string[];
+    price_range: number | null;
 }
 
 export interface CreateDishInput {
-  venue_id: string;
-  name: string;
-  category: string;
-  dish_type_id: string;
-  variety: string | null;
-  current_price: number | null;
-  description: string | null;
-  dietary_tags: string[];
-  spice_level: number;
+    venue_id: string;
+    name: string;
+    category: string;
+    dish_type_id: string;
+    variety: string | null;
+    current_price: number | null;
+    description: string | null;
+    dietary_tags: string[];
+    spice_level: number;
 }
 
 export interface CreateReviewInput {
-  dish_id: string;
-  venue_id: string;
-  rating: number;
-  review_text: string | null;
-  location_latitude: number | null;
-  location_longitude: number | null;
+    dish_id: string;
+    venue_id: string;
+    rating: number;
+    review_text: string | null;
+    location_latitude: number | null;
+    location_longitude: number | null;
 }
 
 // ============================================================================
@@ -59,17 +59,17 @@ export interface CreateReviewInput {
 // ============================================================================
 
 export interface LocationCoordinates {
-  latitude: number;
-  longitude: number;
-  accuracy: number | null;
+    latitude: number;
+    longitude: number;
+    accuracy: number | null;
 }
 
 export interface GPSVerificationStatus {
-  hasPermission: boolean;
-  isVerified: boolean;
-  distanceMeters: number | null;
-  location: LocationCoordinates | null;
-  error: string | null;
+    hasPermission: boolean;
+    isVerified: boolean;
+    distanceMeters: number | null;
+    location: LocationCoordinates | null;
+    error: string | null;
 }
 
 // ============================================================================
@@ -77,9 +77,9 @@ export interface GPSVerificationStatus {
 // ============================================================================
 
 export interface UploadedPhoto {
-  uri: string;
-  storagePath: string;
-  url: string;
+    uri: string;
+    storagePath: string;
+    url: string;
 }
 
 // ============================================================================
@@ -87,19 +87,19 @@ export interface UploadedPhoto {
 // ============================================================================
 
 export interface VenueWithDistance extends Venue {
-  distanceMeters?: number;
+    distanceMeters?: number;
 }
 
 export interface DishWithVenue extends Dish {
-  venue?: Venue;
+    venue?: Venue;
 }
 
 export interface ReviewWithDetails extends Review {
-  dish?: Dish;
-  venue?: Venue;
-  user_profile?: {
-    username: string;
-    display_name: string;
-    profile_photo_url: string | null;
-  };
+    dish?: Dish;
+    venue?: Venue;
+    user_profile?: {
+        username: string;
+        display_name: string;
+        profile_photo_url: string | null;
+    };
 }
