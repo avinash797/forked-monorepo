@@ -13,8 +13,6 @@ import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ThemedView } from '@/components/themed-view';
-import { AuthProvider } from '@/contexts/auth-context';
-import { RatingFlowProvider } from '@/contexts/rating-flow-context';
 import { ThemeProvider, useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -110,11 +108,7 @@ export default function RootLayout() {
                 <SafeAreaProvider>
                     <ThemeProvider>
                         <BottomSheetModalProvider>
-                            <AuthProvider>
-                                <RatingFlowProvider>
-                                    <RootLayoutNav />
-                                </RatingFlowProvider>
-                            </AuthProvider>
+                            <RootLayoutNav />
                         </BottomSheetModalProvider>
                     </ThemeProvider>
                 </SafeAreaProvider>

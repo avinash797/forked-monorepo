@@ -42,13 +42,6 @@ export default function RatingLayout() {
                     title: 'Rate Dish',
                 }}
             />
-            <Stack.Screen
-                name="success"
-                options={{
-                    title: 'Success!',
-                    headerBackVisible: false,
-                }}
-            />
         </Stack>
     );
 }

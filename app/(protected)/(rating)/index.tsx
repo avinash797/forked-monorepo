@@ -2,8 +2,8 @@ import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { useRatingFlow } from '@/contexts/rating-flow-context';
 import { useTheme } from '@/contexts/theme-provider';
+import { useRatingStore } from '@/stores';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
@@ -12,7 +12,7 @@ import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 export default function TakePhotoScreen() {
     const router = useRouter();
-    const { addPhoto } = useRatingFlow();
+    const { setPhotoUri } = useRatingStore();
     const [permission, requestPermission] = useCameraPermissions();
     const cameraRef = useRef<CameraView>(null);
     const { theme } = useTheme();
@@ -63,7 +63,7 @@ export default function TakePhotoScreen() {
             });
 
             if (photo) {
-                addPhoto(photo.uri);
+                setPhotoUri(photo.uri);
                 router.push('/(protected)/(rating)/venue-search');
             }
         } catch (error: any) {
@@ -92,7 +92,7 @@ export default function TakePhotoScreen() {
             });
 
             if (!result.canceled && result.assets[0]) {
-                addPhoto(result.assets[0].uri);
+                setPhotoUri(result.assets[0].uri);
                 router.push('/(protected)/(rating)/venue-search');
             }
         } catch (error: any) {

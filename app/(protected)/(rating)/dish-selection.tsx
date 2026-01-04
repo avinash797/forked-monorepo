@@ -4,7 +4,7 @@ import { ThemedSelect } from '@/components/themed-select';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-text-input';
 import { ThemedView } from '@/components/themed-view';
-import { useRatingFlow } from '@/contexts/rating-flow-context';
+import { useRatingStore } from '@/stores';
 import {
     useCreateDish,
     useDishTypes,
@@ -56,12 +56,12 @@ type DishFormData = z.infer<typeof dishFormSchema>;
 
 export default function DishSelectionScreen() {
     const router = useRouter();
-    const { state, setDish } = useRatingFlow();
+    const { selectedVenue, setSelectedDish } = useRatingStore();
     const {
         data: dishes = [],
         isLoading,
         error,
-    } = useVenueDishes(state.selectedVenue?.id ?? null);
+    } = useVenueDishes(selectedVenue?.id ?? null);
     const { data: dishTypes = [], isLoading: isDishTypesLoading } =
         useDishTypes();
     const { mutateAsync: createDish, isPending: isCreating } = useCreateDish();
@@ -89,15 +89,15 @@ export default function DishSelectionScreen() {
     });
 
     useEffect(() => {
-        if (!state.selectedVenue) {
+        if (!selectedVenue) {
             router.back();
         }
-    }, [state.selectedVenue, router]);
+    }, [selectedVenue, router]);
 
-    if (!state.selectedVenue) return null;
+    if (!selectedVenue) return null;
 
     const handleDishSelect = (dish: any) => {
-        setDish(dish);
+        setSelectedDish(dish);
         router.push('/(protected)/(rating)/rating');
     };
 
@@ -120,7 +120,7 @@ export default function DishSelectionScreen() {
                 : 0;
 
         const dish = await createDish({
-            venue_id: state.selectedVenue!.id,
+            venue_id: selectedVenue!.id,
             name: data.name.trim(),
             category: data.category.trim(),
             dish_type_id: data.dish_type_id,
@@ -132,7 +132,7 @@ export default function DishSelectionScreen() {
         });
 
         if (dish) {
-            setDish(dish);
+            setSelectedDish(dish);
             router.push('/(protected)/(rating)/rating');
         }
     };
@@ -143,7 +143,7 @@ export default function DishSelectionScreen() {
             style={{ flex: 1 }}
             keyboardVerticalOffset={100} // Adjust based on header height
         >
-            <Stack.Screen options={{ title: state.selectedVenue?.name }} />
+            <Stack.Screen options={{ title: selectedVenue?.name }} />
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <ThemedView style={styles.container}>
                     {!showAddForm && (

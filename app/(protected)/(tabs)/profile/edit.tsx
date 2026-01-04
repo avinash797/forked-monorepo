@@ -1,9 +1,8 @@
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedTextInput } from '@/components/themed-text-input';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { AUTH_KEYS } from '@/contexts/auth-context';
 import { useTheme } from '@/contexts/theme-provider';
-import { useAuth } from '@/hooks/use-auth';
+import { AUTH_KEYS, useAuth } from '@/hooks/use-auth';
 import { usePhotoUpload } from '@/hooks/use-photo-upload';
 import { supabase } from '@/lib/supabase';
 
