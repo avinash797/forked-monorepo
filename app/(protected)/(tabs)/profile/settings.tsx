@@ -13,9 +13,16 @@ const THEME_OPTIONS = [
     { label: 'Critics (Editorial)', value: 'critics' },
 ] as const;
 
+const COLOR_SCHEME_OPTIONS = [
+    { label: 'System Default', value: 'system' },
+    { label: 'Light', value: 'light' },
+    { label: 'Dark', value: 'dark' },
+] as const;
+
 export default function SettingsScreen() {
     const { logout, user, profile } = useAuth();
-    const { themeName, setThemeName } = useTheme();
+    const { themeName, setThemeName, themePreference, setThemePreference } =
+        useTheme();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     const handleLogout = () => {
@@ -60,6 +67,16 @@ export default function SettingsScreen() {
                     value={themeName}
                     options={THEME_OPTIONS}
                     onValueChange={(value) => setThemeName(value as any)}
+                />
+
+                <View style={{ height: 16 }} />
+
+                <ThemedSelect
+                    label="Color Scheme"
+                    placeholder="Select color scheme"
+                    value={themePreference}
+                    options={COLOR_SCHEME_OPTIONS}
+                    onValueChange={(value) => setThemePreference(value as any)}
                 />
             </View>
 

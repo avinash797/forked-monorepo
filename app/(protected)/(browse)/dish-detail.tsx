@@ -11,7 +11,7 @@ import { useTheme } from '@/contexts/theme-provider';
 import { useDishDetail } from '@/hooks/use-dish-detail';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
     ActivityIndicator,
     Dimensions,
@@ -211,8 +211,6 @@ export default function DishDetailScreen() {
 
     return (
         <ThemedView style={styles.container}>
-            <Stack.Screen options={{ headerShown: false }} />
-
             {/* Hero Control (Back Button always visible but transitions) */}
             <View style={[styles.topControls, { marginTop: insets.top }]}>
                 <TouchableOpacity
@@ -301,33 +299,33 @@ export default function DishDetailScreen() {
                         style={StyleSheet.absoluteFill}
                     />
 
-                    {/* Rating Badge Overlay */}
-                    <View style={styles.heroRatingContainer}>
-                        {dish.average_rating !== null &&
-                            dish.review_count > 0 && (
-                                <ScoreBadge
-                                    score={dish.average_rating}
-                                    style={styles.ratingBadge}
-                                />
-                            )}
-                    </View>
-
                     {/* Hero Content Overlay */}
                     <Animated.View
                         style={[styles.heroContent, animatedHeroContentStyle]}
                     >
-                        <ThemedText style={styles.dishNameHero}>
-                            {dish.name}
-                        </ThemedText>
+                        <View style={styles.statsRow}>
+                            <View>
+                                <ThemedText style={styles.dishNameHero}>
+                                    {dish.name}
+                                </ThemedText>
 
-                        <TouchableOpacity
-                            onPress={handleVenuePress}
-                            activeOpacity={0.7}
-                        >
-                            <ThemedText style={styles.venueNameHero}>
-                                at {dish.venue?.name}
-                            </ThemedText>
-                        </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={handleVenuePress}
+                                    activeOpacity={0.7}
+                                >
+                                    <ThemedText style={styles.venueNameHero}>
+                                        at {dish.venue?.name}
+                                    </ThemedText>
+                                </TouchableOpacity>
+                            </View>
+                            {dish.average_rating !== null &&
+                                dish.review_count > 0 && (
+                                    <ScoreBadge
+                                        score={dish.average_rating}
+                                        style={styles.ratingBadge}
+                                    />
+                                )}
+                        </View>
 
                         <View style={styles.statsRow}>
                             <ThemedText style={styles.statsText}>
@@ -516,12 +514,7 @@ const createThemedStyles = (
             marginLeft: theme.space.sm,
             transform: [{ scale: 0.9 }],
         },
-        heroRatingContainer: {
-            position: 'absolute',
-            top: 10,
-            right: theme.space.md,
-            zIndex: 10,
-        },
+
         ratingBadge: {
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 2 },
@@ -578,11 +571,11 @@ const createThemedStyles = (
             borderTopLeftRadius: theme.radius.xl,
             borderTopRightRadius: theme.radius.xl,
             marginTop: -theme.radius.xl,
-            minHeight: Dimensions.get('window').height, // Ensure content fills screen
+            minHeight: Dimensions.get('window').height,
+            padding: theme.space.sm,
             paddingTop: theme.space.lg,
         },
         infoSection: {
-            paddingHorizontal: theme.space.md,
             marginBottom: theme.space.lg,
         },
         tagsContainer: {

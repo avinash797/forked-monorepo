@@ -1,5 +1,6 @@
 import { useTheme } from '@/contexts/theme-provider';
 import { useUserReviews } from '@/hooks/use-reviews';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
     Image,
     StyleSheet,
@@ -21,7 +22,7 @@ export function ReviewsTab({ userId }: ReviewsTabProps) {
     const styles = createThemedStyles(theme);
 
     // Calculate grid item size (3 columns with small gaps)
-    const gap = 4;
+    const gap = 5;
     const itemSize = (width - gap * 2 - theme.space.xs) / 2;
 
     if (isLoading) {
@@ -58,7 +59,10 @@ export function ReviewsTab({ userId }: ReviewsTabProps) {
                             source={{ uri: photoUrl }}
                             style={styles.image}
                         />
-                        <View style={styles.overlay}>
+                        <LinearGradient
+                            colors={['transparent', theme.color.overlay]}
+                            style={styles.overlay}
+                        >
                             <View style={styles.ratingContainer}>
                                 <ScoreBadge score={review.rating} />
                             </View>
@@ -67,7 +71,7 @@ export function ReviewsTab({ userId }: ReviewsTabProps) {
                                     {review.dishes?.name}
                                 </Text>
                                 <Text style={styles.location} numberOfLines={1}>
-                                    @ {review.venues?.name}
+                                    @{review.venues?.name}
                                 </Text>
                                 <Text
                                     style={styles.reviewText}
@@ -76,7 +80,7 @@ export function ReviewsTab({ userId }: ReviewsTabProps) {
                                     {review.review_text}
                                 </Text>
                             </View>
-                        </View>
+                        </LinearGradient>
                     </View>
                 );
             })}
@@ -99,7 +103,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         item: {
             position: 'relative',
-            marginBottom: theme.space.xxs,
+            marginBottom: theme.space.xs,
             borderRadius: theme.radius.sm,
             overflow: 'hidden',
         },
@@ -109,7 +113,6 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         overlay: {
             ...StyleSheet.absoluteFillObject,
-            backgroundColor: 'rgba(0,0,0,0.3)',
             justifyContent: 'space-between',
             padding: theme.space.xs,
             gap: theme.space.xs,
@@ -120,16 +123,18 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         dishName: {
             color: theme.color.textOnImage,
-            fontWeight: theme.font.weight.semibold,
+            fontWeight: theme.font.weight.bold,
             fontSize: theme.font.size.md,
         },
         location: {
-            color: theme.color.textPrimary,
+            color: theme.color.textOnImage,
+            fontWeight: theme.font.weight.semibold,
             fontSize: theme.font.size.sm,
         },
         reviewText: {
             color: theme.color.textOnImage,
             fontSize: theme.font.size.sm,
+            fontWeight: theme.font.weight.regular,
             marginTop: theme.space.xxs,
         },
     });

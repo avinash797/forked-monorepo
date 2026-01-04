@@ -61,13 +61,6 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             alignItems: 'center',
             justifyContent: 'center',
             gap: 4,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: theme.shadow.md.y },
-            shadowOpacity: theme.shadow.md.opacity,
-            shadowRadius: theme.shadow.md.radius,
-            elevation: 2,
-            borderRadius: theme.radius.sm,
-            padding: theme.space.xxs,
         },
         iconContainer: {
             width: 50,

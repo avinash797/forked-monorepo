@@ -47,7 +47,6 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             flexDirection: 'row',
             borderBottomWidth: 1,
             borderBottomColor: theme.color.border,
-            marginBottom: theme.space.md,
         },
         tab: {
             flex: 1,
