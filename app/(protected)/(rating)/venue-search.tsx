@@ -4,8 +4,8 @@ import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { useRatingFlow } from '@/contexts/rating-flow-context';
 import { useTheme } from '@/contexts/theme-provider';
+import { useRatingStore } from '@/stores';
 import { useAddressSearch } from '@/hooks/use-address-search';
 import { useLocation } from '@/hooks/use-location';
 import {
@@ -32,7 +32,7 @@ export default function VenueSearchScreen() {
     const router = useRouter();
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
-    const { setVenue } = useRatingFlow();
+    const { setSelectedVenue } = useRatingStore();
     const [searchQuery, setSearchQuery] = useState('');
 
     const { data: locationData } = useLocation();
@@ -104,7 +104,7 @@ export default function VenueSearchScreen() {
     }, [dbVenues, location]);
 
     const handleVenueSelect = (venue: Venue) => {
-        setVenue(venue);
+        setSelectedVenue(venue);
         router.push('/(protected)/(rating)/dish-selection');
     };
 
@@ -131,7 +131,7 @@ export default function VenueSearchScreen() {
             });
 
             if (newVenue) {
-                setVenue(newVenue);
+                setSelectedVenue(newVenue);
                 router.push('/(protected)/(rating)/dish-selection');
             } else {
                 throw new Error('Failed to create venue');

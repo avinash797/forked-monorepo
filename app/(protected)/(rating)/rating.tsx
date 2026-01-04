@@ -5,11 +5,11 @@ import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-text-input';
 import { ThemedView } from '@/components/themed-view';
-import { useRatingFlow } from '@/contexts/rating-flow-context';
 import { useAuth } from '@/hooks/use-auth';
 import { useGPSVerification, useLocation } from '@/hooks/use-location';
 import { usePhotoUpload } from '@/hooks/use-photo-upload';
 import { useCreateReview } from '@/hooks/use-reviews';
+import { useRatingStore } from '@/stores';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
@@ -17,8 +17,16 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 export default function RatingScreen() {
     const router = useRouter();
     const { user } = useAuth();
-    const { state, setRating, setReviewText, addPhoto, removePhoto } =
-        useRatingFlow();
+    const {
+        selectedVenue,
+        selectedDish,
+        rating,
+        reviewText,
+        photoUri,
+        setRating,
+        setReviewText,
+        setPhotoUri,
+    } = useRatingStore();
     const {
         createReview,
         isLoading: isSubmitting,
@@ -35,21 +43,21 @@ export default function RatingScreen() {
     const location = locationData?.location ?? null;
     const gpsStatus = useGPSVerification(
         location,
-        state.selectedVenue
+        selectedVenue
             ? {
-                  latitude: state.selectedVenue.latitude,
-                  longitude: state.selectedVenue.longitude,
+                  latitude: selectedVenue.latitude,
+                  longitude: selectedVenue.longitude,
               }
             : null
     );
 
     useEffect(() => {
-        if (!state.selectedVenue || !state.selectedDish) {
+        if (!selectedVenue || !selectedDish) {
             router.back();
         }
-    }, [state.selectedVenue, state.selectedDish, router]);
+    }, [selectedVenue, selectedDish, router]);
 
-    if (!state.selectedVenue || !state.selectedDish) {
+    if (!selectedVenue || !selectedDish) {
         return null;
     }
 
@@ -63,17 +71,21 @@ export default function RatingScreen() {
         }
 
         if (uri) {
-            addPhoto(uri);
+            setPhotoUri(uri);
         }
     };
 
+    const handleRemovePhoto = () => {
+        setPhotoUri(null);
+    };
+
     const handleSubmit = async () => {
-        if (state.rating === 0) {
-            Alert.alert('Rating Required', 'Please select a star rating (1-5)');
+        if (rating === 0) {
+            Alert.alert('Rating Required', 'Please select a rating (0-10)');
             return;
         }
 
-        if (!state.photoUri) {
+        if (!photoUri) {
             Alert.alert(
                 'Photo Required',
                 'A photo is required to submit a review'
@@ -86,7 +98,7 @@ export default function RatingScreen() {
             return;
         }
 
-        const uploaded = await uploadPhoto(state.photoUri, 'review', user.id);
+        const uploaded = await uploadPhoto(photoUri, 'review', user.id);
 
         if (!uploaded) {
             Alert.alert(
@@ -98,10 +110,10 @@ export default function RatingScreen() {
 
         const review = await createReview(
             {
-                dish_id: state.selectedDish!.id,
-                venue_id: state.selectedVenue!.id,
-                rating: state.rating,
-                review_text: state.reviewText.trim() || null,
+                dish_id: selectedDish!.id,
+                venue_id: selectedVenue!.id,
+                rating: rating,
+                review_text: reviewText.trim() || null,
                 location_latitude: location?.latitude ?? null,
                 location_longitude: location?.longitude ?? null,
             },
@@ -109,7 +121,7 @@ export default function RatingScreen() {
         );
 
         if (review) {
-            router.push('/(protected)/(rating)/success');
+            router.push('/(protected)/(tabs)');
         } else {
             await deletePhoto(uploaded.storagePath);
             Alert.alert(
@@ -121,17 +133,13 @@ export default function RatingScreen() {
         }
     };
 
-    const canSubmit =
-        state.rating > 0 &&
-        state.photoUri !== null &&
-        !isSubmitting &&
-        !isUploading;
+    const canSubmit = rating > 0 && !isSubmitting && !isUploading;
 
     return (
         <ScrollView style={styles.container}>
             <ThemedView style={styles.content}>
                 <ThemedText style={styles.dishName} type="title">
-                    {state.selectedDish.name}
+                    {selectedDish.name}
                 </ThemedText>
 
                 <ThemedText
@@ -139,7 +147,7 @@ export default function RatingScreen() {
                     lightColor="#666"
                     darkColor="#999"
                 >
-                    at {state.selectedVenue.name}
+                    at {selectedVenue.name}
                 </ThemedText>
 
                 <LocationStatusBanner status={gpsStatus} />
@@ -152,17 +160,14 @@ export default function RatingScreen() {
                         </ThemedText>
                     </ThemedText>
                     <View style={styles.ratingContainer}>
-                        <RatingInput
-                            value={state.rating}
-                            onChange={setRating}
-                        />
+                        <RatingInput value={rating} onChange={setRating} />
                     </View>
                 </ThemedView>
 
                 <ThemedView style={styles.section}>
                     <ThemedTextInput
                         label="Review (optional)"
-                        value={state.reviewText}
+                        value={reviewText}
                         onChangeText={setReviewText}
                         placeholder="Share your thoughts about this dish..."
                         multiline
@@ -170,12 +175,12 @@ export default function RatingScreen() {
                     />
                 </ThemedView>
 
-                {!state.photoUri && (
+                {!photoUri && (
                     <ThemedView style={styles.section}>
                         <PhotoPicker
-                            photos={state.photoUri ? [state.photoUri] : []}
+                            photos={photoUri ? [photoUri] : []}
                             onAddPhoto={handleAddPhoto}
-                            onRemovePhoto={removePhoto}
+                            onRemovePhoto={handleRemovePhoto}
                             maxPhotos={1}
                             isLoading={isUploading}
                             required

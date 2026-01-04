@@ -151,6 +151,7 @@ These accept `lightColor` and `darkColor` props to override theme defaults.
 
 - **`hooks/`**: Custom React hooks using **@tanstack/react-query** for data fetching and mutations
     - **All network data manipulating hooks use React Query** (`useQuery`, `useMutation`, `useInfiniteQuery`) for data management
+    - **`use-auth.ts`**: Authentication hook with React Query (no provider needed) ✨
     - Rating flow hooks:
         - `use-location.ts`: GPS location services with permission handling (uses `useQuery`)
         - `use-photo-upload.ts`: Photo upload to Supabase Storage (uses `useMutation`)
@@ -166,8 +167,16 @@ These accept `lightColor` and `darkColor` props to override theme defaults.
         - `use-leaderboard.ts`: Fetch leaderboard data by dish type (uses `useQuery`)
 
 - **`contexts/`**: React contexts
-    - `rating-context.tsx`: Global state for rating flow (photo, venue, dish, location)
+    - `theme-context.tsx`: Theme provider with color scheme and theme tokens
     - `supabase-provider.tsx`: Supabase client provider
+
+- **`stores/`**: Zustand global state management ✨
+    - `use-rating-store.ts`: Rating flow state (replaces RatingContext)
+    - `use-auth-store.ts`: Optional client-side auth state (auth uses `useAuth` hook)
+    - `use-ui-store.ts`: Global UI state (toasts, bottom sheets, loading)
+    - `use-preferences-store.ts`: Persisted user preferences (AsyncStorage)
+    - `middleware.ts`: Custom Zustand middleware (persistence, logging)
+    - `README.md`: Complete Zustand usage guide and patterns
 
 - **`types/`**: TypeScript type definitions
     - `rating.ts`: Complete type definitions for rating flow (Venue, Dish, Review, Photo, etc.)
@@ -312,11 +321,12 @@ Browse Home → useTopDishes() → Supabase dishes query → Dishes list → Dis
 
 ### State Management
 
-- **`RatingContext`** (`contexts/rating-context.tsx`):
-    - Global state for rating flow
+- **`useRatingStore`** (`stores/use-rating-store.ts`):
+    - Zustand store for rating flow state (replaces RatingContext)
     - Stores: photo URI, selected venue, selected dish, GPS location
     - Persists data across navigation steps
-    - Cleared on flow completion or cancellation
+    - Call `resetRating()` on flow completion or cancellation
+    - Usage: `const { photoUri, setPhotoUri } = useRatingStore();`
 
 ### Key Features
 
@@ -387,6 +397,132 @@ Configured for iOS, Android, and Web:
 - React Native Gesture Handler installed for touch interactions
 - Color scheme automatically follows system preference
 - VSCode is configured to auto-fix, organize imports, and sort members on save
+
+## Global State Management with Zustand
+
+**NEW:** This app uses **Zustand** for client-side global state management alongside React Query for server state.
+
+### State Management Strategy
+
+This project follows a clear separation of concerns for state management:
+
+| State Type | Tool | Use Cases | Examples |
+|------------|------|-----------|----------|
+| **Server State** | React Query | API data, mutations, cache | Dishes, venues, reviews |
+| **Client State** | Zustand | App-level state, UI state | Rating flow, auth, toasts |
+| **Component State** | useState | Local UI state | Form inputs, toggles |
+| **Theme/Provider** | Context API | Deep tree props | Theme tokens, Supabase client |
+
+### Core Principles
+
+1. **Use Zustand for client-side global state**
+    - ✅ Rating flow state (photo, venue, dish, location)
+    - ✅ UI state (toasts, modals, bottom sheets)
+    - ✅ User preferences (persisted with AsyncStorage)
+    - ⚠️ Authentication uses `useAuth()` hook with React Query (not Zustand)
+
+2. **Never duplicate server data in Zustand**
+    - ❌ Storing API responses in Zustand
+    - ✅ Use React Query for all server data
+
+3. **No provider wrappers needed**
+    - Zustand stores are imported directly
+    - No context provider boilerplate
+    - Works outside React components
+
+### Available Stores
+
+```typescript
+import {
+  useRatingStore,      // Rating flow state
+  useUIStore,          // Toasts, modals, loading
+  usePreferencesStore  // Persisted preferences
+} from '@/stores';
+
+// Authentication uses React Query hook (no Zustand)
+import { useAuth } from '@/hooks/use-auth';
+```
+
+### Quick Examples
+
+**Rating Flow:**
+```typescript
+function VenueSearchScreen() {
+  const { photoUri, selectedVenue, setSelectedVenue } = useRatingStore();
+
+  const handleVenueSelect = (venue: Venue) => {
+    setSelectedVenue(venue);
+    router.push('/(rating)/dish-selection');
+  };
+}
+```
+
+**Authentication:**
+```typescript
+function ProfileScreen() {
+  const { user, isAuthenticated, logout } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Redirect href="/(auth)/login" />;
+  }
+
+  return <Button onPress={logout}>Sign Out</Button>;
+}
+```
+
+**UI State (Toasts):**
+```typescript
+function SubmitButton() {
+  const { showToast } = useUIStore();
+
+  const handleSubmit = async () => {
+    try {
+      await submitData();
+      showToast('Success!', 'success');
+    } catch (error) {
+      showToast('Failed to submit', 'error');
+    }
+  };
+}
+```
+
+**Persisted Preferences:**
+```typescript
+function OnboardingScreen() {
+  const { hasCompletedOnboarding, setHasCompletedOnboarding } = usePreferencesStore();
+
+  const completeOnboarding = () => {
+    setHasCompletedOnboarding(true);
+    router.replace('/(tabs)');
+  };
+}
+```
+
+### Migration from Context
+
+The `RatingContext` is deprecated and should be migrated to `useRatingStore`:
+
+**Before (Context):**
+```typescript
+// ❌ Old pattern
+const { photoUri, setPhotoUri } = useContext(RatingContext);
+```
+
+**After (Zustand):**
+```typescript
+// ✅ New pattern
+const { photoUri, setPhotoUri } = useRatingStore();
+```
+
+### Best Practices
+
+1. **Use selectors for performance** - Only subscribe to needed state
+2. **Reset state when appropriate** - Call `resetRating()` after submission
+3. **Persist user preferences** - Use `createAsyncStoragePersist` middleware
+4. **Keep stores focused** - One store per domain (auth, rating, UI)
+5. **TypeScript everything** - All stores are fully typed
+
+See `stores/README.md` for complete documentation, patterns, and advanced usage.
 
 ## Data Fetching with React Query
 

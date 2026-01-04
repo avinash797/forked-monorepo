@@ -3,7 +3,7 @@ import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-text-input';
 import { ThemedView } from '@/components/themed-view';
-import { useRatingFlow } from '@/contexts/rating-flow-context';
+import { useRatingStore } from '@/stores';
 import { useCreateVenue } from '@/hooks/use-venues';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
@@ -38,7 +38,7 @@ type VenueFormData = z.infer<typeof venueFormSchema>;
 
 export default function CreateVenueScreen() {
     const router = useRouter();
-    const { setVenue } = useRatingFlow();
+    const { setSelectedVenue } = useRatingStore();
     const {
         mutateAsync: createVenue,
         isPending: isLoading,
@@ -93,7 +93,7 @@ export default function CreateVenueScreen() {
         });
 
         if (venue) {
-            setVenue(venue);
+            setSelectedVenue(venue);
             Alert.alert('Success', 'Venue created successfully!', [
                 {
                     text: 'OK',
