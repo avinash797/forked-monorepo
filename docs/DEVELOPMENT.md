@@ -1,6 +1,6 @@
 # Forked - Development Guide
 
-**Last Updated:** 2025-12-25
+**Last Updated:** 2026-01-02
 
 This guide covers the development workflow, coding standards, and contribution guidelines for the Forked project.
 
@@ -243,28 +243,190 @@ import { styles } from './styles';
 
 ### Current Approach
 
-- **Authentication:** Context API (`AuthContext`)
-- **Theme:** React Navigation's ThemeProvider
-- **Data Fetching:** React Query recommended
+- **Authentication:** Context API (`AuthContext`) - user session, profile data, charms
+- **Theme:** Custom `ThemeProvider` (`context/theme-context.tsx`) - 4 theme variants with light/dark modes
+- **Data Fetching:** **@tanstack/react-query** (ALL hooks migrated)
+- **Rating Flow:** Context API (`RatingContext`) - temporary state during rating submission
+- **Form State:** **react-hook-form** with **zod** validation
+
+### React Query Integration ✅
+
+**ALL data fetching uses React Query** for robust caching, automatic refetching, and optimistic updates.
+
+**Hook Patterns:**
+
+```typescript
+// Query Hook (Read Operations)
+export function useDishDetail(dishId: string | null) {
+    return useQuery({
+        queryKey: ['dish', dishId],
+        queryFn: async () => {
+            if (!dishId) throw new Error('No dish ID');
+            const { data, error } = await supabase
+                .from('dishes')
+                .select('*, reviews(*)')
+                .eq('id', dishId)
+                .single();
+            if (error) throw error;
+            return data;
+        },
+        enabled: !!dishId,
+    });
+}
+
+// Mutation Hook (Write Operations)
+export function useCreateDish() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (input: CreateDishInput) => {
+            const { data, error } = await supabase
+                .from('dishes')
+                .insert(input)
+                .select()
+                .single();
+            if (error) throw error;
+            return data;
+        },
+        onSuccess: (data, variables) => {
+            queryClient.invalidateQueries({
+                queryKey: ['dishes', variables.venue_id],
+            });
+        },
+    });
+}
+
+// Infinite Query (Pagination)
+export function useTopDishes(filters: TopDishesFilters) {
+    return useInfiniteQuery({
+        queryKey: ['top-dishes', filters],
+        queryFn: async ({ pageParam = 0 }) => {
+            const { data, error } = await supabase
+                .from('dishes')
+                .select('*')
+                .range(pageParam, pageParam + filters.limit - 1);
+            if (error) throw error;
+            return data;
+        },
+        getNextPageParam: (lastPage, allPages) => {
+            return lastPage.length === filters.limit
+                ? allPages.length * filters.limit
+                : undefined;
+        },
+        initialPageParam: 0,
+    });
+}
+```
+
+**Query Key Conventions:**
+
+- Semantic and hierarchical: `['dish', dishId]`, `['dishes', venueId]`, `['reviews', dishId]`
+- Mutations invalidate related queries automatically
+- Use `enabled` option to prevent unnecessary fetches
+
+**Benefits:**
+
+- ✅ Automatic caching and background refetching
+- ✅ Loading, error, and success states built-in
+- ✅ Optimistic updates for better UX
+- ✅ Deduplication of identical requests
+- ✅ Garbage collection of unused cache
+
+### Form Validation with react-hook-form + zod
+
+**ALL forms use react-hook-form** with zod schemas for type-safe validation.
+
+```typescript
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+const profileSchema = z.object({
+    display_name: z.string().min(2).max(50),
+    bio: z.string().max(500).optional(),
+});
+
+type ProfileFormData = z.infer<typeof profileSchema>;
+
+export function ProfileEditScreen() {
+    const {
+        control,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm<ProfileFormData>({
+        resolver: zodResolver(profileSchema),
+        defaultValues: {
+            display_name: user?.display_name || '',
+            bio: user?.bio || '',
+        },
+    });
+
+    const onSubmit = async (data: ProfileFormData) => {
+        // Handle submission
+    };
+
+    return (
+        <Controller
+            control={control}
+            name="display_name"
+            render={({ field }) => (
+                <ThemedTextInput
+                    {...field}
+                    error={errors.display_name?.message}
+                />
+            )}
+        />
+    );
+}
+```
 
 ### Adding New Contexts
 
 1. Create in `contexts/` directory
 2. Export both provider and hook
-3. Wrap in appropriate layout file
+3. Wrap in appropriate layout file (`app/_layout.tsx`)
 4. Document in this file
+
+**Example:**
+
+```typescript
+// contexts/example-context.tsx
+import { createContext, useContext, useState } from 'react';
+
+const ExampleContext = createContext<ExampleContextType | undefined>(
+    undefined
+);
+
+export function ExampleProvider({ children }: { children: React.ReactNode }) {
+    const [state, setState] = useState<ExampleState>({});
+    return (
+        <ExampleContext.Provider value={{ state, setState }}>
+            {children}
+        </ExampleContext.Provider>
+    );
+}
+
+export function useExample() {
+    const context = useContext(ExampleContext);
+    if (!context) {
+        throw new Error('useExample must be used within ExampleProvider');
+    }
+    return context;
+}
+```
 
 ---
 
 ## 🔌 Supabase Integration
 
-### Query Patterns
+### Query Patterns (Using React Query)
+
+**IMPORTANT:** All Supabase queries use React Query hooks. Never use manual `useState` + `useEffect` for data fetching.
 
 ```typescript
 // Example: Fetch dishes for a venue
 export function useVenueDishes(venueId: string | null) {
     return useQuery({
-        queryKey: ['dishes', 'venue', venueId],
+        queryKey: ['dishes', venueId],
         queryFn: async (): Promise<Dish[]> => {
             if (!venueId) return [];
 
@@ -280,6 +442,43 @@ export function useVenueDishes(venueId: string | null) {
         },
         enabled: !!venueId,
     });
+}
+
+// Example: Create a review (mutation)
+export function useCreateReview() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (input: CreateReviewInput) => {
+            const { data, error } = await supabase
+                .from('reviews')
+                .insert(input)
+                .select()
+                .single();
+            if (error) throw error;
+            return data;
+        },
+        onSuccess: (data, variables) => {
+            // Invalidate related queries
+            queryClient.invalidateQueries({
+                queryKey: ['dish', variables.dish_id],
+            });
+            queryClient.invalidateQueries({
+                queryKey: ['reviews', variables.dish_id],
+            });
+            queryClient.invalidateQueries({ queryKey: ['top-dishes'] });
+        },
+    });
+}
+
+// Usage in component
+function DishDetailScreen() {
+    const { dishId } = useParams();
+    const { data: dishes, isLoading, error } = useVenueDishes(dishId);
+
+    if (isLoading) return <LoadingSpinner />;
+    if (error) return <ErrorMessage message={error.message} />;
+
+    return <DishList dishes={dishes || []} />;
 }
 ```
 

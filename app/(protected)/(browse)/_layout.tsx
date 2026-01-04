@@ -17,12 +17,14 @@ export default function BrowseLayout() {
                 name="dish-detail"
                 options={{
                     title: 'Dish Details',
+                    headerShown: false,
                 }}
             />
             <Stack.Screen
                 name="venue-detail"
                 options={{
                     title: 'Venue',
+                    headerShown: false,
                 }}
             />
             <Stack.Screen

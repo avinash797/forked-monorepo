@@ -191,7 +191,7 @@ const createThemedStyles = (
         content: {
             flexDirection: 'row',
             alignItems: 'center',
-            paddingVertical: theme.space.sm,
+            padding: theme.space.sm,
             backgroundColor: theme.color.surface,
             margin: medal ? 3 : 0,
             borderRadius: medal ? theme.radius.lg - 3 : theme.radius.lg,
@@ -231,8 +231,6 @@ const createThemedStyles = (
             marginTop: -12,
             marginBottom: -12,
             marginLeft: -10,
-            borderWidth: 2,
-            borderColor: theme.color.textPrimary,
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.3,

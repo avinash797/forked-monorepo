@@ -66,7 +66,7 @@ export const buildComponentStyles = (t: ActiveTheme) =>
 
             buttonPrimary: {
                 backgroundColor: t.color.accent,
-                borderRadius: t.radius.pill,
+                borderRadius: t.radius.xs,
                 paddingVertical: t.space.sm,
                 paddingHorizontal: t.space.lg,
                 alignItems: 'center',
@@ -82,7 +82,7 @@ export const buildComponentStyles = (t: ActiveTheme) =>
                 backgroundColor: t.color.surface2,
                 borderColor: t.color.border,
                 borderWidth: t.border.hairline,
-                borderRadius: t.radius.pill,
+                borderRadius: t.radius.xs,
                 paddingVertical: t.space.sm,
                 paddingHorizontal: t.space.lg,
                 alignItems: 'center',

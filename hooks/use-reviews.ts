@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import type { CreateReviewInput, Review } from '@/types/rating';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { usePhotoUpload } from './use-photo-upload';
 
 export function useCreateReview() {
@@ -74,4 +75,23 @@ export function useCreateReview() {
         isLoading,
         error: (error as Error)?.message || null,
     };
+}
+
+export function useUserReviews(userId: string | undefined) {
+    return useQuery({
+        queryKey: ['reviews', 'user', userId],
+        queryFn: async () => {
+            if (!userId) return [];
+
+            const { data, error } = await supabase
+                .from('reviews')
+                .select('*, dishes(*), venues(*)')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            return data;
+        },
+        enabled: !!userId,
+    });
 }

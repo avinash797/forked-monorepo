@@ -1,18 +1,18 @@
+import DEFAULT_ACHIEVEMENT from '@/assets/images/default-achievement.png';
 import { useTheme } from '@/contexts/theme-provider';
 import { useCharm } from '@/hooks/use-charms';
 import { Charm as CharmType } from '@/types/auth';
-import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
-interface CharmProps {
+interface BadgeProps {
     charm: CharmType;
     showName?: boolean;
 }
 
-export function Charm({ charm, showName }: CharmProps) {
+export function Badge({ charm, showName }: BadgeProps) {
     const { data, isLoading } = useCharm(charm.id);
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
@@ -42,11 +42,7 @@ export function Charm({ charm, showName }: CharmProps) {
                 ) : data.icon_svg ? (
                     <SvgXml xml={data.icon_svg} width={24} height={24} />
                 ) : (
-                    <Ionicons
-                        name="trophy-outline"
-                        size={18}
-                        color={theme.color.accent}
-                    />
+                    <Image source={DEFAULT_ACHIEVEMENT} style={styles.icon} />
                 )}
             </View>
 
@@ -65,25 +61,17 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             alignItems: 'center',
             justifyContent: 'center',
             gap: 4,
-            flexDirection: 'row',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: theme.shadow.md.y },
-            shadowOpacity: theme.shadow.md.opacity,
-            shadowRadius: theme.shadow.md.radius,
-            elevation: 2,
-            backgroundColor: theme.color.surface,
-            borderRadius: theme.radius.sm,
-            padding: theme.space.xxs,
         },
         iconContainer: {
-            width: 24,
-            height: 24,
+            width: 50,
+            height: 50,
             alignItems: 'center',
             justifyContent: 'center',
         },
         icon: {
-            width: 24,
-            height: 24,
+            width: 50,
+            height: 50,
+            borderRadius: 25,
         },
         name: {
             fontSize: 12,
