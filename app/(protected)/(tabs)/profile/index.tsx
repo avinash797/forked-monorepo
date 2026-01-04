@@ -20,7 +20,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const HERO_HEIGHT = 275;
+const HERO_HEIGHT = 325;
 const HEADER_HEIGHT = 60;
 
 export default function ProfileScreen() {
@@ -135,6 +135,8 @@ export default function ProfileScreen() {
     const displayName =
         profile?.display_name || user?.email?.split('@')[0] || 'User';
     const avatarUrl = profile?.avatar_url;
+    const location = profile?.location;
+    const bio = profile?.bio;
 
     return (
         <ThemedView style={styles.container}>
@@ -219,10 +221,30 @@ export default function ProfileScreen() {
                                 </ThemedView>
                             )}
                         </View>
-
-                        <ThemedText type="title" style={styles.displayNameHero}>
-                            {displayName}
-                        </ThemedText>
+                        <View style={styles.heroUserDetailsContent}>
+                            <ThemedText
+                                type="title"
+                                style={styles.displayNameHero}
+                            >
+                                {displayName}
+                            </ThemedText>
+                            {bio && (
+                                <ThemedText style={styles.bio}>
+                                    {bio}
+                                </ThemedText>
+                            )}
+                            {location && (
+                                <ThemedText style={styles.bio}>
+                                    <IconSymbol
+                                        name="location-pin"
+                                        size={16}
+                                        style={styles.locationIcon}
+                                        color={theme.color.textTertiary}
+                                    />
+                                    {location}
+                                </ThemedText>
+                            )}
+                        </View>
 
                         <Link href="/profile/edit" asChild>
                             <ThemedButton
@@ -357,9 +379,16 @@ const createThemedStyles = (
             fontSize: 48,
             fontWeight: 'bold',
         },
-        displayNameHero: {
+        heroUserDetailsContent: {
+            alignItems: 'center',
             marginBottom: theme.space.md,
-            textAlign: 'center',
+        },
+        displayNameHero: {},
+        bio: {
+            fontSize: theme.font.size.sm,
+        },
+        locationIcon: {
+            marginRight: theme.space.md,
         },
         editProfileButton: {
             alignSelf: 'center',

@@ -59,6 +59,7 @@
     "expo-mcp": "~0.2.1",
     "prettier": "3.7.4",
     "reactotron-react-native": "^5.1.18",
+    "reactotron-react-query": "^2.0.2",
     "typescript": "~5.9.2"
   },
   "private": true
