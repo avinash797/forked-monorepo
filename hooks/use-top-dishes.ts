@@ -37,7 +37,7 @@ export function useTopDishes(filters: TopDishesFilters = {}) {
                 )
                 .not('average_rating', 'is', null)
                 .eq('is_available', true)
-                .gte('updated_at', oneWeekAgo.toISOString())
+                // .gte('updated_at', oneWeekAgo.toISOString()) // TODO: Remove this line when we want to cap dishes to the last week
                 .order('average_rating', { ascending: false });
 
             // Apply filters

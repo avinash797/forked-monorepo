@@ -94,7 +94,7 @@ function RootLayoutNav() {
                     options={{ headerShown: false }}
                 />
             </Stack>
-            <StatusBar style="auto" />
+            <StatusBar style={navigationTheme.dark ? 'light' : 'dark'} />
         </NavigationThemeProvider>
     );
 }

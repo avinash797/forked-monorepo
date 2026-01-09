@@ -26,3 +26,4 @@ export { useRatingStore } from './use-rating-store';
 export { useAuthStore } from './use-auth-store'; // Optional - auth uses useAuth() hook
 export { useUIStore } from './use-ui-store';
 export { usePreferencesStore } from './use-preferences-store';
+export { useLocationFilterStore } from './use-location-filter-store';

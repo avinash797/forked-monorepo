@@ -1,3 +1,4 @@
+import { supabase } from '@/lib/supabase';
 import type {
     GPSVerificationStatus,
     LocationCoordinates,
@@ -103,3 +104,26 @@ export function useGPSVerification(
 
     return status;
 }
+
+// TODO: We need to convert this to use supabase's RPC function so its less client side processing
+const fetchCities = async () => {
+    const { data, error } = await supabase
+        .from('venues')
+        .select('address_city')
+        .order('address_city');
+
+    if (error) throw error;
+    if (!data) return [];
+
+    // Get unique cities and filter out nulls/empty strings
+    return Array.from(
+        new Set(data.map((v) => v.address_city).filter((c): c is string => !!c))
+    );
+};
+
+export const useCities = () => {
+    return useQuery({
+        queryKey: ['cities'],
+        queryFn: () => fetchCities(),
+    });
+};

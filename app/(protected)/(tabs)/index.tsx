@@ -1,13 +1,16 @@
 import { DishCardWithRating } from '@/components/browse/dish-card-with-rating';
 import { EmptyState } from '@/components/browse/empty-state';
+import { LocationBottomSheet } from '@/components/browse/location-bottom-sheet';
+import { LocationHeader } from '@/components/browse/location-header';
 import { SectionHeader } from '@/components/browse/section-header';
-import { SearchInput } from '@/components/rating/search-input';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/contexts/theme-provider';
 import { useTopDishes } from '@/hooks/use-top-dishes';
+import { useLocationFilterStore } from '@/stores';
+import BottomSheet from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -16,11 +19,17 @@ export default function HomeScreen() {
     const [refreshing, setRefreshing] = useState(false);
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
+    const bottomSheetRef = useRef<BottomSheet>(null);
+
+    const preferredCity = useLocationFilterStore(
+        (state) => state.selectedLocation
+    );
 
     // Fetch top dishes with pagination
     const { dishes, isLoading, error, hasMore, loadMore, refetch } =
         useTopDishes({
             limit: 20,
+            city: preferredCity || undefined,
         });
 
     // Handle pull-to-refresh
@@ -33,6 +42,16 @@ export default function HomeScreen() {
     // Navigate to search screen
     const handleSearchPress = () => {
         router.push('/(protected)/(browse)/search');
+    };
+
+    // Open location filter bottom sheet
+    const handleLocationPress = () => {
+        bottomSheetRef.current?.snapToIndex(0);
+    };
+
+    // Close location filter bottom sheet
+    const handleCloseBottomSheet = () => {
+        bottomSheetRef.current?.close();
     };
 
     // Navigate to dish detail
@@ -101,16 +120,11 @@ export default function HomeScreen() {
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
             <ThemedView style={styles.container}>
-                {/* Search Bar */}
-                <View style={styles.searchContainer}>
-                    <SearchInput
-                        value=""
-                        onChangeText={() => {}}
-                        placeholder="What are you craving?"
-                        onFocus={handleSearchPress}
-                        isLoading={false}
-                    />
-                </View>
+                {/* Location Header with Search */}
+                <LocationHeader
+                    onLocationPress={handleLocationPress}
+                    onSearchPress={handleSearchPress}
+                />
 
                 {/* Section Header */}
                 <SectionHeader title="Trending Dishes Near You" />
@@ -151,6 +165,12 @@ export default function HomeScreen() {
                 {/* Initial Loading State */}
                 {isLoading && dishes.length === 0 && renderLoadingSkeleton()}
             </ThemedView>
+
+            {/* Location Filter Bottom Sheet */}
+            <LocationBottomSheet
+                ref={bottomSheetRef}
+                onClose={handleCloseBottomSheet}
+            />
         </SafeAreaView>
     );
 }
@@ -162,11 +182,6 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         container: {
             flex: 1,
-        },
-        searchContainer: {
-            paddingHorizontal: theme.space.md,
-            paddingTop: theme.space.md,
-            paddingBottom: theme.space.xs,
         },
         listContent: {
             paddingHorizontal: theme.space.md,
