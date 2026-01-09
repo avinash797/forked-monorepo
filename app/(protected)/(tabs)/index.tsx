@@ -28,7 +28,7 @@ export default function HomeScreen() {
     // Fetch top dishes with pagination
     const { dishes, isLoading, error, hasMore, loadMore, refetch } =
         useTopDishes({
-            limit: 20,
+            limit: 10,
             city: preferredCity || undefined,
         });
 
@@ -137,11 +137,13 @@ export default function HomeScreen() {
                     <FlatList
                         data={dishes}
                         keyExtractor={(item) => item.id}
+                        horizontal={true}
                         renderItem={({ item }) => (
                             <DishCardWithRating
                                 dish={item}
                                 onPress={() => handleDishPress(item.id)}
                                 showVenue={true}
+                                viewMode="horizontal"
                             />
                         )}
                         contentContainerStyle={styles.listContent}

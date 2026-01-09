@@ -1,5 +1,5 @@
-import { CompactDishCardWithRating } from '@/components/browse/compact-dish-card-with-rating';
 import { EmptyState } from '@/components/browse/empty-state';
+import { CompactDishCardWithRating } from '@/components/browse/search-dish-card';
 import { SectionHeader } from '@/components/browse/section-header';
 import { SearchInput } from '@/components/rating/search-input';
 import { VenueCard } from '@/components/rating/venue-card';
