@@ -7,6 +7,7 @@ import { ThemedButton } from '@/components/themed-button';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/contexts/theme-provider';
 import { useTopDishes } from '@/hooks/use-top-dishes';
+import { useLocationFilterStore } from '@/stores';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
@@ -20,10 +21,15 @@ export default function HomeScreen() {
     const styles = createThemedStyles(theme);
     const bottomSheetRef = useRef<BottomSheet>(null);
 
+    const preferredCity = useLocationFilterStore(
+        (state) => state.selectedLocation
+    );
+
     // Fetch top dishes with pagination
     const { dishes, isLoading, error, hasMore, loadMore, refetch } =
         useTopDishes({
             limit: 20,
+            city: preferredCity || undefined,
         });
 
     // Handle pull-to-refresh

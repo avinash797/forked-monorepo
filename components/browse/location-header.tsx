@@ -15,8 +15,13 @@ export function LocationHeader({
     onSearchPress,
 }: LocationHeaderProps) {
     const { theme } = useTheme();
-    const { getDisplayText } = useLocationFilterStore();
-    const displayText = getDisplayText();
+    // Subscribe to the actual state values for reactivity
+    const displayText = useLocationFilterStore((state) => {
+        if (state.filterType === 'nearby') {
+            return `Nearby (${state.radius}km)`;
+        }
+        return state.selectedLocation || 'All Locations';
+    });
     const styles = createStyles(theme);
 
     return (
@@ -63,7 +68,7 @@ export function LocationHeader({
                 <SearchInput
                     value=""
                     onChangeText={() => {}}
-                    placeholder="Search dishes..."
+                    placeholder="What are you craving?"
                     onFocus={onSearchPress}
                     isLoading={false}
                 />

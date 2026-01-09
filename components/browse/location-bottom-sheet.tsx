@@ -2,14 +2,14 @@ import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { SliderInput } from '@/components/ui/slider';
 import { useTheme } from '@/contexts/theme-provider';
+import { useCities } from '@/hooks/use-location';
 import { useLocationFilterStore } from '@/stores';
 import BottomSheet, {
     BottomSheetBackdrop,
-    BottomSheetHandle,
     BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
 import { forwardRef, useCallback, useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
@@ -21,7 +21,7 @@ interface LocationBottomSheetProps {
 }
 
 // TODO: Fetch real cities/neighborhoods from database based on user location
-const SAMPLE_LOCATIONS = [
+const FALLBACK_LOCATIONS = [
     'Downtown',
     'Midtown',
     'Upper East Side',
@@ -46,7 +46,10 @@ export const LocationBottomSheet = forwardRef<
         setLocationFilter,
     } = useLocationFilterStore();
 
+    const { data: cities = [], isLoading: isLoadingCities } = useCities();
     const [localRadius, setLocalRadius] = useState(radius);
+
+    const locations = cities.length > 0 ? cities : FALLBACK_LOCATIONS;
     const styles = createStyles(theme);
 
     // Animation for Nearby expansion
@@ -95,7 +98,7 @@ export const LocationBottomSheet = forwardRef<
     return (
         <BottomSheet
             ref={ref}
-            index={1}
+            index={-1}
             snapPoints={snapPoints}
             enablePanDownToClose
             onClose={onClose}
@@ -106,7 +109,6 @@ export const LocationBottomSheet = forwardRef<
                 backgroundColor: theme.color.border,
             }}
             backdropComponent={BottomSheetBackdrop}
-            handleComponent={BottomSheetHandle}
             enableContentPanningGesture
         >
             <BottomSheetScrollView
@@ -132,7 +134,7 @@ export const LocationBottomSheet = forwardRef<
                         {/* Nearby Item (Animated) */}
                         <Animated.View
                             style={[
-                                styles.locationItem,
+                                styles.nearbyItem,
                                 isNearbySelected && {
                                     backgroundColor: theme.color.accent + '15',
                                     borderColor: theme.color.accent,
@@ -262,67 +264,77 @@ export const LocationBottomSheet = forwardRef<
                             Cities & Neighborhoods
                         </ThemedText> */}
 
-                        {SAMPLE_LOCATIONS.map((location) => {
-                            const isSelected =
-                                filterType === 'location' &&
-                                selectedLocation === location;
+                        {isLoadingCities ? (
+                            <View style={styles.loadingContainer}>
+                                <ActivityIndicator color={theme.color.accent} />
+                                <ThemedText style={styles.loadingText}>
+                                    Loading cities...
+                                </ThemedText>
+                            </View>
+                        ) : (
+                            locations.map((location) => {
+                                const isSelected =
+                                    filterType === 'location' &&
+                                    selectedLocation === location;
 
-                            return (
-                                <Pressable
-                                    key={location}
-                                    onPress={() =>
-                                        handleLocationSelect(location)
-                                    }
-                                    style={({ pressed }) => [
-                                        styles.locationItem,
-                                        {
-                                            backgroundColor: isSelected
-                                                ? theme.color.accent + '15'
-                                                : theme.color.inputBg,
-                                            borderColor: isSelected
-                                                ? theme.color.accent
-                                                : theme.color.border,
-                                            height: 52,
-                                        },
-                                        pressed && {
-                                            opacity: theme.opacity.pressed,
-                                        },
-                                    ]}
-                                >
-                                    <View style={styles.itemTitleContainer}>
-                                        <IconSymbol
-                                            name="business"
-                                            size={20}
-                                            color={
-                                                isSelected
+                                return (
+                                    <Pressable
+                                        key={location}
+                                        onPress={() =>
+                                            handleLocationSelect(location)
+                                        }
+                                        style={({ pressed }) => [
+                                            styles.locationItem,
+                                            {
+                                                backgroundColor: isSelected
+                                                    ? theme.color.accent + '15'
+                                                    : theme.color.inputBg,
+                                                borderColor: isSelected
                                                     ? theme.color.accent
-                                                    : theme.color.textSecondary
-                                            }
-                                        />
-                                        <ThemedText
-                                            style={[
-                                                styles.locationName,
-                                                {
-                                                    color: isSelected
+                                                    : theme.color.border,
+                                                height: 52,
+                                            },
+                                            pressed && {
+                                                opacity: theme.opacity.pressed,
+                                            },
+                                        ]}
+                                    >
+                                        <View style={styles.itemTitleContainer}>
+                                            <IconSymbol
+                                                name="business"
+                                                size={20}
+                                                color={
+                                                    isSelected
                                                         ? theme.color.accent
                                                         : theme.color
-                                                              .textPrimary,
-                                                },
-                                            ]}
-                                        >
-                                            {location}
-                                        </ThemedText>
-                                    </View>
-                                    {isSelected && (
-                                        <IconSymbol
-                                            name="check-circle"
-                                            size={20}
-                                            color={theme.color.accent}
-                                        />
-                                    )}
-                                </Pressable>
-                            );
-                        })}
+                                                              .textSecondary
+                                                }
+                                            />
+                                            <ThemedText
+                                                style={[
+                                                    styles.locationName,
+                                                    {
+                                                        color: isSelected
+                                                            ? theme.color.accent
+                                                            : theme.color
+                                                                  .textPrimary,
+                                                    },
+                                                ]}
+                                            >
+                                                {location}
+                                            </ThemedText>
+                                        </View>
+                                        {isSelected && (
+                                            <IconSymbol
+                                                name="check-circle"
+                                                size={20}
+                                                color={theme.color.accent}
+                                            />
+                                        )}
+                                    </Pressable>
+                                );
+                            })
+                        )}
                     </View>
                 </View>
             </BottomSheetScrollView>
@@ -353,6 +365,16 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             gap: theme.space.xs,
         },
         locationItem: {
+            borderRadius: theme.radius.sm,
+            borderWidth: theme.border.hairline,
+            borderColor: theme.color.border,
+            backgroundColor: theme.color.inputBg,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingHorizontal: theme.space.md,
+        },
+        nearbyItem: {
             borderRadius: theme.radius.sm,
             borderWidth: theme.border.hairline,
             borderColor: theme.color.border,
@@ -412,5 +434,14 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             color: theme.color.accentOn,
             fontSize: theme.font.size.sm,
             fontWeight: theme.font.weight.semibold,
+        },
+        loadingContainer: {
+            padding: theme.space.lg,
+            alignItems: 'center',
+            gap: theme.space.sm,
+        },
+        loadingText: {
+            fontSize: theme.font.size.sm,
+            color: theme.color.textSecondary,
         },
     });
