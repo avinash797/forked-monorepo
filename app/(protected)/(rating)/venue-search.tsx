@@ -5,7 +5,6 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
-import { useRatingStore } from '@/stores';
 import { useAddressSearch } from '@/hooks/use-address-search';
 import { useLocation } from '@/hooks/use-location';
 import {
@@ -13,6 +12,7 @@ import {
     useNearbyVenues,
     useVenueSearch,
 } from '@/hooks/use-venues';
+import { useRatingStore } from '@/stores';
 import type { Venue, VenueWithDistance } from '@/types/rating';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
@@ -173,11 +173,7 @@ export default function VenueSearchScreen() {
                     onPress={() => handleMapboxSelect(item.data)}
                 >
                     <View style={styles.mapboxIcon}>
-                        <IconSymbol
-                            name="add-location"
-                            size={24}
-                            color={iconColor}
-                        />
+                        <IconSymbol name="locate" size={24} color={iconColor} />
                     </View>
                     <View style={styles.mapboxContent}>
                         <ThemedText type="defaultSemiBold">
@@ -198,7 +194,7 @@ export default function VenueSearchScreen() {
                             New Venue
                         </ThemedText>
                     </View>
-                    <IconSymbol name="chevron-right" size={24} color="#ccc" />
+                    <IconSymbol name="chevron-forward" size={24} color="#ccc" />
                 </TouchableOpacity>
             );
         }

@@ -24,7 +24,7 @@ export function Collapsible({
                 android_ripple={{ color: 'rgba(0, 0, 0, 0.1)' }}
             >
                 <IconSymbol
-                    name="chevron-right"
+                    name="chevron-forward"
                     size={18}
                     color={
                         colorScheme === 'light'

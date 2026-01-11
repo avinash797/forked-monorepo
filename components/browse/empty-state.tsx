@@ -6,7 +6,12 @@ import { useTheme } from '@/contexts/theme-provider';
 import { StyleSheet } from 'react-native';
 
 interface EmptyStateProps {
-    icon?: 'search' | 'restaurant' | 'location-on' | 'warning' | 'error';
+    icon?:
+        | 'search-outline'
+        | 'restaurant-outline'
+        | 'location-outline'
+        | 'warning-outline'
+        | 'alert-circle-outline';
     title: string;
     message: string;
     actionLabel?: string;
@@ -20,7 +25,7 @@ interface EmptyStateProps {
  * Used in: All screens when no data is available
  */
 export function EmptyState({
-    icon = 'search',
+    icon = 'search-outline',
     title,
     message,
     actionLabel,

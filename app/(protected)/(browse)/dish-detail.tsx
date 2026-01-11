@@ -315,10 +315,10 @@ export default function DishDetailScreen() {
                                     style={styles.venueNameContainer}
                                 >
                                     <ThemedText style={styles.venueNameHero}>
-                                        at {dish.venue?.name}
+                                        at {dish.venue?.name}{' '}
                                     </ThemedText>
                                     <IconSymbol
-                                        name="chevron-right"
+                                        name="arrow-forward-sharp"
                                         color={theme.color.textOnImage}
                                     />
                                 </TouchableOpacity>

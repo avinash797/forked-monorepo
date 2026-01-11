@@ -21,9 +21,13 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="index"
                 options={{
-                    title: 'Home',
-                    tabBarIcon: ({ color }) => (
-                        <IconSymbol size={28} name="home" color={color} />
+                    title: 'Discover',
+                    tabBarIcon: ({ color, focused }) => (
+                        <IconSymbol
+                            size={28}
+                            name={focused ? 'compass' : 'compass-outline'}
+                            color={color}
+                        />
                     ),
                 }}
             />
@@ -31,10 +35,10 @@ export default function TabLayout() {
                 name="leaderboard"
                 options={{
                     title: 'Leaderboard',
-                    tabBarIcon: ({ color }) => (
+                    tabBarIcon: ({ color, focused }) => (
                         <IconSymbol
                             size={28}
-                            name="leaderboard"
+                            name={focused ? 'podium' : 'podium-outline'}
                             color={color}
                         />
                     ),
@@ -64,8 +68,12 @@ export default function TabLayout() {
                 name="profile"
                 options={{
                     title: 'Profile',
-                    tabBarIcon: ({ color }) => (
-                        <IconSymbol size={28} name="person" color={color} />
+                    tabBarIcon: ({ color, focused }) => (
+                        <IconSymbol
+                            size={28}
+                            name={focused ? 'person' : 'person-outline'}
+                            color={color}
+                        />
                     ),
                 }}
             />

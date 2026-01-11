@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
     TextInput,
     TouchableOpacity,
@@ -121,8 +121,8 @@ export function ThemedTextInput({
                         <IconSymbol
                             name={
                                 isPasswordVisible
-                                    ? 'visibility-off'
-                                    : 'visibility'
+                                    ? 'eye-off-outline'
+                                    : 'eye-outline'
                             }
                             size={20}
                             color={inputStyles.placeholderColor}

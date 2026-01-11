@@ -168,14 +168,18 @@ export default function EditProfileScreen() {
                         ) : (
                             <View style={styles.avatarPlaceholder}>
                                 <IconSymbol
-                                    name="photo-camera"
+                                    name="camera"
                                     size={40}
                                     color={theme.color.textSecondary}
                                 />
                             </View>
                         )}
                         <View style={styles.editIconContainer}>
-                            <IconSymbol name="edit" size={16} color="white" />
+                            <IconSymbol
+                                name="camera-outline"
+                                size={16}
+                                color="white"
+                            />
                         </View>
                     </TouchableOpacity>
                 </View>

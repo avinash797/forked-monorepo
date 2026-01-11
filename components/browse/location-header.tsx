@@ -43,7 +43,7 @@ export function LocationHeader({
                 }}
             >
                 <IconSymbol
-                    name="location-pin"
+                    name="location-outline"
                     size={18}
                     color={theme.color.textPrimary}
                 />
@@ -56,11 +56,6 @@ export function LocationHeader({
                 >
                     {displayText}
                 </ThemedText>
-                <IconSymbol
-                    name="keyboard-arrow-down"
-                    size={16}
-                    color={theme.color.textTertiary}
-                />
             </Pressable>
 
             {/* Search Input */}
@@ -90,7 +85,7 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             flexDirection: 'row',
             alignItems: 'center',
             gap: theme.space.xxs,
-            paddingHorizontal: theme.space.xxs,
+            paddingHorizontal: theme.space.xs,
             paddingVertical: theme.space.sm,
             borderRadius: theme.radius.pill,
             borderWidth: theme.border.hairline,

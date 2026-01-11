@@ -8,6 +8,7 @@ import BottomSheet, {
     BottomSheetBackdrop,
     BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
+import { BottomSheetDefaultBackdropProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types';
 import { forwardRef, useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
@@ -95,6 +96,18 @@ export const LocationBottomSheet = forwardRef<
         [setLocationFilter]
     );
 
+    const renderBackdrop = useCallback(
+        (props: BottomSheetDefaultBackdropProps) => (
+            <BottomSheetBackdrop
+                {...props}
+                disappearsOnIndex={-1}
+                appearsOnIndex={0}
+                opacity={0.5}
+            />
+        ),
+        []
+    );
+
     return (
         <BottomSheet
             ref={ref}
@@ -108,7 +121,7 @@ export const LocationBottomSheet = forwardRef<
             handleIndicatorStyle={{
                 backgroundColor: theme.color.border,
             }}
-            backdropComponent={BottomSheetBackdrop}
+            backdropComponent={renderBackdrop}
             enableContentPanningGesture
         >
             <BottomSheetScrollView
@@ -153,7 +166,7 @@ export const LocationBottomSheet = forwardRef<
                             >
                                 <View style={styles.itemTitleContainer}>
                                     <IconSymbol
-                                        name="location-on"
+                                        name="location"
                                         size={20}
                                         color={
                                             isNearbySelected
@@ -176,7 +189,7 @@ export const LocationBottomSheet = forwardRef<
                                 </View>
                                 {isNearbySelected && (
                                     <IconSymbol
-                                        name="check-circle"
+                                        name="checkmark-circle"
                                         size={20}
                                         color={theme.color.accent}
                                     />
@@ -326,7 +339,7 @@ export const LocationBottomSheet = forwardRef<
                                         </View>
                                         {isSelected && (
                                             <IconSymbol
-                                                name="check-circle"
+                                                name="checkmark-circle"
                                                 size={20}
                                                 color={theme.color.accent}
                                             />
