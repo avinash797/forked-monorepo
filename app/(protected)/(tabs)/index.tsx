@@ -5,13 +5,14 @@ import { LocationHeader } from '@/components/browse/location-header';
 import { SectionHeader } from '@/components/browse/section-header';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedView } from '@/components/themed-view';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useTopDishes } from '@/hooks/use-top-dishes';
 import { useLocationFilterStore } from '@/stores';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
@@ -81,6 +82,7 @@ export default function HomeScreen() {
     // Render empty state
     const renderEmptyState = () => {
         if (isLoading) return null;
+        if (error) return renderErrorState();
 
         return (
             <EmptyState
@@ -126,46 +128,52 @@ export default function HomeScreen() {
                     onSearchPress={handleSearchPress}
                 />
 
-                {/* Section Header */}
-                <SectionHeader title="Trending Dishes Near You" />
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    {/* Initial Loading State */}
+                    {isLoading &&
+                        dishes.length === 0 &&
+                        renderLoadingSkeleton()}
 
-                {/* Error State */}
-                {error && renderErrorState()}
-
-                {/* Dishes List */}
-                {!error && (
-                    <FlatList
-                        data={dishes}
-                        keyExtractor={(item) => item.id}
-                        horizontal={true}
-                        renderItem={({ item }) => (
-                            <DishCardWithRating
-                                dish={item}
-                                onPress={() => handleDishPress(item.id)}
-                                showVenue={true}
-                                viewMode="horizontal"
-                            />
-                        )}
-                        contentContainerStyle={styles.listContent}
-                        ListEmptyComponent={renderEmptyState}
-                        ListFooterComponent={renderFooter}
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={refreshing}
-                                onRefresh={onRefresh}
-                            />
+                    {/* Section Header */}
+                    <SectionHeader
+                        title="Trending Dishes Near You"
+                        seeAllLabel={
+                            <View style={styles.seeAllIcon}>
+                                <IconSymbol
+                                    name="chevron-right"
+                                    color={theme.color.textPrimary}
+                                />
+                            </View>
                         }
-                        showsVerticalScrollIndicator={false}
-                        // Performance optimizations
-                        windowSize={5}
-                        removeClippedSubviews={true}
-                        maxToRenderPerBatch={10}
-                        initialNumToRender={10}
+                        onSeeAllPress={() => console.log('See all pressed')}
                     />
-                )}
-
-                {/* Initial Loading State */}
-                {isLoading && dishes.length === 0 && renderLoadingSkeleton()}
+                    {/* Dishes List */}
+                    {!error && (
+                        <FlatList
+                            data={dishes}
+                            keyExtractor={(item) => item.id}
+                            horizontal={true}
+                            renderItem={({ item }) => (
+                                <DishCardWithRating
+                                    dish={item}
+                                    onPress={() => handleDishPress(item.id)}
+                                    showVenue={true}
+                                    viewMode="horizontal"
+                                />
+                            )}
+                            contentContainerStyle={styles.listContent}
+                            ListEmptyComponent={renderEmptyState}
+                            ListFooterComponent={renderFooter}
+                            showsVerticalScrollIndicator={false}
+                            showsHorizontalScrollIndicator={false}
+                            // Performance optimizations
+                            windowSize={5}
+                            removeClippedSubviews={true}
+                            maxToRenderPerBatch={10}
+                            initialNumToRender={10}
+                        />
+                    )}
+                </ScrollView>
             </ThemedView>
 
             {/* Location Filter Bottom Sheet */}
@@ -188,6 +196,13 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         listContent: {
             paddingHorizontal: theme.space.md,
             paddingBottom: theme.space.lg + theme.space.xs,
+        },
+        seeAllIcon: {
+            borderRadius: theme.radius.pill,
+            borderWidth: theme.border.hairline,
+            borderColor: theme.color.border,
+            padding: theme.space.xxs,
+            backgroundColor: theme.color.surface,
         },
         footer: {
             paddingVertical: theme.space.md,

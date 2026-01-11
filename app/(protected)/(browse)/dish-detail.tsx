@@ -312,10 +312,15 @@ export default function DishDetailScreen() {
                                 <TouchableOpacity
                                     onPress={handleVenuePress}
                                     activeOpacity={0.7}
+                                    style={styles.venueNameContainer}
                                 >
                                     <ThemedText style={styles.venueNameHero}>
                                         at {dish.venue?.name}
                                     </ThemedText>
+                                    <IconSymbol
+                                        name="chevron-right"
+                                        color={theme.color.textOnImage}
+                                    />
                                 </TouchableOpacity>
                             </View>
                             {dish.average_rating !== null &&
@@ -540,12 +545,16 @@ const createThemedStyles = (
             textShadowRadius: 4,
             marginBottom: 2,
         },
+        venueNameContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: theme.space.sm,
+        },
         venueNameHero: {
             fontSize: theme.font.size.lg,
             color: theme.color.textOnImage,
             opacity: 0.9,
             fontWeight: theme.font.weight.medium,
-            marginBottom: theme.space.sm,
             textShadowColor: 'rgba(0, 0, 0, 0.5)',
             textShadowOffset: { width: 0, height: 1 },
             textShadowRadius: 2,
