@@ -8,7 +8,7 @@ import { useLocationFilterStore } from '@/stores';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
@@ -52,22 +52,6 @@ export default function HomeScreen() {
         bottomSheetRef.current?.close();
     };
 
-    // Render loading skeleton
-    const renderLoadingSkeleton = () => (
-        <View style={styles.skeletonContainer}>
-            {[1, 2, 3, 4, 5].map((key) => (
-                <ThemedView key={key} style={styles.skeletonCard}>
-                    <View style={styles.skeletonHeader}>
-                        <View style={styles.skeletonTitle} />
-                        <View style={styles.skeletonPrice} />
-                    </View>
-                    <View style={styles.skeletonCategory} />
-                    <View style={styles.skeletonRating} />
-                </ThemedView>
-            ))}
-        </View>
-    );
-
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
             <ThemedView style={styles.container}>
@@ -78,11 +62,6 @@ export default function HomeScreen() {
                 />
 
                 <ScrollView showsVerticalScrollIndicator={false}>
-                    {/* Initial Loading State */}
-                    {isLoading &&
-                        dishes.length === 0 &&
-                        renderLoadingSkeleton()}
-                    {/* Trending Section */}
                     <TrendingSection />
                 </ScrollView>
             </ThemedView>
@@ -103,48 +82,5 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         container: {
             flex: 1,
-        },
-
-        // Loading skeleton styles
-        skeletonContainer: {
-            paddingHorizontal: theme.space.md,
-            paddingTop: theme.space.xs,
-        },
-        skeletonCard: {
-            padding: theme.space.md,
-            marginBottom: theme.space.sm,
-            borderRadius: theme.radius.md,
-            borderWidth: theme.border.hairline,
-            borderColor: theme.color.border,
-        },
-        skeletonHeader: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginBottom: theme.space.xs,
-        },
-        skeletonTitle: {
-            width: '60%',
-            height: 16,
-            backgroundColor: theme.color.border,
-            borderRadius: theme.radius.xs,
-        },
-        skeletonPrice: {
-            width: '20%',
-            height: 16,
-            backgroundColor: theme.color.border,
-            borderRadius: theme.radius.xs,
-        },
-        skeletonCategory: {
-            width: '40%',
-            height: 12,
-            backgroundColor: theme.color.border,
-            borderRadius: theme.radius.xs,
-            marginBottom: theme.space.xs,
-        },
-        skeletonRating: {
-            width: '50%',
-            height: 14,
-            backgroundColor: theme.color.border,
-            borderRadius: theme.radius.xs,
         },
     });

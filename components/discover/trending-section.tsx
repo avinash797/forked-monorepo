@@ -6,6 +6,7 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import { DishCardWithRating } from '../browse/dish-card-with-rating';
 import { EmptyState } from '../browse/empty-state';
 import { SectionHeader } from '../browse/section-header';
+import { ThemedView } from '../themed-view';
 import { IconSymbol } from '../ui/icon-symbol';
 
 export default function TrendingSection() {
@@ -42,7 +43,7 @@ export default function TrendingSection() {
 
     // Render empty state
     const renderEmptyState = () => {
-        if (isLoading) return null;
+        if (isLoading) return renderLoadingSkeleton();
         if (error) return renderErrorState();
 
         return (
@@ -55,6 +56,22 @@ export default function TrendingSection() {
             />
         );
     };
+
+    // Render loading skeleton
+    const renderLoadingSkeleton = () => (
+        <View style={styles.skeletonContainer}>
+            {[1, 2, 3, 4, 5].map((key) => (
+                <ThemedView key={key} style={styles.skeletonCard}>
+                    <View style={styles.skeletonHeader}>
+                        <View style={styles.skeletonTitle} />
+                        <View style={styles.skeletonPrice} />
+                    </View>
+                    <View style={styles.skeletonCategory} />
+                    <View style={styles.skeletonRating} />
+                </ThemedView>
+            ))}
+        </View>
+    );
     return (
         <>
             {/* Section Header */}
@@ -111,5 +128,50 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             borderColor: theme.color.border,
             padding: theme.space.xxs,
             backgroundColor: theme.color.surface,
+        },
+        // Loading skeleton styles
+        skeletonContainer: {
+            paddingHorizontal: theme.space.md,
+            paddingTop: theme.space.xs,
+            flexDirection: 'row',
+            height: 200,
+            width: 400,
+        },
+        skeletonCard: {
+            padding: theme.space.md,
+            marginBottom: theme.space.sm,
+            borderRadius: theme.radius.md,
+            borderWidth: theme.border.hairline,
+            borderColor: theme.color.border,
+        },
+        skeletonHeader: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginBottom: theme.space.xs,
+        },
+        skeletonTitle: {
+            width: '60%',
+            height: 16,
+            backgroundColor: theme.color.border,
+            borderRadius: theme.radius.xs,
+        },
+        skeletonPrice: {
+            width: '20%',
+            height: 16,
+            backgroundColor: theme.color.border,
+            borderRadius: theme.radius.xs,
+        },
+        skeletonCategory: {
+            width: '40%',
+            height: 12,
+            backgroundColor: theme.color.border,
+            borderRadius: theme.radius.xs,
+            marginBottom: theme.space.xs,
+        },
+        skeletonRating: {
+            width: '50%',
+            height: 14,
+            backgroundColor: theme.color.border,
+            borderRadius: theme.radius.xs,
         },
     });
