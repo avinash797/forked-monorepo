@@ -1,16 +1,20 @@
 import { ScoreBadge } from '@/components/score-badge';
 import { ThemedText } from '@/components/themed-text';
+import { TrendIndicator } from '@/components/trend-indicator';
 import { useTheme } from '@/contexts/theme-provider';
-import type { DishWithVenue } from '@/types/browse';
+import type { DishWithVenue, TrendingDish } from '@/types/browse';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 
 interface DishCardWithRatingProps {
-    dish: DishWithVenue;
+    /** The dish to display (can be DishWithVenue or TrendingDish) */
+    dish: DishWithVenue | TrendingDish;
     onPress: () => void;
     showVenue?: boolean;
     viewMode?: 'vertical' | 'horizontal';
+    /** Show trend indicator if dish has trending data */
+    showTrend?: boolean;
 }
 
 /**
@@ -24,12 +28,17 @@ export function DishCardWithRating({
     onPress,
     showVenue = false,
     viewMode = 'vertical',
+    showTrend = false,
 }: DishCardWithRatingProps) {
     const { theme } = useTheme();
     const styles = createThemedStyles(theme, Dimensions.get('window').width);
 
     const hasPhoto = dish.photos && dish.photos.length > 0;
     const photoUrl = hasPhoto ? dish.photos?.[0] : null;
+
+    // Check if dish has trending data (TrendingDish type)
+    const trendingDish = dish as TrendingDish;
+    const hasTrendData = showTrend && trendingDish.trend_direction;
 
     return (
         <Pressable
@@ -69,13 +78,25 @@ export function DishCardWithRating({
 
             {/* Content Overlay */}
             <View style={styles.cardContent}>
-                {/* Top Right: Rating Badge */}
-                {dish.average_rating !== null && dish.review_count > 0 && (
-                    <ScoreBadge
-                        score={dish.average_rating}
-                        style={styles.ratingBadge}
-                    />
-                )}
+                {/* Top Right: Rating Badge + Trend Indicator */}
+                <View style={styles.topRightContainer}>
+                    {hasTrendData && trendingDish.trend_direction !== 'new' && (
+                        <View style={styles.trendBadge}>
+                            <TrendIndicator
+                                direction={trendingDish.trend_direction}
+                                change={trendingDish.rating_change_7d}
+                                showChange={true}
+                                size="md"
+                            />
+                        </View>
+                    )}
+                    {dish.average_rating !== null && dish.review_count > 0 && (
+                        <ScoreBadge
+                            score={dish.average_rating}
+                            style={styles.ratingBadge}
+                        />
+                    )}
+                </View>
 
                 {/* Bottom Content */}
                 <View style={styles.bottomContent}>
@@ -147,8 +168,19 @@ const createThemedStyles = (
             justifyContent: 'space-between',
             padding: theme.space.sm,
         },
-        ratingBadge: {
+        topRightContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
             alignSelf: 'flex-end',
+            gap: theme.space.xs,
+        },
+        trendBadge: {
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            paddingHorizontal: theme.space.xs,
+            paddingVertical: theme.space.xxs,
+            borderRadius: theme.radius.sm,
+        },
+        ratingBadge: {
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 1 },
             shadowOpacity: 0.2,

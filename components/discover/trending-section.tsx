@@ -1,5 +1,5 @@
 import { useTheme } from '@/contexts/theme-provider';
-import { useTopDishes } from '@/hooks/use-top-dishes';
+import { useTrendingDishes } from '@/hooks/use-trending-dishes';
 import { useLocationFilterStore } from '@/stores';
 import { useRouter } from 'expo-router';
 import { FlatList, StyleSheet, View } from 'react-native';
@@ -16,11 +16,12 @@ export default function TrendingSection() {
     const preferredCity = useLocationFilterStore(
         (state) => state.selectedLocation
     );
-    // Fetch top dishes with pagination
+    // Fetch truly trending dishes (rising ratings, high activity)
     const { dishes, isLoading, error, hasMore, loadMore, refetch } =
-        useTopDishes({
+        useTrendingDishes({
             limit: 10,
             city: preferredCity || undefined,
+            direction: 'new', // Show dishes that are gaining momentum
         });
     // Navigate to dish detail
     const handleDishPress = (dishId: string) => {
@@ -76,7 +77,8 @@ export default function TrendingSection() {
         <>
             {/* Section Header */}
             <SectionHeader
-                title="Trending Dishes Near You"
+                title="Rising Dishes"
+                subtitle="Trending up this week"
                 seeAllLabel={
                     <View style={styles.seeAllIcon}>
                         <IconSymbol
@@ -99,6 +101,7 @@ export default function TrendingSection() {
                             onPress={() => handleDishPress(item.id)}
                             showVenue={true}
                             viewMode="horizontal"
+                            showTrend={true}
                         />
                     )}
                     contentContainerStyle={styles.listContent}

@@ -6,9 +6,11 @@ import { ScoreBadge } from '@/components/score-badge';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { TrendIndicator } from '@/components/trend-indicator';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useDishDetail } from '@/hooks/use-dish-detail';
+import type { TrendDirection } from '@/types/browse';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -196,7 +198,7 @@ export default function DishDetailScreen() {
                 style={[styles.container, { backgroundColor: theme.color.bg }]}
             >
                 <EmptyState
-                    icon="error"
+                    icon="alert-circle-outline"
                     title="Unable to load dish"
                     message={
                         error?.message ||
@@ -304,7 +306,7 @@ export default function DishDetailScreen() {
                         style={[styles.heroContent, animatedHeroContentStyle]}
                     >
                         <View style={styles.statsRow}>
-                            <View>
+                            <View style={{ maxWidth: '90%' }}>
                                 <ThemedText style={styles.dishNameHero}>
                                     {dish.name}
                                 </ThemedText>
@@ -323,13 +325,29 @@ export default function DishDetailScreen() {
                                     />
                                 </TouchableOpacity>
                             </View>
-                            {dish.average_rating !== null &&
-                                dish.review_count > 0 && (
-                                    <ScoreBadge
-                                        score={dish.average_rating}
-                                        style={styles.ratingBadge}
-                                    />
-                                )}
+                            <View style={styles.ratingContainer}>
+                                {/* Trend Indicator (if available) */}
+                                {dish.trend_direction &&
+                                    dish.trend_direction !== 'new' && (
+                                        <View style={styles.trendBadgeHero}>
+                                            <TrendIndicator
+                                                direction={
+                                                    dish.trend_direction as TrendDirection
+                                                }
+                                                change={dish.rating_change_7d}
+                                                showChange={true}
+                                                size="md"
+                                            />
+                                        </View>
+                                    )}
+                                {dish.average_rating !== null &&
+                                    dish.review_count > 0 && (
+                                        <ScoreBadge
+                                            score={dish.average_rating}
+                                            style={styles.ratingBadge}
+                                        />
+                                    )}
+                            </View>
                         </View>
 
                         <View style={styles.statsRow}>
@@ -395,7 +413,7 @@ export default function DishDetailScreen() {
                         {reviews.length === 0 && (
                             <View style={styles.emptyReviews}>
                                 <EmptyState
-                                    icon="restaurant"
+                                    icon="restaurant-outline"
                                     title="No reviews yet"
                                     message="Be the first to share your experience with this dish!"
                                     actionLabel="Rate This Dish"
@@ -520,6 +538,17 @@ const createThemedStyles = (
             transform: [{ scale: 0.9 }],
         },
 
+        ratingContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.space.xs,
+        },
+        trendBadgeHero: {
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            paddingHorizontal: theme.space.sm,
+            paddingVertical: theme.space.xs,
+            borderRadius: theme.radius.md,
+        },
         ratingBadge: {
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 2 },
