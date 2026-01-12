@@ -236,7 +236,7 @@ export default function ProfileScreen() {
                             {location && (
                                 <ThemedText style={styles.bio}>
                                     <IconSymbol
-                                        name="location-pin"
+                                        name="pin-sharp"
                                         size={16}
                                         style={styles.locationIcon}
                                         color={theme.color.textTertiary}

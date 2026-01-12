@@ -133,11 +133,7 @@ export function ThemedSelect({
                 >
                     {displayText}
                 </ThemedText>
-                <IconSymbol
-                    name="arrow-drop-down"
-                    size={20}
-                    color={mutedColor}
-                />
+                <IconSymbol name="chevron-down" size={20} color={mutedColor} />
             </Pressable>
             {error && (
                 <ThemedText
@@ -235,7 +231,7 @@ export function ThemedSelect({
                                     </ThemedText>
                                     {option.value === value && (
                                         <IconSymbol
-                                            name="check"
+                                            name="checkmark"
                                             size={20}
                                             color={textColor}
                                         />

@@ -133,7 +133,7 @@ export function PhotoPicker({
                             <ActivityIndicator color={primaryColor} />
                         ) : (
                             <IconSymbol
-                                name="camera-alt"
+                                name="camera-outline"
                                 size={32}
                                 color={primaryColor}
                             />

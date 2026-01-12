@@ -110,7 +110,7 @@ export function ReviewCard({
                     {review.helpful_votes_count > 0 && (
                         <View style={styles.helpfulBadge}>
                             <IconSymbol
-                                name="thumb-up"
+                                name="thumbs-up-outline"
                                 size={14}
                                 color={theme.color.textSecondary}
                             />
@@ -123,7 +123,7 @@ export function ReviewCard({
                     {review.is_gps_verified && (
                         <View style={styles.verifiedBadge}>
                             <IconSymbol
-                                name="verified"
+                                name="checkmark-done"
                                 size={14}
                                 color={theme.color.success}
                             />

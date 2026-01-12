@@ -1,8 +1,8 @@
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { ComponentProps } from 'react';
 import { OpaqueColorValue, type StyleProp, type TextStyle } from 'react-native';
 
-export type IconSymbolName = ComponentProps<typeof MaterialIcons>['name'];
+export type IconSymbolName = ComponentProps<typeof Ionicons>['name'];
 
 /**
  * An icon component that uses Material Icons across all platforms.
@@ -11,7 +11,7 @@ export type IconSymbolName = ComponentProps<typeof MaterialIcons>['name'];
  */
 export function IconSymbol({
     name,
-    size = 24,
+    size = 20,
     color,
     style,
 }: {
@@ -20,7 +20,5 @@ export function IconSymbol({
     color: string | OpaqueColorValue;
     style?: StyleProp<TextStyle>;
 }) {
-    return (
-        <MaterialIcons color={color} size={size} name={name} style={style} />
-    );
+    return <Ionicons color={color} size={size} name={name} style={style} />;
 }

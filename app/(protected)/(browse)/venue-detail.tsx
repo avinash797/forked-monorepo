@@ -351,7 +351,7 @@ export default function VenueDetailScreen() {
                     <View style={styles.infoBox}>
                         <View style={styles.addressRow}>
                             <IconSymbol
-                                name="location-on"
+                                name="location-sharp"
                                 size={20}
                                 color={theme.color.textTertiary}
                             />

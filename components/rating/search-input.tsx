@@ -71,7 +71,7 @@ export function SearchInput({
                     }}
                 >
                     <IconSymbol
-                        name="cancel"
+                        name="trash-outline"
                         size={20}
                         color={theme.color.textTertiary}
                     />

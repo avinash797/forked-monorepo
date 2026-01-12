@@ -131,7 +131,7 @@ export default function LeaderboardScreen() {
             <ThemedView style={styles.container}>
                 <Stack.Screen options={{ headerShown: false }} />
                 <EmptyState
-                    icon="warning"
+                    icon="warning-outline"
                     title="Error Loading Leaderboard"
                     message={error}
                     actionLabel="Try Again"
@@ -247,7 +247,7 @@ export default function LeaderboardScreen() {
                     !isLoadingLeaderboard ? (
                         <View style={styles.emptyContainer}>
                             <EmptyState
-                                icon="restaurant"
+                                icon="restaurant-outline"
                                 title="No Rankings Yet"
                                 message="This category doesn't have enough rated dishes yet (min 3)."
                                 actionLabel="Explore More"

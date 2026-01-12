@@ -1,13 +1,13 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/contexts/theme-provider';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 
 interface SectionHeaderProps {
     title: string;
     subtitle?: string;
     onSeeAllPress?: () => void;
-    seeAllLabel?: string;
+    seeAllLabel?: string | React.ReactNode;
 }
 
 /**
@@ -24,7 +24,14 @@ export function SectionHeader({
     const styles = createThemedStyles(theme);
 
     return (
-        <ThemedView style={styles.container}>
+        <ThemedView
+            style={[
+                styles.container,
+                onSeeAllPress
+                    ? { paddingHorizontal: theme.space.md }
+                    : { paddingHorizontal: theme.space.xs },
+            ]}
+        >
             <ThemedView style={styles.textContainer}>
                 <ThemedText type="title" style={styles.title}>
                     {title}
@@ -35,15 +42,15 @@ export function SectionHeader({
             </ThemedView>
 
             {onSeeAllPress && (
-                <TouchableOpacity
+                <Pressable
                     onPress={onSeeAllPress}
-                    activeOpacity={0.7}
                     style={styles.seeAllButton}
+                    hitSlop={16}
                 >
                     <ThemedText type="link" style={styles.seeAllText}>
-                        {seeAllLabel} →
+                        {seeAllLabel}
                     </ThemedText>
-                </TouchableOpacity>
+                </Pressable>
             )}
         </ThemedView>
     );
@@ -55,7 +62,6 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            paddingHorizontal: theme.space.xs,
             marginBottom: theme.space.xs,
         },
         textContainer: {

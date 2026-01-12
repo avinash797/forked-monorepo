@@ -12,7 +12,7 @@ export function LocationStatusBanner({ status }: LocationStatusBannerProps) {
     if (!status.hasPermission) {
         return (
             <ThemedView style={[styles.banner, styles.errorBanner]}>
-                <IconSymbol name="location-off" size={20} color="#fff" />
+                <IconSymbol name="location-outline" size={20} color="#fff" />
                 <ThemedText
                     style={styles.bannerText}
                     lightColor="#fff"
@@ -42,7 +42,7 @@ export function LocationStatusBanner({ status }: LocationStatusBannerProps) {
     if (!status.location) {
         return (
             <ThemedView style={[styles.banner, styles.infoBanner]}>
-                <IconSymbol name="location-on" size={20} color="#fff" />
+                <IconSymbol name="location-outline" size={20} color="#fff" />
                 <ThemedText
                     style={styles.bannerText}
                     lightColor="#fff"
@@ -57,7 +57,11 @@ export function LocationStatusBanner({ status }: LocationStatusBannerProps) {
     if (status.isVerified) {
         return (
             <ThemedView style={[styles.banner, styles.successBanner]}>
-                <IconSymbol name="check-circle" size={20} color="#fff" />
+                <IconSymbol
+                    name="checkmark-circle-outline"
+                    size={20}
+                    color="#fff"
+                />
                 <ThemedText
                     style={styles.bannerText}
                     lightColor="#fff"

@@ -31,7 +31,11 @@ export default function TakePhotoScreen() {
     if (!permission.granted) {
         return (
             <ThemedView style={styles.permissionContainer}>
-                <IconSymbol name="camera-alt" size={64} color={primaryColor} />
+                <IconSymbol
+                    name="camera-outline"
+                    size={64}
+                    color={primaryColor}
+                />
                 <ThemedText style={styles.permissionText}>
                     Camera access is required to take photos of your dishes
                 </ThemedText>
@@ -131,9 +135,9 @@ export default function TakePhotoScreen() {
     const getFlashIconName = () => {
         switch (flashMode) {
             case 'on':
-                return 'flash-on';
+                return 'flash';
             case 'auto':
-                return 'flash-auto';
+                return 'flash-outline';
             default:
                 return 'flash-off';
         }
@@ -186,7 +190,7 @@ export default function TakePhotoScreen() {
                         }}
                     >
                         <IconSymbol
-                            name="photo-library"
+                            name="images"
                             size={32}
                             color={primaryColor}
                         />

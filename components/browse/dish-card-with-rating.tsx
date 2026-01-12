@@ -4,12 +4,13 @@ import { useTheme } from '@/contexts/theme-provider';
 import type { DishWithVenue } from '@/types/browse';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 
 interface DishCardWithRatingProps {
     dish: DishWithVenue;
     onPress: () => void;
     showVenue?: boolean;
+    viewMode?: 'vertical' | 'horizontal';
 }
 
 /**
@@ -22,9 +23,10 @@ export function DishCardWithRating({
     dish,
     onPress,
     showVenue = false,
+    viewMode = 'vertical',
 }: DishCardWithRatingProps) {
     const { theme } = useTheme();
-    const styles = createThemedStyles(theme);
+    const styles = createThemedStyles(theme, Dimensions.get('window').width);
 
     const hasPhoto = dish.photos && dish.photos.length > 0;
     const photoUrl = hasPhoto ? dish.photos?.[0] : null;
@@ -32,7 +34,13 @@ export function DishCardWithRating({
     return (
         <Pressable
             onPress={onPress}
-            style={({ pressed }) => [styles.card, pressed && { opacity: 0.9 }]}
+            style={({ pressed }) => [
+                styles.card,
+                viewMode === 'vertical'
+                    ? styles.verticalCard
+                    : styles.horizontalCard,
+                pressed && { opacity: 0.9 },
+            ]}
             android_ripple={{ color: 'rgba(255, 255, 255, 0.1)' }}
         >
             {/* Background Image */}
@@ -106,15 +114,15 @@ export function DishCardWithRating({
     );
 }
 
-const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+const createThemedStyles = (
+    theme: ReturnType<typeof useTheme>['theme'],
+    windowWidth: number
+) =>
     StyleSheet.create({
         card: {
-            marginBottom: theme.space.sm,
-            borderRadius: theme.radius.lg,
+            borderRadius: theme.radius.sm,
             backgroundColor: theme.color.surface,
             overflow: 'hidden',
-            height: 400, // Fixed height for photo dominance
-            width: '100%', // Allow container to control width
             shadowColor: '#000',
             shadowOffset: {
                 width: 0,
@@ -123,6 +131,16 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             shadowOpacity: 0.1,
             shadowRadius: 3.84,
             elevation: 5,
+        },
+        verticalCard: {
+            marginBottom: theme.space.sm,
+            height: 400, // Fixed height for photo dominance
+            width: '100%', // Allow container to control width
+        },
+        horizontalCard: {
+            marginRight: theme.space.sm,
+            height: 200,
+            width: windowWidth - 0.12 * windowWidth,
         },
         cardContent: {
             flex: 1,
