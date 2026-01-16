@@ -47,7 +47,7 @@ export function useTrendingDishes(filters: TrendingDishesFilters = {}) {
             const { data: rpcData, error: queryError } = await supabase.rpc(
                 'get_trending_dishes',
                 {
-                    p_city: filters.city || null,
+                    p_city: filters.city,
                     p_direction: direction,
                     p_limit: limit,
                     p_offset: pageParam,
