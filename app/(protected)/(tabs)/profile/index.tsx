@@ -151,7 +151,7 @@ export default function ProfileScreen() {
                             ]}
                         >
                             <IconSymbol
-                                name="settings"
+                                name="settings-outline"
                                 size={28}
                                 color={theme.color.textPrimary}
                             />

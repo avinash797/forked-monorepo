@@ -75,7 +75,7 @@ export default function SearchScreen() {
     const renderEmptyQuery = () => (
         <View style={styles.emptyContainer}>
             <EmptyState
-                icon="search"
+                icon="search-outline"
                 title="Search for dishes and venues"
                 message="Find your favorite dishes or discover new places to eat"
             />
@@ -86,7 +86,7 @@ export default function SearchScreen() {
     const renderNoResults = () => (
         <View style={styles.emptyContainer}>
             <EmptyState
-                icon="search"
+                icon="search-outline"
                 title={`No results for "${query}"`}
                 message="Try adjusting your search or browse top dishes"
                 actionLabel="Browse Dishes"
@@ -99,7 +99,7 @@ export default function SearchScreen() {
     const renderError = () => (
         <View style={styles.emptyContainer}>
             <EmptyState
-                icon="error"
+                icon="alert-circle-outline"
                 title="Search failed"
                 message={error || 'Please try again'}
             />

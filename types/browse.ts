@@ -3,6 +3,60 @@
 import type { Dish, Review, Venue } from './rating';
 
 // ============================================================================
+// Trending Types
+// ============================================================================
+
+/**
+ * Trend direction indicator
+ * - 'rising': Rating is increasing (good momentum)
+ * - 'falling': Rating is decreasing
+ * - 'stable': No significant change
+ * - 'new': Dish is less than 7 days old or no historical data
+ */
+export type TrendDirection = 'rising' | 'falling' | 'stable' | 'new';
+
+/**
+ * Dish with trending information
+ * Used in: Trending section, Explore tab
+ */
+export interface TrendingDish extends DishWithVenue {
+    trend_direction: TrendDirection;
+    trend_score: number;
+    rating_change_7d: number | null;
+    rating_change_30d: number | null;
+    review_velocity_7d: number;
+}
+
+/**
+ * Rating history data point for charts
+ * Each point represents a daily snapshot of the dish's rating
+ */
+export interface RatingHistoryPoint {
+    /** ISO date string (YYYY-MM-DD) */
+    date: string;
+    /** Average rating at this point in time (0-10) */
+    rating: number;
+    /** Total review count at this point */
+    reviewCount: number;
+    /** Rating change compared to 7 days prior */
+    ratingChange7d: number | null;
+    /** Number of reviews added in the 7 days prior */
+    reviewVelocity7d: number;
+}
+
+/**
+ * Filters for trending dishes query
+ */
+export interface TrendingDishesFilters {
+    /** Filter by city name */
+    city?: string;
+    /** Filter by trend direction (default: 'rising') */
+    direction?: TrendDirection | 'all';
+    /** Number of dishes to fetch per page (default: 20) */
+    limit?: number;
+}
+
+// ============================================================================
 // Display Types for Browse Feature
 // ============================================================================
 
