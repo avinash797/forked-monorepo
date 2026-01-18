@@ -1,4 +1,4 @@
-import { DishType } from '@/types/dishTypes';
+import { DishType } from '@/types/dishType';
 import React from 'react';
 import { View } from 'react-native';
 import { ThemedText } from '../themed-text';

@@ -1,16 +1,10 @@
 import { EmptyState } from '@/components/browse/empty-state';
-import { PhotoGallery } from '@/components/browse/photo-gallery';
-import { ReviewCard } from '@/components/browse/review-card';
-import { SectionHeader } from '@/components/browse/section-header';
 import { ScoreBadge } from '@/components/score-badge';
-import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { TrendIndicator } from '@/components/trend-indicator';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useDishDetail } from '@/hooks/use-dish-detail';
-import type { TrendDirection } from '@/types/browse';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -41,12 +35,19 @@ const AnimatedIconSymbol = Animated.createAnimatedComponent(IconSymbol);
 export default function DishDetailScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const { dishId } = useLocalSearchParams<{ dishId: string }>();
+    const { restaurantId, dishTypeId } = useLocalSearchParams<{
+        restaurantId: string;
+        dishTypeId: string;
+    }>();
     const { theme } = useTheme();
     const styles = createThemedStyles(theme, insets);
 
-    const { data, isLoading, error } = useDishDetail(dishId);
-    const { dish, reviews = [] } = data || {};
+    const {
+        data: dish,
+        isLoading,
+        error,
+    } = useDishDetail(dishTypeId, restaurantId);
+    const venue = dish?.restaurant;
 
     // Animation values
     const scrollY = useSharedValue(0);
@@ -156,10 +157,10 @@ export default function DishDetailScreen() {
 
     // Navigate to venue detail
     const handleVenuePress = () => {
-        if (dish?.venue?.id) {
+        if (venue && venue.id) {
             router.push({
                 pathname: '/(protected)/(browse)/venue-detail',
-                params: { venueId: dish.venue.id },
+                params: { venueId: venue.id },
             });
         }
     };
@@ -169,10 +170,7 @@ export default function DishDetailScreen() {
         router.push('/(protected)/(rating)');
     };
 
-    // Collect all photos from reviews
-    const allPhotos = reviews.flatMap((review) => review.photo_urls || []);
-    const heroPhoto =
-        allPhotos.length > 0 ? allPhotos[0] : dish?.photos?.[0] || null;
+    const heroPhoto = dish?.featured_photo_url;
 
     // Loading state
     if (isLoading) {
@@ -246,18 +244,18 @@ export default function DishDetailScreen() {
                             style={styles.headerTitle}
                             numberOfLines={1}
                         >
-                            {dish.name}
+                            {dish.dish_type.name}
                         </ThemedText>
                         <ThemedText
                             style={styles.headerSubtitle}
                             numberOfLines={1}
                         >
-                            at {dish.venue?.name}
+                            at {venue?.name}
                         </ThemedText>
                     </View>
-                    {dish.average_rating !== null && (
+                    {dish.avg_raw_score !== null && (
                         <ScoreBadge
-                            score={dish.average_rating}
+                            score={dish.avg_raw_score}
                             style={styles.headerRating}
                         />
                     )}
@@ -308,7 +306,7 @@ export default function DishDetailScreen() {
                         <View style={styles.statsRow}>
                             <View style={{ maxWidth: '90%' }}>
                                 <ThemedText style={styles.dishNameHero}>
-                                    {dish.name}
+                                    {dish.dish_type.name}
                                 </ThemedText>
 
                                 <TouchableOpacity
@@ -317,7 +315,7 @@ export default function DishDetailScreen() {
                                     style={styles.venueNameContainer}
                                 >
                                     <ThemedText style={styles.venueNameHero}>
-                                        at {dish.venue?.name}{' '}
+                                        at {dish.restaurant.name}{' '}
                                     </ThemedText>
                                     <IconSymbol
                                         name="arrow-forward-sharp"
@@ -326,24 +324,10 @@ export default function DishDetailScreen() {
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.ratingContainer}>
-                                {/* Trend Indicator (if available) */}
-                                {dish.trend_direction &&
-                                    dish.trend_direction !== 'new' && (
-                                        <View style={styles.trendBadgeHero}>
-                                            <TrendIndicator
-                                                direction={
-                                                    dish.trend_direction as TrendDirection
-                                                }
-                                                change={dish.rating_change_7d}
-                                                showChange={true}
-                                                size="md"
-                                            />
-                                        </View>
-                                    )}
-                                {dish.average_rating !== null &&
-                                    dish.review_count > 0 && (
+                                {dish.avg_raw_score !== null &&
+                                    dish.total_ratings! > 0 && (
                                         <ScoreBadge
-                                            score={dish.average_rating}
+                                            score={dish.avg_raw_score}
                                             style={styles.ratingBadge}
                                         />
                                     )}
@@ -352,15 +336,16 @@ export default function DishDetailScreen() {
 
                         <View style={styles.statsRow}>
                             <ThemedText style={styles.statsText}>
-                                {dish.review_count}{' '}
-                                {dish.review_count === 1 ? 'review' : 'reviews'}{' '}
-                                • {dish.category}
+                                {dish.total_ratings}{' '}
+                                {dish.total_ratings === 1
+                                    ? 'review'
+                                    : 'reviews'}{' '}
                             </ThemedText>
-                            {dish.current_price && (
+                            {/* {dish.current_price && (
                                 <ThemedText style={styles.priceHero}>
                                     ${dish.current_price.toFixed(0)}
                                 </ThemedText>
-                            )}
+                            )} */}
                         </View>
                     </Animated.View>
                 </Animated.View>
@@ -370,12 +355,12 @@ export default function DishDetailScreen() {
                     {/* Detailed Info */}
                     <View style={styles.infoSection}>
                         {/* Dietary Tags */}
-                        {dish.dietary_tags && dish.dietary_tags.length > 0 && (
+                        {dish.tags && dish.tags.length > 0 && (
                             <View style={styles.tagsContainer}>
-                                {dish.dietary_tags.map((tag, index) => (
+                                {dish.tags.map((tag, index) => (
                                     <View key={index} style={styles.tag}>
                                         <ThemedText style={styles.tagText}>
-                                            {tag}
+                                            {tag.name}
                                         </ThemedText>
                                     </View>
                                 ))}
@@ -383,53 +368,15 @@ export default function DishDetailScreen() {
                         )}
 
                         {/* Description */}
-                        {dish.description && (
+                        {/* {dish.description && (
                             <ThemedText style={styles.description}>
                                 {dish.description}
                             </ThemedText>
-                        )}
-                    </View>
-
-                    {/* Photo Gallery (Subsequent photos) */}
-                    {allPhotos.length > 1 && (
-                        <View style={styles.photoGallerySection}>
-                            <SectionHeader title="Photos" />
-                            <PhotoGallery photos={allPhotos} maxVisible={6} />
-                        </View>
-                    )}
-
-                    {/* Reviews Section */}
-                    <View style={styles.reviewsSection}>
-                        <SectionHeader
-                            title={`Reviews (${reviews.length})`}
-                            subtitle={
-                                reviews.length === 0
-                                    ? 'Be the first to review!'
-                                    : undefined
-                            }
-                        />
-
-                        {/* Empty state for reviews */}
-                        {reviews.length === 0 && (
-                            <View style={styles.emptyReviews}>
-                                <EmptyState
-                                    icon="restaurant-outline"
-                                    title="No reviews yet"
-                                    message="Be the first to share your experience with this dish!"
-                                    actionLabel="Rate This Dish"
-                                    onActionPress={handleRateDishPress}
-                                />
-                            </View>
-                        )}
-
-                        {/* Review Cards */}
-                        {reviews.map((review) => (
-                            <ReviewCard key={review.id} review={review} />
-                        ))}
+                        )} */}
                     </View>
 
                     {/* Rate This Dish Button (if reviews exist) */}
-                    {reviews.length > 0 && (
+                    {/* {reviews.length > 0 && (
                         <View style={styles.rateButtonContainer}>
                             <ThemedButton
                                 onPress={handleRateDishPress}
@@ -438,7 +385,7 @@ export default function DishDetailScreen() {
                                 Rate This Dish
                             </ThemedButton>
                         </View>
-                    )}
+                    )} */}
                 </View>
             </Animated.ScrollView>
         </ThemedView>

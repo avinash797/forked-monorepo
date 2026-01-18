@@ -2,7 +2,7 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { useTheme } from '@/contexts/theme-provider';
-// import { getImageUrl } from '@/lib/supabase';
+import { Image } from 'expo-image';
 import { ThemedText } from '../themed-text';
 import { IconSymbol } from '../ui/icon-symbol';
 
@@ -13,6 +13,7 @@ interface HeroCardProps {
     distance?: string;
     score: number;
     photoPath?: string | null;
+    confidence_score?: number;
     onPress: () => void;
 }
 
@@ -23,18 +24,14 @@ export default function HeroCard({
     distance,
     score,
     photoPath,
+    confidence_score,
     onPress,
 }: HeroCardProps) {
     const { theme } = useTheme();
     const styles = createStyles(theme);
 
-    // Calculate confidence flames (1-5 based on score/battles? For now just visual placeholder logic)
-    // 1500 is base Elo.
-    const confidence = Math.min(
-        5,
-        Math.max(1, Math.floor((score - 1200) / 100))
-    );
-    const flames = Array(confidence).fill('🔥').join('');
+    const confidence = Math.max(1, Math.ceil((confidence_score ?? 0) * 5));
+    const flames = '🔥'.repeat(confidence);
 
     return (
         <Animated.View entering={FadeIn.duration(500)} style={styles.container}>
@@ -46,19 +43,12 @@ export default function HeroCard({
                 {/* Image Background */}
                 <View style={styles.imageContainer}>
                     {photoPath ? (
-                        // <Image
-                        //     source={{ uri: getImageUrl(photoPath) }}
-                        //     style={styles.image}
-                        //     contentFit="cover"
-                        //     transition={200}
-                        // />
-                        <View style={[styles.image, styles.placeholder]}>
-                            <IconSymbol
-                                name="image-outline"
-                                size={40}
-                                color={theme.color.textSecondary}
-                            />
-                        </View>
+                        <Image
+                            source={{ uri: photoPath }}
+                            style={styles.image}
+                            contentFit="cover"
+                            transition={200}
+                        />
                     ) : (
                         <View style={[styles.image, styles.placeholder]}>
                             <IconSymbol

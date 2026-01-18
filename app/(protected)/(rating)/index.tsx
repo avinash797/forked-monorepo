@@ -161,6 +161,24 @@ export default function TakePhotoScreen() {
                             styles.galleryButton,
                             pressed && { opacity: 0.7 },
                         ]}
+                        onPress={() => router.back()}
+                        android_ripple={{
+                            color: 'rgba(0, 0, 0, 0.1)',
+                            radius: 25,
+                            borderless: true,
+                        }}
+                    >
+                        <IconSymbol
+                            name="close"
+                            size={32}
+                            color={primaryColor}
+                        />
+                    </Pressable>
+                    <Pressable
+                        style={({ pressed }) => [
+                            styles.galleryButton,
+                            pressed && { opacity: 0.7 },
+                        ]}
                         onPress={handleToggleFlash}
                         android_ripple={{
                             color: 'rgba(0, 0, 0, 0.1)',
@@ -272,7 +290,7 @@ const styles = StyleSheet.create({
     },
     topControls: {
         flexDirection: 'row',
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 8,
         paddingVertical: 64,

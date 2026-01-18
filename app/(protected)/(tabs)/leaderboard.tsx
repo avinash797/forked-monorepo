@@ -7,16 +7,15 @@ import {
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/contexts/theme-provider';
-import { useLeaderboard } from '@/hooks/use-leaderboard';
+import { useGetLeaderboardByDishType } from '@/hooks/use-leaderboard';
 import { useLocationStore } from '@/stores/location.store';
-import { DishType } from '@/types/dishTypes';
+import { DishType } from '@/types/dishType';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
     ListRenderItem,
-    Pressable,
     RefreshControl,
     StyleSheet,
     View,
@@ -56,7 +55,7 @@ export default function LeaderboardScreen() {
         isLoading,
         error,
         refetch,
-    } = useLeaderboard({
+    } = useGetLeaderboardByDishType({
         cityId,
         dishTypeId: selectedDishType?.id || '',
         limit: 10,
@@ -91,7 +90,9 @@ export default function LeaderboardScreen() {
     };
 
     const renderItem: ListRenderItem<LeaderboardEntry> = ({ item, index }) => (
-        <Animated.View entering={FadeInDown.delay(300 + index * 50).duration(400)}>
+        <Animated.View
+            entering={FadeInDown.delay(300 + index * 50).duration(400)}
+        >
             <LeaderboardRow item={item} onPress={() => handleRowPress(item)} />
         </Animated.View>
     );
@@ -109,13 +110,15 @@ export default function LeaderboardScreen() {
             </View>
 
             {/* Dish Type Pills */}
-            <DishTypePills
-                selectedDishType={selectedDishType}
-                handleDishTypeSelect={handleDishTypeSelect}
-            />
+            <View style={styles.filterContainer}>
+                <DishTypePills
+                    selectedDishType={selectedDishType}
+                    handleDishTypeSelect={handleDishTypeSelect}
+                />
+            </View>
 
             {/* Location Filter Toggle */}
-            <View style={styles.filterContainer}>
+            {/* <View style={styles.filterContainer}>
                 <Pressable
                     style={[
                         styles.filterButton,
@@ -126,7 +129,8 @@ export default function LeaderboardScreen() {
                     <ThemedText
                         style={[
                             styles.filterText,
-                            locationFilter === 'city' && styles.filterTextActive,
+                            locationFilter === 'city' &&
+                                styles.filterTextActive,
                         ]}
                     >
                         City
@@ -172,7 +176,7 @@ export default function LeaderboardScreen() {
                         </ThemedText>
                     </Pressable>
                 )}
-            </View>
+            </View> */}
         </View>
     );
 
@@ -182,7 +186,9 @@ export default function LeaderboardScreen() {
                 <EmptyState
                     icon="warning-outline"
                     title="Error Loading Leaderboard"
-                    message={error instanceof Error ? error.message : 'Unknown error'}
+                    message={
+                        error instanceof Error ? error.message : 'Unknown error'
+                    }
                     actionLabel="Try Again"
                     onActionPress={() => refetch()}
                 />
@@ -231,7 +237,10 @@ export default function LeaderboardScreen() {
             {/* Loading Overlay */}
             {isLoading && leaderboardItems.length === 0 && (
                 <View style={styles.loadingOverlay}>
-                    <ActivityIndicator size="large" color={theme.color.accent} />
+                    <ActivityIndicator
+                        size="large"
+                        color={theme.color.accent}
+                    />
                     <ThemedText style={styles.loadingText}>
                         Loading rankings...
                     </ThemedText>
@@ -262,9 +271,11 @@ const createThemedStyles = (
             fontWeight: '800',
             color: theme.color.textPrimary,
             letterSpacing: -0.5,
+            lineHeight: theme.font.size.xxl + 6,
         },
         mainSubtitle: {
             fontSize: theme.font.size.lg,
+            lineHeight: theme.font.size.lg + 4,
             color: theme.color.textSecondary,
             marginTop: 2,
         },

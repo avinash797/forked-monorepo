@@ -6,11 +6,9 @@ type PersonalRating = Database['public']['Tables']['personal_ratings']['Row'];
 
 // Type for the create_rating RPC response
 export interface CreateRatingResponse {
-    success: boolean;
     rating_id: string;
     should_compare: boolean;
-    comparison_rating_id: string | null;
-    message: string;
+    comparison_candidate_id: string | null;
 }
 
 export interface CreateRatingInput {
@@ -47,15 +45,12 @@ export function useCreateRating() {
             });
 
             if (error) throw error;
-            return data as CreateRatingResponse;
+            return data as unknown as CreateRatingResponse;
         },
         onSuccess: (data, variables) => {
             // Invalidate relevant queries
             queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
             queryClient.invalidateQueries({ queryKey: ['topDish'] });
-            queryClient.invalidateQueries({
-                queryKey: ['restaurant', variables.restaurant_id],
-            });
             queryClient.invalidateQueries({ queryKey: ['userStats'] });
             queryClient.invalidateQueries({ queryKey: ['myBestEver'] });
             queryClient.invalidateQueries({
@@ -79,13 +74,16 @@ export function useUpdateRating() {
             new_notes?: string;
             taste_tag_ids?: string[];
         }) => {
-            const { data, error } = await supabase.rpc('update_existing_rating', {
-                p_rating_id: input.rating_id,
-                p_new_raw_score: input.new_raw_score,
-                p_new_photo_url: input.new_photo_url,
-                p_new_notes: input.new_notes,
-                p_taste_tag_ids: input.taste_tag_ids,
-            });
+            const { data, error } = await supabase.rpc(
+                'update_existing_rating',
+                {
+                    p_rating_id: input.rating_id,
+                    p_new_raw_score: input.new_raw_score,
+                    p_new_photo_url: input.new_photo_url,
+                    p_new_notes: input.new_notes,
+                    p_taste_tag_ids: input.taste_tag_ids,
+                }
+            );
 
             if (error) throw error;
             return data;
@@ -188,12 +186,14 @@ export function useCheckRateLimit() {
             const { data, error } = await supabase.rpc('check_rate_limit');
 
             if (error) throw error;
-            return data?.[0] ?? {
-                can_rate: true,
-                is_rate_limited: false,
-                ratings_last_hour: 0,
-                max_allowed: 10,
-            };
+            return (
+                data?.[0] ?? {
+                    can_rate: true,
+                    is_rate_limited: false,
+                    ratings_last_hour: 0,
+                    max_allowed: 10,
+                }
+            );
         },
         staleTime: 1000 * 60, // 1 minute
     });

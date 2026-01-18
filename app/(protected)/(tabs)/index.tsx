@@ -8,7 +8,7 @@ import { useTheme } from '@/contexts/theme-provider';
 import { useTopDish } from '@/hooks/use-leaderboard';
 import { trackEvent } from '@/lib/amplitude';
 import { useLocationStore } from '@/stores/location.store';
-import { DishType } from '@/types/dishTypes';
+import { DishType } from '@/types/dishType';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
@@ -121,7 +121,8 @@ export default function HomeScreen() {
                                 neighborhood={topDish.neighborhood_name} // From RPC
                                 score={topDish.avg_raw_score}
                                 onPress={handleHeroPress}
-                                // photoPath={topDish.photo_path} // TODO: Add to RPC
+                                photoPath={topDish.featured_photo_url}
+                                confidence_score={topDish.confidence_score}
                             />
                         ) : // Simple placeholder or loading state could go here
                         topDishLoading ? (

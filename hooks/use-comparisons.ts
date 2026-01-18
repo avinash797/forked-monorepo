@@ -41,9 +41,12 @@ export function usePendingComparisons(limit: number = 5) {
     return useQuery({
         queryKey: ['pendingComparisons', limit],
         queryFn: async () => {
-            const { data, error } = await supabase.rpc('get_pending_comparisons', {
-                p_limit: limit,
-            });
+            const { data, error } = await supabase.rpc(
+                'get_pending_comparisons',
+                {
+                    p_limit: limit,
+                }
+            );
 
             if (error) throw error;
             return (data ?? []) as PendingComparison[];
@@ -134,7 +137,7 @@ export function useProcessComparison() {
             });
 
             if (error) throw error;
-            return data as ProcessComparisonResponse;
+            return data as unknown as ProcessComparisonResponse;
         },
         onSuccess: (_, variables) => {
             // Invalidate relevant queries after comparison
@@ -169,12 +172,14 @@ export function useCheckSkipRate() {
             const { data, error } = await supabase.rpc('check_user_skip_rate');
 
             if (error) throw error;
-            return data?.[0] ?? {
-                skip_rate: 0,
-                skipped_count: 0,
-                total_comparisons: 0,
-                should_warn: false,
-            };
+            return (
+                data?.[0] ?? {
+                    skip_rate: 0,
+                    skipped_count: 0,
+                    total_comparisons: 0,
+                    should_warn: false,
+                }
+            );
         },
         staleTime: 1000 * 60 * 5, // 5 minutes
     });

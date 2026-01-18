@@ -1,6 +1,6 @@
 import { useTheme } from '@/contexts/theme-provider';
 import { useDishTypes } from '@/hooks/use-dish-types';
-import { DishType } from '@/types/dishTypes';
+import { DishType } from '@/types/dishType';
 import React, { useEffect } from 'react';
 import {
     Platform,

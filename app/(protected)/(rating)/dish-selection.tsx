@@ -3,7 +3,7 @@ import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/contexts/theme-provider';
 import { useDishTypes } from '@/hooks/use-dish-types';
 import { useRatingStore } from '@/stores';
-import { DishType } from '@/types/dishTypes';
+import { DishType } from '@/types/dishType';
 import { Stack, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import {
@@ -69,9 +69,9 @@ export default function DishSelectionScreen() {
                         {dishTypes?.map((dishType, index) => (
                             <Animated.View
                                 key={dishType.id}
-                                entering={FadeInDown.delay(index * 100).duration(
-                                    400
-                                )}
+                                entering={FadeInDown.delay(
+                                    index * 100
+                                ).duration(400)}
                                 style={styles.dishTypeWrapper}
                             >
                                 <Pressable

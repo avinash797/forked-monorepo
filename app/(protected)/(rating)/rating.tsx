@@ -13,7 +13,7 @@ import { usePhotoUpload } from '@/hooks/use-photo-upload';
 import { useCreateRating, useTasteTags } from '@/hooks/use-ratings';
 import { useRatingStore } from '@/stores';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 export default function RatingScreen() {
@@ -55,11 +55,22 @@ export default function RatingScreen() {
         null // Restaurant coordinates not available in flat format yet
     );
 
-    useEffect(() => {
-        if (!selectedRestaurant || !selectedDishType) {
-            router.back();
-        }
-    }, [selectedRestaurant, selectedDishType, router]);
+    const toggleTag = useCallback(
+        (tagId: string) => {
+            if (selectedTags.includes(tagId)) {
+                setSelectedTags(selectedTags.filter((t) => t !== tagId));
+            } else if (selectedTags.length < 5) {
+                setSelectedTags([...selectedTags, tagId]);
+            }
+        },
+        [selectedTags, setSelectedTags]
+    );
+
+    // useEffect(() => {
+    //     if (!selectedRestaurant || !selectedDishType) {
+    //         router.back();
+    //     }
+    // }, [selectedRestaurant, selectedDishType, router]);
 
     if (!selectedRestaurant || !selectedDishType) {
         return null;
@@ -82,17 +93,6 @@ export default function RatingScreen() {
     const handleRemovePhoto = () => {
         setPhotoUri(null);
     };
-
-    const toggleTag = useCallback(
-        (tagId: string) => {
-            if (selectedTags.includes(tagId)) {
-                setSelectedTags(selectedTags.filter((t) => t !== tagId));
-            } else if (selectedTags.length < 5) {
-                setSelectedTags([...selectedTags, tagId]);
-            }
-        },
-        [selectedTags, setSelectedTags]
-    );
 
     const handleSubmit = async () => {
         if (rating === 0) {
@@ -138,20 +138,21 @@ export default function RatingScreen() {
                     selectedTags.length > 0 ? selectedTags : undefined,
             });
 
-            // Reset the store
-            resetRating();
-
+            console.log(result);
             // If comparison should be triggered, navigate to compare screen
-            if (result.should_compare && result.comparison_rating_id) {
+            if (result.should_compare && result.comparison_candidate_id) {
+                console.log('Comparison should be triggered');
+                router.dismissAll();
                 router.replace({
                     pathname: '/(protected)/(rating)/compare',
                     params: {
                         newRatingId: result.rating_id,
-                        comparisonRatingId: result.comparison_rating_id,
+                        comparisonRatingId: result.comparison_candidate_id,
                         dishTypeId: selectedDishType.id,
                     },
                 });
             } else {
+                console.log('Comparison should not be triggered');
                 // Go back to home
                 router.replace('/(protected)/(tabs)');
             }
@@ -163,6 +164,8 @@ export default function RatingScreen() {
                     ? 'You have already rated this dish at this restaurant'
                     : 'Failed to submit rating. Please try again.'
             );
+        } finally {
+            resetRating();
         }
     };
 
@@ -214,6 +217,7 @@ export default function RatingScreen() {
                         <RatingInput
                             value={rating}
                             onChange={setRating}
+                            step={1}
                             thumbComponent={
                                 <ForkLogo
                                     color={
