@@ -1,258 +1,216 @@
 import { EmptyState } from '@/components/browse/empty-state';
-import { LeaderboardItem } from '@/components/browse/leaderboard-item';
+import DishTypePills from '@/components/Discover/dish-type-pills';
+import {
+    LeaderboardEntry,
+    LeaderboardRow,
+} from '@/components/Discover/leaderboard-row';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/contexts/theme-provider';
 import { useLeaderboard } from '@/hooks/use-leaderboard';
-import type { LeaderboardItem as LeaderboardItemType } from '@/types/browse';
-import { Stack, useRouter } from 'expo-router';
-import { useMemo } from 'react';
+import { useLocationStore } from '@/stores/location.store';
+import { DishType } from '@/types/dishTypes';
+import { useRouter } from 'expo-router';
+import { useEffect, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
     ListRenderItem,
-    Platform,
     Pressable,
     RefreshControl,
-    ScrollView,
     StyleSheet,
     View,
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+const DEFAULT_NOLA_ID = '2865c3db-1a51-464d-bd8e-1a49777a866f';
 
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList) as any;
-const HEADER_HEIGHT = 100;
-
-const DISH_ICONS: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> =
-    {
-        burger: 'hamburger',
-        pizza: 'pizza',
-        coffee: 'coffee',
-        tea: 'tea',
-        dessert: 'cake-variant',
-        icecream: 'ice-cream',
-        drink: 'glass-cocktail',
-        alcohol: 'glass-wine',
-        beer: 'beer',
-        taco: 'taco',
-        burrito: 'taco', // Close enough
-        noodle: 'noodles',
-        ramen: 'noodles',
-        pasta: 'pasta', // Check if valid, fallback to noodles if not, but 'noodles' is safe. 'pasta' exists in newer MCI? Let's check. Safer to stick to 'noodles' or 'food-variant' for pasta if unsure. Actually 'pasta' is in MCI.
-        rice: 'rice',
-        steak: 'food-steak', // 'food-steak' exists
-        beef: 'cow',
-        chicken: 'food-drumstick',
-        fish: 'fish',
-        seafood: 'fish',
-        sushi: 'fish', // or 'food-variant'
-        salad: 'leaf',
-        vegan: 'leaf',
-        vegetarian: 'leaf',
-        bread: 'bread-slice',
-        sandwich: 'food-outline', // generic food
-        soup: 'pot-steam',
-        curry: 'bowl-mix',
-        asian: 'rice',
-        mexican: 'taco',
-        italian: 'pizza',
-        breakfast: 'egg-fried',
-    };
-
-function getDishIcon(
-    name: string
-): keyof typeof MaterialCommunityIcons.glyphMap {
-    const normalized = name.toLowerCase().trim();
-
-    // Direct match
-    if (DISH_ICONS[normalized]) {
-        return DISH_ICONS[normalized];
-    }
-
-    // Partial match keys
-    for (const key of Object.keys(DISH_ICONS)) {
-        if (normalized.includes(key)) {
-            return DISH_ICONS[key];
-        }
-    }
-
-    return 'silverware-fork-knife';
-}
+type LocationFilter = 'city' | 'near_me' | 'neighborhood';
 
 export default function LeaderboardScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const { theme, isDark } = useTheme();
+    const { theme } = useTheme();
     const styles = useMemo(
         () => createThemedStyles(theme, insets),
         [theme, insets]
     );
 
-    const {
-        dishTypes,
-        selectedDishTypeId,
-        leaderboardItems,
-        isLoadingDishTypes,
-        isLoadingLeaderboard,
-        error,
-        selectDishType,
-        refetch,
-    } = useLeaderboard();
+    const { currentCity, currentNeighborhood, getCurrentLocation } =
+        useLocationStore();
 
-    const handleDishPress = (dishId: string, venueId: string) => {
+    const [selectedDishType, setSelectedDishType] = useState<DishType | null>(
+        null
+    );
+    const [locationFilter, setLocationFilter] =
+        useState<LocationFilter>('city');
+
+    // Use current city or fallback to NOLA
+    const cityId = currentCity?.id || DEFAULT_NOLA_ID;
+    const neighborhoodId = currentNeighborhood?.id;
+
+    // Fetch leaderboard data
+    const {
+        data: leaderboardData,
+        isLoading,
+        error,
+        refetch,
+    } = useLeaderboard({
+        cityId,
+        dishTypeId: selectedDishType?.id || '',
+        limit: 10,
+    });
+
+    // Process data to add rank
+    const leaderboardItems: LeaderboardEntry[] = useMemo(() => {
+        if (!leaderboardData) return [];
+        return leaderboardData.map((item: any, index: number) => ({
+            ...item,
+            rank: item.rank || index + 1,
+        }));
+    }, [leaderboardData]);
+
+    // Get location on mount
+    useEffect(() => {
+        getCurrentLocation();
+    }, []);
+
+    const handleDishTypeSelect = (dishType: DishType) => {
+        setSelectedDishType(dishType);
+    };
+
+    const handleRowPress = (item: LeaderboardEntry) => {
         router.push({
             pathname: '/(protected)/(browse)/dish-detail',
-            params: { dishId, venueId },
+            params: {
+                restaurantId: item.restaurant_id,
+                dishTypeId: selectedDishType?.id || '',
+            },
         });
     };
 
-    if (isLoadingDishTypes) {
-        return (
-            <ThemedView style={styles.container}>
-                <Stack.Screen options={{ headerShown: false }} />
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator
-                        size="large"
-                        color={theme.color.accent}
-                    />
-                    <ThemedText style={styles.loadingText}>
-                        Loading leaderboard...
+    const renderItem: ListRenderItem<LeaderboardEntry> = ({ item, index }) => (
+        <Animated.View entering={FadeInDown.delay(300 + index * 50).duration(400)}>
+            <LeaderboardRow item={item} onPress={() => handleRowPress(item)} />
+        </Animated.View>
+    );
+
+    const ListHeader = () => (
+        <View style={styles.listHeader}>
+            {/* Title */}
+            <View style={styles.titleSection}>
+                <ThemedText style={styles.mainTitle}>
+                    Best {selectedDishType?.name || 'Dishes'}
+                </ThemedText>
+                <ThemedText style={styles.mainSubtitle}>
+                    in {currentCity?.name || 'New Orleans'}
+                </ThemedText>
+            </View>
+
+            {/* Dish Type Pills */}
+            <DishTypePills
+                selectedDishType={selectedDishType}
+                handleDishTypeSelect={handleDishTypeSelect}
+            />
+
+            {/* Location Filter Toggle */}
+            <View style={styles.filterContainer}>
+                <Pressable
+                    style={[
+                        styles.filterButton,
+                        locationFilter === 'city' && styles.filterButtonActive,
+                    ]}
+                    onPress={() => setLocationFilter('city')}
+                >
+                    <ThemedText
+                        style={[
+                            styles.filterText,
+                            locationFilter === 'city' && styles.filterTextActive,
+                        ]}
+                    >
+                        City
                     </ThemedText>
-                </View>
-            </ThemedView>
-        );
-    }
+                </Pressable>
+
+                <Pressable
+                    style={[
+                        styles.filterButton,
+                        locationFilter === 'near_me' &&
+                            styles.filterButtonActive,
+                    ]}
+                    onPress={() => setLocationFilter('near_me')}
+                >
+                    <ThemedText
+                        style={[
+                            styles.filterText,
+                            locationFilter === 'near_me' &&
+                                styles.filterTextActive,
+                        ]}
+                    >
+                        Near Me
+                    </ThemedText>
+                </Pressable>
+
+                {neighborhoodId && (
+                    <Pressable
+                        style={[
+                            styles.filterButton,
+                            locationFilter === 'neighborhood' &&
+                                styles.filterButtonActive,
+                        ]}
+                        onPress={() => setLocationFilter('neighborhood')}
+                    >
+                        <ThemedText
+                            style={[
+                                styles.filterText,
+                                locationFilter === 'neighborhood' &&
+                                    styles.filterTextActive,
+                            ]}
+                        >
+                            {currentNeighborhood?.name || 'Neighborhood'}
+                        </ThemedText>
+                    </Pressable>
+                )}
+            </View>
+        </View>
+    );
 
     if (error) {
         return (
             <ThemedView style={styles.container}>
-                <Stack.Screen options={{ headerShown: false }} />
                 <EmptyState
                     icon="warning-outline"
                     title="Error Loading Leaderboard"
-                    message={error}
+                    message={error instanceof Error ? error.message : 'Unknown error'}
                     actionLabel="Try Again"
-                    onActionPress={refetch}
+                    onActionPress={() => refetch()}
                 />
             </ThemedView>
         );
     }
 
-    const renderLeaderboardItem: ListRenderItem<LeaderboardItemType> = ({
-        item,
-        index,
-    }) => (
-        <Animated.View
-            entering={FadeInDown.delay(300 + index * 80).duration(500)}
-        >
-            <LeaderboardItem
-                item={item}
-                onPress={() => handleDishPress(item.dish.id, item.venue.id)}
-            />
-        </Animated.View>
-    );
-
     return (
         <ThemedView style={styles.container}>
-            <View style={styles.listHeader}>
-                <View style={styles.titleSection}>
-                    <ThemedText style={styles.mainTitle}>Rankings</ThemedText>
-                    <ThemedText style={styles.mainSubtitle}>
-                        The best dishes in the city
-                    </ThemedText>
-                </View>
-
-                {/* Dish Type Chip Selector */}
-                <View style={styles.chipContainer}>
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.chipScrollContent}
-                    >
-                        {dishTypes.map((dishType, index) => {
-                            const isSelected =
-                                dishType.id === selectedDishTypeId;
-                            return (
-                                <Animated.View
-                                    key={dishType.id}
-                                    entering={FadeInDown.delay(
-                                        index * 50
-                                    ).duration(400)}
-                                >
-                                    <Animated.View
-                                        style={[
-                                            styles.chip,
-                                            isSelected && styles.chipSelected,
-                                            isSelected &&
-                                                styles.chipWrapperSelected,
-                                        ]}
-                                    >
-                                        <Pressable
-                                            onPress={() =>
-                                                selectDishType(dishType.id)
-                                            }
-                                            style={({ pressed }) => [
-                                                styles.chipPressable,
-                                                pressed &&
-                                                    Platform.OS === 'ios' && {
-                                                        opacity: 0.7,
-                                                    },
-                                            ]}
-                                            android_ripple={{
-                                                color: isSelected
-                                                    ? 'rgba(255, 255, 255, 0.2)'
-                                                    : 'rgba(0, 0, 0, 0.1)',
-                                                borderless: false,
-                                                foreground: true,
-                                            }}
-                                        >
-                                            <MaterialCommunityIcons
-                                                name={getDishIcon(
-                                                    dishType.name
-                                                )}
-                                                size={20}
-                                                color={
-                                                    isSelected
-                                                        ? theme.color.accentOn
-                                                        : theme.color
-                                                              .textSecondary
-                                                }
-                                            />
-                                            <ThemedText
-                                                style={[
-                                                    styles.chipText,
-                                                    isSelected &&
-                                                        styles.chipTextSelected,
-                                                ]}
-                                            >
-                                                {dishType.name}
-                                            </ThemedText>
-                                        </Pressable>
-                                    </Animated.View>
-                                </Animated.View>
-                            );
-                        })}
-                    </ScrollView>
-                </View>
-            </View>
-            <AnimatedFlatList
+            <FlatList
                 data={leaderboardItems}
-                keyExtractor={(item: LeaderboardItemType) => item.dish.id}
-                scrollEventThrottle={16}
-                renderItem={renderLeaderboardItem}
+                keyExtractor={(item) => `${item.restaurant_id}-${item.rank}`}
+                renderItem={renderItem}
+                ListHeaderComponent={ListHeader}
                 ListEmptyComponent={
-                    !isLoadingLeaderboard ? (
+                    !isLoading ? (
                         <View style={styles.emptyContainer}>
                             <EmptyState
                                 icon="restaurant-outline"
                                 title="No Rankings Yet"
-                                message="This category doesn't have enough rated dishes yet (min 3)."
-                                actionLabel="Explore More"
+                                message={
+                                    selectedDishType
+                                        ? `No ${selectedDishType.name} has been rated yet. Be the first!`
+                                        : 'Select a dish type to see rankings.'
+                                }
+                                actionLabel="Rate a Dish"
                                 onActionPress={() =>
-                                    router.push('/(protected)/(tabs)')
+                                    router.push('/(protected)/(rating)')
                                 }
                             />
                         </View>
@@ -261,13 +219,24 @@ export default function LeaderboardScreen() {
                 contentContainerStyle={styles.listContent}
                 refreshControl={
                     <RefreshControl
-                        refreshing={isLoadingLeaderboard}
-                        onRefresh={refetch}
+                        refreshing={isLoading}
+                        onRefresh={() => refetch()}
                         tintColor={theme.color.accent}
                         progressViewOffset={insets.top + 20}
                     />
                 }
+                showsVerticalScrollIndicator={false}
             />
+
+            {/* Loading Overlay */}
+            {isLoading && leaderboardItems.length === 0 && (
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator size="large" color={theme.color.accent} />
+                    <ThemedText style={styles.loadingText}>
+                        Loading rankings...
+                    </ThemedText>
+                </View>
+            )}
         </ThemedView>
     );
 }
@@ -281,106 +250,70 @@ const createThemedStyles = (
             flex: 1,
             backgroundColor: theme.color.bg,
         },
-        headerContent: {
-            alignItems: 'center',
-            paddingHorizontal: theme.space.md,
-        },
-        stickyTitle: {
-            fontSize: theme.font.size.lg,
-            fontWeight: theme.font.weight.bold,
-            color: theme.color.textPrimary,
-        },
         listHeader: {
-            paddingTop: insets.top + theme.space.xl,
-            marginBottom: theme.space.sm,
+            paddingTop: insets.top + theme.space.md,
         },
         titleSection: {
             paddingHorizontal: theme.space.md,
             marginBottom: theme.space.sm,
         },
         mainTitle: {
-            fontSize: theme.font.size.xxl + 8,
-            fontWeight: theme.font.weight.bold,
+            fontSize: theme.font.size.xxl + 4,
+            fontWeight: '800',
             color: theme.color.textPrimary,
-            letterSpacing: -1,
-            lineHeight: theme.font.size.xxl + 8 + 4,
+            letterSpacing: -0.5,
         },
         mainSubtitle: {
-            fontSize: theme.font.size.md,
+            fontSize: theme.font.size.lg,
             color: theme.color.textSecondary,
-            marginTop: 4,
-            lineHeight: theme.font.size.md + 4,
+            marginTop: 2,
         },
-        chipContainer: {
-            marginTop: theme.space.sm,
-        },
-        chipScrollContent: {
-            paddingHorizontal: theme.space.md,
-        },
-        chip: {
-            borderRadius: theme.radius.pill,
-            backgroundColor: theme.color.surface,
-            borderWidth: 1.5,
-            borderColor: theme.color.border,
-            marginRight: theme.space.xs,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.05,
-            shadowRadius: 4,
-            elevation: 2,
-            overflow: 'hidden',
-        },
-        chipPressable: {
+        filterContainer: {
             flexDirection: 'row',
-            alignItems: 'center',
             paddingHorizontal: theme.space.md,
-            paddingVertical: theme.space.sm - 2,
+            paddingVertical: theme.space.sm,
             gap: theme.space.xs,
         },
-        chipWrapperSelected: {
-            transform: [{ scale: 1.05 }],
-            zIndex: 1,
+        filterButton: {
+            paddingHorizontal: theme.space.md,
+            paddingVertical: theme.space.xs + 2,
+            borderRadius: theme.radius.pill,
+            backgroundColor: theme.color.surface,
+            borderWidth: 1,
+            borderColor: theme.color.border,
         },
-        chipSelected: {
+        filterButtonActive: {
             backgroundColor: theme.color.accent,
             borderColor: theme.color.accent,
-            shadowColor: theme.color.accent,
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 4,
         },
-        chipText: {
-            fontSize: theme.font.size.md,
-            fontWeight: theme.font.weight.semibold,
-            color: theme.color.textPrimary,
+        filterText: {
+            fontSize: theme.font.size.sm,
+            fontWeight: '600',
+            color: theme.color.textSecondary,
         },
-        chipTextSelected: {
+        filterTextActive: {
             color: theme.color.accentOn,
         },
-
         listContent: {
             paddingHorizontal: theme.space.md,
-            paddingBottom: insets.bottom + theme.space.xl,
-            paddingTop: theme.space.xl,
+            paddingBottom: insets.bottom + 100, // Space for bottom tab
         },
         emptyContainer: {
-            paddingTop: 80,
+            paddingTop: 60,
         },
-        loadingContainer: {
-            flex: 1,
+        loadingOverlay: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             justifyContent: 'center',
             alignItems: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.2)',
             gap: theme.space.md,
         },
         loadingText: {
             fontSize: theme.font.size.md,
             color: theme.color.textSecondary,
-        },
-        loadingOverlay: {
-            ...StyleSheet.absoluteFillObject,
-            backgroundColor: 'rgba(0,0,0,0.4)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 50,
         },
     });

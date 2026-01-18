@@ -4,10 +4,11 @@ import { View } from 'react-native';
 import { ThemedText } from '../themed-text';
 
 const DishTypePill = (dishType: DishType) => {
-    const { name } = dishType;
+    const { name, emoji } = dishType;
     return (
-        <View>
-            <ThemedText>{name}</ThemedText>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            {emoji && <ThemedText style={{ fontSize: 16 }}>{emoji}</ThemedText>}
+            <ThemedText style={{ fontWeight: '600' }}>{name}</ThemedText>
         </View>
     );
 };

@@ -73,8 +73,20 @@ export default function HomeScreen() {
     };
 
     const handleHeroPress = () => {
-        // TODO: Open Dish Detail Modal
-        console.log('Open Dish Detail', topDish?.restaurant_id);
+        if (topDish?.restaurant_id && selectedDishType?.id) {
+            // Navigate to dish detail
+            router.push({
+                pathname: '/(protected)/(browse)/dish-detail',
+                params: {
+                    restaurantId: topDish.restaurant_id,
+                    dishTypeId: selectedDishType.id,
+                },
+            });
+            trackEvent('hero_card_pressed', {
+                restaurant_id: topDish.restaurant_id,
+                dish_type_id: selectedDishType.id,
+            });
+        }
     };
 
     return (
@@ -98,8 +110,8 @@ export default function HomeScreen() {
                             <HeroCard
                                 dishName={selectedDishType?.name || 'Dish'}
                                 restaurantName={topDish.restaurant_name}
-                                neighborhood={topDish.neighborhood} // From RPC
-                                score={topDish.elo_score}
+                                neighborhood={topDish.neighborhood_name} // From RPC
+                                score={topDish.avg_raw_score}
                                 onPress={handleHeroPress}
                                 // photoPath={topDish.photo_path} // TODO: Add to RPC
                             />
