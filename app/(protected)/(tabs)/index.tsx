@@ -1,41 +1,60 @@
 import { LocationBottomSheet } from '@/components/browse/location-bottom-sheet';
 import { LocationHeader } from '@/components/browse/location-header';
-import TrendingSection from '@/components/discover/trending-section';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/contexts/theme-provider';
-import { useTopDishes } from '@/hooks/use-top-dishes';
-import { useLocationFilterStore } from '@/stores';
+import { useDishTypes } from '@/hooks/use-dish-types';
+import { useTopDish } from '@/hooks/use-leaderboard';
+import { trackEvent } from '@/lib/amplitude';
+import { useLocationStore } from '@/stores/location.store';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
     const router = useRouter();
+    const { currentCity, currentNeighborhood, getCurrentLocation } =
+        useLocationStore();
+    const { data: dishTypes, isLoading: dishTypesLoading } = useDishTypes();
 
-    const [refreshing, setRefreshing] = useState(false);
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
     const bottomSheetRef = useRef<BottomSheet>(null);
 
-    const preferredCity = useLocationFilterStore(
-        (state) => state.selectedLocation
+    const [selectedDishType, setSelectedDishType] = useState<string | null>(
+        null
     );
 
-    // Fetch top dishes with pagination
-    const { dishes, isLoading, error, hasMore, loadMore, refetch } =
-        useTopDishes({
-            limit: 10,
-            city: preferredCity || undefined,
-        });
+    // Set default dish type when loaded
+    useEffect(() => {
+        if (dishTypes?.length && !selectedDishType) {
+            setSelectedDishType(dishTypes[0].id);
+        }
+    }, [dishTypes]);
 
-    // Handle pull-to-refresh
-    const onRefresh = async () => {
-        setRefreshing(true);
-        await refetch();
-        setRefreshing(false);
+    // Get top dish for selected type
+    const { data: topDish, isLoading: topDishLoading } = useTopDish(
+        currentCity?.id || '',
+        selectedDishType || ''
+    );
+
+    // Get location on mount
+    useEffect(() => {
+        getCurrentLocation();
+        trackEvent('screen_view', { screen: 'home' });
+    }, []);
+
+    const handleDishTypeSelect = (dishTypeId: string) => {
+        setSelectedDishType(dishTypeId);
+        trackEvent('dish_type_selected', {
+            dish_type_id: dishTypeId,
+            screen: 'home',
+        });
     };
+
+    const selectedDishTypeName =
+        dishTypes?.find((d) => d.id === selectedDishType)?.name || '';
 
     // Navigate to search screen
     const handleSearchPress = () => {
@@ -61,9 +80,7 @@ export default function HomeScreen() {
                     onSearchPress={handleSearchPress}
                 />
 
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    <TrendingSection />
-                </ScrollView>
+                <ScrollView showsVerticalScrollIndicator={false}></ScrollView>
             </ThemedView>
 
             {/* Location Filter Bottom Sheet */}

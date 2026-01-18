@@ -15,6 +15,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemedView } from '@/components/themed-view';
 import { ThemeProvider, useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
+import { initAmplitude } from '@/lib/amplitude';
 
 if (__DEV__) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -26,6 +27,7 @@ function RootLayoutNav() {
     const { theme, isDark } = useTheme();
     const segments = useSegments();
     const router = useRouter();
+    initAmplitude();
 
     // Create React Navigation theme from our active theme
     const navigationTheme: NavigationTheme = useMemo(
