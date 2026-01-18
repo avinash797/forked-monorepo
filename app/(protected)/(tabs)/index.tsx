@@ -93,12 +93,20 @@ export default function HomeScreen() {
         <SafeAreaView style={styles.safeArea} edges={['top']}>
             <ThemedView style={styles.container}>
                 {/* Location Header with Search */}
-                <LocationHeader
-                    onLocationPress={handleLocationPress}
-                    onSearchPress={handleSearchPress}
-                />
 
                 <ScrollView showsVerticalScrollIndicator={false}>
+                    <LocationHeader
+                        onLocationPress={handleLocationPress}
+                        onSearchPress={handleSearchPress}
+                    />
+                    <View style={styles.headerCaptionContainer}>
+                        <ThemedText style={styles.headerText}>
+                            What are you
+                        </ThemedText>
+                        <ThemedText style={styles.headerText}>
+                            craving?
+                        </ThemedText>
+                    </View>
                     <DishTypePills
                         selectedDishType={selectedDishType}
                         handleDishTypeSelect={handleDishTypeSelect}
@@ -166,9 +174,19 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         safeArea: {
             flex: 1,
             backgroundColor: theme.color.bg,
+            paddingTop: theme.space.xxl,
         },
         container: {
             flex: 1,
+        },
+        headerText: {
+            fontSize: 36,
+            fontWeight: theme.font.weight.bold,
+            lineHeight: 40,
+            fontFamily: "'Instrument Serif', serif",
+        },
+        headerCaptionContainer: {
+            paddingHorizontal: theme.space.md,
         },
         heroSection: {
             marginTop: theme.space.md,

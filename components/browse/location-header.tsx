@@ -1,4 +1,3 @@
-import { SearchInput } from '@/components/rating/search-input';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useLocationFilterStore } from '@/stores';
@@ -32,8 +31,7 @@ export function LocationHeader({
                 style={({ pressed }) => [
                     styles.locationButton,
                     {
-                        backgroundColor: theme.color.inputBg,
-                        borderColor: theme.color.border,
+                        backgroundColor: theme.color.accentSoft,
                     },
                     pressed && { opacity: theme.opacity.pressed },
                 ]}
@@ -43,15 +41,12 @@ export function LocationHeader({
                 }}
             >
                 <IconSymbol
-                    name="location-outline"
+                    name="pin"
                     size={18}
                     color={theme.color.textPrimary}
                 />
                 <ThemedText
-                    style={[
-                        styles.locationText,
-                        { color: theme.color.textPrimary },
-                    ]}
+                    style={[styles.locationText, { color: theme.color.accent }]}
                     numberOfLines={1}
                 >
                     {displayText}
@@ -59,7 +54,7 @@ export function LocationHeader({
             </Pressable>
 
             {/* Search Input */}
-            <View style={styles.searchWrapper}>
+            {/* <View style={styles.searchWrapper}>
                 <SearchInput
                     value=""
                     onChangeText={() => {}}
@@ -67,7 +62,7 @@ export function LocationHeader({
                     onFocus={onSearchPress}
                     isLoading={false}
                 />
-            </View>
+            </View> */}
         </View>
     );
 }
@@ -78,17 +73,15 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             flexDirection: 'row',
             alignItems: 'center',
             gap: theme.space.xs,
-            paddingVertical: theme.space.xs,
+            paddingVertical: theme.space.xxs,
             paddingHorizontal: theme.space.md,
         },
         locationButton: {
             flexDirection: 'row',
             alignItems: 'center',
             gap: theme.space.xxs,
-            paddingHorizontal: theme.space.xs,
-            paddingVertical: theme.space.sm,
+            padding: theme.space.xs,
             borderRadius: theme.radius.pill,
-            borderWidth: theme.border.hairline,
         },
         locationText: {
             fontSize: theme.font.size.sm,

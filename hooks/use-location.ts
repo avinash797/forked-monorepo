@@ -108,16 +108,16 @@ export function useGPSVerification(
 // TODO: We need to convert this to use supabase's RPC function so its less client side processing
 const fetchCities = async () => {
     const { data, error } = await supabase
-        .from('venues')
-        .select('address_city')
-        .order('address_city');
+        .from('cities')
+        .select('name')
+        .order('name');
 
     if (error) throw error;
     if (!data) return [];
 
     // Get unique cities and filter out nulls/empty strings
     return Array.from(
-        new Set(data.map((v) => v.address_city).filter((c): c is string => !!c))
+        new Set(data.map((v) => v.name).filter((c): c is string => !!c))
     );
 };
 

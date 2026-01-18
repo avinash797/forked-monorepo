@@ -1,3 +1,4 @@
+import { ForkLogo } from '@/components/fork-logo';
 import { LocationStatusBanner } from '@/components/rating/location-status-banner';
 import { PhotoPicker } from '@/components/rating/photo-picker';
 import { RatingInput } from '@/components/rating/rating-input';
@@ -9,18 +10,11 @@ import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
 import { useGPSVerification, useLocation } from '@/hooks/use-location';
 import { usePhotoUpload } from '@/hooks/use-photo-upload';
-import { useCreateRating } from '@/hooks/use-ratings';
-import { useTasteTags } from '@/hooks/use-ratings';
+import { useCreateRating, useTasteTags } from '@/hooks/use-ratings';
 import { useRatingStore } from '@/stores';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect } from 'react';
-import {
-    Alert,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    View,
-} from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 export default function RatingScreen() {
     const router = useRouter();
@@ -40,7 +34,8 @@ export default function RatingScreen() {
         resetRating,
     } = useRatingStore();
 
-    const { mutateAsync: createRating, isPending: isSubmitting } = useCreateRating();
+    const { mutateAsync: createRating, isPending: isSubmitting } =
+        useCreateRating();
     const {
         pickImage,
         takePhoto,
@@ -118,7 +113,7 @@ export default function RatingScreen() {
             return;
         }
 
-        const uploaded = await uploadPhoto(photoUri, 'rating', user.id);
+        const uploaded = await uploadPhoto(photoUri, 'dish', user.id);
 
         if (!uploaded) {
             Alert.alert(
@@ -136,8 +131,11 @@ export default function RatingScreen() {
                 photo_url: uploaded.url,
                 photo_storage_path: uploaded.storagePath,
                 notes: reviewText.trim() || undefined,
-                location_verified: gpsStatus.isVerified,
-                taste_tag_ids: selectedTags.length > 0 ? selectedTags : undefined,
+                // location_verified: gpsStatus.isVerified ?? true,
+                //TODO: Remove this when GPS verification is implemented
+                location_verified: true,
+                taste_tag_ids:
+                    selectedTags.length > 0 ? selectedTags : undefined,
             });
 
             // Reset the store
@@ -194,12 +192,6 @@ export default function RatingScreen() {
 
                 {/* Photo Section - Required */}
                 <ThemedView style={styles.section}>
-                    <ThemedText type="defaultSemiBold" style={styles.label}>
-                        Photo{' '}
-                        <ThemedText lightColor="#ee6c2b" darkColor="#ff8c50">
-                            * required
-                        </ThemedText>
-                    </ThemedText>
                     <PhotoPicker
                         photos={photoUri ? [photoUri] : []}
                         onAddPhoto={handleAddPhoto}
@@ -219,7 +211,21 @@ export default function RatingScreen() {
                         </ThemedText>
                     </ThemedText>
                     <View style={styles.ratingContainer}>
-                        <RatingInput value={rating} onChange={setRating} />
+                        <RatingInput
+                            value={rating}
+                            onChange={setRating}
+                            thumbComponent={
+                                <ForkLogo
+                                    color={
+                                        rating > 7
+                                            ? theme.color.gold
+                                            : rating > 3
+                                              ? theme.color.silver
+                                              : theme.color.bronze
+                                    }
+                                />
+                            }
+                        />
                     </View>
                 </ThemedView>
 
@@ -234,14 +240,17 @@ export default function RatingScreen() {
                         </ThemedText>
                         <View style={styles.tagsContainer}>
                             {tasteTags.map((tag) => {
-                                const isSelected = selectedTags.includes(tag.id);
+                                const isSelected = selectedTags.includes(
+                                    tag.id
+                                );
                                 return (
                                     <Pressable
                                         key={tag.id}
                                         style={[
                                             styles.tag,
                                             isSelected && {
-                                                backgroundColor: theme.color.accent,
+                                                backgroundColor:
+                                                    theme.color.accent,
                                                 borderColor: theme.color.accent,
                                             },
                                         ]}

@@ -21,18 +21,18 @@ export function usePhotoUpload() {
             uri,
             entityType,
             userId,
-            bucket = 'review-photos',
+            bucket = 'dish-photos',
         }: {
             uri: string;
-            entityType: 'review' | 'dish' | 'venue' | 'avatar';
+            entityType: 'dish' | 'card' | 'avatar';
             userId: string;
-            bucket?: string;
+            bucket?: 'avatars' | 'dish-photos' | 'share-cards';
         }): Promise<UploadedPhoto> => {
             const response = await fetch(uri);
             const arrayBuffer = await response.arrayBuffer();
 
             const fileExt = uri.split('.').pop() || 'jpg';
-            const fileName = `${entityType}/${userId}/${Date.now()}.${fileExt}`;
+            const fileName = `${userId}/${entityType}/${Date.now()}.${fileExt}`;
 
             const { error: uploadError } = await supabase.storage
                 .from(bucket)
@@ -127,9 +127,9 @@ export function usePhotoUpload() {
 
     const uploadPhoto = async (
         uri: string,
-        entityType: 'review' | 'dish' | 'venue' | 'avatar',
+        entityType: 'dish' | 'card' | 'avatar',
         userId: string,
-        bucket: string = 'review-photos'
+        bucket: 'dish-photos' | 'share-cards' | 'avatars' = 'dish-photos'
     ): Promise<UploadedPhoto | null> => {
         try {
             return await uploadMutation({ uri, entityType, userId, bucket });
@@ -140,7 +140,7 @@ export function usePhotoUpload() {
 
     const deletePhoto = async (
         storagePath: string,
-        bucket: string = 'review-photos'
+        bucket: 'dish-photos' | 'share-cards' | 'avatars' = 'dish-photos'
     ): Promise<boolean> => {
         try {
             return await deleteMutation({ storagePath, bucket });

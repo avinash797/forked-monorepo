@@ -37,6 +37,7 @@ export default function DishTypePills({
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.chipScrollContent}
             >
+                <View style={{ paddingHorizontal: theme.space.xs }} />
                 {dishTypes?.map((dishType, index) => {
                     const isSelected = dishType.id === selectedDishType?.id;
                     return (
@@ -86,8 +87,7 @@ export default function DishTypePills({
 const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     StyleSheet.create({
         chipContainer: {
-            paddingVertical: theme.space.xs,
-            paddingHorizontal: theme.space.md,
+            paddingVertical: theme.space.xxs,
         },
         chipScrollContent: {
             alignItems: 'center',

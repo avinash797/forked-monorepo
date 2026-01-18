@@ -7,22 +7,16 @@ import { useTheme } from '@/contexts/theme-provider';
 import { useAddressSearch } from '@/hooks/use-address-search';
 import { useLocation } from '@/hooks/use-location';
 import {
+    RestaurantWithDistance,
     useCreateRestaurant,
     useRestaurants,
-    RestaurantWithDistance,
 } from '@/hooks/use-restaurants';
 import { useRatingStore } from '@/stores';
 import { useLocationStore } from '@/stores/location.store';
 import { Database } from '@/types/database.types';
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import {
-    Alert,
-    FlatList,
-    Pressable,
-    StyleSheet,
-    View,
-} from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
 
 type Restaurant = Database['public']['Tables']['restaurants']['Row'];
 
@@ -210,7 +204,7 @@ export default function VenueSearchScreen() {
                     placeholder="Search for a restaurant..."
                     isLoading={isSearching || isCreating}
                 />
-
+                {/* 
                 {searchQuery.length === 0 && (
                     <ThemedView style={styles.emptyState}>
                         <IconSymbol
@@ -225,7 +219,7 @@ export default function VenueSearchScreen() {
                             Search by restaurant name to get started
                         </ThemedText>
                     </ThemedView>
-                )}
+                )} */}
 
                 {combinedData.length > 0 && (
                     <FlatList
