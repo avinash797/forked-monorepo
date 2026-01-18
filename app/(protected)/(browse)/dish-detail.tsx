@@ -1,5 +1,6 @@
 import { EmptyState } from '@/components/browse/empty-state';
 import { ScoreBadge } from '@/components/score-badge';
+import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -26,7 +27,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const { width } = Dimensions.get('window');
 const HERO_HEIGHT = 450;
 const HEADER_HEIGHT = 60;
 
@@ -303,9 +303,19 @@ export default function DishDetailScreen() {
                     <Animated.View
                         style={[styles.heroContent, animatedHeroContentStyle]}
                     >
+                        <View style={styles.statsRow}></View>
+                    </Animated.View>
+                </Animated.View>
+
+                {/* Content Section */}
+                <View style={styles.contentSection}>
+                    <View>
                         <View style={styles.statsRow}>
                             <View style={{ maxWidth: '90%' }}>
-                                <ThemedText style={styles.dishNameHero}>
+                                <ThemedText
+                                    type="title"
+                                    style={styles.dishNameHero}
+                                >
                                     {dish.dish_type.name}
                                 </ThemedText>
 
@@ -314,12 +324,15 @@ export default function DishDetailScreen() {
                                     activeOpacity={0.7}
                                     style={styles.venueNameContainer}
                                 >
-                                    <ThemedText style={styles.venueNameHero}>
+                                    <ThemedText
+                                        type="subtitle"
+                                        style={styles.venueNameHero}
+                                    >
                                         at {dish.restaurant.name}{' '}
                                     </ThemedText>
                                     <IconSymbol
-                                        name="arrow-forward-sharp"
-                                        color={theme.color.textOnImage}
+                                        name="chevron-forward"
+                                        color={theme.color.textSecondary}
                                     />
                                 </TouchableOpacity>
                             </View>
@@ -333,59 +346,78 @@ export default function DishDetailScreen() {
                                     )}
                             </View>
                         </View>
+                        {/* Detailed Info */}
+                        <View style={styles.infoSection}>
+                            {/* Dietary Tags */}
+                            {dish.tags && dish.tags.length > 0 && (
+                                <View style={styles.tagsContainer}>
+                                    {dish.tags.map((tag, index) => (
+                                        <View key={index} style={styles.tag}>
+                                            <ThemedText style={styles.tagText}>
+                                                {tag?.name}
+                                            </ThemedText>
+                                        </View>
+                                    ))}
+                                </View>
+                            )}
 
-                        <View style={styles.statsRow}>
-                            <ThemedText style={styles.statsText}>
-                                {dish.total_ratings}{' '}
-                                {dish.total_ratings === 1
-                                    ? 'review'
-                                    : 'reviews'}{' '}
-                            </ThemedText>
-                            {/* {dish.current_price && (
-                                <ThemedText style={styles.priceHero}>
-                                    ${dish.current_price.toFixed(0)}
-                                </ThemedText>
-                            )} */}
-                        </View>
-                    </Animated.View>
-                </Animated.View>
-
-                {/* Content Section */}
-                <View style={styles.contentSection}>
-                    {/* Detailed Info */}
-                    <View style={styles.infoSection}>
-                        {/* Dietary Tags */}
-                        {dish.tags && dish.tags.length > 0 && (
-                            <View style={styles.tagsContainer}>
-                                {dish.tags.map((tag, index) => (
-                                    <View key={index} style={styles.tag}>
-                                        <ThemedText style={styles.tagText}>
-                                            {tag.name}
-                                        </ThemedText>
-                                    </View>
-                                ))}
+                            {/* Performance Stats Row */}
+                            <View style={styles.statCard}>
+                                <View style={styles.statItem}>
+                                    <ThemedText style={styles.statValue}>
+                                        {dish.total_ratings || 0}
+                                    </ThemedText>
+                                    <ThemedText style={styles.statLabel}>
+                                        Ratings
+                                    </ThemedText>
+                                </View>
+                                <View style={styles.statDivider} />
+                                <View style={styles.statItem}>
+                                    <ThemedText style={styles.statValue}>
+                                        {dish.total_battles || 0}
+                                    </ThemedText>
+                                    <ThemedText style={styles.statLabel}>
+                                        Battles
+                                    </ThemedText>
+                                </View>
+                                <View style={styles.statDivider} />
+                                <View style={styles.statItem}>
+                                    <ThemedText style={styles.statValue}>
+                                        {((dish.win_rate || 0) * 100).toFixed(
+                                            0
+                                        )}
+                                        %
+                                    </ThemedText>
+                                    <ThemedText style={styles.statLabel}>
+                                        Win Rate
+                                    </ThemedText>
+                                </View>
+                                <View style={styles.statDivider} />
+                                <View style={styles.statItem}>
+                                    <ThemedText style={styles.statValue}>
+                                        {(
+                                            (dish.confidence_score || 0) * 100
+                                        ).toFixed(0)}
+                                        %
+                                    </ThemedText>
+                                    <ThemedText style={styles.statLabel}>
+                                        Confidence
+                                    </ThemedText>
+                                </View>
                             </View>
-                        )}
-
-                        {/* Description */}
-                        {/* {dish.description && (
-                            <ThemedText style={styles.description}>
-                                {dish.description}
-                            </ThemedText>
-                        )} */}
+                        </View>
                     </View>
 
                     {/* Rate This Dish Button (if reviews exist) */}
-                    {/* {reviews.length > 0 && (
-                        <View style={styles.rateButtonContainer}>
-                            <ThemedButton
-                                onPress={handleRateDishPress}
-                                style={styles.rateButton}
-                            >
-                                Rate This Dish
-                            </ThemedButton>
-                        </View>
-                    )} */}
+
+                    <View style={styles.rateButtonContainer}>
+                        <ThemedButton
+                            onPress={handleRateDishPress}
+                            style={styles.rateButton}
+                        >
+                            Rate This Dish
+                        </ThemedButton>
+                    </View>
                 </View>
             </Animated.ScrollView>
         </ThemedView>
@@ -513,12 +545,6 @@ const createThemedStyles = (
         },
         dishNameHero: {
             fontSize: theme.font.size.xxl + 6,
-            lineHeight: theme.font.size.xxl + 12,
-            fontWeight: theme.font.weight.bold,
-            color: theme.color.textOnImage,
-            textShadowColor: 'rgba(0, 0, 0, 0.75)',
-            textShadowOffset: { width: 0, height: 1 },
-            textShadowRadius: 4,
             marginBottom: 2,
         },
         venueNameContainer: {
@@ -527,18 +553,55 @@ const createThemedStyles = (
             marginBottom: theme.space.sm,
         },
         venueNameHero: {
+            color: theme.color.textSecondary,
             fontSize: theme.font.size.lg,
-            color: theme.color.textOnImage,
-            opacity: 0.9,
-            fontWeight: theme.font.weight.medium,
-            textShadowColor: 'rgba(0, 0, 0, 0.5)',
-            textShadowOffset: { width: 0, height: 1 },
-            textShadowRadius: 2,
         },
         statsRow: {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
+        },
+        statCard: {
+            flexDirection: 'row',
+            backgroundColor:
+                theme.mode === 'dark'
+                    ? 'rgba(255,255,255,0.05)'
+                    : 'rgba(0,0,0,0.03)',
+            borderRadius: theme.radius.lg,
+            paddingVertical: theme.space.md,
+            paddingHorizontal: theme.space.sm,
+            marginBottom: theme.space.lg,
+            justifyContent: 'space-around',
+            alignItems: 'center',
+            borderWidth: 1,
+            borderColor:
+                theme.mode === 'dark'
+                    ? 'rgba(255,255,255,0.1)'
+                    : 'rgba(0,0,0,0.05)',
+        },
+        statItem: {
+            alignItems: 'center',
+            justifyContent: 'center',
+            flex: 1,
+        },
+        statValue: {
+            fontSize: theme.font.size.sm + 1,
+            fontWeight: theme.font.weight.bold,
+            color: theme.color.textPrimary,
+        },
+        statLabel: {
+            fontSize: 9,
+            color: theme.color.textSecondary,
+            textTransform: 'uppercase',
+            marginTop: 2,
+            fontWeight: theme.font.weight.semibold,
+            letterSpacing: 0.5,
+        },
+        statDivider: {
+            width: 1,
+            height: 20,
+            backgroundColor: theme.color.border,
+            opacity: 0.5,
         },
         statsText: {
             fontSize: theme.font.size.md,
@@ -556,9 +619,11 @@ const createThemedStyles = (
             borderTopLeftRadius: theme.radius.xl,
             borderTopRightRadius: theme.radius.xl,
             marginTop: -theme.radius.xl,
-            minHeight: Dimensions.get('window').height,
+            minHeight: Dimensions.get('window').height - HERO_HEIGHT,
             padding: theme.space.sm,
             paddingTop: theme.space.lg,
+            flex: 1,
+            justifyContent: 'space-between',
         },
         infoSection: {
             marginBottom: theme.space.lg,

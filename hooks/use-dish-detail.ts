@@ -1,79 +1,63 @@
 import { supabase } from '@/lib/supabase';
-import type { DishWithVenue, ReviewWithUserProfile } from '@/types/browse';
-import { Review } from '@/types/rating';
+import { DishType, GlobalDishScore } from '@/types/dishType';
+import { Restaurant } from '@/types/restaurant';
+import { TasteTag } from '@/types/taste_tags';
 import { useQuery } from '@tanstack/react-query';
+
+export type DishWithRestaurant = GlobalDishScore & {
+    restaurant: Restaurant;
+    dish_type: DishType;
+    tags: TasteTag[];
+};
 
 /**
  * Hook to fetch dish details with reviews
  * Used in: Dish detail screen
  */
-export function useDishDetail(dishId: string | null) {
+export function useDishDetail(
+    dishId: string | null,
+    restaurantId: string | null
+) {
     return useQuery({
-        queryKey: ['dish', dishId],
+        queryKey: ['dish', dishId, restaurantId],
         queryFn: async () => {
             if (!dishId) throw new Error('No dish ID provided');
+            if (!restaurantId) throw new Error('No restaurant ID provided');
 
-            // Fetch dish and reviews in parallel
-            const [dishResult, reviewsResult] = await Promise.all([
-                // Fetch dish with venue info
-                supabase
-                    .from('dishes')
-                    .select(
-                        `
+            const { data, error } = await supabase
+                .from('global_dish_scores')
+                .select(
+                    `
             *,
-            venue:venues(*)
+            restaurant:restaurants(*),
+            dish_type:dish_types(*)
           `
-                    )
-                    .eq('id', dishId)
-                    .single(),
+                )
+                .eq('dish_type_id', dishId)
+                .eq('restaurant_id', restaurantId)
+                .single();
 
-                // Fetch reviews (without profile join - no direct FK exists)
-                supabase
-                    .from('reviews')
-                    .select('*')
-                    .eq('dish_id', dishId)
-                    .eq('moderation_status', 'approved')
-                    .order('helpful_votes_count', { ascending: false })
-                    .order('created_at', { ascending: false }),
-            ]);
+            const { data: tagsData, error: tagsError } = await supabase
+                .from('personal_ratings')
+                .select(`tags:personal_rating_tags(taste_tags(*))`)
+                .eq('dish_type_id', dishId)
+                .eq('restaurant_id', restaurantId)
+                .single();
 
-            // Handle dish result
-            if (dishResult.error) {
-                throw new Error(dishResult.error.message || 'Dish not found');
-            }
-            const dish = dishResult.data as DishWithVenue;
-
-            // Handle reviews result
-            if (reviewsResult.error) {
-                throw new Error(
-                    reviewsResult.error.message || 'Failed to load reviews'
-                );
+            if (error) {
+                throw new Error(error.message || 'Dish not found');
             }
 
-            const reviewsData: Review[] = reviewsResult.data || [];
-            let reviews: ReviewWithUserProfile[] = [];
+            // Transform data to lift tags to the top level
+            // We need to match DishWithRestaurant interface where tags are direct children
+            const dishData = data as any;
+            const transformedData: DishWithRestaurant = {
+                ...dishData,
+                tags: tagsData?.tags.map((tag: any) => tag.taste_tags) || [],
+            };
 
-            // Fetch user profiles for all reviews separately
-            if (reviewsData.length > 0) {
-                const userIds = reviewsData.map((r) => r.user_id);
-                const { data: profilesData } = await supabase
-                    .from('users')
-                    .select('id, username, display_name, avatar_url')
-                    .in('id', userIds);
-
-                // Map profiles to reviews
-                const profilesMap = new Map(
-                    (profilesData || []).map((p) => [p.id, p])
-                );
-
-                reviews = reviewsData.map((review) => ({
-                    ...review,
-                    profile: profilesMap.get(review.user_id) || null,
-                }));
-            }
-
-            return { dish, reviews };
+            return transformedData;
         },
-        enabled: !!dishId,
+        enabled: !!dishId && !!restaurantId,
     });
 }
