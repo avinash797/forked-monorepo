@@ -1,3 +1,4 @@
+import { supabase } from '@/lib/supabase';
 import * as Location from 'expo-location';
 import { create } from 'zustand';
 
@@ -13,17 +14,20 @@ interface LocationState {
     requestPermission: () => Promise<boolean>;
     getCurrentLocation: () => Promise<void>;
     setCurrentCity: (city: City) => void;
+    setCurrentNeighborhood: (neighborhood: Neighborhood | null) => void;
 }
 
-interface City {
+export interface City {
     id: string;
     name: string;
     state: string;
+    slug: string;
 }
 
-interface Neighborhood {
+export interface Neighborhood {
     id: string;
     name: string;
+    slug: string;
 }
 
 export const useLocationStore = create<LocationState>((set, get) => ({
@@ -54,29 +58,41 @@ export const useLocationStore = create<LocationState>((set, get) => ({
                 accuracy: Location.Accuracy.Balanced,
             });
 
-            set({ currentLocation: location, isLoading: false });
+            set({ currentLocation: location });
 
-            // Reverse geocode to get city/neighborhood
-            const [address] = await Location.reverseGeocodeAsync({
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-            });
+            const { data: rpcData, error } = await supabase.rpc(
+                'match_location',
+                {
+                    lat: location.coords.latitude,
+                    long: location.coords.longitude,
+                }
+            );
 
-            if (address) {
-                // Match to our city database
-                // This would be an API call in reality
+            if (error) throw error;
+
+            const data = rpcData as unknown as {
+                city: City | null;
+                neighborhood: Neighborhood | null;
+            };
+
+            if (data) {
                 set({
-                    currentCity: {
-                        id: 'nola-id',
-                        name: address.city || 'Unknown',
-                        state: address.region || '',
-                    },
+                    currentCity: data.city,
+                    currentNeighborhood: data.neighborhood,
+                    isLoading: false,
                 });
+            } else {
+                set({ isLoading: false });
             }
         } catch (error: any) {
+            console.error('Error fetching location context:', error);
+            // Fallback for development/testing if RPC fails or no city found
+            // For MVP launch we might want to default to NOLA if testing elsewhere
             set({ error: error.message, isLoading: false });
         }
     },
 
     setCurrentCity: (city) => set({ currentCity: city }),
+    setCurrentNeighborhood: (neighborhood) =>
+        set({ currentNeighborhood: neighborhood }),
 }));
