@@ -22,8 +22,8 @@
  * ```
  */
 
-export { useRatingStore } from './use-rating-store';
-export { useAuthStore } from './use-auth-store'; // Optional - auth uses useAuth() hook
-export { useUIStore } from './use-ui-store';
-export { usePreferencesStore } from './use-preferences-store';
+export { useAuthStore } from './auth.store'; // Optional - auth uses useAuth() hook
 export { useLocationFilterStore } from './use-location-filter-store';
+export { usePreferencesStore } from './use-preferences-store';
+export { useRatingStore } from './use-rating-store';
+export { useUIStore } from './use-ui-store';
