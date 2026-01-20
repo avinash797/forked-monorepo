@@ -1,6 +1,6 @@
 # Forked v0.1 - Progress Tracker
 
-**Last Updated:** 2026-01-17
+**Last Updated:** 2026-01-20
 
 This document tracks completion metrics for the **MVP v0.1 Pivot**.
 
@@ -22,16 +22,16 @@ On 2026-01-17, we pivoted from the original roadmap to a focused **MVP v0.1** wi
 
 ## Overall Progress
 
-### Project Completion: 35%
+### Project Completion: 70%
 
 ```
 Backend (Database/RPC)   ████████████████████ 100%
-Data Layer (Hooks)       ████░░░░░░░░░░░░░░░░  20%
-Core Screens (5 total)   ██░░░░░░░░░░░░░░░░░░  10%
-Components               ████░░░░░░░░░░░░░░░░  20%
-Rating Flow Updates      ░░░░░░░░░░░░░░░░░░░░   0%
+Data Layer (Hooks)       ██████████████████░░  90%
+Core Screens (5 total)   ██████████████░░░░░░  70%
+Components               ██████████░░░░░░░░░░  50%
+Rating Flow Updates      ████░░░░░░░░░░░░░░░░  20%
 ─────────────────────────────────────────────
-Overall Progress         ███████░░░░░░░░░░░░░  35%
+Overall Progress         ██████████████░░░░░░  70%
 ```
 
 ---
@@ -61,48 +61,51 @@ Overall Progress         ███████░░░░░░░░░░░�
 
 ---
 
-### Data Layer (Hooks) - 20% Complete
+### Data Layer (Hooks) - 90% Complete
 
 | Hook | Status | Notes |
 |------|--------|-------|
 | `useDishTypes` | Complete | Fetches active dish types |
 | `useLeaderboard` | Complete | Calls get_leaderboard_with_tiebreakers RPC |
 | `useTopDish` | Complete | Gets #1 dish for a type |
-| `useLocationStore` | Partial | Needs DB integration for cities/neighborhoods |
-| `use-restaurants.ts` | Not Started | Restaurant search/create |
-| `use-ratings.ts` | Not Started | Create rating via RPC |
-| `use-comparisons.ts` | Not Started | This vs That battles |
-| `use-user-stats.ts` | Not Started | Profile stats and best-ever |
+| `useLocationStore` | Complete | DB integration for cities/neighborhoods |
+| `use-restaurants.ts` | Complete | Restaurant search/create |
+| `use-ratings.ts` | Complete | Create rating via RPC |
+| `use-comparisons.ts` | Complete | This vs That battles |
+| `use-user-stats.ts` | Complete | Profile stats (useUserStats, useMyBestEver, useUserBadges) |
 
 ---
 
-### Core Screens - 10% Complete
+### Core Screens - 70% Complete
 
 | Screen | Status | Notes |
 |--------|--------|-------|
-| Home | Partial | Structure exists, needs hero card and dish pills |
-| Leaderboard | Partial | Exists but needs neighborhood toggle |
-| Dish Detail | Not Started | New screen for v0.1 |
-| This vs That | Not Started | The Elo battle screen |
-| Profile | Partial | Exists but needs best-ever cards and stats |
+| Home | Complete | Hero card, dish pills, location badge, FAB |
+| Leaderboard | Complete | City/Near Me/Neighborhood toggle, ranked list |
+| Dish Detail | Mostly Complete | Hero photo, restaurant info, confidence meter, taste tags |
+| This vs That | Partial | Split view exists, needs voting flow polish |
+| Profile | Complete | Avatar, home city, stats row, Best Ever cards, badges |
 
 ---
 
-### Components - 20% Complete
+### Components - 50% Complete
 
 | Component | Status | Notes |
 |-----------|--------|-------|
 | Themed Components | Complete | ThemedText, ThemedView, ThemedButton, etc. |
 | LocationHeader | Complete | Location display with search |
 | LocationBottomSheet | Complete | City/neighborhood picker |
-| ScoreBadge | Complete | Can adapt for confidence |
+| ScoreBadge | Complete | Color-coded rating badge |
 | PhotoPicker | Complete | Photo capture for ratings |
-| HeroCard | Not Started | Top dish display |
+| BestEverCard | Complete | Personal best dish card with share |
+| BestEverSection | Complete | Horizontal scrollable Best Ever cards |
+| StatsRow | Complete | User stats (dishes/cities/battles) |
+| BadgesSection | Complete | Horizontal scrollable badges display |
+| HeroCard | Not Started | Top dish display for home |
 | DishTypePills | Not Started | Horizontal selector |
 | ConfidenceMeter | Not Started | Fire emoji visualization |
 | ComparisonCard | Not Started | This vs That split view |
 | TasteTagChips | Not Started | Selectable tags |
-| BestEverCard | Not Started | Personal best with share |
 
 ---
 
@@ -120,6 +123,18 @@ Overall Progress         ███████░░░░░░░░░░░�
 ---
 
 ## Progress History
+
+### 2026-01-20 - Profile Screen Update
+
+- **Profile Screen:** Complete redesign to match v0.1 spec
+  - Removed old 3-tab layout (Reviews, Activities, Achievements)
+  - Added StatsRow component (dishes/cities/battles)
+  - Added BestEverSection with horizontal scrolling cards
+  - Added BadgesSection with computed achievement badges
+  - Hero section shows avatar, display name, home city
+- **New Components:** StatsRow, BestEverSection, BadgesSection
+- **Deferred:** Map view toggle moved to post-v0.1
+- **Overall:** 70% complete
 
 ### 2026-01-17 - MVP v0.1 Pivot
 
@@ -185,11 +200,11 @@ Features from the original roadmap that are NOT in v0.1:
 
 ## Next Steps
 
-1. **Data Layer:** Create missing hooks (restaurants, ratings, comparisons, user-stats)
-2. **Home Screen:** Build hero card and dish type pills
-3. **This vs That:** Build the Elo battle screen
-4. **Rating Flow:** Update to use new schema
-5. **Profile:** Add best-ever cards and stats
+1. **This vs That:** Polish voting flow - center prompt, tap to vote, tag selection
+2. **Rating Flow:** Update to use new schema with mandatory photo
+3. **Dish Detail:** Add ranking badge and map with directions
+4. **Components:** Build remaining components (HeroCard, DishTypePills, ConfidenceMeter)
+5. **Testing:** End-to-end testing of core loop (EAT -> SNAP -> COMPARE -> RANK)
 
 ---
 
@@ -201,5 +216,5 @@ Features from the original roadmap that are NOT in v0.1:
 
 ---
 
-**Last Review:** 2026-01-17
+**Last Review:** 2026-01-20
 **Next Review:** Daily during active development

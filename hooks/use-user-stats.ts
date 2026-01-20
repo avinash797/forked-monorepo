@@ -4,15 +4,16 @@ import { useQuery } from '@tanstack/react-query';
 // Type for get_user_stats RPC response
 export interface UserStats {
     user_id: string;
-    display_name: string | null;
+    username: string | null;
     avatar_url: string | null;
     total_ratings: number;
     total_battles: number;
-    cities_rated: number;
-    dish_types_rated: number;
+    cities_rated_in: number;
+    dishes_by_type: { [key: string]: number };
     credibility_score: number;
     member_since: string;
     home_city: string | null;
+    skip_rate: number;
 }
 
 // Type for get_my_best_ever RPC response
@@ -257,7 +258,7 @@ export function useUserBadges(userId?: string) {
             }
 
             // Explorer badge
-            if (userStats.cities_rated >= 3) {
+            if (userStats.cities_rated_in >= 3) {
                 badges.push({
                     id: 'explorer',
                     name: 'Explorer',
@@ -268,7 +269,7 @@ export function useUserBadges(userId?: string) {
             }
 
             // Diverse palate
-            if (userStats.dish_types_rated >= 5) {
+            if (Object.keys(userStats.dishes_by_type).length >= 5) {
                 badges.push({
                     id: 'diverse_palate',
                     name: 'Diverse Palate',
