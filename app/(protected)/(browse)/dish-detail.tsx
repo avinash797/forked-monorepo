@@ -4,8 +4,11 @@ import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { MapCard } from '@/components/ui/map-card';
 import { useTheme } from '@/contexts/theme-provider';
 import { useDishDetail } from '@/hooks/use-dish-detail';
+import { parsePostgresPoint } from '@/lib/geo';
+import { Restaurant } from '@/types/restaurant';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -47,7 +50,7 @@ export default function DishDetailScreen() {
         isLoading,
         error,
     } = useDishDetail(dishTypeId, restaurantId);
-    const venue = dish?.restaurant;
+    const venue = dish?.restaurant as Restaurant;
 
     // Animation values
     const scrollY = useSharedValue(0);
@@ -348,7 +351,6 @@ export default function DishDetailScreen() {
                         </View>
                         {/* Detailed Info */}
                         <View style={styles.infoSection}>
-                            {/* Dietary Tags */}
                             {dish.tags && dish.tags.length > 0 && (
                                 <View style={styles.tagsContainer}>
                                     {dish.tags.map((tag, index) => (
@@ -361,7 +363,6 @@ export default function DishDetailScreen() {
                                 </View>
                             )}
 
-                            {/* Performance Stats Row */}
                             <View style={styles.statCard}>
                                 <View style={styles.statItem}>
                                     <ThemedText style={styles.statValue}>
@@ -405,10 +406,34 @@ export default function DishDetailScreen() {
                                     </ThemedText>
                                 </View>
                             </View>
+
+                            {venue?.coordinates && (
+                                <View style={styles.mapSection}>
+                                    <ThemedText
+                                        type="defaultSemiBold"
+                                        style={styles.sectionTitle}
+                                    >
+                                        Location
+                                    </ThemedText>
+                                    {(() => {
+                                        const coords = parsePostgresPoint(
+                                            venue.coordinates
+                                        );
+                                        if (!coords) return null;
+                                        return (
+                                            <MapCard
+                                                latitude={coords.latitude}
+                                                longitude={coords.longitude}
+                                                title={venue.name}
+                                                address={venue.address || ''}
+                                                height={180}
+                                            />
+                                        );
+                                    })()}
+                                </View>
+                            )}
                         </View>
                     </View>
-
-                    {/* Rate This Dish Button (if reviews exist) */}
 
                     <View style={styles.rateButtonContainer}>
                         <ThemedButton
@@ -626,7 +651,15 @@ const createThemedStyles = (
             justifyContent: 'space-between',
         },
         infoSection: {
+            marginBottom: theme.space.md,
+        },
+        mapSection: {
             marginBottom: theme.space.lg,
+        },
+        sectionTitle: {
+            fontSize: theme.font.size.md,
+            marginBottom: theme.space.xs,
+            color: theme.color.textPrimary,
         },
         tagsContainer: {
             flexDirection: 'row',
