@@ -12,14 +12,7 @@ import { useLocationStore } from '@/stores/location.store';
 import { DishType } from '@/types/dishType';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import {
-    ActivityIndicator,
-    FlatList,
-    ListRenderItem,
-    RefreshControl,
-    StyleSheet,
-    View,
-} from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -36,18 +29,14 @@ export default function LeaderboardScreen() {
         [theme, insets]
     );
 
-    const { currentCity, currentNeighborhood, getCurrentLocation } =
-        useLocationStore();
+    const { currentCity, getCurrentLocation } = useLocationStore();
 
     const [selectedDishType, setSelectedDishType] = useState<DishType | null>(
         null
     );
-    const [locationFilter, setLocationFilter] =
-        useState<LocationFilter>('city');
 
     // Use current city or fallback to NOLA
     const cityId = currentCity?.id || DEFAULT_NOLA_ID;
-    const neighborhoodId = currentNeighborhood?.id;
 
     // Fetch leaderboard data
     const {
@@ -89,14 +78,6 @@ export default function LeaderboardScreen() {
         });
     };
 
-    const renderItem: ListRenderItem<LeaderboardEntry> = ({ item, index }) => (
-        <Animated.View
-            entering={FadeInDown.delay(300 + index * 50).duration(400)}
-        >
-            <LeaderboardRow item={item} onPress={() => handleRowPress(item)} />
-        </Animated.View>
-    );
-
     const ListHeader = () => (
         <View style={styles.listHeader}>
             {/* Title */}
@@ -108,75 +89,6 @@ export default function LeaderboardScreen() {
                     in {currentCity?.name || 'New Orleans'}
                 </ThemedText>
             </View>
-
-            {/* Dish Type Pills */}
-            <View style={styles.filterContainer}>
-                <DishTypePills
-                    selectedDishType={selectedDishType}
-                    handleDishTypeSelect={handleDishTypeSelect}
-                />
-            </View>
-
-            {/* Location Filter Toggle */}
-            {/* <View style={styles.filterContainer}>
-                <Pressable
-                    style={[
-                        styles.filterButton,
-                        locationFilter === 'city' && styles.filterButtonActive,
-                    ]}
-                    onPress={() => setLocationFilter('city')}
-                >
-                    <ThemedText
-                        style={[
-                            styles.filterText,
-                            locationFilter === 'city' &&
-                                styles.filterTextActive,
-                        ]}
-                    >
-                        City
-                    </ThemedText>
-                </Pressable>
-
-                <Pressable
-                    style={[
-                        styles.filterButton,
-                        locationFilter === 'near_me' &&
-                            styles.filterButtonActive,
-                    ]}
-                    onPress={() => setLocationFilter('near_me')}
-                >
-                    <ThemedText
-                        style={[
-                            styles.filterText,
-                            locationFilter === 'near_me' &&
-                                styles.filterTextActive,
-                        ]}
-                    >
-                        Near Me
-                    </ThemedText>
-                </Pressable>
-
-                {neighborhoodId && (
-                    <Pressable
-                        style={[
-                            styles.filterButton,
-                            locationFilter === 'neighborhood' &&
-                                styles.filterButtonActive,
-                        ]}
-                        onPress={() => setLocationFilter('neighborhood')}
-                    >
-                        <ThemedText
-                            style={[
-                                styles.filterText,
-                                locationFilter === 'neighborhood' &&
-                                    styles.filterTextActive,
-                            ]}
-                        >
-                            {currentNeighborhood?.name || 'Neighborhood'}
-                        </ThemedText>
-                    </Pressable>
-                )}
-            </View> */}
         </View>
     );
 
@@ -198,31 +110,12 @@ export default function LeaderboardScreen() {
 
     return (
         <ThemedView style={styles.container}>
-            <FlatList
-                data={leaderboardItems}
-                keyExtractor={(item) => `${item.restaurant_id}-${item.rank}`}
-                renderItem={renderItem}
-                ListHeaderComponent={ListHeader}
-                ListEmptyComponent={
-                    !isLoading ? (
-                        <View style={styles.emptyContainer}>
-                            <EmptyState
-                                icon="restaurant-outline"
-                                title="No Rankings Yet"
-                                message={
-                                    selectedDishType
-                                        ? `No ${selectedDishType.name} has been rated yet. Be the first!`
-                                        : 'Select a dish type to see rankings.'
-                                }
-                                actionLabel="Rate a Dish"
-                                onActionPress={() =>
-                                    router.push('/(protected)/(rating)')
-                                }
-                            />
-                        </View>
-                    ) : null
-                }
-                contentContainerStyle={styles.listContent}
+            <ListHeader />
+            <DishTypePills
+                selectedDishType={selectedDishType}
+                handleDishTypeSelect={handleDishTypeSelect}
+            />
+            <ScrollView
                 refreshControl={
                     <RefreshControl
                         refreshing={isLoading}
@@ -231,21 +124,41 @@ export default function LeaderboardScreen() {
                         progressViewOffset={insets.top + 20}
                     />
                 }
+                contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
-            />
+            >
+                {!isLoading && leaderboardItems.length === 0 ? (
+                    <View style={styles.emptyContainer}>
+                        <EmptyState
+                            icon="restaurant-outline"
+                            title="No Rankings Yet"
+                            message={
+                                selectedDishType
+                                    ? `No ${selectedDishType.name} has been rated yet. Be the first!`
+                                    : 'Select a dish type to see rankings.'
+                            }
+                            actionLabel="Rate a Dish"
+                            onActionPress={() =>
+                                router.push('/(protected)/(rating)')
+                            }
+                        />
+                    </View>
+                ) : null}
 
-            {/* Loading Overlay */}
-            {isLoading && leaderboardItems.length === 0 && (
-                <View style={styles.loadingOverlay}>
-                    <ActivityIndicator
-                        size="large"
-                        color={theme.color.accent}
-                    />
-                    <ThemedText style={styles.loadingText}>
-                        Loading rankings...
-                    </ThemedText>
-                </View>
-            )}
+                {leaderboardItems.map((item, index) => (
+                    <Animated.View
+                        entering={FadeInDown.delay(300 + index * 50).duration(
+                            400
+                        )}
+                    >
+                        <LeaderboardRow
+                            key={`${item.restaurant_id}-${item.rank}`}
+                            item={item}
+                            onPress={() => handleRowPress(item)}
+                        />
+                    </Animated.View>
+                ))}
+            </ScrollView>
         </ThemedView>
     );
 }
@@ -281,7 +194,6 @@ const createThemedStyles = (
         },
         filterContainer: {
             flexDirection: 'row',
-            paddingHorizontal: theme.space.md,
             paddingVertical: theme.space.sm,
             gap: theme.space.xs,
         },
@@ -306,8 +218,8 @@ const createThemedStyles = (
             color: theme.color.accentOn,
         },
         listContent: {
+            paddingVertical: theme.space.md,
             paddingHorizontal: theme.space.md,
-            paddingBottom: insets.bottom + 100, // Space for bottom tab
         },
         emptyContainer: {
             paddingTop: 60,

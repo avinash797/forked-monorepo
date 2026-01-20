@@ -25,10 +25,10 @@ export default function DishTypePills({
     const { data: dishTypes, isLoading: dishTypesLoading } = useDishTypes();
 
     useEffect(() => {
-        if (dishTypes) {
+        if (dishTypes && !selectedDishType) {
             handleDishTypeSelect(dishTypes[0]);
         }
-    }, [dishTypes]);
+    }, [dishTypes, selectedDishType, handleDishTypeSelect]);
 
     return (
         <View style={styles.chipContainer}>
@@ -36,6 +36,7 @@ export default function DishTypePills({
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.chipScrollContent}
+                fadingEdgeLength={10}
             >
                 <View style={{ paddingHorizontal: theme.space.xs }} />
                 {dishTypes?.map((dishType, index) => {
@@ -87,13 +88,13 @@ export default function DishTypePills({
 const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     StyleSheet.create({
         chipContainer: {
-            paddingVertical: theme.space.xxs,
+            paddingVertical: 2,
         },
         chipScrollContent: {
             alignItems: 'center',
         },
         chip: {
-            borderRadius: theme.radius.pill,
+            borderRadius: theme.radius.sm,
             backgroundColor: theme.color.surface,
             borderWidth: 1.5,
             borderColor: theme.color.border,
@@ -117,7 +118,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             zIndex: 1,
         },
         chipSelected: {
-            backgroundColor: theme.color.accent,
+            backgroundColor: theme.color.accentSoft,
             borderColor: theme.color.accent,
             shadowColor: theme.color.accent,
             shadowOpacity: 0.3,
