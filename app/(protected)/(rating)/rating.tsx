@@ -142,8 +142,9 @@ export default function RatingScreen() {
             // If comparison should be triggered, navigate to compare screen
             if (result.should_compare && result.comparison_candidate_id) {
                 console.log('Comparison should be triggered');
-                router.dismissAll();
-                router.replace({
+                // Navigate to compare screen - don't reset rating state yet
+                // The compare screen will handle cleanup when done
+                router.push({
                     pathname: '/(protected)/(rating)/compare',
                     params: {
                         newRatingId: result.rating_id,
@@ -153,19 +154,20 @@ export default function RatingScreen() {
                 });
             } else {
                 console.log('Comparison should not be triggered');
-                // Go back to home
+                // Reset rating state and go back to home
+                resetRating();
+                router.dismissAll();
                 router.replace('/(protected)/(tabs)');
             }
         } catch (error: any) {
             await deletePhoto(uploaded.storagePath);
+            resetRating();
             Alert.alert(
                 'Error',
                 error.message?.includes('duplicate')
                     ? 'You have already rated this dish at this restaurant'
                     : 'Failed to submit rating. Please try again.'
             );
-        } finally {
-            resetRating();
         }
     };
 

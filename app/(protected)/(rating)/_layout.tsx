@@ -46,6 +46,7 @@ export default function RatingLayout() {
                 name="compare"
                 options={{
                     title: 'Compare',
+                    headerShown: false,
                 }}
             />
         </Stack>

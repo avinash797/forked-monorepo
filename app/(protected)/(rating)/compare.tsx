@@ -10,6 +10,7 @@ import {
     useProcessComparison,
 } from '@/hooks/use-comparisons';
 import { trackEvent } from '@/lib/amplitude';
+import { useRatingStore } from '@/stores';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -51,9 +52,14 @@ export default function CompareScreen() {
 
     const [showSkipModal, setShowSkipModal] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
+    const { resetRating } = useRatingStore();
 
     // If params are provided, fetch the specific comparison pair
-    const { data: specificPair } = useComparisonPair(
+    const {
+        data: specificPair,
+        isLoading: isLoadingPair,
+        error: pairError,
+    } = useComparisonPair(
         params.newRatingId || null,
         params.comparisonRatingId || null,
         params.dishTypeId || null
@@ -87,9 +93,11 @@ export default function CompareScreen() {
                     winner_id: winnerId,
                 });
 
-                // If from rating flow, go back; otherwise fetch next
+                // If from rating flow, go to tabs; otherwise fetch next
                 if (params.newRatingId) {
-                    router.back();
+                    resetRating();
+                    router.dismissAll();
+                    router.replace('/(protected)/(tabs)');
                 } else {
                     refetchPending();
                 }
@@ -99,7 +107,15 @@ export default function CompareScreen() {
                 setIsProcessing(false);
             }
         },
-        [comparison, processComparison, params.newRatingId, router, refetchPending, isProcessing]
+        [
+            comparison,
+            processComparison,
+            params.newRatingId,
+            router,
+            refetchPending,
+            isProcessing,
+            resetRating,
+        ]
     );
 
     const handleSkip = useCallback(
@@ -123,7 +139,9 @@ export default function CompareScreen() {
                 });
 
                 if (params.newRatingId) {
-                    router.back();
+                    resetRating();
+                    router.dismissAll();
+                    router.replace('/(protected)/(tabs)');
                 } else {
                     refetchPending();
                 }
@@ -133,11 +151,26 @@ export default function CompareScreen() {
                 setIsProcessing(false);
             }
         },
-        [comparison, processComparison, params.newRatingId, router, refetchPending, isProcessing]
+        [
+            comparison,
+            processComparison,
+            params.newRatingId,
+            router,
+            refetchPending,
+            isProcessing,
+            resetRating,
+        ]
     );
 
     const handleClose = () => {
-        router.back();
+        // If from rating flow, go to tabs; otherwise just go back
+        if (params.newRatingId) {
+            resetRating();
+            router.dismissAll();
+            router.replace('/(protected)/(tabs)');
+        } else {
+            router.back();
+        }
     };
 
     // Loading state
@@ -145,7 +178,10 @@ export default function CompareScreen() {
         return (
             <ThemedView style={styles.container}>
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.color.accent} />
+                    <ActivityIndicator
+                        size="large"
+                        color={theme.color.accent}
+                    />
                     <ThemedText style={styles.loadingText}>
                         Finding dishes to compare...
                     </ThemedText>
@@ -162,7 +198,11 @@ export default function CompareScreen() {
                 style={styles.header}
             >
                 <Pressable style={styles.closeButton} onPress={handleClose}>
-                    <IconSymbol name="close" size={24} color={theme.color.textPrimary} />
+                    <IconSymbol
+                        name="close"
+                        size={24}
+                        color={theme.color.textPrimary}
+                    />
                 </Pressable>
                 <ThemedText style={styles.headerTitle}>This vs That</ThemedText>
                 <Pressable
@@ -174,14 +214,14 @@ export default function CompareScreen() {
             </Animated.View>
 
             {/* Dish Type Badge */}
-            <Animated.View
+            {/* <Animated.View
                 entering={FadeIn.delay(200).duration(400)}
                 style={styles.dishTypeBadge}
             >
                 <ThemedText style={styles.dishTypeText}>
                     Which {comparison.dish_type_name} wins?
                 </ThemedText>
-            </Animated.View>
+            </Animated.View> */}
 
             {/* Comparison Cards */}
             <View style={styles.cardsContainer}>

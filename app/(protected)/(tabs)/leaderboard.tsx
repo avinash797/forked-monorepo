@@ -150,9 +150,9 @@ export default function LeaderboardScreen() {
                         entering={FadeInDown.delay(300 + index * 50).duration(
                             400
                         )}
+                        key={`${item.restaurant_id}-${item.rank}`}
                     >
                         <LeaderboardRow
-                            key={`${item.restaurant_id}-${item.rank}`}
                             item={item}
                             onPress={() => handleRowPress(item)}
                         />
