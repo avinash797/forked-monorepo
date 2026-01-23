@@ -12,12 +12,24 @@ import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 export default function TakePhotoScreen() {
     const router = useRouter();
-    const { setPhotoUri } = useRatingStore();
+    const { setPhotoUri, selectedRestaurant, selectedDishType } =
+        useRatingStore();
     const [permission, requestPermission] = useCameraPermissions();
     const cameraRef = useRef<CameraView>(null);
     const { theme } = useTheme();
     const primaryColor = theme.color.accent;
     const [flashMode, setFlashMode] = useState<'off' | 'on' | 'auto'>('off');
+
+    // Determine if we should skip venue/dish selection (when coming from dish detail)
+    const shouldSkipSelection = !!selectedRestaurant && !!selectedDishType;
+
+    // Get the next route based on whether we have pre-populated data
+    const getNextRoute = () => {
+        if (shouldSkipSelection) {
+            return '/(protected)/(rating)/rating';
+        }
+        return '/(protected)/(rating)/venue-search';
+    };
 
     // Request camera permission on mount
     if (!permission) {
@@ -68,7 +80,7 @@ export default function TakePhotoScreen() {
 
             if (photo) {
                 setPhotoUri(photo.uri);
-                router.push('/(protected)/(rating)/venue-search');
+                router.push(getNextRoute());
             }
         } catch (error: any) {
             Alert.alert('Error', 'Failed to take photo. Please try again.');
@@ -90,14 +102,12 @@ export default function TakePhotoScreen() {
 
             const result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ['images'],
-                allowsEditing: true,
-                aspect: [9, 16],
                 quality: 0.8,
             });
 
             if (!result.canceled && result.assets[0]) {
                 setPhotoUri(result.assets[0].uri);
-                router.push('/(protected)/(rating)/venue-search');
+                router.push(getNextRoute());
             }
         } catch (error: any) {
             Alert.alert('Error', 'Failed to open gallery. Please try again.');
@@ -117,8 +127,7 @@ export default function TakePhotoScreen() {
                 {
                     text: 'Skip',
                     style: 'destructive',
-                    onPress: () =>
-                        router.push('/(protected)/(rating)/venue-search'),
+                    onPress: () => router.push(getNextRoute()),
                 },
             ]
         );
@@ -151,7 +160,6 @@ export default function TakePhotoScreen() {
                     ref={cameraRef}
                     style={styles.camera}
                     facing="back"
-                    pictureSize="16:9"
                     flash={flashMode}
                 />
                 {/* Camera Top Controls */}

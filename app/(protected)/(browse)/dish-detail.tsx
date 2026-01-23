@@ -8,6 +8,7 @@ import { MapCard } from '@/components/ui/map-card';
 import { useTheme } from '@/contexts/theme-provider';
 import { useDishDetail } from '@/hooks/use-dish-detail';
 import { parsePostgresPoint } from '@/lib/geo';
+import { useRatingStore } from '@/stores';
 import { Restaurant } from '@/types/restaurant';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -51,6 +52,10 @@ export default function DishDetailScreen() {
         error,
     } = useDishDetail(dishTypeId, restaurantId);
     const venue = dish?.restaurant as Restaurant;
+
+    // Rating store for pre-populating when user wants to rate this dish
+    const { setSelectedRestaurant, setSelectedDishType, resetRating } =
+        useRatingStore();
 
     // Animation values
     const scrollY = useSharedValue(0);
@@ -168,8 +173,15 @@ export default function DishDetailScreen() {
         }
     };
 
-    // Navigate to rating flow
+    // Navigate to rating flow with pre-populated restaurant and dish type
     const handleRateDishPress = () => {
+        if (dish && venue) {
+            // Reset any previous rating state first
+            resetRating();
+            // Pre-populate the rating store with current dish and restaurant
+            setSelectedRestaurant(venue);
+            setSelectedDishType(dish.dish_type);
+        }
         router.push('/(protected)/(rating)');
     };
 
