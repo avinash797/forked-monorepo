@@ -1,13 +1,12 @@
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
-import { City, Neighborhood, useCities } from '@/hooks/use-location';
+import { City, useCities } from '@/hooks/use-location';
 import { useLocationFilterStore, useLocationStore } from '@/stores';
 import {
     BottomSheetBackdrop,
     BottomSheetFlatList,
     BottomSheetModal,
-    BottomSheetSectionList,
 } from '@gorhom/bottom-sheet';
 import { BottomSheetDefaultBackdropProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types';
 import { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
@@ -234,17 +233,22 @@ export const LocationBottomSheet = forwardRef<
         }
 
         return (
-            <BottomSheetSectionList
-                sections={neighborhoodSections}
-                keyExtractor={(item: Neighborhood) => item.id}
-                renderItem={renderNeighborhoodItem}
-                renderSectionHeader={renderSectionHeader}
-                contentContainerStyle={[
-                    styles.listContent,
-                    { paddingBottom: bottom + theme.space.md },
-                ]}
-                stickySectionHeadersEnabled={false}
-            />
+            // <BottomSheetSectionList
+            //     sections={neighborhoodSections}
+            //     keyExtractor={(item: Neighborhood) => item.id}
+            //     renderItem={renderNeighborhoodItem}
+            //     renderSectionHeader={renderSectionHeader}
+            //     contentContainerStyle={[
+            //         styles.listContent,
+            //         { paddingBottom: bottom + theme.space.md },
+            //     ]}
+            //     stickySectionHeadersEnabled={false}
+            // />
+            <View style={styles.emptyContainer}>
+                <ThemedText>
+                    Neighborhood level filtering is coming soon!
+                </ThemedText>
+            </View>
         );
     };
 
@@ -265,10 +269,7 @@ export const LocationBottomSheet = forwardRef<
             enableContentPanningGesture={false}
             enableDynamicSizing={false}
         >
-            <View style={styles.header}>
-                <ThemedText type="title" style={styles.title}>
-                    Filter by Location
-                </ThemedText>
+            {/* <View style={styles.header}>
                 <Pressable onPress={onClose}>
                     <IconSymbol
                         name="close"
@@ -276,7 +277,7 @@ export const LocationBottomSheet = forwardRef<
                         color={theme.color.textTertiary}
                     />
                 </Pressable>
-            </View>
+            </View> */}
 
             {/* Tabs */}
             <View style={styles.tabContainer}>
@@ -326,10 +327,10 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     StyleSheet.create({
         header: {
             flexDirection: 'row',
-            justifyContent: 'space-between',
+            justifyContent: 'flex-end',
             alignItems: 'center',
             paddingHorizontal: theme.space.md,
-            paddingVertical: theme.space.md,
+            paddingBottom: theme.space.md,
         },
         title: {
             fontSize: theme.font.size.lg,
@@ -337,7 +338,7 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         tabContainer: {
             flexDirection: 'row',
             marginHorizontal: theme.space.md,
-            marginBottom: theme.space.sm,
+            marginVertical: theme.space.sm,
             backgroundColor: theme.color.inputBg,
             borderRadius: theme.radius.md,
             padding: 4,
@@ -393,6 +394,7 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         itemSelected: {
             backgroundColor: theme.color.accent + '10', // 10% opacity
+            borderBottomWidth: 0,
         },
         itemText: {
             fontSize: theme.font.size.md,

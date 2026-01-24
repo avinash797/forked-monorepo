@@ -13,9 +13,22 @@ export default function TabLayout() {
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: theme.color.accent,
                 headerShown: false,
                 tabBarButton: HapticTab,
+                tabBarStyle: {
+                    height: 80,
+                    paddingTop: 8,
+                    paddingBottom: 28,
+                    borderTopWidth: 0,
+                    backgroundColor: theme.color.surface,
+                    elevation: 0,
+                },
+                tabBarActiveTintColor: theme.color.accent,
+                tabBarInactiveTintColor: theme.color.textSecondary,
+                tabBarLabelStyle: {
+                    fontSize: 12,
+                    fontWeight: '500',
+                },
             }}
         >
             <Tabs.Screen

@@ -2,49 +2,69 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { useTheme } from '@/contexts/theme-provider';
+import { useTopDish } from '@/hooks/use-leaderboard';
+import { trackEvent } from '@/lib/amplitude';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 import { ThemedText } from '../themed-text';
 import { IconSymbol } from '../ui/icon-symbol';
 
 interface HeroCardProps {
-    dishName: string;
-    restaurantName: string;
-    neighborhood: string;
-    distance?: string;
-    score: number;
-    photoPath?: string | null;
-    confidence_score?: number;
-    onPress: () => void;
+    cityId: string;
+    dishTypeId: string;
 }
 
-export default function HeroCard({
-    dishName,
-    restaurantName,
-    neighborhood,
-    distance,
-    score,
-    photoPath,
-    confidence_score,
-    onPress,
-}: HeroCardProps) {
+export default function HeroCard({ cityId, dishTypeId }: HeroCardProps) {
+    const router = useRouter();
+
     const { theme } = useTheme();
     const styles = createStyles(theme);
+    const { data: topDish, isLoading: topDishLoading } = useTopDish(
+        cityId,
+        dishTypeId
+    );
 
-    const confidence = Math.max(1, Math.ceil((confidence_score ?? 0) * 5));
+    const confidence = Math.max(
+        1,
+        Math.ceil((topDish?.confidence_score ?? 0) * 5)
+    );
     const flames = '🔥'.repeat(confidence);
+
+    const distance = undefined;
+
+    const handleHeroPress = () => {
+        if (topDish?.restaurant_id && dishTypeId) {
+            // Navigate to dish detail
+            router.push({
+                pathname: '/(protected)/(browse)/dish-detail',
+                params: {
+                    restaurantId: topDish.restaurant_id,
+                    dishTypeId: dishTypeId,
+                },
+            });
+            trackEvent('hero_card_pressed', {
+                restaurant_id: topDish.restaurant_id,
+                dish_type_id: dishTypeId,
+            });
+        }
+    };
+
+    if (!topDish) {
+        return <View style={styles.container} />;
+    }
 
     return (
         <Animated.View entering={FadeIn.duration(500)} style={styles.container}>
             <TouchableOpacity
                 activeOpacity={0.9}
-                onPress={onPress}
+                onPress={handleHeroPress}
                 style={styles.card}
             >
                 {/* Image Background */}
                 <View style={styles.imageContainer}>
-                    {photoPath ? (
+                    {topDish?.featured_photo_url ? (
                         <Image
-                            source={{ uri: photoPath }}
+                            source={{ uri: topDish.featured_photo_url }}
                             style={styles.image}
                             contentFit="cover"
                             transition={200}
@@ -73,13 +93,13 @@ export default function HeroCard({
                             numberOfLines={1}
                             style={styles.restaurantName}
                         >
-                            {restaurantName}
+                            {topDish?.restaurant_name}
                         </ThemedText>
                     </View>
 
                     <View style={styles.detailsRow}>
                         <ThemedText style={styles.detailText}>
-                            {neighborhood}
+                            {topDish?.neighborhood_name}
                         </ThemedText>
                         {distance && (
                             <>
@@ -108,6 +128,7 @@ const createStyles = (theme: any) =>
         container: {
             paddingHorizontal: theme.space.md,
             marginVertical: theme.space.sm,
+            flex: 1,
         },
         card: {
             backgroundColor: theme.color.surface,
