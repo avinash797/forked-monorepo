@@ -14,7 +14,7 @@ import { DishType } from '@/types/dishType';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const DEFAULT_NOLA_ID = '2865c3db-1a51-464d-bd8e-1a49777a866f';
@@ -109,13 +109,12 @@ export default function HomeScreen() {
                             craving?
                         </ThemedText>
                     </View>
+                    {/* Recent Battle Ticker */}
+                    <RecentBattleTicker cityId={cityId} />
                     <DishTypePills
                         selectedDishType={selectedDishType}
                         handleDishTypeSelect={handleDishTypeSelect}
                     />
-
-                    {/* Recent Battle Ticker */}
-                    <RecentBattleTicker cityId={cityId} />
 
                     {/* Hero Card Section */}
                     <View style={styles.heroSection}>
@@ -135,34 +134,6 @@ export default function HomeScreen() {
                                 <ThemedText>Loading best dish...</ThemedText>
                             </View>
                         ) : null}
-
-                        {/* Expandable Top 3 Stub */}
-                        {topDish && (
-                            <TouchableOpacity
-                                style={styles.expandButton}
-                                onPress={() => setShowTop3(!showTop3)}
-                            >
-                                <ThemedText style={styles.expandText}>
-                                    {showTop3
-                                        ? 'Hide Runners Up'
-                                        : 'Show #2 and #3'}
-                                </ThemedText>
-                            </TouchableOpacity>
-                        )}
-
-                        {showTop3 && (
-                            <View style={styles.runnersUpContainer}>
-                                <ThemedText
-                                    style={{
-                                        textAlign: 'center',
-                                        opacity: 0.5,
-                                    }}
-                                >
-                                    Runners up coming soon...
-                                </ThemedText>
-                            </View>
-                        )}
-
                         {/* Rising Star Card */}
                         {selectedDishType && (
                             <RisingStarCard

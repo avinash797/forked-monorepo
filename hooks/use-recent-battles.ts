@@ -38,7 +38,7 @@ export function useRecentBattles(options: { limit?: number; cityId?: string } = 
                     `
                     id,
                     created_at,
-                    user:user_id (
+                    user:profiles!comparisons_user_profile_fkey (
                         username
                     ),
                     dish_type:dish_types(
