@@ -1,191 +1,31 @@
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
-import { City, useCities } from '@/hooks/use-location';
-import { useLocationFilterStore } from '@/stores';
-import BottomSheet, {
+import { City, Neighborhood, useCities } from '@/hooks/use-location';
+import { useLocationFilterStore, useLocationStore } from '@/stores';
+import {
     BottomSheetBackdrop,
-    BottomSheetScrollView,
+    BottomSheetFlatList,
+    BottomSheetModal,
+    BottomSheetSectionList,
 } from '@gorhom/bottom-sheet';
 import { BottomSheetDefaultBackdropProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types';
-import { forwardRef, useCallback, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
-} from 'react-native-reanimated';
+import { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+    ActivityIndicator,
+    Pressable,
+    SectionListRenderItem,
+    StyleSheet,
+    View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface LocationBottomSheetProps {
     onClose: () => void;
 }
 
-interface CityItemProps {
-    city: City;
-    isExpanded: boolean;
-    onToggle: () => void;
-    onCitySelect: () => void;
-    onNeighborhoodSelect: (neighborhoodId: string, neighborhoodName: string) => void;
-    selectedCityId: string | null;
-    selectedNeighborhoodId: string | null;
-    filterType: 'city' | 'neighborhood' | null;
-}
-
-function CityItem({
-    city,
-    isExpanded,
-    onToggle,
-    onCitySelect,
-    onNeighborhoodSelect,
-    selectedCityId,
-    selectedNeighborhoodId,
-    filterType,
-}: CityItemProps) {
-    const { theme } = useTheme();
-    const styles = createStyles(theme);
-
-    const isCitySelected = filterType === 'city' && selectedCityId === city.id;
-    const hasNeighborhoods = city.neighborhoods.length > 0;
-
-    // Animation for expansion
-    const expansionProgress = useSharedValue(isExpanded ? 1 : 0);
-
-    const animatedContainerStyle = useAnimatedStyle(() => {
-        expansionProgress.value = withTiming(isExpanded ? 1 : 0, { duration: 250 });
-        const neighborhoodHeight = 44; // Height per neighborhood item
-        const maxHeight = 52 + city.neighborhoods.length * neighborhoodHeight;
-        return {
-            height: 52 + expansionProgress.value * (city.neighborhoods.length * neighborhoodHeight),
-            maxHeight,
-            overflow: 'hidden',
-        };
-    }, [isExpanded, city.neighborhoods.length]);
-
-    const animatedNeighborhoodsStyle = useAnimatedStyle(() => ({
-        opacity: expansionProgress.value,
-    }));
-
-    return (
-        <Animated.View
-            style={[
-                styles.cityItem,
-                isCitySelected && {
-                    backgroundColor: theme.color.accent + '15',
-                    borderColor: theme.color.accent,
-                },
-                animatedContainerStyle,
-            ]}
-        >
-            {/* City Header */}
-            <View style={styles.cityHeader}>
-                <Pressable
-                    onPress={onCitySelect}
-                    style={({ pressed }) => [
-                        styles.cityTitlePressable,
-                        pressed && { opacity: theme.opacity.pressed },
-                    ]}
-                >
-                    <View style={styles.itemTitleContainer}>
-                        <IconSymbol
-                            name="business"
-                            size={20}
-                            color={
-                                isCitySelected
-                                    ? theme.color.accent
-                                    : theme.color.textSecondary
-                            }
-                        />
-                        <ThemedText
-                            style={[
-                                styles.cityName,
-                                {
-                                    color: isCitySelected
-                                        ? theme.color.accent
-                                        : theme.color.textPrimary,
-                                },
-                            ]}
-                        >
-                            {city.name}
-                        </ThemedText>
-                    </View>
-                    {isCitySelected && (
-                        <IconSymbol
-                            name="checkmark-circle"
-                            size={20}
-                            color={theme.color.accent}
-                        />
-                    )}
-                </Pressable>
-
-                {hasNeighborhoods && (
-                    <Pressable
-                        onPress={onToggle}
-                        style={({ pressed }) => [
-                            styles.expandButton,
-                            pressed && { opacity: theme.opacity.pressed },
-                        ]}
-                    >
-                        <IconSymbol
-                            name={isExpanded ? 'chevron-up' : 'chevron-down'}
-                            size={20}
-                            color={theme.color.textSecondary}
-                        />
-                    </Pressable>
-                )}
-            </View>
-
-            {/* Neighborhoods */}
-            {hasNeighborhoods && (
-                <Animated.View style={[styles.neighborhoodsContainer, animatedNeighborhoodsStyle]}>
-                    {city.neighborhoods.map((neighborhood) => {
-                        const isNeighborhoodSelected =
-                            filterType === 'neighborhood' &&
-                            selectedNeighborhoodId === neighborhood.id;
-
-                        return (
-                            <Pressable
-                                key={neighborhood.id}
-                                onPress={() =>
-                                    onNeighborhoodSelect(neighborhood.id, neighborhood.name)
-                                }
-                                style={({ pressed }) => [
-                                    styles.neighborhoodItem,
-                                    isNeighborhoodSelected && {
-                                        backgroundColor: theme.color.accent + '10',
-                                    },
-                                    pressed && { opacity: theme.opacity.pressed },
-                                ]}
-                            >
-                                <ThemedText
-                                    style={[
-                                        styles.neighborhoodName,
-                                        {
-                                            color: isNeighborhoodSelected
-                                                ? theme.color.accent
-                                                : theme.color.textSecondary,
-                                        },
-                                    ]}
-                                >
-                                    {neighborhood.name}
-                                </ThemedText>
-                                {isNeighborhoodSelected && (
-                                    <IconSymbol
-                                        name="checkmark-circle"
-                                        size={18}
-                                        color={theme.color.accent}
-                                    />
-                                )}
-                            </Pressable>
-                        );
-                    })}
-                </Animated.View>
-            )}
-        </Animated.View>
-    );
-}
-
 export const LocationBottomSheet = forwardRef<
-    BottomSheet,
+    BottomSheetModal,
     LocationBottomSheetProps
 >((props, ref) => {
     const { onClose } = props;
@@ -196,18 +36,25 @@ export const LocationBottomSheet = forwardRef<
         selectedNeighborhoodId,
         setCityFilter,
         setNeighborhoodFilter,
-        resetFilter,
     } = useLocationFilterStore();
 
+    // Physical location + auto-selection source
+    const { currentCity } = useLocationStore();
+
     const { data: cities = [], isLoading: isLoadingCities } = useCities();
-    const [expandedCityId, setExpandedCityId] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<'cities' | 'neighborhoods'>(
+        'cities'
+    );
 
     const styles = createStyles(theme);
-    const snapPoints = ['60%', '80%'];
+    const snapPoints = useMemo(() => ['40%', '60%', '80%'], []);
 
-    const handleCityToggle = useCallback((cityId: string) => {
-        setExpandedCityId((prev) => (prev === cityId ? null : cityId));
-    }, []);
+    // Auto-select closest city if no filter is active and we have a location match
+    useEffect(() => {
+        if (!filterType && currentCity && !selectedCityId) {
+            setCityFilter(currentCity.id, currentCity.name);
+        }
+    }, [filterType, currentCity, selectedCityId, setCityFilter]);
 
     const handleCitySelect = useCallback(
         (city: City) => {
@@ -219,16 +66,16 @@ export const LocationBottomSheet = forwardRef<
 
     const handleNeighborhoodSelect = useCallback(
         (city: City, neighborhoodId: string, neighborhoodName: string) => {
-            setNeighborhoodFilter(city.id, city.name, neighborhoodId, neighborhoodName);
+            setNeighborhoodFilter(
+                city.id,
+                city.name,
+                neighborhoodId,
+                neighborhoodName
+            );
             onClose();
         },
         [setNeighborhoodFilter, onClose]
     );
-
-    const handleClearFilter = useCallback(() => {
-        resetFilter();
-        onClose();
-    }, [resetFilter, onClose]);
 
     const renderBackdrop = useCallback(
         (props: BottomSheetDefaultBackdropProps) => (
@@ -242,15 +89,172 @@ export const LocationBottomSheet = forwardRef<
         []
     );
 
-    const hasActiveFilter = filterType !== null;
+    // Prepare sections for Neighborhoods tab
+    const neighborhoodSections = useMemo(() => {
+        return cities
+            .map((city) => ({
+                title: city.name,
+                data: city.neighborhoods,
+                city: city, // keep ref to city for handler
+            }))
+            .filter((section) => section.data.length > 0);
+    }, [cities]);
+
+    const renderCityItem = useCallback(
+        ({ item: city }: { item: City }) => {
+            const isSelected =
+                filterType === 'city' && selectedCityId === city.id;
+            return (
+                <Pressable
+                    onPress={() => handleCitySelect(city)}
+                    style={({ pressed }) => [
+                        styles.itemContainer,
+                        isSelected && styles.itemSelected,
+                        pressed && { opacity: theme.opacity.pressed },
+                    ]}
+                >
+                    <ThemedText
+                        style={[
+                            styles.itemText,
+                            isSelected && { color: theme.color.accent },
+                        ]}
+                    >
+                        {city.name}
+                    </ThemedText>
+                    {isSelected && (
+                        <IconSymbol
+                            name="checkmark-circle"
+                            size={20}
+                            color={theme.color.accent}
+                        />
+                    )}
+                </Pressable>
+            );
+        },
+        [filterType, selectedCityId, styles, theme, handleCitySelect]
+    );
+
+    const renderNeighborhoodItem: SectionListRenderItem<any, any> = useCallback(
+        ({ item, section }) => {
+            const isSelected =
+                filterType === 'neighborhood' &&
+                selectedNeighborhoodId === item.id;
+            // section.city is accessible via the section object we created
+            const parentCity = section.city;
+
+            return (
+                <Pressable
+                    onPress={() =>
+                        handleNeighborhoodSelect(parentCity, item.id, item.name)
+                    }
+                    style={({ pressed }) => [
+                        styles.neighborhoodItemContainer,
+                        isSelected && styles.itemSelected,
+                        pressed && { opacity: theme.opacity.pressed },
+                    ]}
+                >
+                    <ThemedText
+                        style={[
+                            styles.neighborhoodText,
+                            isSelected && { color: theme.color.accent },
+                        ]}
+                    >
+                        {item.name}
+                    </ThemedText>
+                    {isSelected && (
+                        <IconSymbol
+                            name="checkmark-circle"
+                            size={18}
+                            color={theme.color.accent}
+                        />
+                    )}
+                </Pressable>
+            );
+        },
+        [
+            filterType,
+            selectedNeighborhoodId,
+            styles,
+            theme,
+            handleNeighborhoodSelect,
+        ]
+    );
+
+    const renderSectionHeader = useCallback(
+        ({ section: { title } }: any) => (
+            <View style={styles.sectionHeader}>
+                <ThemedText style={styles.sectionHeaderText}>
+                    {title}
+                </ThemedText>
+            </View>
+        ),
+        [styles]
+    );
+
+    const { bottom } = useSafeAreaInsets();
+
+    const renderContent = () => {
+        if (isLoadingCities) {
+            return (
+                <View
+                    style={[styles.loadingContainer, { paddingBottom: bottom }]}
+                >
+                    <ActivityIndicator color={theme.color.accent} />
+                    <ThemedText style={styles.loadingText}>
+                        Loading locations...
+                    </ThemedText>
+                </View>
+            );
+        }
+
+        if (cities.length === 0) {
+            return (
+                <View
+                    style={[styles.emptyContainer, { paddingBottom: bottom }]}
+                >
+                    <ThemedText style={styles.emptyText}>
+                        No locations available
+                    </ThemedText>
+                </View>
+            );
+        }
+
+        if (activeTab === 'cities') {
+            return (
+                <BottomSheetFlatList
+                    data={cities}
+                    keyExtractor={(item: City) => item.id}
+                    renderItem={renderCityItem}
+                    contentContainerStyle={[
+                        styles.listContent,
+                        { paddingBottom: bottom + theme.space.md },
+                    ]}
+                />
+            );
+        }
+
+        return (
+            <BottomSheetSectionList
+                sections={neighborhoodSections}
+                keyExtractor={(item: Neighborhood) => item.id}
+                renderItem={renderNeighborhoodItem}
+                renderSectionHeader={renderSectionHeader}
+                contentContainerStyle={[
+                    styles.listContent,
+                    { paddingBottom: bottom + theme.space.md },
+                ]}
+                stickySectionHeadersEnabled={false}
+            />
+        );
+    };
 
     return (
-        <BottomSheet
+        <BottomSheetModal
             ref={ref}
-            index={-1}
+            index={0}
             snapPoints={snapPoints}
             enablePanDownToClose
-            onClose={onClose}
+            onDismiss={onClose}
             backgroundStyle={{
                 backgroundColor: theme.color.bg,
             }}
@@ -258,84 +262,61 @@ export const LocationBottomSheet = forwardRef<
                 backgroundColor: theme.color.border,
             }}
             backdropComponent={renderBackdrop}
-            enableContentPanningGesture
+            enableContentPanningGesture={false}
+            enableDynamicSizing={false}
         >
-            <BottomSheetScrollView
-                style={{ backgroundColor: theme.color.bg, flex: 1 }}
-            >
-                {/* Header */}
-                <View style={styles.header}>
-                    <ThemedText type="title" style={styles.title}>
-                        Filter by Location
+            <View style={styles.header}>
+                <ThemedText type="title" style={styles.title}>
+                    Filter by Location
+                </ThemedText>
+                <Pressable onPress={onClose}>
+                    <IconSymbol
+                        name="close"
+                        size={24}
+                        color={theme.color.textTertiary}
+                    />
+                </Pressable>
+            </View>
+
+            {/* Tabs */}
+            <View style={styles.tabContainer}>
+                <Pressable
+                    style={[
+                        styles.tab,
+                        activeTab === 'cities' && styles.activeTab,
+                    ]}
+                    onPress={() => setActiveTab('cities')}
+                >
+                    <ThemedText
+                        style={[
+                            styles.tabText,
+                            activeTab === 'cities' && styles.activeTabText,
+                        ]}
+                    >
+                        Cities
                     </ThemedText>
-                    <Pressable onPress={onClose}>
-                        <IconSymbol
-                            name="close"
-                            size={24}
-                            color={theme.color.textTertiary}
-                        />
-                    </Pressable>
-                </View>
+                </Pressable>
+                <Pressable
+                    style={[
+                        styles.tab,
+                        activeTab === 'neighborhoods' && styles.activeTab,
+                    ]}
+                    onPress={() => setActiveTab('neighborhoods')}
+                >
+                    <ThemedText
+                        style={[
+                            styles.tabText,
+                            activeTab === 'neighborhoods' &&
+                                styles.activeTabText,
+                        ]}
+                    >
+                        Neighborhoods
+                    </ThemedText>
+                </Pressable>
+            </View>
 
-                {/* Clear Filter Button */}
-                {hasActiveFilter && (
-                    <View style={styles.clearFilterContainer}>
-                        <Pressable
-                            onPress={handleClearFilter}
-                            style={({ pressed }) => [
-                                styles.clearFilterButton,
-                                pressed && { opacity: theme.opacity.pressed },
-                            ]}
-                        >
-                            <IconSymbol
-                                name="close-circle"
-                                size={18}
-                                color={theme.color.textSecondary}
-                            />
-                            <ThemedText style={styles.clearFilterText}>
-                                Clear filter
-                            </ThemedText>
-                        </Pressable>
-                    </View>
-                )}
-
-                {/* Cities List */}
-                <View style={styles.section}>
-                    {isLoadingCities ? (
-                        <View style={styles.loadingContainer}>
-                            <ActivityIndicator color={theme.color.accent} />
-                            <ThemedText style={styles.loadingText}>
-                                Loading locations...
-                            </ThemedText>
-                        </View>
-                    ) : cities.length === 0 ? (
-                        <View style={styles.emptyContainer}>
-                            <ThemedText style={styles.emptyText}>
-                                No cities available
-                            </ThemedText>
-                        </View>
-                    ) : (
-                        <View style={styles.citiesList}>
-                            {cities.map((city) => (
-                                <CityItem
-                                    key={city.id}
-                                    city={city}
-                                    isExpanded={expandedCityId === city.id}
-                                    onToggle={() => handleCityToggle(city.id)}
-                                    onCitySelect={() => handleCitySelect(city)}
-                                    onNeighborhoodSelect={(neighborhoodId, neighborhoodName) =>
-                                        handleNeighborhoodSelect(city, neighborhoodId, neighborhoodName)
-                                    }
-                                    selectedCityId={selectedCityId}
-                                    selectedNeighborhoodId={selectedNeighborhoodId}
-                                    filterType={filterType}
-                                />
-                            ))}
-                        </View>
-                    )}
-                </View>
-            </BottomSheetScrollView>
-        </BottomSheet>
+            <View style={{ flex: 1 }}>{renderContent()}</View>
+        </BottomSheetModal>
     );
 });
 
@@ -349,84 +330,90 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             alignItems: 'center',
             paddingHorizontal: theme.space.md,
             paddingVertical: theme.space.md,
-            borderBottomWidth: theme.border.hairline,
-            borderBottomColor: theme.color.border,
         },
         title: {
             fontSize: theme.font.size.lg,
         },
-        clearFilterContainer: {
-            paddingHorizontal: theme.space.md,
-            paddingTop: theme.space.sm,
-        },
-        clearFilterButton: {
+        tabContainer: {
             flexDirection: 'row',
-            alignItems: 'center',
-            gap: theme.space.xxs,
-            alignSelf: 'flex-start',
-            paddingVertical: theme.space.xxs,
-            paddingHorizontal: theme.space.xs,
-            borderRadius: theme.radius.xs,
+            marginHorizontal: theme.space.md,
+            marginBottom: theme.space.sm,
             backgroundColor: theme.color.inputBg,
+            borderRadius: theme.radius.md,
+            padding: 4,
         },
-        clearFilterText: {
+        tab: {
+            flex: 1,
+            paddingVertical: theme.space.sm,
+            alignItems: 'center',
+            borderRadius: theme.radius.sm,
+        },
+        activeTab: {
+            backgroundColor: theme.color.bg,
+            shadowColor: '#000',
+            shadowOffset: {
+                width: 0,
+                height: 1,
+            },
+            shadowOpacity: 0.1,
+            shadowRadius: 2,
+            elevation: 2,
+        },
+        tabText: {
             fontSize: theme.font.size.sm,
+            fontWeight: theme.font.weight.medium,
             color: theme.color.textSecondary,
         },
-        section: {
-            padding: theme.space.md,
+        activeTabText: {
+            color: theme.color.textPrimary,
+            fontWeight: theme.font.weight.bold,
         },
-        citiesList: {
+        listContent: {
+            padding: theme.space.md,
             gap: theme.space.xs,
         },
-        cityItem: {
-            borderRadius: theme.radius.sm,
-            borderWidth: theme.border.hairline,
-            borderColor: theme.color.border,
-            backgroundColor: theme.color.inputBg,
-        },
-        cityHeader: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            height: 52,
-        },
-        cityTitlePressable: {
-            flex: 1,
+        itemContainer: {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            paddingLeft: theme.space.md,
-            paddingRight: theme.space.xs,
-            height: '100%',
+            paddingVertical: theme.space.md,
+            paddingHorizontal: theme.space.sm,
+            borderRadius: theme.radius.sm,
+            borderBottomWidth: theme.border.hairline,
+            borderBottomColor: theme.color.border,
         },
-        itemTitleContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: theme.space.sm,
-        },
-        cityName: {
-            fontSize: theme.font.size.md - 1,
-            fontWeight: theme.font.weight.medium,
-        },
-        expandButton: {
-            padding: theme.space.sm,
-            paddingRight: theme.space.md,
-        },
-        neighborhoodsContainer: {
-            paddingLeft: theme.space.lg + theme.space.md,
-            paddingRight: theme.space.md,
-            paddingBottom: theme.space.xs,
-        },
-        neighborhoodItem: {
+        neighborhoodItemContainer: {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
             paddingVertical: theme.space.sm,
             paddingHorizontal: theme.space.sm,
-            borderRadius: theme.radius.xs,
+            paddingLeft: theme.space.lg, // Indentation for neighborhoods
+            borderRadius: theme.radius.sm,
         },
-        neighborhoodName: {
+        itemSelected: {
+            backgroundColor: theme.color.accent + '10', // 10% opacity
+        },
+        itemText: {
+            fontSize: theme.font.size.md,
+            fontWeight: theme.font.weight.medium,
+        },
+        neighborhoodText: {
             fontSize: theme.font.size.sm,
+            color: theme.color.textSecondary,
+        },
+        sectionHeader: {
+            paddingVertical: theme.space.xs,
+            paddingHorizontal: theme.space.sm,
+            backgroundColor: theme.color.bg,
+            marginTop: theme.space.sm,
+        },
+        sectionHeaderText: {
+            fontSize: theme.font.size.sm,
+            fontWeight: theme.font.weight.bold,
+            color: theme.color.textPrimary,
+            textTransform: 'uppercase',
+            opacity: 0.7,
         },
         loadingContainer: {
             padding: theme.space.lg,

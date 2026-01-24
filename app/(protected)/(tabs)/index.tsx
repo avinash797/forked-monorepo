@@ -9,7 +9,7 @@ import { useTopDish } from '@/hooks/use-leaderboard';
 import { trackEvent } from '@/lib/amplitude';
 import { useLocationStore } from '@/stores/location.store';
 import { DishType } from '@/types/dishType';
-import BottomSheet from '@gorhom/bottom-sheet';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -24,7 +24,7 @@ export default function HomeScreen() {
 
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
-    const bottomSheetRef = useRef<BottomSheet>(null);
+    const bottomSheetRef = useRef<BottomSheetModal>(null);
 
     const [selectedDishType, setSelectedDishType] = useState<DishType | null>(
         null
@@ -64,12 +64,12 @@ export default function HomeScreen() {
 
     // Open location filter bottom sheet
     const handleLocationPress = () => {
-        bottomSheetRef.current?.snapToIndex(0);
+        bottomSheetRef.current?.present();
     };
 
     // Close location filter bottom sheet
     const handleCloseBottomSheet = () => {
-        bottomSheetRef.current?.close();
+        bottomSheetRef.current?.dismiss();
     };
 
     const handleHeroPress = () => {
