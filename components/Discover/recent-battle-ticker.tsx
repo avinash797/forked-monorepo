@@ -5,7 +5,7 @@ import { useTheme } from '@/contexts/theme-provider';
 import { useRecentBattles } from '@/hooks/use-recent-battles';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useState } from 'react';
-import { Dimensions, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
     Easing,
     useAnimatedStyle,
@@ -18,23 +18,23 @@ interface RecentBattleTickerProps {
     cityId?: string;
 }
 
-const CARD_HEIGHT = 100; // Increased height for more details
-const ANIMATION_DURATION = 800;
-const DISPLAY_DURATION = 3000; // Show each battle for 3 seconds
+const BANNER_HEIGHT = 56;
+const ANIMATION_DURATION = 600;
+const DISPLAY_DURATION = 4000; // Show each battle for 4 seconds
 
 /**
- * RecentBattleTicker - Vertical rolling ticker showing recent community battles
+ * RecentBattleTicker - Notification-style banner showing recent community battles
  *
- * Displays battles in a smooth vertical carousel with:
- * - Winner vs Loser layout with visual distinction
- * - Dish type emoji and name
- * - Timestamp (e.g., "2m ago")
- * - Smooth reanimated transitions
+ * Displays battles in a sleek notification banner with:
+ * - Flat, minimal design (not card-based)
+ * - Single-line battle summary
+ * - Username, winner vs loser, dish type, and timestamp
+ * - Smooth vertical content transitions
  *
  * Purpose:
  * - Shows the "Authority Engine" is active
- * - Creates a sense of community
- * - Validates the ranking system with real activity
+ * - Creates a sense of live community activity
+ * - Validates the ranking system
  *
  * Used in: Home screen (between dish type pills and hero card)
  */
@@ -53,30 +53,30 @@ export function RecentBattleTicker({ cityId }: RecentBattleTickerProps) {
 
         const interval = setInterval(() => {
             // Fade out
-            opacity.value = withTiming(0, { duration: 300, easing: Easing.ease });
+            opacity.value = withTiming(0, { duration: 200, easing: Easing.ease });
 
             // Slide up
             translateY.value = withTiming(
-                -CARD_HEIGHT,
-                { duration: ANIMATION_DURATION, easing: Easing.out(Easing.exp) },
+                -BANNER_HEIGHT,
+                { duration: ANIMATION_DURATION, easing: Easing.out(Easing.cubic) },
                 () => {
                     // After animation, update index and reset position
                     setCurrentIndex((prev) => (prev + 1) % battles.length);
-                    translateY.value = CARD_HEIGHT;
+                    translateY.value = BANNER_HEIGHT;
 
-                    // Slide in from bottom with delay
+                    // Slide in from bottom
                     translateY.value = withDelay(
-                        100,
+                        50,
                         withTiming(0, {
                             duration: ANIMATION_DURATION,
-                            easing: Easing.out(Easing.exp),
+                            easing: Easing.out(Easing.cubic),
                         })
                     );
 
-                    // Fade in with delay
+                    // Fade in
                     opacity.value = withDelay(
-                        200,
-                        withTiming(1, { duration: 400, easing: Easing.ease })
+                        100,
+                        withTiming(1, { duration: 300, easing: Easing.ease })
                     );
                 }
             );
@@ -96,96 +96,45 @@ export function RecentBattleTicker({ cityId }: RecentBattleTickerProps) {
 
     const currentBattle = battles[currentIndex];
     const timeAgo = formatDistanceToNow(new Date(currentBattle.createdAt), {
-        addSuffix: true,
+        addSuffix: false,
     });
 
     return (
         <ThemedView style={styles.container}>
-            <View style={styles.tickerWrapper}>
-                <Animated.View style={[styles.battleCard, animatedStyle]}>
-                    {/* Header Row */}
-                    <View style={styles.headerRow}>
-                        <View style={styles.userBadge}>
-                            <IconSymbol
-                                name="person-outline"
-                                size={14}
-                                color={theme.color.accent}
-                            />
+            <View style={styles.bannerWrapper}>
+                <Animated.View style={[styles.contentRow, animatedStyle]}>
+                    {/* Left: Activity icon */}
+                    <View style={styles.iconContainer}>
+                        <IconSymbol
+                            name="trophy-outline"
+                            size={20}
+                            color={theme.color.accent}
+                        />
+                    </View>
+
+                    {/* Center: Battle text */}
+                    <View style={styles.textContainer}>
+                        <ThemedText style={styles.primaryText} numberOfLines={1}>
                             <ThemedText style={styles.username}>
                                 {currentBattle.username}
                             </ThemedText>
-                        </View>
-                        <ThemedText style={styles.timeAgo}>{timeAgo}</ThemedText>
-                    </View>
-
-                    {/* Battle Content */}
-                    <View style={styles.battleContent}>
-                        {/* Winner Side */}
-                        <View style={styles.winnerSide}>
-                            <View style={styles.winnerBadge}>
-                                <IconSymbol
-                                    name="checkmark-circle"
-                                    size={16}
-                                    color={theme.color.success}
-                                />
-                            </View>
-                            <ThemedText
-                                style={styles.winnerName}
-                                numberOfLines={2}
-                            >
+                            <ThemedText style={styles.action}> picked </ThemedText>
+                            <ThemedText style={styles.winner}>
                                 {currentBattle.winnerRestaurant}
                             </ThemedText>
-                        </View>
-
-                        {/* VS Divider */}
-                        <View style={styles.vsDivider}>
-                            <ThemedText style={styles.vsText}>VS</ThemedText>
-                            <View style={styles.vsLine} />
-                        </View>
-
-                        {/* Loser Side */}
-                        <View style={styles.loserSide}>
-                            <View style={styles.loserBadge}>
-                                <IconSymbol
-                                    name="close-circle-outline"
-                                    size={16}
-                                    color={theme.color.textTertiary}
-                                />
-                            </View>
-                            <ThemedText
-                                style={styles.loserName}
-                                numberOfLines={2}
-                            >
+                            <ThemedText style={styles.action}> over </ThemedText>
+                            <ThemedText style={styles.loser}>
                                 {currentBattle.loserRestaurant}
                             </ThemedText>
-                        </View>
+                        </ThemedText>
+                        <ThemedText style={styles.secondaryText} numberOfLines={1}>
+                            {currentBattle.dishTypeEmoji} {currentBattle.dishTypeName}
+                        </ThemedText>
                     </View>
 
-                    {/* Footer Row - Dish Type */}
-                    <View style={styles.footerRow}>
-                        <View style={styles.dishTypeBadge}>
-                            <ThemedText style={styles.dishTypeEmoji}>
-                                {currentBattle.dishTypeEmoji}
-                            </ThemedText>
-                            <ThemedText style={styles.dishTypeName}>
-                                {currentBattle.dishTypeName}
-                            </ThemedText>
-                        </View>
-                    </View>
+                    {/* Right: Timestamp */}
+                    <ThemedText style={styles.timestamp}>{timeAgo}</ThemedText>
                 </Animated.View>
-            </View>
-
-            {/* Progress Indicator */}
-            <View style={styles.progressContainer}>
-                {battles.slice(0, 5).map((_, index) => (
-                    <View
-                        key={index}
-                        style={[
-                            styles.progressDot,
-                            index === currentIndex % 5 && styles.progressDotActive,
-                        ]}
-                    />
-                ))}
             </View>
         </ThemedView>
     );
@@ -197,136 +146,73 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             marginBottom: theme.space.md,
             paddingHorizontal: theme.space.md,
         },
-        tickerWrapper: {
-            height: CARD_HEIGHT,
+        bannerWrapper: {
+            height: BANNER_HEIGHT,
             overflow: 'hidden',
-            borderRadius: theme.radius.lg,
-            backgroundColor: theme.color.surface,
-            borderWidth: 1,
-            borderColor: theme.color.border,
-        },
-        battleCard: {
-            height: CARD_HEIGHT,
-            padding: theme.space.sm,
-            justifyContent: 'space-between',
-        },
-        headerRow: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: theme.space.xs,
-        },
-        userBadge: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: theme.space.xxs,
-            backgroundColor: theme.color.accentSoft,
-            paddingHorizontal: theme.space.xs,
-            paddingVertical: 2,
-            borderRadius: theme.radius.pill,
-        },
-        username: {
-            fontSize: theme.font.size.xs,
-            fontWeight: '600',
-            color: theme.color.accent,
-        },
-        timeAgo: {
-            fontSize: theme.font.size.xs,
-            color: theme.color.textTertiary,
-            fontWeight: '500',
-        },
-        battleContent: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            flex: 1,
-            gap: theme.space.xs,
-        },
-        winnerSide: {
-            flex: 1,
-            alignItems: 'flex-start',
-        },
-        winnerBadge: {
-            marginBottom: 2,
-        },
-        winnerName: {
-            fontSize: theme.font.size.md,
-            fontWeight: '700',
-            color: theme.color.textPrimary,
-            lineHeight: 18,
-        },
-        vsDivider: {
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingHorizontal: theme.space.xs,
-        },
-        vsText: {
-            fontSize: theme.font.size.xs,
-            fontWeight: '800',
-            color: theme.color.textTertiary,
-            letterSpacing: 1,
-            marginBottom: 2,
-        },
-        vsLine: {
-            width: 1,
-            height: 24,
-            backgroundColor: theme.color.border,
-        },
-        loserSide: {
-            flex: 1,
-            alignItems: 'flex-end',
-        },
-        loserBadge: {
-            marginBottom: 2,
-        },
-        loserName: {
-            fontSize: theme.font.size.sm,
-            fontWeight: '500',
-            color: theme.color.textSecondary,
-            opacity: 0.7,
-            lineHeight: 16,
-            textAlign: 'right',
-        },
-        footerRow: {
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginTop: theme.space.xs,
-        },
-        dishTypeBadge: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: theme.space.xxs,
+            borderRadius: theme.radius.md,
             backgroundColor:
                 theme.mode === 'dark'
-                    ? 'rgba(255, 255, 255, 0.05)'
-                    : 'rgba(0, 0, 0, 0.03)',
+                    ? 'rgba(255, 255, 255, 0.03)'
+                    : 'rgba(0, 0, 0, 0.02)',
+            borderWidth: 1,
+            borderColor:
+                theme.mode === 'dark'
+                    ? 'rgba(255, 255, 255, 0.06)'
+                    : 'rgba(0, 0, 0, 0.04)',
+        },
+        contentRow: {
+            height: BANNER_HEIGHT,
+            flexDirection: 'row',
+            alignItems: 'center',
             paddingHorizontal: theme.space.sm,
-            paddingVertical: 4,
-            borderRadius: theme.radius.pill,
+            gap: theme.space.sm,
         },
-        dishTypeEmoji: {
-            fontSize: 14,
+        iconContainer: {
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            backgroundColor:
+                theme.mode === 'dark'
+                    ? theme.color.accentSoft
+                    : theme.color.accentSoft,
+            alignItems: 'center',
+            justifyContent: 'center',
         },
-        dishTypeName: {
+        textContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            gap: 2,
+        },
+        primaryText: {
             fontSize: theme.font.size.sm,
-            fontWeight: '600',
+            lineHeight: 18,
+        },
+        username: {
+            fontWeight: '700',
+            color: theme.color.textPrimary,
+        },
+        action: {
+            fontWeight: '400',
             color: theme.color.textSecondary,
         },
-        progressContainer: {
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: theme.space.xxs,
-            marginTop: theme.space.sm,
+        winner: {
+            fontWeight: '700',
+            color: theme.color.textPrimary,
         },
-        progressDot: {
-            width: 6,
-            height: 6,
-            borderRadius: 3,
-            backgroundColor: theme.color.border,
+        loser: {
+            fontWeight: '500',
+            color: theme.color.textTertiary,
         },
-        progressDotActive: {
-            backgroundColor: theme.color.accent,
-            width: 20,
+        secondaryText: {
+            fontSize: theme.font.size.xs,
+            color: theme.color.textSecondary,
+            fontWeight: '500',
+        },
+        timestamp: {
+            fontSize: theme.font.size.xs,
+            color: theme.color.textTertiary,
+            fontWeight: '500',
+            minWidth: 50,
+            textAlign: 'right',
         },
     });
