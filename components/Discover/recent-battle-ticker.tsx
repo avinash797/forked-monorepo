@@ -4,7 +4,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useRecentBattles } from '@/hooks/use-recent-battles';
 import { formatDistanceToNow } from 'date-fns';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
     Easing,
@@ -18,9 +18,9 @@ interface RecentBattleTickerProps {
     cityId?: string;
 }
 
-const BANNER_HEIGHT = 56;
+const BANNER_HEIGHT = 72;
 const ANIMATION_DURATION = 600;
-const DISPLAY_DURATION = 4000; // Show each battle for 4 seconds
+const DISPLAY_DURATION = 5000; // Show each battle for 5 seconds
 
 /**
  * RecentBattleTicker - Notification-style banner showing recent community battles
@@ -41,49 +41,71 @@ const DISPLAY_DURATION = 4000; // Show each battle for 4 seconds
 export function RecentBattleTicker({ cityId }: RecentBattleTickerProps) {
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
-    const { data: battles, isLoading } = useRecentBattles({ limit: 15, cityId });
+    const { data: battles, isLoading } = useRecentBattles({
+        limit: 15,
+        cityId,
+    });
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const translateY = useSharedValue(0);
     const opacity = useSharedValue(1);
+    const battlesLengthRef = useRef(0);
+
+    // Keep ref updated with current battles length
+    useEffect(() => {
+        battlesLengthRef.current = battles?.length ?? 0;
+        // Reset index if it's out of bounds after data changes
+        if (battles && currentIndex >= battles.length) {
+            setCurrentIndex(0);
+        }
+    }, [battles, currentIndex]);
+
+    // Advance to next battle (called from interval)
+    const advanceToNext = useCallback(() => {
+        const length = battlesLengthRef.current;
+        if (length === 0) return;
+
+        // Fade out current
+        opacity.value = withTiming(0, {
+            duration: 200,
+            easing: Easing.ease,
+        });
+
+        // Slide up current
+        translateY.value = withTiming(-BANNER_HEIGHT, {
+            duration: ANIMATION_DURATION,
+            easing: Easing.out(Easing.cubic),
+        });
+
+        // After exit animation, update index and animate in
+        setTimeout(() => {
+            setCurrentIndex((prev) => (prev + 1) % length);
+            translateY.value = BANNER_HEIGHT;
+
+            // Slide in from bottom
+            translateY.value = withDelay(
+                50,
+                withTiming(0, {
+                    duration: ANIMATION_DURATION,
+                    easing: Easing.out(Easing.cubic),
+                })
+            );
+
+            // Fade in
+            opacity.value = withDelay(
+                100,
+                withTiming(1, { duration: 300, easing: Easing.ease })
+            );
+        }, ANIMATION_DURATION);
+    }, [opacity, translateY]);
 
     // Auto-advance through battles
     useEffect(() => {
         if (!battles || battles.length === 0) return;
 
-        const interval = setInterval(() => {
-            // Fade out
-            opacity.value = withTiming(0, { duration: 200, easing: Easing.ease });
-
-            // Slide up
-            translateY.value = withTiming(
-                -BANNER_HEIGHT,
-                { duration: ANIMATION_DURATION, easing: Easing.out(Easing.cubic) },
-                () => {
-                    // After animation, update index and reset position
-                    setCurrentIndex((prev) => (prev + 1) % battles.length);
-                    translateY.value = BANNER_HEIGHT;
-
-                    // Slide in from bottom
-                    translateY.value = withDelay(
-                        50,
-                        withTiming(0, {
-                            duration: ANIMATION_DURATION,
-                            easing: Easing.out(Easing.cubic),
-                        })
-                    );
-
-                    // Fade in
-                    opacity.value = withDelay(
-                        100,
-                        withTiming(1, { duration: 300, easing: Easing.ease })
-                    );
-                }
-            );
-        }, DISPLAY_DURATION);
-
+        const interval = setInterval(advanceToNext, DISPLAY_DURATION);
         return () => clearInterval(interval);
-    }, [battles, opacity, translateY]);
+    }, [battles, advanceToNext]);
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ translateY: translateY.value }],
@@ -94,7 +116,11 @@ export function RecentBattleTicker({ cityId }: RecentBattleTickerProps) {
         return null;
     }
 
-    const currentBattle = battles[currentIndex];
+    const currentBattle = battles[currentIndex % battles.length];
+    if (!currentBattle) {
+        return null;
+    }
+
     const timeAgo = formatDistanceToNow(new Date(currentBattle.createdAt), {
         addSuffix: false,
     });
@@ -114,26 +140,38 @@ export function RecentBattleTicker({ cityId }: RecentBattleTickerProps) {
 
                     {/* Center: Battle text */}
                     <View style={styles.textContainer}>
-                        <ThemedText style={styles.primaryText} numberOfLines={1}>
+                        <ThemedText
+                            style={styles.primaryText}
+                            numberOfLines={2}
+                        >
                             <ThemedText style={styles.username}>
                                 {currentBattle.username}
                             </ThemedText>
-                            <ThemedText style={styles.action}> picked </ThemedText>
+                            <ThemedText style={styles.action}>
+                                {' '}
+                                picked{' '}
+                            </ThemedText>
                             <ThemedText style={styles.winner}>
                                 {currentBattle.winnerRestaurant}
                             </ThemedText>
-                            <ThemedText style={styles.action}> over </ThemedText>
+                            <ThemedText style={styles.action}>
+                                {' '}
+                                over{' '}
+                            </ThemedText>
                             <ThemedText style={styles.loser}>
                                 {currentBattle.loserRestaurant}
                             </ThemedText>
                         </ThemedText>
-                        <ThemedText style={styles.secondaryText} numberOfLines={1}>
-                            {currentBattle.dishTypeEmoji} {currentBattle.dishTypeName}
-                        </ThemedText>
+                        <View style={styles.bottomTextContainer}>
+                            <ThemedText style={styles.secondaryText}>
+                                {currentBattle.dishTypeEmoji}{' '}
+                                {currentBattle.dishTypeName}
+                            </ThemedText>
+                            <ThemedText style={styles.timestamp}>
+                                {timeAgo}
+                            </ThemedText>
+                        </View>
                     </View>
-
-                    {/* Right: Timestamp */}
-                    <ThemedText style={styles.timestamp}>{timeAgo}</ThemedText>
                 </Animated.View>
             </View>
         </ThemedView>
@@ -143,7 +181,7 @@ export function RecentBattleTicker({ cityId }: RecentBattleTickerProps) {
 const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     StyleSheet.create({
         container: {
-            marginBottom: theme.space.md,
+            marginVertical: theme.space.md,
             paddingHorizontal: theme.space.md,
         },
         bannerWrapper: {
@@ -203,6 +241,10 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             fontWeight: '500',
             color: theme.color.textTertiary,
         },
+        bottomTextContainer: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+        },
         secondaryText: {
             fontSize: theme.font.size.xs,
             color: theme.color.textSecondary,
@@ -212,7 +254,6 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             fontSize: theme.font.size.xs,
             color: theme.color.textTertiary,
             fontWeight: '500',
-            minWidth: 50,
             textAlign: 'right',
         },
     });

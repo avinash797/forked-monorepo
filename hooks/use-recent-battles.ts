@@ -26,7 +26,9 @@ export interface RecentBattleItem {
  * const { battles, isLoading } = useRecentBattles({ limit: 10 });
  * ```
  */
-export function useRecentBattles(options: { limit?: number; cityId?: string } = {}) {
+export function useRecentBattles(
+    options: { limit?: number; cityId?: string } = {}
+) {
     const { limit = 15, cityId } = options;
 
     return useQuery({
@@ -39,7 +41,7 @@ export function useRecentBattles(options: { limit?: number; cityId?: string } = 
                     id,
                     created_at,
                     user:profiles!comparisons_user_profile_fkey (
-                        username
+                        display_name
                     ),
                     dish_type:dish_types(
                         name,
@@ -70,19 +72,22 @@ export function useRecentBattles(options: { limit?: number; cityId?: string } = 
             const battles: RecentBattleItem[] = (data || [])
                 .filter((item) => item.user && item.dish_type && item.winner) // Filter out incomplete data
                 .map((item) => {
-                    const winnerRestaurant = (item.winner as any)?.restaurant?.name || 'Unknown';
+                    const winnerRestaurant =
+                        (item.winner as any)?.restaurant?.name || 'Unknown';
 
                     // Determine loser restaurant
                     const ratingA = item.rating_a as any;
                     const ratingB = item.rating_b as any;
                     const loserRestaurant =
-                        (item.winner as any)?.restaurant?.name === ratingA?.restaurant?.name
+                        (item.winner as any)?.restaurant?.name ===
+                        ratingA?.restaurant?.name
                             ? ratingB?.restaurant?.name || 'Unknown'
                             : ratingA?.restaurant?.name || 'Unknown';
 
                     return {
                         id: item.id,
-                        username: (item.user as any)?.username || 'Anonymous',
+                        username:
+                            (item.user as any)?.display_name || 'Anonymous',
                         dishTypeName: (item.dish_type as any)?.name || 'Dish',
                         dishTypeEmoji: (item.dish_type as any)?.emoji || '🍽️',
                         winnerRestaurant,
