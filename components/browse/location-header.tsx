@@ -16,10 +16,13 @@ export function LocationHeader({
     const { theme } = useTheme();
     // Subscribe to the actual state values for reactivity
     const displayText = useLocationFilterStore((state) => {
-        if (state.filterType === 'nearby') {
-            return `Nearby (${state.radius}km)`;
+        if (state.filterType === 'neighborhood' && state.selectedNeighborhoodName) {
+            return state.selectedNeighborhoodName;
         }
-        return state.selectedLocation || 'All Locations';
+        if (state.filterType === 'city' && state.selectedCityName) {
+            return state.selectedCityName;
+        }
+        return 'All Locations';
     });
     const styles = createStyles(theme);
 

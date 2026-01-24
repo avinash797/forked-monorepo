@@ -138,10 +138,8 @@ export default function RatingScreen() {
                     selectedTags.length > 0 ? selectedTags : undefined,
             });
 
-            console.log(result);
             // If comparison should be triggered, navigate to compare screen
             if (result.should_compare && result.comparison_candidate_id) {
-                console.log('Comparison should be triggered');
                 // Navigate to compare screen - don't reset rating state yet
                 // The compare screen will handle cleanup when done
                 router.push({
@@ -153,7 +151,6 @@ export default function RatingScreen() {
                     },
                 });
             } else {
-                console.log('Comparison should not be triggered');
                 // Reset rating state and go back to home
                 resetRating();
                 router.dismissAll();

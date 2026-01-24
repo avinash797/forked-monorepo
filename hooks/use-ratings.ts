@@ -101,7 +101,7 @@ export function useUpdateRating() {
 /**
  * Get a user's personal ratings for a specific dish type
  */
-export function useMyDishRankings(dishTypeId: string | null) {
+export function useMyDishRankings(dishTypeId?: string) {
     return useQuery({
         queryKey: ['myDishRankings', dishTypeId],
         queryFn: async () => {

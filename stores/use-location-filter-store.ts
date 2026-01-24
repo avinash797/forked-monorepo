@@ -1,47 +1,83 @@
 import { create } from 'zustand';
 
-type FilterType = 'nearby' | 'location';
+type FilterType = 'city' | 'neighborhood';
 
 interface LocationFilterState {
     // Current filter configuration
-    filterType: FilterType;
-    radius: number; // in km
-    selectedLocation: string | null; // city or neighborhood name
+    filterType: FilterType | null;
+    selectedCityId: string | null;
+    selectedCityName: string | null;
+    selectedNeighborhoodId: string | null;
+    selectedNeighborhoodName: string | null;
 
     // Actions
-    setNearbyFilter: (radius: number) => void;
-    setLocationFilter: (location: string) => void;
+    setCityFilter: (cityId: string, cityName: string) => void;
+    setNeighborhoodFilter: (
+        cityId: string,
+        cityName: string,
+        neighborhoodId: string,
+        neighborhoodName: string
+    ) => void;
     resetFilter: () => void;
+
+    // Helper getters
+    getDisplayName: () => string;
 }
 
-const DEFAULT_RADIUS = 5; // 5km default
+export const useLocationFilterStore = create<LocationFilterState>(
+    (set, get) => ({
+        // Initial state - no filter selected
+        filterType: null,
+        selectedCityId: null,
+        selectedCityName: null,
+        selectedNeighborhoodId: null,
+        selectedNeighborhoodName: null,
 
-export const useLocationFilterStore = create<LocationFilterState>((set) => ({
-    // Initial state
-    filterType: 'nearby',
-    radius: DEFAULT_RADIUS,
-    selectedLocation: null,
+        // Set city filter
+        setCityFilter: (cityId, cityName) =>
+            set({
+                filterType: 'city',
+                selectedCityId: cityId,
+                selectedCityName: cityName,
+                selectedNeighborhoodId: null,
+                selectedNeighborhoodName: null,
+            }),
 
-    // Set nearby filter with radius
-    setNearbyFilter: (radius) =>
-        set({
-            filterType: 'nearby',
-            radius,
-            selectedLocation: null,
-        }),
+        // Set neighborhood filter (includes parent city)
+        setNeighborhoodFilter: (
+            cityId,
+            cityName,
+            neighborhoodId,
+            neighborhoodName
+        ) =>
+            set({
+                filterType: 'neighborhood',
+                selectedCityId: cityId,
+                selectedCityName: cityName,
+                selectedNeighborhoodId: neighborhoodId,
+                selectedNeighborhoodName: neighborhoodName,
+            }),
 
-    // Set location filter (city/neighborhood)
-    setLocationFilter: (location) =>
-        set({
-            filterType: 'location',
-            selectedLocation: location,
-        }),
+        // Reset to default (no filter)
+        resetFilter: () =>
+            set({
+                filterType: null,
+                selectedCityId: null,
+                selectedCityName: null,
+                selectedNeighborhoodId: null,
+                selectedNeighborhoodName: null,
+            }),
 
-    // Reset to default
-    resetFilter: () =>
-        set({
-            filterType: 'nearby',
-            radius: DEFAULT_RADIUS,
-            selectedLocation: null,
-        }),
-}));
+        // Get display name for UI
+        getDisplayName: () => {
+            const state = get();
+            if (state.filterType === 'neighborhood' && state.selectedNeighborhoodName) {
+                return state.selectedNeighborhoodName;
+            }
+            if (state.filterType === 'city' && state.selectedCityName) {
+                return state.selectedCityName;
+            }
+            return 'All Locations';
+        },
+    })
+);

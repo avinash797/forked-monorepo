@@ -11,14 +11,19 @@ export interface LeaderboardEntry {
     rank: number;
     restaurant_id: string;
     restaurant_name: string;
-    neighborhood_name: string;
-    global_elo: number;
-    avg_raw_score: number;
-    confidence_score: number;
-    total_battles: number;
-    total_ratings: number;
-    win_rate: number;
-    featured_photo_url: string | null;
+    neighborhood_name?: string;
+    city_name?: string;
+    global_elo?: number;
+    personal_elo?: number;
+    avg_raw_score?: number;
+    raw_score?: number;
+    confidence_score?: number;
+    total_battles?: number;
+    battles_total?: number;
+    total_ratings?: number;
+    win_rate?: number;
+    featured_photo_url?: string | null;
+    photo_url?: string;
 }
 
 interface LeaderboardRowProps {
@@ -35,10 +40,9 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
     const styles = createThemedStyles(theme, medal);
 
     // Confidence flames based on confidence_score (0-100)
-    const confidenceLevel = Math.min(
-        5,
-        Math.max(1, Math.ceil(item.confidence_score / 20))
-    );
+    const confidenceLevel = item.confidence_score
+        ? Math.min(5, Math.max(1, Math.ceil(item.confidence_score / 20)))
+        : 0;
     const flames = Array(confidenceLevel).fill('🔥').join('');
 
     return (
@@ -78,9 +82,11 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
 
                 {/* Photo */}
                 <View style={styles.photoContainer}>
-                    {item.featured_photo_url ? (
+                    {item.featured_photo_url || item.photo_url ? (
                         <Image
-                            source={{ uri: item.featured_photo_url }}
+                            source={{
+                                uri: item.featured_photo_url || item.photo_url,
+                            }}
                             style={styles.photo}
                             contentFit="cover"
                             transition={150}
@@ -102,7 +108,7 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
                         {item.restaurant_name}
                     </ThemedText>
                     <ThemedText style={styles.neighborhood} numberOfLines={1}>
-                        {item.neighborhood_name}
+                        {item.neighborhood_name ?? item.city_name}
                     </ThemedText>
                     <View style={styles.confidenceRow}>
                         <ThemedText style={styles.flames}>{flames}</ThemedText>
@@ -114,7 +120,7 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
 
                 {/* Score Badge */}
                 <ScoreBadge
-                    score={item.avg_raw_score}
+                    score={item.avg_raw_score ?? item.raw_score ?? 0}
                     style={styles.scoreBadge}
                 />
             </View>

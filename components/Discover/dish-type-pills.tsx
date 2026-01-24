@@ -1,7 +1,9 @@
 import { useTheme } from '@/contexts/theme-provider';
+import { useAuth } from '@/hooks/use-auth';
 import { useDishTypes } from '@/hooks/use-dish-types';
+import { useUserStats } from '@/hooks/use-user-stats';
 import { DishType } from '@/types/dishType';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
     Platform,
     Pressable,
@@ -15,20 +17,40 @@ import DishTypePill from '../ui/dish-type-pill';
 export default function DishTypePills({
     selectedDishType,
     handleDishTypeSelect,
+    view = 'global',
 }: {
     selectedDishType: DishType | null;
     handleDishTypeSelect: (dishType: DishType) => void;
+    view?: 'global' | 'personal';
 }) {
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
+    const { user, profile } = useAuth();
 
     const { data: dishTypes, isLoading: dishTypesLoading } = useDishTypes();
 
-    useEffect(() => {
-        if (dishTypes && !selectedDishType) {
-            handleDishTypeSelect(dishTypes[0]);
+    // Fetch user stats
+    const { data: userStats, isLoading: isStatsLoading } = useUserStats(
+        user?.id
+    );
+
+    const displayDishTypes = useMemo(() => {
+        if (view === 'personal' && userStats) {
+            if (!userStats.dishes_by_type) {
+                return [];
+            }
+            return dishTypes?.filter((dishType) =>
+                Object.keys(userStats.dishes_by_type).includes(dishType.name)
+            );
         }
-    }, [dishTypes, selectedDishType, handleDishTypeSelect]);
+        return dishTypes;
+    }, [dishTypes, userStats, view]);
+
+    useEffect(() => {
+        if (!selectedDishType && displayDishTypes?.length) {
+            handleDishTypeSelect(displayDishTypes[0]);
+        }
+    }, [displayDishTypes, selectedDishType, handleDishTypeSelect]);
 
     return (
         <View style={styles.chipContainer}>
@@ -39,7 +61,7 @@ export default function DishTypePills({
                 fadingEdgeLength={10}
             >
                 <View style={{ paddingHorizontal: theme.space.xs }} />
-                {dishTypes?.map((dishType, index) => {
+                {displayDishTypes?.map((dishType, index) => {
                     const isSelected = dishType.id === selectedDishType?.id;
                     return (
                         <Animated.View

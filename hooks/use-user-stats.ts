@@ -34,7 +34,7 @@ export interface BestEverDish {
 /**
  * Get user stats for the current user or a specific user
  */
-export function useUserStats(userId?: string) {
+export function useUserStats(userId?: string, enabled?: boolean) {
     return useQuery({
         queryKey: ['userStats', userId],
         queryFn: async () => {
@@ -45,6 +45,7 @@ export function useUserStats(userId?: string) {
             if (error) throw error;
             return data as UserStats | null;
         },
+        enabled: enabled,
     });
 }
 

@@ -1,138 +1,75 @@
 import { EmptyState } from '@/components/browse/empty-state';
 import DishTypePills from '@/components/Discover/dish-type-pills';
-import {
-    LeaderboardEntry,
-    LeaderboardRow,
-} from '@/components/Discover/leaderboard-row';
+import { LeaderboardRow } from '@/components/Discover/leaderboard-row';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/contexts/theme-provider';
-import { useGetLeaderboardByDishType } from '@/hooks/use-leaderboard';
-import { useLocationStore } from '@/stores/location.store';
+import { useMyDishRankings } from '@/hooks/use-ratings';
 import { DishType } from '@/types/dishType';
 import { useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-const DEFAULT_NOLA_ID = '2865c3db-1a51-464d-bd8e-1a49777a866f';
-
-type LocationFilter = 'city' | 'near_me' | 'neighborhood';
-
-export default function LeaderboardScreen() {
+const personal = () => {
     const router = useRouter();
-    const insets = useSafeAreaInsets();
-    const { theme } = useTheme();
-    const styles = useMemo(
-        () => createThemedStyles(theme, insets),
-        [theme, insets]
-    );
 
-    const { currentCity, getCurrentLocation } = useLocationStore();
+    const { theme } = useTheme();
+    const styles = useMemo(() => createThemedStyles(theme), [theme]);
 
     const [selectedDishType, setSelectedDishType] = useState<DishType | null>(
         null
     );
 
-    // Use current city or fallback to NOLA
-    const cityId = currentCity?.id || DEFAULT_NOLA_ID;
-
-    // Fetch leaderboard data
     const {
-        data: leaderboardData,
-        isLoading,
-        error,
+        data: dishRankingsData,
+        isLoading: isLoadingDishRankings,
         refetch,
-    } = useGetLeaderboardByDishType({
-        cityId,
-        dishTypeId: selectedDishType?.id || '',
-        limit: 10,
-    });
+    } = useMyDishRankings(selectedDishType?.id);
 
-    // Process data to add rank
-    const leaderboardItems: LeaderboardEntry[] = useMemo(() => {
-        if (!leaderboardData) return [];
-        return leaderboardData.map((item: any, index: number) => ({
-            ...item,
-            rank: item.rank || index + 1,
-        }));
-    }, [leaderboardData]);
-
-    // Get location on mount
-    useEffect(() => {
-        getCurrentLocation();
-    }, []);
-
-    const handleDishTypeSelect = (dishType: DishType) => {
-        setSelectedDishType(dishType);
-    };
-
-    const handleRowPress = (item: LeaderboardEntry) => {
-        router.push({
-            pathname: '/(protected)/(browse)/dish-detail',
-            params: {
-                restaurantId: item.restaurant_id,
-                dishTypeId: selectedDishType?.id || '',
-            },
-        });
-    };
+    const dishRankings = Array.isArray(dishRankingsData)
+        ? dishRankingsData
+        : [];
 
     const ListHeader = () => (
         <View style={styles.listHeader}>
             {/* Title */}
             <View style={styles.titleSection}>
                 <ThemedText style={styles.mainTitle}>
-                    Best {selectedDishType?.name || 'Dishes'}
-                </ThemedText>
-                <ThemedText style={styles.mainSubtitle}>
-                    in {currentCity?.name || 'New Orleans'}
+                    Your Best {selectedDishType?.name || 'Dishes'}
                 </ThemedText>
             </View>
         </View>
     );
-
-    if (error) {
-        return (
-            <ThemedView style={styles.container}>
-                <EmptyState
-                    icon="warning-outline"
-                    title="Error Loading Leaderboard"
-                    message={
-                        error instanceof Error ? error.message : 'Unknown error'
-                    }
-                    actionLabel="Try Again"
-                    onActionPress={() => refetch()}
-                />
-            </ThemedView>
-        );
-    }
-
     return (
-        <ThemedView style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <ListHeader />
             <DishTypePills
                 selectedDishType={selectedDishType}
-                handleDishTypeSelect={handleDishTypeSelect}
+                handleDishTypeSelect={setSelectedDishType}
+                view="personal"
             />
             <ScrollView
                 refreshControl={
                     <RefreshControl
-                        refreshing={isLoading}
+                        refreshing={isLoadingDishRankings}
                         onRefresh={() => refetch()}
                         tintColor={theme.color.accent}
-                        progressViewOffset={insets.top + 20}
                     />
                 }
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
             >
-                {!isLoading && leaderboardItems.length === 0 ? (
+                {!isLoadingDishRankings && dishRankings.length === 0 ? (
                     <View style={styles.emptyContainer}>
                         <EmptyState
                             icon="restaurant-outline"
                             title="No Rankings Yet"
-                            message={`There's not enough ${selectedDishType?.name || 'dishes'} ratings yet in ${currentCity?.name}. \nBe the trendsetter and rate one!`}
+                            message={
+                                selectedDishType
+                                    ? `You don't seem to have rated any ${selectedDishType.name} yet. Start by rating one!`
+                                    : 'This is where you will see your best dishes. \nStart by rating one!'
+                            }
                             actionLabel="Rate a Dish"
                             onActionPress={() =>
                                 router.push('/(protected)/(rating)')
@@ -141,35 +78,31 @@ export default function LeaderboardScreen() {
                     </View>
                 ) : null}
 
-                {leaderboardItems.map((item, index) => (
+                {dishRankings.map((item, index) => (
                     <Animated.View
                         entering={FadeInDown.delay(300 + index * 50).duration(
                             400
                         )}
                         key={`${item.restaurant_id}-${item.rank}`}
                     >
-                        <LeaderboardRow
-                            item={item}
-                            onPress={() => handleRowPress(item)}
-                        />
+                        <LeaderboardRow item={item} onPress={() => {}} />
                     </Animated.View>
                 ))}
             </ScrollView>
-        </ThemedView>
+        </SafeAreaView>
     );
-}
+};
 
-const createThemedStyles = (
-    theme: ReturnType<typeof useTheme>['theme'],
-    insets: ReturnType<typeof useSafeAreaInsets>
-) =>
+export default personal;
+
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     StyleSheet.create({
         container: {
             flex: 1,
             backgroundColor: theme.color.bg,
         },
         listHeader: {
-            paddingTop: insets.top + theme.space.md,
+            paddingTop: theme.space.md,
         },
         titleSection: {
             paddingHorizontal: theme.space.md,
