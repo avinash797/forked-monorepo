@@ -2,6 +2,8 @@ import { LocationBottomSheet } from '@/components/browse/location-bottom-sheet';
 import { LocationHeader } from '@/components/browse/location-header';
 import DishTypePills from '@/components/Discover/dish-type-pills';
 import HeroCard from '@/components/Discover/hero-card';
+import { RecentBattleTicker } from '@/components/Discover/recent-battle-ticker';
+import RisingStarCard from '@/components/Discover/rising-star-card';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/contexts/theme-provider';
@@ -112,6 +114,9 @@ export default function HomeScreen() {
                         handleDishTypeSelect={handleDishTypeSelect}
                     />
 
+                    {/* Recent Battle Ticker */}
+                    <RecentBattleTicker cityId={cityId} />
+
                     {/* Hero Card Section */}
                     <View style={styles.heroSection}>
                         {topDish ? (
@@ -156,6 +161,14 @@ export default function HomeScreen() {
                                     Runners up coming soon...
                                 </ThemedText>
                             </View>
+                        )}
+
+                        {/* Rising Star Card */}
+                        {selectedDishType && (
+                            <RisingStarCard
+                                cityId={cityId}
+                                dishTypeId={selectedDishType.id}
+                            />
                         )}
                     </View>
                 </ScrollView>
