@@ -1,12 +1,15 @@
 import { LocationBottomSheet } from '@/components/browse/location-bottom-sheet';
 import { LocationHeader } from '@/components/browse/location-header';
-import HeroCard from '@/components/Discover/hero-card';
+import HeroCard, { HeroCardSkeleton } from '@/components/Discover/hero-card';
 import { RecentBattleTicker } from '@/components/Discover/recent-battle-ticker';
-import RisingStarCard from '@/components/Discover/rising-star-card';
+import RisingStarCard, {
+    RisingStarCardSkeleton,
+} from '@/components/Discover/rising-star-card';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
-import { useDishTypes } from '@/hooks/use-dish-types';
+import { useDiscoverData } from '@/hooks/use-discover-data';
 import { trackEvent } from '@/lib/amplitude';
 import { useLocationStore } from '@/stores/location.store';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -20,15 +23,24 @@ const DEFAULT_NOLA_ID = '2865c3db-1a51-464d-bd8e-1a49777a866f';
 export default function HomeScreen() {
     const router = useRouter();
     const { currentCity, getCurrentLocation } = useLocationStore();
-    const { data: dishTypes, isLoading: dishTypesLoading } = useDishTypes();
 
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
     const bottomSheetRef = useRef<BottomSheetModal>(null);
 
-    // Get top dish for selected type
     // Use current city or fallback to NOLA
     const cityId = currentCity?.id || DEFAULT_NOLA_ID;
+
+    // Fetch all discover data in a single batch
+    const { data: discoverData, isLoading } = useDiscoverData(cityId);
+
+    // Filter dish types that have hero data
+    const dishTypesWithHeroes =
+        discoverData?.dishTypes.filter((dt) => dt.topDish !== null) || [];
+
+    // Filter dish types that have rising star data
+    const dishTypesWithRisingStars =
+        discoverData?.dishTypes.filter((dt) => dt.risingStar !== null) || [];
 
     // Get location on mount
     useEffect(() => {
@@ -54,8 +66,6 @@ export default function HomeScreen() {
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
             <ThemedView style={styles.container}>
-                {/* Location Header with Search */}
-
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <LocationHeader
                         onLocationPress={handleLocationPress}
@@ -70,31 +80,100 @@ export default function HomeScreen() {
                         </ThemedText>
                     </View>
 
-                    {dishTypes && (
-                        <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            style={styles.heroSectionWrapper}
-                        >
-                            {dishTypes?.map((dishType) => (
-                                <View
-                                    style={styles.heroSection}
-                                    key={`${dishType.id}-${cityId}-hero-carousel`}
+                    {/* Hero Section - Popular among Users */}
+                    <View style={styles.heroSection}>
+                        <View style={styles.sectionContainer}>
+                            <ThemedText
+                                type="subtitle"
+                                style={styles.sectionTitle}
+                            >
+                                Popular among Users
+                            </ThemedText>
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.heroSectionWrapper}
+                            >
+                                {isLoading ? (
+                                    // Show skeletons during loading
+                                    <>
+                                        <HeroCardSkeleton />
+                                        <HeroCardSkeleton />
+                                    </>
+                                ) : dishTypesWithHeroes.length > 0 ? (
+                                    // Render hero cards for dish types with data
+                                    dishTypesWithHeroes.map((dishType, index) => (
+                                        <HeroCard
+                                            key={`${dishType.id}-${cityId}-hero`}
+                                            dishTypeId={dishType.id}
+                                            dish={dishType.topDish!}
+                                            index={index}
+                                        />
+                                    ))
+                                ) : (
+                                    // Empty state
+                                    <View style={styles.emptyState}>
+                                        <ThemedText
+                                            style={styles.emptyStateText}
+                                        >
+                                            No popular dishes yet
+                                        </ThemedText>
+                                    </View>
+                                )}
+                            </ScrollView>
+                        </View>
+
+                        {/* Rising Stars Section */}
+                        <View style={styles.sectionContainer}>
+                            <View style={styles.sectionTitleContainer}>
+                                <IconSymbol
+                                    name="sparkles-outline"
+                                    size={20}
+                                    color={theme.color.warning}
+                                />
+                                <ThemedText type="subtitle">
+                                    Rising Stars
+                                </ThemedText>
+                                <ThemedText
+                                    type="default"
+                                    style={styles.headerSubtext}
                                 >
-                                    {/* Rising Star Card */}
-                                    <HeroCard
-                                        cityId={cityId}
-                                        dishTypeId={dishType.id}
-                                    />
-                                    {/* Rising Star Card */}
-                                    <RisingStarCard
-                                        cityId={cityId}
-                                        dishTypeId={dishType.id}
-                                    />
-                                </View>
-                            ))}
-                        </ScrollView>
-                    )}
+                                    Hidden Gems to Discover
+                                </ThemedText>
+                            </View>
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.heroSectionWrapper}
+                            >
+                                {isLoading ? (
+                                    // Show skeletons during loading
+                                    <>
+                                        <RisingStarCardSkeleton />
+                                        <RisingStarCardSkeleton />
+                                    </>
+                                ) : dishTypesWithRisingStars.length > 0 ? (
+                                    // Render rising star cards for dish types with data
+                                    dishTypesWithRisingStars.map((dishType, index) => (
+                                        <RisingStarCard
+                                            key={`${dishType.id}-${cityId}-rising-star`}
+                                            dish={dishType.risingStar!}
+                                            index={index}
+                                        />
+                                    ))
+                                ) : (
+                                    // Empty state
+                                    <View style={styles.emptyState}>
+                                        <ThemedText
+                                            style={styles.emptyStateText}
+                                        >
+                                            No rising stars yet
+                                        </ThemedText>
+                                    </View>
+                                )}
+                            </ScrollView>
+                        </View>
+                    </View>
 
                     {/* Recent Battle Ticker */}
                     <RecentBattleTicker cityId={cityId} />
@@ -135,6 +214,33 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         heroSection: {
             marginTop: theme.space.md,
+        },
+        sectionContainer: {
+            marginBottom: theme.space.md,
+        },
+        sectionTitleContainer: {
+            marginHorizontal: theme.space.md,
+            flexDirection: 'row',
+            alignItems: 'flex-end',
+            gap: theme.space.xs,
+        },
+        sectionTitle: {
+            marginHorizontal: theme.space.md,
+        },
+        headerSubtext: {
+            fontSize: theme.font.size.sm,
+            fontWeight: '400',
+            color: theme.color.textSecondary,
+        },
+        emptyState: {
+            padding: theme.space.xl,
+            alignItems: 'center',
+            justifyContent: 'center',
+            minWidth: 200,
+        },
+        emptyStateText: {
+            color: theme.color.textSecondary,
+            fontSize: theme.font.size.md,
         },
         loadingContainer: {
             padding: theme.space.xl,

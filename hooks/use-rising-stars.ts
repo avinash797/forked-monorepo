@@ -122,6 +122,8 @@ export function useRisingStars(options: {
 
             return risingStars;
         },
+        // Only fetch when cityId and dishTypeId are provided
+        enabled: !!cityId && !!dishTypeId,
         // Refresh every 5 minutes
         staleTime: 5 * 60 * 1000,
     });
