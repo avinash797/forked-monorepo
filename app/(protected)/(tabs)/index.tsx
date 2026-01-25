@@ -1,6 +1,7 @@
 import { LocationBottomSheet } from '@/components/browse/location-bottom-sheet';
 import { LocationHeader } from '@/components/browse/location-header';
 import HeroCard from '@/components/Discover/hero-card';
+import { PendingComparisonsCTA } from '@/components/Discover/pending-comparisons-cta';
 import { RecentBattleTicker } from '@/components/Discover/recent-battle-ticker';
 import RisingStarCard from '@/components/Discover/rising-star-card';
 import { ThemedText } from '@/components/themed-text';
@@ -95,6 +96,9 @@ export default function HomeScreen() {
                             ))}
                         </ScrollView>
                     )}
+
+                    {/* Pending Comparisons CTA */}
+                    <PendingComparisonsCTA />
 
                     {/* Recent Battle Ticker */}
                     <RecentBattleTicker cityId={cityId} />
