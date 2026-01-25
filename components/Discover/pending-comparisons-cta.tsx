@@ -2,7 +2,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
-import { usePendingComparisons } from '@/hooks/use-pending-comparisons';
+import { usePendingComparisons } from '@/hooks/use-comparisons';
 import { useRouter } from 'expo-router';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 
@@ -26,16 +26,17 @@ export function PendingComparisonsCTA() {
     const router = useRouter();
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
-    const { comparisons, hasPending, count, isLoading } = usePendingComparisons({ limit: 5 });
+    const { data: comparisons, isLoading } = usePendingComparisons(5);
 
     // Don't render if no pending comparisons or still loading
-    if (isLoading || !hasPending || count === 0) {
+    const count = comparisons?.length ?? 0;
+    if (isLoading || count === 0) {
         return null;
     }
 
     const handlePress = () => {
         // Navigate to the compare screen with the first pending comparison
-        const firstComparison = comparisons[0];
+        const firstComparison = comparisons?.[0];
         if (firstComparison) {
             router.push({
                 pathname: '/(protected)/(rating)/compare',
@@ -48,7 +49,7 @@ export function PendingComparisonsCTA() {
     };
 
     // Get first comparison for preview
-    const firstComparison = comparisons[0];
+    const firstComparison = comparisons?.[0];
     const hasPhotos = firstComparison?.rating_a_photo || firstComparison?.rating_b_photo;
 
     return (
