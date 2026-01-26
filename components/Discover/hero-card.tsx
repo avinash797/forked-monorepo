@@ -1,70 +1,92 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import {
+    Pressable,
+    StyleSheet,
+    useWindowDimensions,
+    View,
+} from 'react-native';
+import Animated, {
+    FadeIn,
+    FadeInRight,
+    useAnimatedStyle,
+    useSharedValue,
+    withRepeat,
+    withTiming,
+} from 'react-native-reanimated';
 
+import { TopDishData } from '@/hooks/use-discover-data';
 import { useTheme } from '@/contexts/theme-provider';
-import { useTopDish } from '@/hooks/use-leaderboard';
 import { trackEvent } from '@/lib/amplitude';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
+import { useEffect } from 'react';
 import { ThemedText } from '../themed-text';
 import { IconSymbol } from '../ui/icon-symbol';
 
 interface HeroCardProps {
-    cityId: string;
+    /** The dish type ID for navigation */
     dishTypeId: string;
+    /** The top dish data to display */
+    dish: TopDishData;
+    /** Index for staggered animation */
+    index?: number;
 }
 
-export default function HeroCard({ cityId, dishTypeId }: HeroCardProps) {
+/**
+ * HeroCard - Presentational component for displaying the #1 ranked dish
+ *
+ * This is a "dumb" component that receives data as props.
+ * Data fetching is handled by the parent using useDiscoverData hook.
+ */
+export default function HeroCard({
+    dishTypeId,
+    dish,
+    index = 0,
+}: HeroCardProps) {
     const router = useRouter();
-
     const { theme } = useTheme();
-    const styles = createStyles(theme);
-    const { data: topDish, isLoading: topDishLoading } = useTopDish(
-        cityId,
-        dishTypeId
-    );
+    const { width: windowWidth } = useWindowDimensions();
+    const styles = createStyles(theme, windowWidth);
 
     const confidence = Math.max(
         1,
-        Math.ceil((topDish?.confidence_score ?? 0) * 5)
+        Math.ceil((dish.confidence_score ?? 0) * 5)
     );
     const flames = '🔥'.repeat(confidence);
 
-    const distance = undefined;
-
     const handleHeroPress = () => {
-        if (topDish?.restaurant_id && dishTypeId) {
-            // Navigate to dish detail
-            router.push({
-                pathname: '/(protected)/(browse)/dish-detail',
-                params: {
-                    restaurantId: topDish.restaurant_id,
-                    dishTypeId: dishTypeId,
-                },
-            });
-            trackEvent('hero_card_pressed', {
-                restaurant_id: topDish.restaurant_id,
-                dish_type_id: dishTypeId,
-            });
-        }
+        router.push({
+            pathname: '/(protected)/(browse)/dish-detail',
+            params: {
+                restaurantId: dish.restaurant_id,
+                dishTypeId: dishTypeId,
+            },
+        });
+        trackEvent('hero_card_pressed', {
+            restaurant_id: dish.restaurant_id,
+            dish_type_id: dishTypeId,
+        });
     };
 
-    if (!topDish) {
-        return <View style={styles.container} />;
-    }
+    // Staggered entrance animation
+    const enteringAnimation = FadeInRight.duration(400)
+        .delay(index * 100)
+        .springify()
+        .damping(15);
 
     return (
-        <Animated.View entering={FadeIn.duration(500)} style={styles.container}>
-            <TouchableOpacity
-                activeOpacity={0.9}
+        <Animated.View entering={enteringAnimation} style={styles.container}>
+            <Pressable
                 onPress={handleHeroPress}
-                style={styles.card}
+                style={({ pressed }) => [
+                    styles.card,
+                    pressed && styles.cardPressed,
+                ]}
             >
                 {/* Image Background */}
                 <View style={styles.imageContainer}>
-                    {topDish?.featured_photo_url ? (
+                    {dish.featured_photo_url ? (
                         <Image
-                            source={{ uri: topDish.featured_photo_url }}
+                            source={{ uri: dish.featured_photo_url }}
                             style={styles.image}
                             contentFit="cover"
                             transition={200}
@@ -93,22 +115,14 @@ export default function HeroCard({ cityId, dishTypeId }: HeroCardProps) {
                             numberOfLines={1}
                             style={styles.restaurantName}
                         >
-                            {topDish?.restaurant_name}
+                            {dish.restaurant_name}
                         </ThemedText>
                     </View>
 
                     <View style={styles.detailsRow}>
                         <ThemedText style={styles.detailText}>
-                            {topDish?.neighborhood_name}
+                            {dish.neighborhood_name}
                         </ThemedText>
-                        {distance && (
-                            <>
-                                <ThemedText style={styles.dot}>•</ThemedText>
-                                <ThemedText style={styles.detailText}>
-                                    {distance}
-                                </ThemedText>
-                            </>
-                        )}
                     </View>
 
                     <View style={styles.scoreRow}>
@@ -118,17 +132,74 @@ export default function HeroCard({ cityId, dishTypeId }: HeroCardProps) {
                         </ThemedText>
                     </View>
                 </View>
-            </TouchableOpacity>
+            </Pressable>
         </Animated.View>
     );
 }
 
-const createStyles = (theme: any) =>
+/**
+ * Skeleton placeholder for HeroCard during loading with pulsing animation
+ */
+export function HeroCardSkeleton() {
+    const { theme } = useTheme();
+    const { width: windowWidth } = useWindowDimensions();
+    const styles = createStyles(theme, windowWidth);
+
+    // Pulsing animation
+    const opacity = useSharedValue(0.4);
+
+    useEffect(() => {
+        opacity.value = withRepeat(
+            withTiming(1, { duration: 800 }),
+            -1, // infinite
+            true // reverse
+        );
+    }, []);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        opacity: opacity.value,
+    }));
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.card}>
+                <Animated.View
+                    style={[styles.imageContainer, styles.skeleton, animatedStyle]}
+                />
+                <View style={styles.content}>
+                    <Animated.View
+                        style={[
+                            styles.skeletonText,
+                            { width: '70%', height: 24 },
+                            animatedStyle,
+                        ]}
+                    />
+                    <Animated.View
+                        style={[
+                            styles.skeletonText,
+                            { width: '50%', height: 16, marginTop: 8 },
+                            animatedStyle,
+                        ]}
+                    />
+                    <Animated.View
+                        style={[
+                            styles.skeletonText,
+                            { width: '40%', height: 16, marginTop: 8 },
+                            animatedStyle,
+                        ]}
+                    />
+                </View>
+            </View>
+        </View>
+    );
+}
+
+const createStyles = (theme: any, windowWidth: number) =>
     StyleSheet.create({
         container: {
             paddingHorizontal: theme.space.md,
             marginVertical: theme.space.sm,
-            flex: 1,
+            minWidth: windowWidth * 0.85,
         },
         card: {
             backgroundColor: theme.color.surface,
@@ -139,6 +210,10 @@ const createStyles = (theme: any) =>
             shadowOpacity: 0.1,
             shadowRadius: 10,
             elevation: 5,
+        },
+        cardPressed: {
+            opacity: 0.9,
+            transform: [{ scale: 0.98 }],
         },
         imageContainer: {
             height: 250,
@@ -194,10 +269,6 @@ const createStyles = (theme: any) =>
             color: theme.color.textSecondary,
             fontSize: 14,
         },
-        dot: {
-            color: theme.color.textSecondary,
-            marginHorizontal: 6,
-        },
         scoreRow: {
             flexDirection: 'row',
             alignItems: 'center',
@@ -213,5 +284,12 @@ const createStyles = (theme: any) =>
             color: theme.color.textSecondary,
             fontWeight: '600',
             textTransform: 'uppercase',
+        },
+        skeleton: {
+            backgroundColor: theme.color.border,
+        },
+        skeletonText: {
+            backgroundColor: theme.color.border,
+            borderRadius: theme.radius.sm,
         },
     });
