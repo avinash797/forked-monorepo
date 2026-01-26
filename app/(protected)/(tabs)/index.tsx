@@ -1,6 +1,7 @@
 import { LocationBottomSheet } from '@/components/browse/location-bottom-sheet';
 import { LocationHeader } from '@/components/browse/location-header';
 import HeroCard, { HeroCardSkeleton } from '@/components/Discover/hero-card';
+import { PendingComparisonsCTA } from '@/components/Discover/pending-comparisons-cta';
 import { RecentBattleTicker } from '@/components/Discover/recent-battle-ticker';
 import RisingStarCard, {
     RisingStarCardSkeleton,
@@ -80,6 +81,9 @@ export default function HomeScreen() {
                         </ThemedText>
                     </View>
 
+                    {/* Pending Comparisons CTA */}
+                    <PendingComparisonsCTA />
+
                     {/* Hero Section - Popular among Users */}
                     <View style={styles.heroSection}>
                         <View style={styles.sectionContainer}>
@@ -102,14 +106,16 @@ export default function HomeScreen() {
                                     </>
                                 ) : dishTypesWithHeroes.length > 0 ? (
                                     // Render hero cards for dish types with data
-                                    dishTypesWithHeroes.map((dishType, index) => (
-                                        <HeroCard
-                                            key={`${dishType.id}-${cityId}-hero`}
-                                            dishTypeId={dishType.id}
-                                            dish={dishType.topDish!}
-                                            index={index}
-                                        />
-                                    ))
+                                    dishTypesWithHeroes.map(
+                                        (dishType, index) => (
+                                            <HeroCard
+                                                key={`${dishType.id}-${cityId}-hero`}
+                                                dishTypeId={dishType.id}
+                                                dish={dishType.topDish!}
+                                                index={index}
+                                            />
+                                        )
+                                    )
                                 ) : (
                                     // Empty state
                                     <View style={styles.emptyState}>
@@ -154,13 +160,15 @@ export default function HomeScreen() {
                                     </>
                                 ) : dishTypesWithRisingStars.length > 0 ? (
                                     // Render rising star cards for dish types with data
-                                    dishTypesWithRisingStars.map((dishType, index) => (
-                                        <RisingStarCard
-                                            key={`${dishType.id}-${cityId}-rising-star`}
-                                            dish={dishType.risingStar!}
-                                            index={index}
-                                        />
-                                    ))
+                                    dishTypesWithRisingStars.map(
+                                        (dishType, index) => (
+                                            <RisingStarCard
+                                                key={`${dishType.id}-${cityId}-rising-star`}
+                                                dish={dishType.risingStar!}
+                                                index={index}
+                                            />
+                                        )
+                                    )
                                 ) : (
                                     // Empty state
                                     <View style={styles.emptyState}>

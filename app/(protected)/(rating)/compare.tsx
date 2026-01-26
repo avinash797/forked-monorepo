@@ -14,7 +14,7 @@ import { useRatingStore } from '@/stores';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
     Dimensions,
@@ -58,7 +58,7 @@ export default function CompareScreen() {
     const {
         data: specificPair,
         isLoading: isLoadingPair,
-        error: pairError,
+        isSuccess: isSuccessPair,
     } = useComparisonPair(
         params.newRatingId || null,
         params.comparisonRatingId || null,
@@ -66,12 +66,37 @@ export default function CompareScreen() {
     );
 
     // Otherwise, get pending comparisons
-    const { data: pendingComparisons, refetch: refetchPending } =
-        usePendingComparisons(1);
+    const {
+        data: pendingComparisons,
+        isLoading: isLoadingPending,
+        isSuccess: isSuccessPending,
+        refetch: refetchPending,
+    } = usePendingComparisons(1);
 
     // Determine which comparison to show
     const comparison: PendingComparison | null =
         specificPair || pendingComparisons?.[0] || null;
+
+    // Route back to tabs if no comparisons are left
+    useEffect(() => {
+        if (isProcessing) return;
+
+        const isFullyLoaded = params.newRatingId
+            ? isSuccessPair || !!specificPair
+            : isSuccessPending;
+
+        if (isFullyLoaded && !comparison) {
+            router.replace('/(protected)/(tabs)');
+        }
+    }, [
+        comparison,
+        isSuccessPair,
+        isSuccessPending,
+        isProcessing,
+        router,
+        params.newRatingId,
+        specificPair,
+    ]);
 
     const { mutateAsync: processComparison } = useProcessComparison();
 
