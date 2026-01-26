@@ -1,116 +1,264 @@
-import ForkedBrandingHeader from '@/components/forked-branding-header';
 import { ThemedButton } from '@/components/themed-button';
-import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/contexts/theme-provider';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Link } from 'expo-router';
-import { ImageBackground, StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
+import { useRef, useState } from 'react';
+import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, {
+    Extrapolation,
+    interpolate,
+    SharedValue,
+    useAnimatedScrollHandler,
+    useAnimatedStyle,
+    useSharedValue,
+} from 'react-native-reanimated';
+
+const { width } = Dimensions.get('window');
+
+const slides = [
+    {
+        emoji: '🍲',
+        title: 'Rate Dishes,\nNot Restaurants',
+        subtitle: 'Because the best gumbo deserves its own crown.',
+    },
+    {
+        emoji: '⚔️',
+        title: 'This vs That',
+        subtitle: 'Settle the debate. Which burger actually wins?',
+    },
+    {
+        emoji: '👑',
+        title: 'Find the Best',
+        subtitle: 'The #1 gumbo in New Orleans. Ranked by locals.',
+    },
+    {
+        emoji: '🔥',
+        title: 'Trust the Locals',
+        subtitle: 'No tourists. No sponsors. Just truth.',
+    },
+];
 
 export default function OnboardingScreen() {
+    const scrollX = useSharedValue(0);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const flatListRef = useRef<Animated.FlatList<(typeof slides)[0]>>(null);
     const { theme } = useTheme();
+    const styles = createThemedStyles(theme);
+
+    const scrollHandler = useAnimatedScrollHandler({
+        onScroll: (event) => {
+            scrollX.value = event.contentOffset.x;
+        },
+    });
+
+    const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
+        if (viewableItems[0]) {
+            setCurrentIndex(viewableItems[0].index);
+        }
+    }).current;
+
+    const handleNext = () => {
+        if (currentIndex < slides.length - 1) {
+            flatListRef.current?.scrollToIndex({ index: currentIndex + 1 });
+        } else {
+            router.replace('/(auth)/signup');
+        }
+    };
+
+    const handleSkip = () => {
+        router.replace('/(auth)/login');
+    };
 
     return (
-        <ImageBackground
-            source={require('@/assets/images/auth/auth-bg.jpg')}
-            style={styles.background}
-            resizeMode="cover"
-        >
-            <LinearGradient
-                colors={['rgba(0,0,0,0.4)', 'rgba(0,0,0,0.7)']}
-                style={styles.gradient}
-            >
-                <View style={styles.container}>
-                    {/* Logo/Brand Section */}
-                    <ForkedBrandingHeader />
+        <View style={styles.container}>
+            <Pressable onPress={handleSkip} style={styles.skipButton}>
+                <Text style={styles.skipText}>Skip</Text>
+            </Pressable>
 
-                    {/* Content Section */}
-                    <View style={styles.content}>
-                        <View style={styles.textContainer}>
-                            <ThemedText style={styles.tagline}>
-                                Fork the restaurant.
-                            </ThemedText>
-                            <ThemedText style={styles.tagline}>
-                                Rate the dish.
-                            </ThemedText>
-                            <ThemedText style={styles.subtitle}>
-                                Discover restaurants, share your reviews, and
-                                help build the ultimate community-driven food
-                                guide.
-                            </ThemedText>
-                        </View>
-                    </View>
+            <Animated.FlatList
+                ref={flatListRef}
+                data={slides}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                onScroll={scrollHandler}
+                onViewableItemsChanged={onViewableItemsChanged}
+                viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
+                keyExtractor={(_, index) => index.toString()}
+                renderItem={({ item, index }) => (
+                    <SlideItem item={item} index={index} scrollX={scrollX} />
+                )}
+            />
 
-                    {/* Buttons Section */}
-                    <View style={styles.buttonContainer}>
-                        <Link href="/(auth)/login" asChild>
-                            <ThemedButton style={[styles.signInButton]}>
-                                Sign in
-                            </ThemedButton>
-                        </Link>
-                        <Link href="/(auth)/signup" asChild>
-                            <ThemedButton
-                                variant="secondary"
-                                style={styles.signUpButton}
-                            >
-                                Sign up
-                            </ThemedButton>
-                        </Link>
-                    </View>
+            <View style={styles.footer}>
+                <View style={styles.pagination}>
+                    {slides.map((_, index) => (
+                        <PaginationDot
+                            key={index}
+                            index={index}
+                            scrollX={scrollX}
+                        />
+                    ))}
                 </View>
-            </LinearGradient>
-        </ImageBackground>
+
+                <ThemedButton onPress={handleNext}>
+                    {currentIndex === slides.length - 1
+                        ? 'Get Started'
+                        : 'Next'}
+                </ThemedButton>
+            </View>
+        </View>
     );
 }
 
-const styles = StyleSheet.create({
-    background: {
-        flex: 1,
-        width: '100%',
-        height: '100%',
-    },
-    gradient: {
-        flex: 1,
-    },
-    container: {
-        flex: 1,
-        padding: 24,
-        justifyContent: 'space-between',
-    },
-    content: {
-        flex: 1,
-        justifyContent: 'flex-end',
-        paddingBottom: 36,
-        alignItems: 'center',
-    },
-    textContainer: {
-        alignItems: 'center',
-    },
-    tagline: {
-        fontSize: 32,
-        fontWeight: '700',
-        color: '#FFFFFF',
-        textAlign: 'center',
-        marginBottom: 4,
-        letterSpacing: -0.5,
-    },
-    subtitle: {
-        fontSize: 16,
-        color: 'rgba(255, 255, 255, 0.85)',
-        textAlign: 'center',
-        marginTop: 20,
-        lineHeight: 24,
-        paddingHorizontal: 30,
-    },
-    buttonContainer: {
-        gap: 12,
-        marginBottom: 40,
-    },
-    signInButton: {
-        // backgroundColor applied via theme in component
-    },
-    signUpButton: {
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        borderWidth: 2,
-        borderColor: '#FFFFFF',
-    },
-});
+function SlideItem({
+    item,
+    index,
+    scrollX,
+}: {
+    item: (typeof slides)[0];
+    index: number;
+    scrollX: SharedValue<number>;
+}) {
+    const { theme } = useTheme();
+    const styles = createThemedStyles(theme);
+    const animatedStyle = useAnimatedStyle(() => {
+        const inputRange = [
+            (index - 1) * width,
+            index * width,
+            (index + 1) * width,
+        ];
+
+        const scale = interpolate(
+            scrollX.value,
+            inputRange,
+            [0.8, 1, 0.8],
+            Extrapolation.CLAMP
+        );
+
+        const opacity = interpolate(
+            scrollX.value,
+            inputRange,
+            [0.5, 1, 0.5],
+            Extrapolation.CLAMP
+        );
+
+        return {
+            transform: [{ scale }],
+            opacity,
+        };
+    });
+
+    return (
+        <View style={styles.slide}>
+            <Animated.View style={[styles.slideContent, animatedStyle]}>
+                <Text style={styles.emoji}>{item.emoji}</Text>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.subtitle}>{item.subtitle}</Text>
+            </Animated.View>
+        </View>
+    );
+}
+
+function PaginationDot({
+    index,
+    scrollX,
+}: {
+    index: number;
+    scrollX: SharedValue<number>;
+}) {
+    const { theme } = useTheme();
+    const styles = createThemedStyles(theme);
+    const animatedStyle = useAnimatedStyle(() => {
+        const inputRange = [
+            (index - 1) * width,
+            index * width,
+            (index + 1) * width,
+        ];
+
+        const dotWidth = interpolate(
+            scrollX.value,
+            inputRange,
+            [8, 24, 8],
+            Extrapolation.CLAMP
+        );
+
+        const opacity = interpolate(
+            scrollX.value,
+            inputRange,
+            [0.3, 1, 0.3],
+            Extrapolation.CLAMP
+        );
+
+        return {
+            width: dotWidth,
+            opacity,
+        };
+    });
+
+    return <Animated.View style={[styles.dot, animatedStyle]} />;
+}
+
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+    StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.color.bg,
+        },
+        skipButton: {
+            position: 'absolute',
+            top: 60,
+            right: theme.space.xl,
+            zIndex: 1,
+        },
+        skipText: {
+            fontFamily: theme.font.family.regular,
+            fontSize: theme.font.size.md,
+            color: theme.color.textPrimary,
+        },
+        slide: {
+            width,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingHorizontal: theme.space.xl,
+        },
+        slideContent: {
+            alignItems: 'center',
+        },
+        emoji: {
+            fontSize: 100,
+            marginBottom: theme.space.xxl,
+        },
+        title: {
+            fontSize: theme.font.size.xxl,
+            color: theme.color.textPrimary,
+            textAlign: 'center',
+            marginBottom: theme.space.lg,
+            lineHeight: 42,
+        },
+        subtitle: {
+            fontSize: theme.font.size.lg,
+            color: theme.color.textSecondary,
+            textAlign: 'center',
+            lineHeight: 24,
+        },
+        footer: {
+            paddingHorizontal: theme.space.xl,
+            paddingBottom: theme.space.xxl,
+            gap: theme.space.xxl,
+        },
+        pagination: {
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: theme.space.sm,
+        },
+        dot: {
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: theme.color.accent,
+        },
+        nextText: {
+            fontSize: theme.font.size.lg,
+            color: theme.color.textPrimary,
+        },
+    });

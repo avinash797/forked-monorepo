@@ -13,9 +13,22 @@ export default function TabLayout() {
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: theme.color.accent,
                 headerShown: false,
                 tabBarButton: HapticTab,
+                tabBarStyle: {
+                    height: 80,
+                    paddingTop: 8,
+                    paddingBottom: 28,
+                    borderTopWidth: 0,
+                    backgroundColor: theme.color.surface,
+                    elevation: 0,
+                },
+                tabBarActiveTintColor: theme.color.accent,
+                tabBarInactiveTintColor: theme.color.textSecondary,
+                tabBarLabelStyle: {
+                    fontSize: 12,
+                    fontWeight: '500',
+                },
             }}
         >
             <Tabs.Screen
@@ -62,6 +75,19 @@ export default function TabLayout() {
                     tabPress: (e) => {
                         e.preventDefault();
                     },
+                }}
+            />
+            <Tabs.Screen
+                name="personal"
+                options={{
+                    title: 'Personal',
+                    tabBarIcon: ({ color, focused }) => (
+                        <IconSymbol
+                            size={28}
+                            name={focused ? 'list' : 'list-outline'}
+                            color={color}
+                        />
+                    ),
                 }}
             />
             <Tabs.Screen

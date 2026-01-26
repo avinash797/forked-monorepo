@@ -1,239 +1,227 @@
-# Forked - Active TODO List
+# Forked v0.1 - Active TODO List
 
-**Last Updated:** 2026-01-02
+**Last Updated:** 2026-01-20
 
-This file tracks active work items and immediate next steps. For the full roadmap, see [ROADMAP.md](./ROADMAP.md).
-
----
-
-## ✅ Recently Completed
-
-### MVP Feature #8 - Profile System
-
-**Goal:** Enable users to view and edit their profile with avatar and charms
-
-**Status:** ✅ Complete (2026-01-02)
-
-- [x] Design profile nested stack navigation
-- [x] Create profile viewing screen (avatar, bio, charms display)
-- [x] Implement profile editing with form validation (react-hook-form + zod)
-- [x] Add avatar upload to Supabase Storage (user-avatars bucket)
-- [x] Create settings screen with theme switching (4 variants)
-- [x] Build Charm component for user achievements
-- [x] Update auth context to fetch user charms
-- [x] Delete old flat settings.tsx
-
-**Deliverables:**
-
-- 4 screens created (profile stack: _layout, index, edit, settings)
-- 1 component created (Charm)
-- Form validation with react-hook-form + zod
-- Avatar upload fully functional
-- Theme switching between 4 variants (default, genZ, foodies, critics)
+This file tracks active work items for the **MVP v0.1 Pivot**. For the full specification, see `new-goals/forked_v0.1_spec.md`.
 
 ---
 
-### MVP Feature #5 - Data Layer & React Query Integration
+## The Pivot: What Changed
 
-**Goal:** Migrate all data fetching to React Query for robust caching and state management
+We've pivoted from the original roadmap to a focused **MVP v0.1** targeting New Orleans with:
 
-**Status:** ✅ Complete (2026-01-02)
+| Original Approach       | New v0.1 Approach                                                                   |
+| ----------------------- | ----------------------------------------------------------------------------------- |
+| 0-10 rating slider      | **Hybrid Elo-based "This vs That" combined with 0-10 rating slider**                |
+| Photo encouraged        | **Photo MANDATORY**                                                                 |
+| Any dish type           | **5 dish types only** (Gumbo, Po'boy, Fried Chicken, Muffuletta, Crawfish Etouffee) |
+| City-level leaderboards | **City + Neighborhood leaderboards**                                                |
+| Complex features        | **Ruthless simplicity**                                                             |
 
-- [x] Install and configure @tanstack/react-query
-- [x] Create QueryClientProvider wrapper
-- [x] Migrate all 14 hooks to React Query patterns
-- [x] Implement useQuery for data fetching
-- [x] Implement useMutation for data modifications
-- [x] Implement useInfiniteQuery for pagination
-- [x] Add query invalidation on mutations
-- [x] Update error handling to use React Query patterns
+**Core Loop:** `EAT -> SNAP -> COMPARE -> RANK`
 
-**Deliverables:**
-
-- All hooks migrated to React Query
-- Consistent query key patterns
-- Automatic cache invalidation
-- Better loading and error states
+**The Mantra:** _"In under 30 seconds, tell me the best specific dish near me that people like me actually love."_
 
 ---
 
-### MVP Feature #2 - Discovery & Browsing
+## Database & Backend Status
 
-**Goal:** Allow users to browse and discover rated dishes
+### Already Complete
 
-**Status:** ✅ Complete (2025-12-29)
+- [x] New database schema (`v-0-1-0-init.sql`)
+    - cities, neighborhoods, dish_types, restaurants, profiles
+    - personal_ratings (with raw_score 1-10, personal_elo)
+    - comparisons (battle history with Elo audit trail)
+    - global_dish_scores (leaderboard data)
+    - taste_tags, personal_rating_tags
 
-- [x] Design home feed UI/UX
-- [x] Create ReviewCard component
-- [x] Implement home feed with review list, pagination, and pull-to-refresh
-- [x] Create dish detail page with reviews, photos, and venue info
-- [x] Create venue detail page with all dishes and reviews
-- [x] Add basic search functionality for dishes and venues
-- [x] Implement loading states and empty states
-- [x] Add photo gallery display
-- [x] Build browse components (DishCardWithRating, PhotoGallery, SectionHeader, EmptyState)
-- [x] Create custom hooks (useTopDishes, useSearch, useDishDetail, useVenueDetail)
+- [x] RPC Functions
+    - `create_rating` - Main entry point for rating a dish
+    - `process_comparison` - Handle This vs That battles
+    - `get_leaderboard` / `get_nearby_leaderboard` - City/neighborhood leaderboards
+    - `get_my_best_ever` - User's top dish per type
+    - `get_my_dish_rankings` - User's rankings for a dish type
+    - `get_pending_comparisons` - Find pairs to compare
+    - `get_user_stats` - User profile statistics
 
-**Deliverables:**
+- [x] Seed Data
+    - New Orleans city (active)
+    - 10 NOLA neighborhoods
+    - 5 launch dish types with emojis and aliases
+    - 15 taste tags
 
-- 14 files created (4 screens, 6 components, 4 hooks)
-- Home feed fully functional with pagination
-- Search working for dishes and venues
-- Complete browse and detail screens with hero images
-- **Rating system changed from 1-5 stars to 0-10 numeric scale**
-- **Premium UI:** Parallax scrolling, animated sticky headers
-- **ScoreBadge component:** Color-coded rating badges
-- **Photo-dominant design:** Gradient overlays and modern aesthetics
-
----
-
-### MVP Feature #1 - Core Rating Flow
-
-**Goal:** Enable users to rate dishes with photos and GPS verification
-
-**Status:** ✅ Complete (2025-12-26)
-
-- [x] Complete rating flow with 0-10 numeric rating scale
-- [x] Photo system fully functional
-- [x] GPS verification with distance calculation
-- [x] Complete modal flow from venue search to success
-
-**Deliverables:**
-
-- 24 files created (5 screens, 6 components, 5 hooks, 1 context, types, migration)
+- [x] RLS Policies and Triggers
 
 ---
 
-## 🎯 Current Sprint: Review Interactions & Enhancements
+## Current Sprint: Core v0.1 Implementation
 
-**Goal:** Add helpful votes, review sorting, and user review management
+### Phase 1: Data Layer (Hooks)
 
-**Status:** Not Started (Next Priority)
+- [x] **Update `location.store.ts`**
+    - Fetch actual cities from DB (not hardcoded)
+    - Match user location to city/neighborhood
+    - Store selected neighborhood for filtering
 
-### High Priority Tasks
+- [x] **Create `use-restaurants.ts` hook**
+    - Search restaurants by name
+    - Get nearby restaurants with distance
+    - Create new restaurant
 
-- [ ] Implement helpful votes functionality
-    - [ ] Add upvote/downvote UI to ReviewCard
-    - [ ] Create useHelpfulVotes hook
-    - [ ] Connect to helpful_votes table in Supabase
-    - [ ] Handle vote creation, update, and deletion
-    - [ ] Show vote counts on reviews
-    - [ ] Prevent self-voting (enforce RLS policy)
+- [x] **Create `use-ratings.ts` hook**
+    - Call `create_rating` RPC
+    - Handle comparison trigger response
+    - Update personal ratings
 
-- [ ] Implement review sorting
-    - [ ] Add sort dropdown/picker component
-    - [ ] Support "Most Helpful", "Most Recent", "Highest Rating", "Lowest Rating"
-    - [ ] Update useDishDetail hook to accept sort parameter
-    - [ ] Persist sort preference (optional)
+- [x] **Create `use-comparisons.ts` hook**
+    - Call `process_comparison` RPC
+    - Get pending comparisons
+    - Track comparison history
 
-- [ ] User's own review management
-    - [ ] Highlight user's own review in review list
-    - [ ] Add "Edit" button to user's review
-    - [ ] Create edit review screen/modal
-    - [ ] Implement review deletion with confirmation
+- [x] **Create `use-user-stats.ts` hook**
+    - Call `get_user_stats` RPC
+    - Call `get_my_best_ever` RPC
+    - Call `get_my_dish_rankings` RPC
 
-### Next Steps
+### Phase 2: Core Screens (5 Screens)
 
-1. Start with helpful votes UI in ReviewCard
-2. Create useHelpfulVotes hook for data management
-3. Add sort dropdown to dish detail page
-4. Implement user review highlighting and edit functionality
+#### Screen 1: Home - "What Should I Eat Right Now?"
 
----
+- [x] Location badge at top (city/neighborhood)
+- [x] Dish type selector pills (5 types)
+- [x] Hero card showing #1 dish for selected type
+    - Restaurant name, neighborhood, distance
+    - Confidence meter (fire emojis)
+    - Featured photo
+- [ ] "Show #2 and #3" expandable
+- [ ] Get Directions CTA
+- [x] Floating camera button (FAB) bottom right
 
-## 📋 Backlog (High Priority)
+#### Screen 2: Dish Leaderboard
 
-### MVP Features Waiting to Start
+- [x] Header: "Best [Dish Type] in New Orleans"
+- [x] Toggle: `City` | `Near Me (2mi)` | `[Neighborhood]`
+- [x] Ranked list 1-10
+    - Crown emoji for #1
+    - Restaurant name + neighborhood
+    - Confidence meter
+    - Photo thumbnail
+- [x] Tappable rows -> Dish Detail
 
-1. **Advanced Data Layer** (Deferred to V1.0)
-    - React Query setup for caching
-    - Optimistic updates
-    - Offline support
+#### Screen 3: Dish Detail
 
-2. **Testing & Quality** (Deferred to V1.0)
-    - Unit tests for hooks and utilities
-    - Component tests for UI
-    - E2E tests for critical flows
+- [x] Hero photo (full width)
+- [x] Dish name + Restaurant name
+- [ ] Ranking badge: "#X [Dish] in [Location]"
+- [x] Confidence meter (visual)
+- [x] Taste tags (crowd-sourced)
+- [ ] Map snippet with directions CTA
+- [ ] "Compare This Dish" button
 
-3. **Production Polish** (Deferred to V1.0)
-    - Error boundaries
-    - Performance optimization
-    - Analytics integration
+#### Screen 4: This vs That (The Elo Engine)
 
-### Completed Components
+- [x] Full-screen split view
+    - Top half: Photo A (new dish or random)
+    - Bottom half: Photo B (comparison dish)
+- [x] Center prompt: "Which [Dish Type] wins?"
+- [x] Tap either photo to vote
+- [ ] After vote:
+    - Optional quick tag selection (skippable)
+    - "Thanks! Rankings updated." -> dismiss
+- [ ] Skip option with reason picker
 
-**Rating Flow:**
+#### Screen 5: Profile - "Your Taste History"
 
-- ✅ NumericRating (0-10 scale input)
-- ✅ VenueCard
-- ✅ DishCard
-- ✅ PhotoPicker
-- ✅ SearchInput
-- ✅ LocationStatusBanner
+- [x] Avatar + username + home city
+- [x] "Best Ever" cards (auto-generated per dish type)
+    - Photo + restaurant + date
+    - Share button
+- [x] Stats row: `X dishes` | `X cities` | `X battles`
+- [x] Badges: "Gumbo Authority" etc.
+- [-] Map view toggle (pins of what you've eaten) - Deferred to post-v0.1
 
-**Browse/Discovery:**
+### Phase 3: Rating Flow Updates
 
-- ✅ ReviewCard (with ScoreBadge)
-- ✅ DishCardWithRating (photo-dominant design)
-- ✅ CompactDishCardWithRating (for search results)
-- ✅ LeaderboardItem (with medal borders)
-- ✅ PhotoGallery
-- ✅ SectionHeader
-- ✅ EmptyState
-- ✅ ScoreBadge (color-coded ratings)
+- [x] Update rating flow to use new schema
+    - Use `restaurants` instead of `venues`
+    - Use `dish_types` instead of custom dishes
+    - Call `create_rating` RPC
+- [x] Photo is MANDATORY (no submission without photo)
+- [x] Raw score 1-10 input
+- [x] Optional taste tags selection
+- [x] Handle comparison trigger after rating
+    - If `should_compare` is true, navigate to This vs That
 
-**Profile:**
+### Phase 4: Components
 
-- ✅ Charm (user achievement display with SVG/image icons)
-
-**Themed Components:**
-
-- ✅ ThemedText, ThemedView, ThemedButton, ThemedTextInput, ThemedSelect
-
-### Completed Systems
-
-- ✅ Photo System (Supabase Storage, Camera/ImagePicker, Gallery Display, Avatar Upload)
-- ✅ GPS/Location Services
-- ✅ React Query Integration (all 14 hooks migrated)
-- ✅ Browse & Search functionality
-- ✅ Home feed with pagination
-- ✅ Leaderboard with rankings
-- ✅ Profile System (view/edit/settings with theme switching)
-
----
-
-## 🐛 Known Issues
-
-_None reported yet_
-
-**Note:** Test Core Rating Flow on physical device before marking as production-ready.
-
----
-
-## 💡 Ideas / Future Considerations
-
-- ✅ ~~Evaluate React Query vs. SWR for data fetching~~ (Complete - React Query chosen and integrated)
-- ✅ ~~Consider using Expo Image for better image performance~~ (Using Expo ImagePicker)
-- ✅ ~~Implement pull-to-refresh on feed~~ (Complete)
-- ✅ ~~Add pagination for review lists~~ (Complete via Load More)
-- ✅ ~~Profile system with avatar upload~~ (Complete)
-- ✅ ~~Theme switching functionality~~ (Complete - 4 variants)
-- Research AI photo verification APIs (Google Vision, AWS Rekognition, etc.)
-- Plan for app store submission requirements
-- Consider analytics platform (Amplitude, Mixpanel, PostHog)
-- Add image compression/optimization before upload (V1.0)
-- Implement infinite scroll/virtualized lists for better performance (V1.0)
-- Add review flagging/reporting (V1.0)
-- Add charm unlock notifications and progress tracking (V1.0)
+- [x] **HeroCard** - Top dish display for home
+- [x] **DishTypePills** - Horizontal scrollable selector
+- [x] **ConfidenceMeter** - Fire emoji visualization
+- [x] **ComparisonCard** - Split screen for This vs That
+- [x] **TasteTagChips** - Selectable tag chips
+- [x] **BestEverCard** - Personal best dish card with share
+- [x] **BestEverSection** - Horizontal scrollable section for profile
+- [x] **StatsRow** - User stats display (dishes/cities/battles)
+- [x] **BadgesSection** - Horizontal scrollable badges display
+- [ ] **RankBadge** - "#X in [Location]" badge
+- [x] **LeaderboardRow** - Ranked list item
 
 ---
 
-## 📝 Notes
+## Existing Code to Leverage
 
-- Keep this file focused on **current sprint + next 1-2 sprints**
-- Move completed items to PROGRESS.md for historical tracking
-- Update weekly or as tasks change
-- Link to relevant GitHub issues when they exist
+### Can Reuse (with modifications)
+
+- `useDishTypes` hook - Already fetches active dish types
+- `useLeaderboard` / `useTopDish` hooks - Already call RPC functions
+- `useLocationStore` - Needs DB integration but structure is good
+- `usePhotoUpload` hook - Photo upload to Supabase Storage
+- Rating flow screens - Need updates for new schema
+- Profile screens - Need updates for new stats/best-ever
+
+### Existing Components to Keep
+
+- `ThemedText`, `ThemedView`, `ThemedButton`, etc.
+- `ScoreBadge` - Can adapt for confidence display
+- `PhotoPicker` - For photo capture
+- `LocationHeader`, `LocationBottomSheet`
+
+---
+
+## What's NOT in v0.1 (Kill List)
+
+- [ ] ~~Social feed~~
+- [ ] ~~Following users~~
+- [ ] ~~Comments/reviews text~~
+- [ ] ~~Restaurant discovery~~
+- [ ] ~~AI taste profiles~~
+- [ ] ~~Bookmarks/lists~~
+- [ ] ~~Reservations/menus~~
+- [ ] ~~Owner portals~~
+- [ ] ~~Global leaderboards~~
+- [ ] ~~Helpful votes~~
+- [ ] ~~Review sorting~~
+
+---
+
+## Success Metrics (30 Days Post-Launch)
+
+| Metric                 | Target                              |
+| ---------------------- | ----------------------------------- |
+| Dishes rated           | 500+                                |
+| Comparisons logged     | 2,000+                              |
+| App downloads          | 1,500+                              |
+| DAU                    | 200+                                |
+| Leaderboard confidence | Top 3 per category have 50+ battles |
+
+---
+
+## Notes
+
+- Database is READY - schema, RPC functions, seed data all in place
+- Focus on the 5 screens - they are the entire MVP
+- Keep it simple - if a feature doesn't serve the core loop, cut it
+- The "This vs That" screen is the data engine - make it feel like a game
 
 ---
 

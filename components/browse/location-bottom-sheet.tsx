@@ -1,99 +1,79 @@
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { SliderInput } from '@/components/ui/slider';
 import { useTheme } from '@/contexts/theme-provider';
-import { useCities } from '@/hooks/use-location';
-import { useLocationFilterStore } from '@/stores';
-import BottomSheet, {
+import { City, useCities } from '@/hooks/use-location';
+import { useLocationFilterStore, useLocationStore } from '@/stores';
+import {
     BottomSheetBackdrop,
-    BottomSheetScrollView,
+    BottomSheetFlatList,
+    BottomSheetModal,
 } from '@gorhom/bottom-sheet';
 import { BottomSheetDefaultBackdropProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types';
-import { forwardRef, useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
-} from 'react-native-reanimated';
+import { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+    ActivityIndicator,
+    Pressable,
+    SectionListRenderItem,
+    StyleSheet,
+    View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface LocationBottomSheetProps {
     onClose: () => void;
 }
 
-// TODO: Fetch real cities/neighborhoods from database based on user location
-const FALLBACK_LOCATIONS = [
-    'Downtown',
-    'Midtown',
-    'Upper East Side',
-    'Brooklyn',
-    'Queens',
-    'Williamsburg',
-    'Chelsea',
-    'SoHo',
-];
-
 export const LocationBottomSheet = forwardRef<
-    BottomSheet,
+    BottomSheetModal,
     LocationBottomSheetProps
 >((props, ref) => {
     const { onClose } = props;
     const { theme } = useTheme();
     const {
         filterType,
-        radius,
-        selectedLocation,
-        setNearbyFilter,
-        setLocationFilter,
+        selectedCityId,
+        selectedNeighborhoodId,
+        setCityFilter,
+        setNeighborhoodFilter,
     } = useLocationFilterStore();
 
+    // Physical location + auto-selection source
+    const { currentCity } = useLocationStore();
+
     const { data: cities = [], isLoading: isLoadingCities } = useCities();
-    const [localRadius, setLocalRadius] = useState(radius);
-
-    const locations = cities.length > 0 ? cities : FALLBACK_LOCATIONS;
-    const styles = createStyles(theme);
-
-    // Animation for Nearby expansion
-    const isNearbySelected = filterType === 'nearby';
-    const expansionProgress = useSharedValue(isNearbySelected ? 1 : 0);
-
-    useEffect(() => {
-        expansionProgress.value = withTiming(isNearbySelected ? 1 : 0, {
-            duration: 300,
-        });
-    }, [isNearbySelected, expansionProgress]);
-
-    const animatedNearbyStyle = useAnimatedStyle(() => ({
-        height: 52 + expansionProgress.value * 120, // 52 is base height, 120 for expansion
-        overflow: 'hidden',
-    }));
-
-    const animatedContentStyle = useAnimatedStyle(() => ({
-        opacity: expansionProgress.value,
-        transform: [{ translateY: (1 - expansionProgress.value) * -10 }],
-    }));
-
-    const snapPoints = ['60%', '80%'];
-
-    const handleRadiusChange = useCallback(
-        (newRadius: number) => {
-            setLocalRadius(newRadius);
-            setNearbyFilter(newRadius);
-        },
-        [setNearbyFilter]
+    const [activeTab, setActiveTab] = useState<'cities' | 'neighborhoods'>(
+        'cities'
     );
 
-    const handleNearbyPress = useCallback(() => {
-        if (filterType !== 'nearby') {
-            setNearbyFilter(localRadius);
-        }
-    }, [filterType, localRadius, setNearbyFilter]);
+    const styles = createStyles(theme);
+    const snapPoints = useMemo(() => ['40%', '60%', '80%'], []);
 
-    const handleLocationSelect = useCallback(
-        (location: string) => {
-            setLocationFilter(location);
+    // Auto-select closest city if no filter is active and we have a location match
+    useEffect(() => {
+        if (!filterType && currentCity && !selectedCityId) {
+            setCityFilter(currentCity.id, currentCity.name);
+        }
+    }, [filterType, currentCity, selectedCityId, setCityFilter]);
+
+    const handleCitySelect = useCallback(
+        (city: City) => {
+            setCityFilter(city.id, city.name);
+            onClose();
         },
-        [setLocationFilter]
+        [setCityFilter, onClose]
+    );
+
+    const handleNeighborhoodSelect = useCallback(
+        (city: City, neighborhoodId: string, neighborhoodName: string) => {
+            setNeighborhoodFilter(
+                city.id,
+                city.name,
+                neighborhoodId,
+                neighborhoodName
+            );
+            onClose();
+        },
+        [setNeighborhoodFilter, onClose]
     );
 
     const renderBackdrop = useCallback(
@@ -108,13 +88,177 @@ export const LocationBottomSheet = forwardRef<
         []
     );
 
+    // Prepare sections for Neighborhoods tab
+    const neighborhoodSections = useMemo(() => {
+        return cities
+            .map((city) => ({
+                title: city.name,
+                data: city.neighborhoods,
+                city: city, // keep ref to city for handler
+            }))
+            .filter((section) => section.data.length > 0);
+    }, [cities]);
+
+    const renderCityItem = useCallback(
+        ({ item: city }: { item: City }) => {
+            const isSelected =
+                filterType === 'city' && selectedCityId === city.id;
+            return (
+                <Pressable
+                    onPress={() => handleCitySelect(city)}
+                    style={({ pressed }) => [
+                        styles.itemContainer,
+                        isSelected && styles.itemSelected,
+                        pressed && { opacity: theme.opacity.pressed },
+                    ]}
+                >
+                    <ThemedText
+                        style={[
+                            styles.itemText,
+                            isSelected && { color: theme.color.accent },
+                        ]}
+                    >
+                        {city.name}
+                    </ThemedText>
+                    {isSelected && (
+                        <IconSymbol
+                            name="checkmark-circle"
+                            size={20}
+                            color={theme.color.accent}
+                        />
+                    )}
+                </Pressable>
+            );
+        },
+        [filterType, selectedCityId, styles, theme, handleCitySelect]
+    );
+
+    const renderNeighborhoodItem: SectionListRenderItem<any, any> = useCallback(
+        ({ item, section }) => {
+            const isSelected =
+                filterType === 'neighborhood' &&
+                selectedNeighborhoodId === item.id;
+            // section.city is accessible via the section object we created
+            const parentCity = section.city;
+
+            return (
+                <Pressable
+                    onPress={() =>
+                        handleNeighborhoodSelect(parentCity, item.id, item.name)
+                    }
+                    style={({ pressed }) => [
+                        styles.neighborhoodItemContainer,
+                        isSelected && styles.itemSelected,
+                        pressed && { opacity: theme.opacity.pressed },
+                    ]}
+                >
+                    <ThemedText
+                        style={[
+                            styles.neighborhoodText,
+                            isSelected && { color: theme.color.accent },
+                        ]}
+                    >
+                        {item.name}
+                    </ThemedText>
+                    {isSelected && (
+                        <IconSymbol
+                            name="checkmark-circle"
+                            size={18}
+                            color={theme.color.accent}
+                        />
+                    )}
+                </Pressable>
+            );
+        },
+        [
+            filterType,
+            selectedNeighborhoodId,
+            styles,
+            theme,
+            handleNeighborhoodSelect,
+        ]
+    );
+
+    const renderSectionHeader = useCallback(
+        ({ section: { title } }: any) => (
+            <View style={styles.sectionHeader}>
+                <ThemedText style={styles.sectionHeaderText}>
+                    {title}
+                </ThemedText>
+            </View>
+        ),
+        [styles]
+    );
+
+    const { bottom } = useSafeAreaInsets();
+
+    const renderContent = () => {
+        if (isLoadingCities) {
+            return (
+                <View
+                    style={[styles.loadingContainer, { paddingBottom: bottom }]}
+                >
+                    <ActivityIndicator color={theme.color.accent} />
+                    <ThemedText style={styles.loadingText}>
+                        Loading locations...
+                    </ThemedText>
+                </View>
+            );
+        }
+
+        if (cities.length === 0) {
+            return (
+                <View
+                    style={[styles.emptyContainer, { paddingBottom: bottom }]}
+                >
+                    <ThemedText style={styles.emptyText}>
+                        No locations available
+                    </ThemedText>
+                </View>
+            );
+        }
+
+        if (activeTab === 'cities') {
+            return (
+                <BottomSheetFlatList
+                    data={cities}
+                    keyExtractor={(item: City) => item.id}
+                    renderItem={renderCityItem}
+                    contentContainerStyle={[
+                        styles.listContent,
+                        { paddingBottom: bottom + theme.space.md },
+                    ]}
+                />
+            );
+        }
+
+        return (
+            // <BottomSheetSectionList
+            //     sections={neighborhoodSections}
+            //     keyExtractor={(item: Neighborhood) => item.id}
+            //     renderItem={renderNeighborhoodItem}
+            //     renderSectionHeader={renderSectionHeader}
+            //     contentContainerStyle={[
+            //         styles.listContent,
+            //         { paddingBottom: bottom + theme.space.md },
+            //     ]}
+            //     stickySectionHeadersEnabled={false}
+            // />
+            <View style={styles.emptyContainer}>
+                <ThemedText>
+                    Neighborhood level filtering is coming soon!
+                </ThemedText>
+            </View>
+        );
+    };
+
     return (
-        <BottomSheet
+        <BottomSheetModal
             ref={ref}
-            index={-1}
+            index={0}
             snapPoints={snapPoints}
             enablePanDownToClose
-            onClose={onClose}
+            onDismiss={onClose}
             backgroundStyle={{
                 backgroundColor: theme.color.bg,
             }}
@@ -122,236 +266,58 @@ export const LocationBottomSheet = forwardRef<
                 backgroundColor: theme.color.border,
             }}
             backdropComponent={renderBackdrop}
-            enableContentPanningGesture
+            enableContentPanningGesture={false}
+            enableDynamicSizing={false}
         >
-            <BottomSheetScrollView
-                style={{ backgroundColor: theme.color.bg, flex: 1 }}
-            >
-                {/* Header */}
-                <View style={styles.header}>
-                    <ThemedText type="title" style={styles.title}>
-                        Filter by Location
+            {/* <View style={styles.header}>
+                <Pressable onPress={onClose}>
+                    <IconSymbol
+                        name="close"
+                        size={24}
+                        color={theme.color.textTertiary}
+                    />
+                </Pressable>
+            </View> */}
+
+            {/* Tabs */}
+            <View style={styles.tabContainer}>
+                <Pressable
+                    style={[
+                        styles.tab,
+                        activeTab === 'cities' && styles.activeTab,
+                    ]}
+                    onPress={() => setActiveTab('cities')}
+                >
+                    <ThemedText
+                        style={[
+                            styles.tabText,
+                            activeTab === 'cities' && styles.activeTabText,
+                        ]}
+                    >
+                        Cities
                     </ThemedText>
-                    <Pressable onPress={onClose}>
-                        <IconSymbol
-                            name="close"
-                            size={24}
-                            color={theme.color.textTertiary}
-                        />
-                    </Pressable>
-                </View>
+                </Pressable>
+                <Pressable
+                    style={[
+                        styles.tab,
+                        activeTab === 'neighborhoods' && styles.activeTab,
+                    ]}
+                    onPress={() => setActiveTab('neighborhoods')}
+                >
+                    <ThemedText
+                        style={[
+                            styles.tabText,
+                            activeTab === 'neighborhoods' &&
+                                styles.activeTabText,
+                        ]}
+                    >
+                        Neighborhoods
+                    </ThemedText>
+                </Pressable>
+            </View>
 
-                {/* Locations List */}
-                <View style={styles.section}>
-                    <View style={styles.locationsList}>
-                        {/* Nearby Item (Animated) */}
-                        <Animated.View
-                            style={[
-                                styles.nearbyItem,
-                                isNearbySelected && {
-                                    backgroundColor: theme.color.accent + '15',
-                                    borderColor: theme.color.accent,
-                                },
-                                animatedNearbyStyle,
-                            ]}
-                        >
-                            <Pressable
-                                onPress={handleNearbyPress}
-                                style={({ pressed }) => [
-                                    styles.itemHeader,
-                                    pressed && {
-                                        opacity: theme.opacity.pressed,
-                                    },
-                                ]}
-                            >
-                                <View style={styles.itemTitleContainer}>
-                                    <IconSymbol
-                                        name="location"
-                                        size={20}
-                                        color={
-                                            isNearbySelected
-                                                ? theme.color.accent
-                                                : theme.color.textSecondary
-                                        }
-                                    />
-                                    <ThemedText
-                                        style={[
-                                            styles.locationName,
-                                            {
-                                                color: isNearbySelected
-                                                    ? theme.color.accent
-                                                    : theme.color.textPrimary,
-                                            },
-                                        ]}
-                                    >
-                                        Nearby
-                                    </ThemedText>
-                                </View>
-                                {isNearbySelected && (
-                                    <IconSymbol
-                                        name="checkmark-circle"
-                                        size={20}
-                                        color={theme.color.accent}
-                                    />
-                                )}
-                            </Pressable>
-
-                            {/* Radius Slider Content */}
-                            <Animated.View
-                                style={[
-                                    styles.expandedContent,
-                                    animatedContentStyle,
-                                ]}
-                            >
-                                <ThemedText style={styles.sliderIntro}>
-                                    Adjust search radius:
-                                </ThemedText>
-                                <View style={styles.sliderContainer}>
-                                    <SliderInput
-                                        value={localRadius}
-                                        onChange={handleRadiusChange}
-                                        min={1}
-                                        max={50}
-                                        step={1}
-                                    />
-
-                                    <View style={styles.sliderLabels}>
-                                        <ThemedText
-                                            style={[
-                                                styles.sliderLabel,
-                                                {
-                                                    color: theme.color
-                                                        .textSecondary,
-                                                },
-                                            ]}
-                                        >
-                                            1 km
-                                        </ThemedText>
-                                        <ThemedText
-                                            style={[
-                                                styles.sliderLabel,
-                                                {
-                                                    color: theme.color
-                                                        .textPrimary,
-                                                    fontWeight: '600',
-                                                },
-                                            ]}
-                                        >
-                                            {localRadius} km
-                                        </ThemedText>
-                                        <ThemedText
-                                            style={[
-                                                styles.sliderLabel,
-                                                {
-                                                    color: theme.color
-                                                        .textSecondary,
-                                                },
-                                            ]}
-                                        >
-                                            50 km
-                                        </ThemedText>
-                                    </View>
-                                </View>
-
-                                <Pressable
-                                    onPress={onClose}
-                                    style={({ pressed }) => [
-                                        styles.applyMinimizedButton,
-                                        pressed && {
-                                            opacity: theme.opacity.pressed,
-                                        },
-                                    ]}
-                                >
-                                    <ThemedText style={styles.applyButtonText}>
-                                        Apply
-                                    </ThemedText>
-                                </Pressable>
-                            </Animated.View>
-                        </Animated.View>
-
-                        {/* Neighborhoods Divider/Header */}
-                        {/* <ThemedText
-                            type="defaultSemiBold"
-                            style={styles.neighborhoodsHeader}
-                        >
-                            Cities & Neighborhoods
-                        </ThemedText> */}
-
-                        {isLoadingCities ? (
-                            <View style={styles.loadingContainer}>
-                                <ActivityIndicator color={theme.color.accent} />
-                                <ThemedText style={styles.loadingText}>
-                                    Loading cities...
-                                </ThemedText>
-                            </View>
-                        ) : (
-                            locations.map((location) => {
-                                const isSelected =
-                                    filterType === 'location' &&
-                                    selectedLocation === location;
-
-                                return (
-                                    <Pressable
-                                        key={location}
-                                        onPress={() =>
-                                            handleLocationSelect(location)
-                                        }
-                                        style={({ pressed }) => [
-                                            styles.locationItem,
-                                            {
-                                                backgroundColor: isSelected
-                                                    ? theme.color.accent + '15'
-                                                    : theme.color.inputBg,
-                                                borderColor: isSelected
-                                                    ? theme.color.accent
-                                                    : theme.color.border,
-                                                height: 52,
-                                            },
-                                            pressed && {
-                                                opacity: theme.opacity.pressed,
-                                            },
-                                        ]}
-                                    >
-                                        <View style={styles.itemTitleContainer}>
-                                            <IconSymbol
-                                                name="business"
-                                                size={20}
-                                                color={
-                                                    isSelected
-                                                        ? theme.color.accent
-                                                        : theme.color
-                                                              .textSecondary
-                                                }
-                                            />
-                                            <ThemedText
-                                                style={[
-                                                    styles.locationName,
-                                                    {
-                                                        color: isSelected
-                                                            ? theme.color.accent
-                                                            : theme.color
-                                                                  .textPrimary,
-                                                    },
-                                                ]}
-                                            >
-                                                {location}
-                                            </ThemedText>
-                                        </View>
-                                        {isSelected && (
-                                            <IconSymbol
-                                                name="checkmark-circle"
-                                                size={20}
-                                                color={theme.color.accent}
-                                            />
-                                        )}
-                                    </Pressable>
-                                );
-                            })
-                        )}
-                    </View>
-                </View>
-            </BottomSheetScrollView>
-        </BottomSheet>
+            <View style={{ flex: 1 }}>{renderContent()}</View>
+        </BottomSheetModal>
     );
 });
 
@@ -361,92 +327,95 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     StyleSheet.create({
         header: {
             flexDirection: 'row',
-            justifyContent: 'space-between',
+            justifyContent: 'flex-end',
             alignItems: 'center',
             paddingHorizontal: theme.space.md,
-            paddingVertical: theme.space.md,
-            borderBottomWidth: theme.border.hairline,
-            borderBottomColor: theme.color.border,
+            paddingBottom: theme.space.md,
         },
         title: {
             fontSize: theme.font.size.lg,
         },
-        section: {
-            padding: theme.space.md,
+        tabContainer: {
+            flexDirection: 'row',
+            marginHorizontal: theme.space.md,
+            marginVertical: theme.space.sm,
+            backgroundColor: theme.color.inputBg,
+            borderRadius: theme.radius.md,
+            padding: 4,
         },
-        locationsList: {
+        tab: {
+            flex: 1,
+            paddingVertical: theme.space.sm,
+            alignItems: 'center',
+            borderRadius: theme.radius.sm,
+        },
+        activeTab: {
+            backgroundColor: theme.color.bg,
+            shadowColor: '#000',
+            shadowOffset: {
+                width: 0,
+                height: 1,
+            },
+            shadowOpacity: 0.1,
+            shadowRadius: 2,
+            elevation: 2,
+        },
+        tabText: {
+            fontSize: theme.font.size.sm,
+            fontWeight: theme.font.weight.medium,
+            color: theme.color.textSecondary,
+        },
+        activeTabText: {
+            color: theme.color.textPrimary,
+            fontWeight: theme.font.weight.bold,
+        },
+        listContent: {
+            padding: theme.space.md,
             gap: theme.space.xs,
         },
-        locationItem: {
-            borderRadius: theme.radius.sm,
-            borderWidth: theme.border.hairline,
-            borderColor: theme.color.border,
-            backgroundColor: theme.color.inputBg,
+        itemContainer: {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            paddingHorizontal: theme.space.md,
-        },
-        nearbyItem: {
+            paddingVertical: theme.space.md,
+            paddingHorizontal: theme.space.sm,
             borderRadius: theme.radius.sm,
-            borderWidth: theme.border.hairline,
-            borderColor: theme.color.border,
-            backgroundColor: theme.color.inputBg,
+            borderBottomWidth: theme.border.hairline,
+            borderBottomColor: theme.color.border,
         },
-        itemHeader: {
+        neighborhoodItemContainer: {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            height: 52,
-            paddingHorizontal: theme.space.md,
+            paddingVertical: theme.space.sm,
+            paddingHorizontal: theme.space.sm,
+            paddingLeft: theme.space.lg, // Indentation for neighborhoods
+            borderRadius: theme.radius.sm,
         },
-        itemTitleContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: theme.space.sm,
+        itemSelected: {
+            backgroundColor: theme.color.accent + '10', // 10% opacity
+            borderBottomWidth: 0,
         },
-        locationName: {
-            fontSize: theme.font.size.md - 1,
+        itemText: {
+            fontSize: theme.font.size.md,
+            fontWeight: theme.font.weight.medium,
         },
-        neighborhoodsHeader: {
-            marginTop: theme.space.lg,
-            marginBottom: theme.space.xs,
+        neighborhoodText: {
             fontSize: theme.font.size.sm,
             color: theme.color.textSecondary,
+        },
+        sectionHeader: {
+            paddingVertical: theme.space.xs,
+            paddingHorizontal: theme.space.sm,
+            backgroundColor: theme.color.bg,
+            marginTop: theme.space.sm,
+        },
+        sectionHeaderText: {
+            fontSize: theme.font.size.sm,
+            fontWeight: theme.font.weight.bold,
+            color: theme.color.textPrimary,
             textTransform: 'uppercase',
-            letterSpacing: 1,
-        },
-        expandedContent: {
-            paddingHorizontal: theme.space.md,
-            paddingBottom: theme.space.md,
-        },
-        sliderIntro: {
-            fontSize: theme.font.size.xs,
-            color: theme.color.textSecondary,
-            marginBottom: theme.space.sm,
-        },
-        sliderContainer: {
-            marginBottom: theme.space.sm,
-        },
-        sliderLabels: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginTop: theme.space.xxs,
-        },
-        sliderLabel: {
-            fontSize: theme.font.size.xs,
-        },
-        applyMinimizedButton: {
-            backgroundColor: theme.color.accent,
-            paddingVertical: theme.space.xs + 2,
-            borderRadius: theme.radius.xs,
-            alignItems: 'center',
-            marginTop: theme.space.xs,
-        },
-        applyButtonText: {
-            color: theme.color.accentOn,
-            fontSize: theme.font.size.sm,
-            fontWeight: theme.font.weight.semibold,
+            opacity: 0.7,
         },
         loadingContainer: {
             padding: theme.space.lg,
@@ -454,6 +423,14 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             gap: theme.space.sm,
         },
         loadingText: {
+            fontSize: theme.font.size.sm,
+            color: theme.color.textSecondary,
+        },
+        emptyContainer: {
+            padding: theme.space.lg,
+            alignItems: 'center',
+        },
+        emptyText: {
             fontSize: theme.font.size.sm,
             color: theme.color.textSecondary,
         },

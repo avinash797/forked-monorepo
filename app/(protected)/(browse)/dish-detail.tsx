@@ -1,16 +1,15 @@
 import { EmptyState } from '@/components/browse/empty-state';
-import { PhotoGallery } from '@/components/browse/photo-gallery';
-import { ReviewCard } from '@/components/browse/review-card';
-import { SectionHeader } from '@/components/browse/section-header';
 import { ScoreBadge } from '@/components/score-badge';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { TrendIndicator } from '@/components/trend-indicator';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { MapCard } from '@/components/ui/map-card';
 import { useTheme } from '@/contexts/theme-provider';
 import { useDishDetail } from '@/hooks/use-dish-detail';
-import type { TrendDirection } from '@/types/browse';
+import { parsePostgresPoint } from '@/lib/geo';
+import { useRatingStore } from '@/stores';
+import { Restaurant } from '@/types/restaurant';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -32,7 +31,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const { width } = Dimensions.get('window');
 const HERO_HEIGHT = 450;
 const HEADER_HEIGHT = 60;
 
@@ -41,12 +39,23 @@ const AnimatedIconSymbol = Animated.createAnimatedComponent(IconSymbol);
 export default function DishDetailScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const { dishId } = useLocalSearchParams<{ dishId: string }>();
+    const { restaurantId, dishTypeId } = useLocalSearchParams<{
+        restaurantId: string;
+        dishTypeId: string;
+    }>();
     const { theme } = useTheme();
     const styles = createThemedStyles(theme, insets);
 
-    const { data, isLoading, error } = useDishDetail(dishId);
-    const { dish, reviews = [] } = data || {};
+    const {
+        data: dish,
+        isLoading,
+        error,
+    } = useDishDetail(dishTypeId, restaurantId);
+    const venue = dish?.restaurant as Restaurant;
+
+    // Rating store for pre-populating when user wants to rate this dish
+    const { setSelectedRestaurant, setSelectedDishType, resetRating } =
+        useRatingStore();
 
     // Animation values
     const scrollY = useSharedValue(0);
@@ -156,23 +165,27 @@ export default function DishDetailScreen() {
 
     // Navigate to venue detail
     const handleVenuePress = () => {
-        if (dish?.venue?.id) {
+        if (venue && venue.id) {
             router.push({
                 pathname: '/(protected)/(browse)/venue-detail',
-                params: { venueId: dish.venue.id },
+                params: { venueId: venue.id },
             });
         }
     };
 
-    // Navigate to rating flow
+    // Navigate to rating flow with pre-populated restaurant and dish type
     const handleRateDishPress = () => {
+        if (dish && venue) {
+            // Reset any previous rating state first
+            resetRating();
+            // Pre-populate the rating store with current dish and restaurant
+            setSelectedRestaurant(venue);
+            setSelectedDishType(dish.dish_type);
+        }
         router.push('/(protected)/(rating)');
     };
 
-    // Collect all photos from reviews
-    const allPhotos = reviews.flatMap((review) => review.photo_urls || []);
-    const heroPhoto =
-        allPhotos.length > 0 ? allPhotos[0] : dish?.photos?.[0] || null;
+    const heroPhoto = dish?.featured_photo_url;
 
     // Loading state
     if (isLoading) {
@@ -246,18 +259,18 @@ export default function DishDetailScreen() {
                             style={styles.headerTitle}
                             numberOfLines={1}
                         >
-                            {dish.name}
+                            {dish.dish_type.name}
                         </ThemedText>
                         <ThemedText
                             style={styles.headerSubtitle}
                             numberOfLines={1}
                         >
-                            at {dish.venue?.name}
+                            at {venue?.name}
                         </ThemedText>
                     </View>
-                    {dish.average_rating !== null && (
+                    {dish.avg_raw_score !== null && (
                         <ScoreBadge
-                            score={dish.average_rating}
+                            score={dish.avg_raw_score}
                             style={styles.headerRating}
                         />
                     )}
@@ -305,10 +318,20 @@ export default function DishDetailScreen() {
                     <Animated.View
                         style={[styles.heroContent, animatedHeroContentStyle]}
                     >
+                        <View style={styles.statsRow}></View>
+                    </Animated.View>
+                </Animated.View>
+
+                {/* Content Section */}
+                <View style={styles.contentSection}>
+                    <View>
                         <View style={styles.statsRow}>
                             <View style={{ maxWidth: '90%' }}>
-                                <ThemedText style={styles.dishNameHero}>
-                                    {dish.name}
+                                <ThemedText
+                                    type="title"
+                                    style={styles.dishNameHero}
+                                >
+                                    {dish.dish_type.name}
                                 </ThemedText>
 
                                 <TouchableOpacity
@@ -316,129 +339,122 @@ export default function DishDetailScreen() {
                                     activeOpacity={0.7}
                                     style={styles.venueNameContainer}
                                 >
-                                    <ThemedText style={styles.venueNameHero}>
-                                        at {dish.venue?.name}{' '}
+                                    <ThemedText
+                                        type="subtitle"
+                                        style={styles.venueNameHero}
+                                    >
+                                        at {dish.restaurant.name}{' '}
                                     </ThemedText>
                                     <IconSymbol
-                                        name="arrow-forward-sharp"
-                                        color={theme.color.textOnImage}
+                                        name="chevron-forward"
+                                        color={theme.color.textSecondary}
                                     />
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.ratingContainer}>
-                                {/* Trend Indicator (if available) */}
-                                {dish.trend_direction &&
-                                    dish.trend_direction !== 'new' && (
-                                        <View style={styles.trendBadgeHero}>
-                                            <TrendIndicator
-                                                direction={
-                                                    dish.trend_direction as TrendDirection
-                                                }
-                                                change={dish.rating_change_7d}
-                                                showChange={true}
-                                                size="md"
-                                            />
-                                        </View>
-                                    )}
-                                {dish.average_rating !== null &&
-                                    dish.review_count > 0 && (
+                                {dish.avg_raw_score !== null &&
+                                    dish.total_ratings! > 0 && (
                                         <ScoreBadge
-                                            score={dish.average_rating}
+                                            score={dish.avg_raw_score}
                                             style={styles.ratingBadge}
                                         />
                                     )}
                             </View>
                         </View>
+                        {/* Detailed Info */}
+                        <View style={styles.infoSection}>
+                            {dish.tags && dish.tags.length > 0 && (
+                                <View style={styles.tagsContainer}>
+                                    {dish.tags.map((tag, index) => (
+                                        <View key={index} style={styles.tag}>
+                                            <ThemedText style={styles.tagText}>
+                                                {tag?.name}
+                                            </ThemedText>
+                                        </View>
+                                    ))}
+                                </View>
+                            )}
 
-                        <View style={styles.statsRow}>
-                            <ThemedText style={styles.statsText}>
-                                {dish.review_count}{' '}
-                                {dish.review_count === 1 ? 'review' : 'reviews'}{' '}
-                                • {dish.category}
-                            </ThemedText>
-                            {dish.current_price && (
-                                <ThemedText style={styles.priceHero}>
-                                    ${dish.current_price.toFixed(0)}
-                                </ThemedText>
+                            <View style={styles.statCard}>
+                                <View style={styles.statItem}>
+                                    <ThemedText style={styles.statValue}>
+                                        {dish.total_ratings || 0}
+                                    </ThemedText>
+                                    <ThemedText style={styles.statLabel}>
+                                        Ratings
+                                    </ThemedText>
+                                </View>
+                                <View style={styles.statDivider} />
+                                <View style={styles.statItem}>
+                                    <ThemedText style={styles.statValue}>
+                                        {dish.total_battles || 0}
+                                    </ThemedText>
+                                    <ThemedText style={styles.statLabel}>
+                                        Battles
+                                    </ThemedText>
+                                </View>
+                                <View style={styles.statDivider} />
+                                <View style={styles.statItem}>
+                                    <ThemedText style={styles.statValue}>
+                                        {((dish.win_rate || 0) * 100).toFixed(
+                                            0
+                                        )}
+                                        %
+                                    </ThemedText>
+                                    <ThemedText style={styles.statLabel}>
+                                        Win Rate
+                                    </ThemedText>
+                                </View>
+                                <View style={styles.statDivider} />
+                                <View style={styles.statItem}>
+                                    <ThemedText style={styles.statValue}>
+                                        {(
+                                            (dish.confidence_score || 0) * 100
+                                        ).toFixed(0)}
+                                        %
+                                    </ThemedText>
+                                    <ThemedText style={styles.statLabel}>
+                                        Confidence
+                                    </ThemedText>
+                                </View>
+                            </View>
+
+                            {venue?.coordinates && (
+                                <View style={styles.mapSection}>
+                                    <ThemedText
+                                        type="defaultSemiBold"
+                                        style={styles.sectionTitle}
+                                    >
+                                        Location
+                                    </ThemedText>
+                                    {(() => {
+                                        const coords = parsePostgresPoint(
+                                            venue.coordinates
+                                        );
+                                        if (!coords) return null;
+                                        return (
+                                            <MapCard
+                                                latitude={coords.latitude}
+                                                longitude={coords.longitude}
+                                                title={venue.name}
+                                                address={venue.address || ''}
+                                                height={180}
+                                            />
+                                        );
+                                    })()}
+                                </View>
                             )}
                         </View>
-                    </Animated.View>
-                </Animated.View>
-
-                {/* Content Section */}
-                <View style={styles.contentSection}>
-                    {/* Detailed Info */}
-                    <View style={styles.infoSection}>
-                        {/* Dietary Tags */}
-                        {dish.dietary_tags && dish.dietary_tags.length > 0 && (
-                            <View style={styles.tagsContainer}>
-                                {dish.dietary_tags.map((tag, index) => (
-                                    <View key={index} style={styles.tag}>
-                                        <ThemedText style={styles.tagText}>
-                                            {tag}
-                                        </ThemedText>
-                                    </View>
-                                ))}
-                            </View>
-                        )}
-
-                        {/* Description */}
-                        {dish.description && (
-                            <ThemedText style={styles.description}>
-                                {dish.description}
-                            </ThemedText>
-                        )}
                     </View>
 
-                    {/* Photo Gallery (Subsequent photos) */}
-                    {allPhotos.length > 1 && (
-                        <View style={styles.photoGallerySection}>
-                            <SectionHeader title="Photos" />
-                            <PhotoGallery photos={allPhotos} maxVisible={6} />
-                        </View>
-                    )}
-
-                    {/* Reviews Section */}
-                    <View style={styles.reviewsSection}>
-                        <SectionHeader
-                            title={`Reviews (${reviews.length})`}
-                            subtitle={
-                                reviews.length === 0
-                                    ? 'Be the first to review!'
-                                    : undefined
-                            }
-                        />
-
-                        {/* Empty state for reviews */}
-                        {reviews.length === 0 && (
-                            <View style={styles.emptyReviews}>
-                                <EmptyState
-                                    icon="restaurant-outline"
-                                    title="No reviews yet"
-                                    message="Be the first to share your experience with this dish!"
-                                    actionLabel="Rate This Dish"
-                                    onActionPress={handleRateDishPress}
-                                />
-                            </View>
-                        )}
-
-                        {/* Review Cards */}
-                        {reviews.map((review) => (
-                            <ReviewCard key={review.id} review={review} />
-                        ))}
+                    <View style={styles.rateButtonContainer}>
+                        <ThemedButton
+                            onPress={handleRateDishPress}
+                            style={styles.rateButton}
+                        >
+                            Rate This Dish
+                        </ThemedButton>
                     </View>
-
-                    {/* Rate This Dish Button (if reviews exist) */}
-                    {reviews.length > 0 && (
-                        <View style={styles.rateButtonContainer}>
-                            <ThemedButton
-                                onPress={handleRateDishPress}
-                                style={styles.rateButton}
-                            >
-                                Rate This Dish
-                            </ThemedButton>
-                        </View>
-                    )}
                 </View>
             </Animated.ScrollView>
         </ThemedView>
@@ -566,12 +582,6 @@ const createThemedStyles = (
         },
         dishNameHero: {
             fontSize: theme.font.size.xxl + 6,
-            lineHeight: theme.font.size.xxl + 12,
-            fontWeight: theme.font.weight.bold,
-            color: theme.color.textOnImage,
-            textShadowColor: 'rgba(0, 0, 0, 0.75)',
-            textShadowOffset: { width: 0, height: 1 },
-            textShadowRadius: 4,
             marginBottom: 2,
         },
         venueNameContainer: {
@@ -580,18 +590,55 @@ const createThemedStyles = (
             marginBottom: theme.space.sm,
         },
         venueNameHero: {
+            color: theme.color.textSecondary,
             fontSize: theme.font.size.lg,
-            color: theme.color.textOnImage,
-            opacity: 0.9,
-            fontWeight: theme.font.weight.medium,
-            textShadowColor: 'rgba(0, 0, 0, 0.5)',
-            textShadowOffset: { width: 0, height: 1 },
-            textShadowRadius: 2,
         },
         statsRow: {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
+        },
+        statCard: {
+            flexDirection: 'row',
+            backgroundColor:
+                theme.mode === 'dark'
+                    ? 'rgba(255,255,255,0.05)'
+                    : 'rgba(0,0,0,0.03)',
+            borderRadius: theme.radius.lg,
+            paddingVertical: theme.space.md,
+            paddingHorizontal: theme.space.sm,
+            marginBottom: theme.space.lg,
+            justifyContent: 'space-around',
+            alignItems: 'center',
+            borderWidth: 1,
+            borderColor:
+                theme.mode === 'dark'
+                    ? 'rgba(255,255,255,0.1)'
+                    : 'rgba(0,0,0,0.05)',
+        },
+        statItem: {
+            alignItems: 'center',
+            justifyContent: 'center',
+            flex: 1,
+        },
+        statValue: {
+            fontSize: theme.font.size.sm + 1,
+            fontWeight: theme.font.weight.bold,
+            color: theme.color.textPrimary,
+        },
+        statLabel: {
+            fontSize: 9,
+            color: theme.color.textSecondary,
+            textTransform: 'uppercase',
+            marginTop: 2,
+            fontWeight: theme.font.weight.semibold,
+            letterSpacing: 0.5,
+        },
+        statDivider: {
+            width: 1,
+            height: 20,
+            backgroundColor: theme.color.border,
+            opacity: 0.5,
         },
         statsText: {
             fontSize: theme.font.size.md,
@@ -609,12 +656,22 @@ const createThemedStyles = (
             borderTopLeftRadius: theme.radius.xl,
             borderTopRightRadius: theme.radius.xl,
             marginTop: -theme.radius.xl,
-            minHeight: Dimensions.get('window').height,
+            minHeight: Dimensions.get('window').height - HERO_HEIGHT,
             padding: theme.space.sm,
             paddingTop: theme.space.lg,
+            flex: 1,
+            justifyContent: 'space-between',
         },
         infoSection: {
+            marginBottom: theme.space.md,
+        },
+        mapSection: {
             marginBottom: theme.space.lg,
+        },
+        sectionTitle: {
+            fontSize: theme.font.size.md,
+            marginBottom: theme.space.xs,
+            color: theme.color.textPrimary,
         },
         tagsContainer: {
             flexDirection: 'row',

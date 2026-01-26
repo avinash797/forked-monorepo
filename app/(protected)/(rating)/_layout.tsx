@@ -42,6 +42,13 @@ export default function RatingLayout() {
                     title: 'Rate Dish',
                 }}
             />
+            <Stack.Screen
+                name="compare"
+                options={{
+                    title: 'Compare',
+                    headerShown: false,
+                }}
+            />
         </Stack>
     );
 }

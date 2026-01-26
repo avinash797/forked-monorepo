@@ -1,569 +1,262 @@
-# Forked - Product Roadmap
+# Forked v0.1 - Product Roadmap
 
-**Last Updated:** 2026-01-02
+**Last Updated:** 2026-01-17
 
-## Overview
+## The Pivot
 
-This roadmap tracks the development of Forked from its current foundation (30% complete) through MVP launch and beyond. The project is organized into three phases:
+We've pivoted from the original multi-phase roadmap to a focused **MVP v0.1** targeting New Orleans. This document now reflects the new direction.
 
-- **MVP (Minimum Viable Product)**: Core rating functionality - ship a usable product
-- **V1.0 (First Full Release)**: Complete feature set from product spec
-- **V2.0 (Future Enhancements)**: Advanced features and polish
+For the full specification, see `new-goals/forked_v0.1_spec.md`.
 
 ---
 
-## Current Status: 60% Complete
+## The Mantra
 
-### ✅ Completed (Foundation + MVP Features #1, #2, #3, #5, #6, #7, #8)
+> "In under 30 seconds, tell me the best specific dish near me that people like me actually love."
 
-- Authentication system (signup, login, password reset, profile management)
-- Database schema (27+ migrations: 11 tables + 2 storage buckets + seed data + schema updates)
-- UI component library (30+ themed components, navigation structure)
-- App architecture (Expo Router v6, TypeScript, React Query, theme system with 4 variants)
-- **Core Rating Flow** (venue search, dish selection, rating submission with 0-10 scale) 🎉
-- **Photo System** (camera, gallery, Supabase Storage upload, photo gallery display, avatar upload) 🎉
-- **GPS Verification** (location services, distance calculation) 🎉
-- **Discovery & Browsing** (home feed, search, dish/venue detail pages) 🎉
-- **Leaderboard & Rankings** (dish type chips, top dishes by category, medal borders, dramatic animations) 🎉
-- **Profile System** (view/edit profile, avatar upload, charms display, settings with theme switching) 🎉
-- **Data Layer** (React Query integration complete, all hooks migrated) 🎉
-
-### 🚧 In Progress
-
-- Review display enhancements (helpful votes, sorting)
-
-### ❌ Not Started
-
-- Advanced search & filters
-- User social features (follow, activity feed)
-- Gamification UI (charm unlock notifications, progress tracking)
-- Review management (edit/delete own reviews)
+If a feature doesn't serve that, it's out.
 
 ---
 
-## 📱 MVP Phase - Target: 80% Complete
+## What Changed
 
-**Goal:** Ship a functional dish rating app with core verification features.
-
-**Target Completion:** [Set your target date]
-
-### MVP Features (Priority Order)
-
-#### 1. Core Rating Flow (Critical - 25% of MVP) ✅ COMPLETE
-
-**Status:** ✅ Complete | **Progress:** 100% | **Completed:** 2025-12-26
-
-- [x] "Rate a Dish" entry point on home screen (FloatingActionButton)
-- [x] Venue selection screen (search + GPS proximity)
-- [x] Dish selection screen (browse existing or add new)
-- [x] Rating submission screen (0-10 numeric rating, photo, review text)
-- [x] Photo capture/upload functionality (camera + gallery)
-- [x] GPS location detection and verification (with Haversine distance)
-- [x] Review confirmation and submission to Supabase
-- [x] Supabase Storage bucket configuration with RLS policies
-
-**Success Criteria:** ✅ ALL MET
-
-- ✅ User can find a nearby venue
-- ✅ User can select or create a dish
-- ✅ User can rate with 0-10 scale + photo (required) + optional text
-- ✅ Review saves to database with GPS verification status
-
-**Implementation Details:**
-
-- 24 files created (5 screens, 6 components, 5 hooks, 1 context, types, migration)
-- Modal presentation for clean UX
-- Distance-based venue sorting
-- Photo requirement enforced before submission
-- GPS warning displayed but non-blocking
+| Original Approach | New v0.1 Approach |
+|-------------------|-------------------|
+| 0-10 rating slider | **Elo-based "This vs That" battles** |
+| Photo encouraged | **Photo MANDATORY** |
+| Any dish type | **5 dish types only** |
+| City-level leaderboards | **City + Neighborhood leaderboards** |
+| Complex features | **Ruthless simplicity** |
 
 ---
 
-#### 2. Discovery & Browsing (Critical - 20% of MVP) ✅ COMPLETE
+## The Core Loop
 
-**Status:** ✅ Complete | **Progress:** 100% | **Completed:** 2025-12-29
+```
+EAT -> SNAP -> COMPARE -> RANK
+```
 
-- [x] Home feed showing top-rated dishes with pagination and pull-to-refresh
-- [x] Dish detail page (ratings, photos, reviews, venue info)
-- [x] Venue detail page (all dishes, location, reviews, photos)
-- [x] Basic search (by dish name or venue name)
-- [x] Loading states and empty states for all screens
-- [ ] Advanced filters (location radius, price range) - deferred to V1.0
-
-**Success Criteria:** ✅ ALL MET
-
-- ✅ User can browse top dishes on home screen
-- ✅ User can view all reviews for a dish
-- ✅ User can find specific dishes or venues via search
-
-**Implementation Details:**
-
-- 4 new screens (browse layout, search, dish detail, venue detail)
-- 6 browse components (ReviewCard, DishCardWithRating, PhotoGallery, SectionHeader, EmptyState, ScoreBadge)
-- 4 new hooks (useTopDishes, useSearch, useDishDetail, useVenueDetail)
-- Pull-to-refresh and pagination
-- Loading skeletons for better UX
-- **Hero image sections with parallax scrolling** (reanimated)
-- **Animated sticky headers** that appear on scroll
-- **Color-coded rating badges** (green/yellow/red based on score)
+1. **Eat** a dish
+2. **Snap** a photo (mandatory)
+3. **Compare** it against another dish you've had (This vs That)
+4. **Rank** updates automatically via Elo
+5. **Benefit** later when deciding what to eat
 
 ---
 
-#### 3. Photo System (Critical - 15% of MVP) ✅ COMPLETE
+## Current Status: 35% Complete
 
-**Status:** ✅ Complete | **Progress:** 100% | **Completed:** 2025-12-29
+### Backend (Database & RPC) - 100% Complete
 
-- [x] Photo upload to Supabase Storage (review-photos bucket)
-- [x] Camera integration (Expo ImagePicker - camera + gallery)
-- [x] Photo picker component with preview and delete
-- [x] Photo requirement enforcement (required for ratings)
-- [x] Storage bucket RLS policies configured
-- [x] Photo gallery display on dish detail pages
-- [ ] Basic image compression/optimization (deferred to V1.0)
-- [ ] Photo moderation status display (deferred to V1.0)
+- Database schema with Elo system
+- All RPC functions implemented
+- Seed data for New Orleans
+- RLS policies and triggers
 
-**Success Criteria:** ✅ ALL MET
+### Frontend - 20% Complete
 
-- ✅ User can take or upload photos during rating
-- ✅ Photos stored securely in Supabase Storage
-- ✅ Photos display in review lists and galleries
+- Some hooks exist (need updates)
+- Some screens exist (need major updates)
+- Components partially ready
 
 ---
 
-#### 4. Review Display & Interaction (Important - 15% of MVP)
+## Launch Dishes (NOLA Only)
 
-**Status:** 🚧 Partial | **Progress:** 60%
+**Hard limit: 5 dish types at launch.**
 
-- [x] Review list component (display all reviews for a dish)
-- [x] Review card component (0-10 rating, text, photos, user info)
-- [ ] Helpful votes functionality (upvote/downvote reviews)
-- [ ] Sort reviews (most helpful, most recent, highest/lowest rating)
-- [ ] User's own review display (with edit option)
+| Dish | Emoji | Why |
+|------|-------|-----|
+| Gumbo | `#` | The iconic NOLA dish. Fierce local opinions. |
+| Po'boy | `#` | High frequency, clear "best" debates |
+| Fried Chicken | `#` | Willie Mae's territory. Emotional. |
+| Muffuletta | `#` | Central Grocery vs everyone else |
+| Crawfish Etouffee | `#` | Seasonal, passionate fanbase |
 
-**Success Criteria:**
-
-- ✅ All reviews display correctly on dish pages
-- ⏳ Users can vote on review helpfulness (upcoming)
-- ⏳ Review sorting works correctly (upcoming)
+**Expansion rule:** Add 2 new dish types only after 500+ comparisons in existing categories.
 
 ---
 
-#### 5. Data Layer & API (Critical - 15% of MVP) ✅ COMPLETE
+## The 5 Screens
 
-**Status:** ✅ Complete | **Progress:** 100% | **Completed:** 2026-01-02
+### Screen 1: Home - "What Should I Eat Right Now?"
 
-- [x] Supabase query functions (dishes, venues, reviews, photos)
-- [x] Custom hooks for data fetching (useTopDishes, useSearch, useDishDetail, etc.)
-- [x] Context/state management for global app state (RatingContext, AuthContext, ThemeProvider)
-- [x] Error handling and loading states
-- [x] React Query setup for data fetching and caching
-- [x] All 14 hooks migrated to @tanstack/react-query
-- [ ] Optimistic updates for better UX (deferred to V1.0)
+**Purpose:** Kill decision fatigue in 3 seconds.
 
-**Success Criteria:** ✅ ALL MET
+- Location badge at top
+- Dish selector pills (5 types)
+- Hero card showing #1 dish for selected type
+- Floating camera button (FAB)
 
-- ✅ All data fetches from Supabase efficiently
-- ✅ Loading states display correctly
-- ✅ Errors handled gracefully
-- ✅ App feels fast with proper caching (React Query provides excellent caching)
+**This screen alone should make the app worth keeping.**
 
-**Implementation Details:**
+### Screen 2: Dish Leaderboard
 
-- Dependencies: @tanstack/react-query v5.90.16
-- Query keys are semantic and hierarchical
-- Mutations invalidate related queries automatically
-- All hooks follow consistent patterns (useQuery, useMutation, useInfiniteQuery)
-- Error handling via React Query's built-in error boundaries
-- Loading states from isLoading, isFetching, isPending
+**Purpose:** Establish authority. Settle arguments.
 
----
+- Header: "Best [Dish] in New Orleans"
+- Toggle: City | Near Me | Neighborhood
+- Ranked list 1-10 with confidence meters
 
-#### 6. Basic UI Components (Important - 10% of MVP) ✅ COMPLETE
+### Screen 3: Dish Detail
 
-**Status:** ✅ Complete | **Progress:** 100% | **Completed:** 2025-12-29
+**Purpose:** Build trust before someone makes a trip.
 
-- [x] NumericRating component (0-10 scale input and display variants)
-- [x] DishCard component (for lists/grids)
-- [x] DishCardWithRating component (enhanced with ratings display)
-- [x] VenueCard component (for lists/grids)
-- [x] ReviewCard component (user review display)
-- [x] PhotoGallery component (grid-based photo viewer with modal)
-- [x] EmptyState component (for no data scenarios)
-- [x] SectionHeader component (consistent section titles)
-- [x] Loading skeletons for better UX
+- Hero photo
+- Ranking badge
+- Confidence meter
+- Taste tags
+- Map with directions
 
-**Success Criteria:** ✅ ALL MET
+### Screen 4: This vs That
 
-- ✅ Reusable components work across all screens
-- ✅ Consistent design language
-- ✅ Proper theme support (light/dark mode)
+**Purpose:** The data engine. Make it feel like a game.
 
----
+- Full-screen split (Photo A vs Photo B)
+- Center prompt: "Which [Dish] wins?"
+- Tap to vote
+- Optional quick tags after
 
-#### 7. Leaderboard & Rankings (Important - 10% of MVP) ✅ COMPLETE
+**This screen should feel like Tinder for food.**
 
-**Status:** ✅ Complete | **Progress:** 100% | **Completed:** 2025-12-29
+### Screen 5: Profile
 
-- [x] Horizontal scrollable chip selector for dish types
-- [x] Fetch dish types with ≥3 dishes that have average_rating populated
-- [x] Leaderboard flat list with compact tiles (dish + venue + rating badge)
-- [x] Medal borders for top 3 (gold #1, silver #2, bronze #3)
-- [x] Filter leaderboard items based on selected dish type chip
-- [x] Dramatic animations following dish-detail/venue-detail patterns
-- [x] Pull-to-refresh and loading states
+**Purpose:** Personal reward. Make users care about contributing.
 
-**Success Criteria:** ✅ ALL MET
-
-- ✅ User can browse dish types with sufficient rated dishes
-- ✅ User can see top dishes ranked by average rating per type
-- ✅ Top 3 dishes have distinctive medal borders (with crown emoji for #1, oversized photos)
-- ✅ Animations are smooth and dramatic like other detail screens
-
-**Implementation Details:**
-
-- New tab between home and add-review tabs with "leaderboard" icon
-- `useLeaderboard` hook for data fetching (optimized with in-memory aggregation)
-- `LeaderboardItem` component with gradient medal borders and playful design
-- Medal colors use existing `theme.color.gold`, `theme.color.silver`, `theme.color.bronze`
-- Reanimated for smooth 60fps staggered fade-in animations
-- Dish type chips with category icons using MaterialCommunityIcons
-- Crown emoji (👑) for #1 position with rotation transform
-- Oversized photos for top 3 with enhanced shadows and borders
+- Avatar + stats
+- "Best Ever" cards per dish type
+- Badges and achievements
+- Map of what you've eaten
 
 ---
 
-#### 8. Profile System (Important - 10% of MVP) ✅ COMPLETE
+## Implementation Phases
 
-**Status:** ✅ Complete | **Progress:** 100% | **Completed:** 2026-01-02
+### Phase 1: Data Layer (Current Sprint)
 
-- [x] Profile nested stack navigation (_layout, index, edit, settings)
-- [x] Profile viewing screen with avatar, bio, and charms display
-- [x] Profile editing with form validation (react-hook-form + zod)
-- [x] Avatar upload to Supabase Storage (user-avatars bucket)
-- [x] Settings screen with theme switching (4 variants: default, genZ, foodies, critics)
-- [x] Charm component for displaying earned user achievements
-- [x] Auth context updated to fetch user charms
-- [x] Profile photo display across app
+- [ ] Update `location.store.ts` for DB cities
+- [ ] Create `use-restaurants.ts` hook
+- [ ] Create `use-ratings.ts` hook
+- [ ] Create `use-comparisons.ts` hook
+- [ ] Create `use-user-stats.ts` hook
 
-**Success Criteria:** ✅ ALL MET
+### Phase 2: Core Screens
 
-- ✅ User can view their own profile with avatar and charms
-- ✅ User can edit profile information (bio, display name)
-- ✅ User can upload/change avatar photo
-- ✅ User can switch between 4 theme variants
-- ✅ Charms display correctly with icons
+- [ ] Build Home screen with hero card
+- [ ] Build Leaderboard with neighborhood toggle
+- [ ] Build Dish Detail screen
+- [ ] Build This vs That screen
+- [ ] Update Profile with best-ever cards
 
-**Implementation Details:**
+### Phase 3: Rating Flow
 
-- Deleted old flat `settings.tsx`, created profile nested stack
-- Form validation: react-hook-form v7.69.0 + zod v4.2.1
-- Avatar storage bucket: `user-avatars` with RLS policies
-- Theme switching: 4 variants (default, genZ, foodies, critics) in light/dark modes
-- Charm component: SVG/image icon support with fallback
-- Profile screens: app/(protected)/(tabs)/profile/{_layout,index,edit,settings}.tsx
+- [ ] Update to use new schema (restaurants, dish_types)
+- [ ] Enforce mandatory photo
+- [ ] Handle comparison trigger
+- [ ] Add taste tags selection
 
----
+### Phase 4: Polish & Launch
 
-### MVP Nice-to-Haves (If Time Permits)
-
-- [x] Pull-to-refresh on feed screens ✅
-- [x] Infinite scroll/pagination for long lists ✅
-- [x] Image zoom/lightbox for photos ✅
-- [ ] Share review functionality
-- [ ] Basic analytics tracking (screen views, rating submissions)
+- [ ] Test all flows
+- [ ] Seed initial data with Founding Forks
+- [ ] Beta launch to NOLA locals
 
 ---
 
-## 🚀 V1.0 Phase - Target: 100% Complete
+## What's NOT in v0.1
 
-**Goal:** Complete all features from the original product specification.
-
-**Target Completion:** [Set your target date]
-
-### V1.0 Features
-
-#### 7. Gamification & Charms (10% of V1.0)
-
-**Status:** Not Started | **Progress:** 0%
-
-- [ ] Charm/badge display in user profile
-- [ ] Charm unlock notifications
-- [ ] Progress tracking UI for incremental charms
-- [ ] Charm detail modal (description, unlock criteria, rarity)
-- [ ] "Charms" tab in user profile
-- [ ] Leaderboard or achievement showcase
-
-**Success Criteria:**
-
-- Charms auto-award based on database triggers
-- Users see their earned badges
-- Progress toward next charm is visible
+| Feature | Why It's Cut |
+|---------|--------------|
+| Social feed | Noise, not utility |
+| Following users | Not needed for core loop |
+| Comments | Toxic + low signal |
+| Restaurant discovery | We discover DISHES |
+| AI taste profiles | Data first, AI later |
+| Bookmarks/lists | Rankings replace lists |
+| Reservations/menus | We're not OpenTable |
+| Owner portals | We care about eaters, not owners (yet) |
+| Global leaderboards | Too abstract early |
 
 ---
 
-#### 8. Advanced Search & Filters (10% of V1.0)
+## Cold-Start Strategy: New Orleans
 
-**Status:** Not Started | **Progress:** 0%
+### Why NOLA First
 
-- [ ] Search by dish type (cross-venue queries using dish_types table)
-- [ ] Advanced filters (price range, dietary restrictions, spice level)
-- [ ] Location-based search (by city, neighborhood, radius)
-- [ ] Sort options (rating, price, distance, popularity)
-- [ ] Search history and saved searches
+1. Iconic dishes with fierce local opinions
+2. Clear "hole in the wall" culture
+3. Tourist destination (built-in discovery use case)
+4. Anti-Yelp sentiment among locals
+5. Compact geography (easy to seed)
 
-**Success Criteria:**
+### Phase 1: Dish Seeding (Pre-Launch)
 
-- User can find "all Gumbos in New Orleans"
-- Filters work correctly and are performant
-- Search results are relevant and accurate
+**Goal:** 200+ dishes rated, 500+ comparisons before public launch.
 
----
+- 10 True Believers ("Founding Fork" badge)
+- 15-20 Paid Seeders ($15/dish entry)
+- Each seeder hits 10-15 restaurants
+- Focus on the 5 launch dishes
 
-#### 9. User Profiles & Social Features (8% of V1.0)
+### Phase 2: Closed Beta
 
-**Status:** Not Started | **Progress:** 0%
+- QR codes at bars (not restaurants)
+- Bartenders and servers
+- r/NewOrleans, NOLA Twitter
+- Stickers at hole-in-the-wall spots
 
-- [ ] Public user profile page (view other users)
-- [ ] User's review history
-- [ ] User statistics (total reviews, avg rating given, charms)
-- [ ] Follow/unfollow users (optional)
-- [ ] Activity feed (optional)
-- [ ] Profile editing (bio, location, profile photo)
+### Phase 3: Public Launch
 
-**Success Criteria:**
-
-- Tapping a username shows their public profile
-- Profile displays all user reviews and stats
-- Profile editing saves correctly
+- Publish "Top 10 Gumbo in New Orleans"
+- Include 1-2 controversial picks
+- CTA: "Disagree? Download Forked and vote."
 
 ---
 
-#### 10. Review Management (7% of V1.0)
+## Success Metrics (30 Days Post-Launch)
 
-**Status:** Not Started | **Progress:** 0%
-
-- [ ] Edit review functionality
-- [ ] Delete review functionality
-- [ ] View edit history for a review
-- [ ] Report review (moderation workflow)
-- [ ] Flag inappropriate photos
-
-**Success Criteria:**
-
-- Users can edit their own reviews
-- Edit history tracked in database
-- Moderation flags work correctly
+| Metric | Target |
+|--------|--------|
+| Dishes rated | 500+ |
+| Comparisons logged | 2,000+ |
+| App downloads | 1,500+ |
+| DAU | 200+ |
+| Leaderboard confidence | Top 3 per category have 50+ battles |
+| Press mentions | 3+ local |
+| Organic shares | 100+ share cards |
 
 ---
 
-#### 11. Venue & Dish Management (8% of V1.0)
+## Future Roadmap (Post v0.1)
 
-**Status:** Not Started | **Progress:** 0%
-
-- [ ] Add new venue flow (name, address, cuisine, hours)
-- [ ] Add new dish flow (name, category, price, dietary tags)
-- [ ] Edit venue/dish information
-- [ ] Suggest corrections to venue/dish info
-- [ ] Venue/dish approval workflow (if needed)
-
-**Success Criteria:**
-
-- Users can add missing venues/dishes
-- Data validation prevents duplicates
-- Submissions are moderated (if required)
+| Version | Key Additions |
+|---------|---------------|
+| v0.1 | Core loop, 5 dishes, NOLA only |
+| v0.2 | Expand to 10 dishes, add Houston/Austin, Founding Fork badges visible |
+| v0.3 | AI taste profiles, personalized rankings |
+| v0.4 | Social layer (follow experts), "Dish Expert" verification |
+| v1.0 | National rollout, restaurant owner dashboards, API |
 
 ---
 
-#### 12. Price Tracking & History (5% of V1.0)
+## The Moat
 
-**Status:** Not Started | **Progress:** 0%
+> Your real moat is not AI. Your moat is **dish-level truth + friction that filters liars.**
 
-- [ ] Price history display on dish pages (chart or list)
-- [ ] Report price change functionality
-- [ ] Price verification workflow (crowd-sourced)
-- [ ] Price trend indicators (increasing/decreasing)
-
-**Success Criteria:**
-
-- Users see price changes over time
-- Users can report current prices
-- Price updates trigger verification flow
-
----
-
-#### 13. Verification Systems (7% of V1.0)
-
-**Status:** Not Started | **Progress:** 0%
-
-- [ ] AI photo verification integration (dish type detection)
-- [ ] GPS verification UI (show verification status)
-- [ ] Moderation queue for flagged content
-- [ ] Admin dashboard for content moderation (optional)
-- [ ] Verified user badge/status
-
-**Success Criteria:**
-
-- AI validates photos match dish type
-- GPS verification prevents armchair reviews
-- Moderators can approve/reject flagged content
-
----
-
-#### 14. Testing & Quality Assurance (10% of V1.0)
-
-**Status:** Not Started | **Progress:** 0%
-
-- [ ] Unit tests for utility functions
-- [ ] Component tests for UI components
-- [ ] Integration tests for API layer
-- [ ] E2E tests for critical flows (signup, rating submission)
-- [ ] Test coverage reporting
-- [ ] CI/CD pipeline with automated testing
-
-**Success Criteria:**
-
-- > 70% code coverage
-- All critical flows have E2E tests
-- Tests run automatically on PRs
-
----
-
-#### 15. Production Polish (10% of V1.0)
-
-**Status:** Not Started | **Progress:** 0%
-
-- [ ] Error boundaries for crash prevention
-- [ ] Offline support and data sync
-- [ ] Loading skeletons for better perceived performance
-- [ ] Haptic feedback for interactions
-- [ ] Accessibility improvements (screen reader, contrast)
-- [ ] Performance optimization (image lazy loading, code splitting)
-- [ ] Analytics integration (track user behavior)
-- [ ] Crash reporting (Sentry or similar)
-
-**Success Criteria:**
-
-- App doesn't crash on common errors
-- Works in low/no connectivity
-- Meets accessibility standards
-- Performance metrics are good
-
----
-
-## 🌟 V2.0 Phase - Future Enhancements
-
-**Goal:** Advanced features and ecosystem expansion.
-
-**Target Completion:** [TBD]
-
-### V2.0 Feature Ideas
-
-#### 16. Advanced Social Features
-
-- [ ] User following system
-- [ ] Activity feed (friends' recent reviews)
-- [ ] Share to social media (Instagram, Twitter, etc.)
-- [ ] In-app messaging or comments
-- [ ] Review replies/discussions
-
----
-
-#### 17. Restaurant Partnerships
-
-- [ ] Restaurant claim/verification
-- [ ] Restaurant analytics dashboard
-- [ ] Menu management for restaurants
-- [ ] Exclusive tastings for high-reputation users
-- [ ] Restaurant promotions/deals
-
----
-
-#### 18. Smart Recommendations
-
-- [ ] Personalized dish recommendations (ML-based)
-- [ ] "Similar dishes" suggestions
-- [ ] Taste preference profiling
-- [ ] "Best value" rankings (price-to-rating ratio)
-
----
-
-#### 19. Advanced Gamification
-
-- [ ] Seasonal challenges
-- [ ] Community events (e.g., "Pizza Week")
-- [ ] Referral system and rewards
-- [ ] Premium/paid charms or features
-- [ ] Local legend leaderboards
-
----
-
-#### 20. Additional Features
-
-- [ ] Price alerts ("notify when under $X")
-- [ ] Dietary restriction deep filtering
-- [ ] Seasonal dish tracking
-- [ ] Historical price trend visualizations
-- [ ] API for third-party integrations
-- [ ] Web app version
-- [ ] Widget for iOS/Android home screen
-
----
-
-## Progress Metrics
-
-### Overall Progress by Phase
-
-| Phase          | Features Complete | Total Features | Progress |
-| -------------- | ----------------- | -------------- | -------- |
-| **Foundation** | 5/5               | 5              | 100% ✅  |
-| **MVP**        | 7/8               | 8              | 88% 🚧   |
-| **V1.0**       | 0/9               | 9              | 0%       |
-| **V2.0**       | 0/5               | 5              | 0%       |
-| **TOTAL**      | 12/27             | 27             | **44%**  |
-
-### MVP Progress Breakdown
-
-| Feature                | Priority  | Status      | Progress |
-| ---------------------- | --------- | ----------- | -------- |
-| Core Rating Flow       | Critical  | ✅ Complete | 100%     |
-| Discovery & Browsing   | Critical  | ✅ Complete | 100%     |
-| Photo System           | Critical  | ✅ Complete | 100%     |
-| Review Display         | Important | 🚧 Partial  | 60%      |
-| Data Layer & API       | Critical  | ✅ Complete | 100%     |
-| Basic UI Components    | Important | ✅ Complete | 100%     |
-| Leaderboard & Rankings | Important | ✅ Complete | 100%     |
-| Profile System         | Important | ✅ Complete | 100%     |
+AI becomes lethal AFTER:
+- 100k comparisons
+- 10k verified dishes
+- Clear taste vectors from tags
 
 ---
 
 ## Update Schedule
 
-This roadmap should be reviewed and updated:
-
-- **Weekly** during active MVP development
-- **Bi-weekly** during V1.0 development
-- **Monthly** during V2.0 planning
+- **Weekly** during active v0.1 development
+- Update after completing each phase
+- Update when milestones are reached
 
 ---
 
-## Notes
-
-- Progress percentages are estimates based on feature completion
-- Priorities may shift based on user feedback and testing
-- MVP target is a shippable product with core functionality
-- V1.0 completes the full product specification
-- V2.0 is exploratory and subject to change based on market response
-
----
-
-**Next Steps:**
-
-1. ✅ ~~Review and approve this roadmap~~
-2. ✅ ~~Begin MVP Feature #1: Core Rating Flow~~ (Complete)
-3. ✅ ~~Begin MVP Feature #2: Discovery & Browsing~~ (Complete)
-4. ✅ ~~Begin MVP Feature #7: Leaderboard & Rankings~~ (Complete)
-5. ✅ ~~Begin MVP Feature #5: Data Layer & API (React Query)~~ (Complete)
-6. ✅ ~~Begin MVP Feature #8: Profile System~~ (Complete)
-7. Complete MVP Feature #4: Review Display & Interaction (helpful votes, sorting)
-8. Set target dates for MVP beta release
-9. Update progress weekly in this file
+**Last Review:** 2026-01-17
+**Next Review:** Weekly during v0.1 development

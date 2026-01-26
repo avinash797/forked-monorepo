@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import type { AuthState, Profile } from '@/types/auth';
+import type { AuthState, UserProfile } from '@/types/auth';
 import type { Session } from '@supabase/supabase-js';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
@@ -75,20 +75,12 @@ export function useAuth(): UseAuthReturn {
 
             // Fetch user profile
             const { data: profile, error: profileError } = (await supabase
-                .from('users')
+                .from('profiles')
                 .select('*')
                 .eq('id', userId)
-                .single()) as { data: Profile | null; error: any };
+                .single()) as { data: UserProfile | null; error: any };
 
             if (profileError) throw profileError;
-
-            // Fetch user charms
-            const { data: charms, error: charmsError } = await supabase
-                .from('user_charms')
-                .select('id:charm_id, timestamp: unlocked_at')
-                .eq('user_id', userId);
-
-            if (charmsError) throw charmsError;
 
             return {
                 user: {
@@ -97,7 +89,7 @@ export function useAuth(): UseAuthReturn {
                     display_name: profile?.display_name ?? undefined,
                     avatar_url: profile?.avatar_url ?? undefined,
                 },
-                profile: { ...profile, charms } as Profile,
+                profile: { ...profile } as UserProfile,
             };
         },
         enabled: !!session?.user?.id,

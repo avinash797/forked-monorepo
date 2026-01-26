@@ -23,7 +23,7 @@ interface RatingInputProps {
 export function RatingInput({
     value,
     onChange,
-    min = 0.1,
+    min = 1.0,
     max = 10.0,
     step = 0.1,
     readonly = false,

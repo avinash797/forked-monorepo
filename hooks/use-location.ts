@@ -105,25 +105,53 @@ export function useGPSVerification(
     return status;
 }
 
-// TODO: We need to convert this to use supabase's RPC function so its less client side processing
-const fetchCities = async () => {
+export interface Neighborhood {
+    id: string;
+    name: string;
+    slug: string;
+}
+
+export interface City {
+    id: string;
+    name: string;
+    slug: string;
+    neighborhoods: Neighborhood[];
+}
+
+const fetchCitiesWithNeighborhoods = async (): Promise<City[]> => {
     const { data, error } = await supabase
-        .from('venues')
-        .select('address_city')
-        .order('address_city');
+        .from('cities')
+        .select(
+            `
+            id,
+            name,
+            slug,
+            neighborhoods (
+                id,
+                name,
+                slug
+            )
+        `
+        )
+        .eq('is_active', true)
+        .order('name');
 
     if (error) throw error;
     if (!data) return [];
 
-    // Get unique cities and filter out nulls/empty strings
-    return Array.from(
-        new Set(data.map((v) => v.address_city).filter((c): c is string => !!c))
-    );
+    return data.map((city) => ({
+        id: city.id,
+        name: city.name,
+        slug: city.slug,
+        neighborhoods: (city.neighborhoods || []).sort((a, b) =>
+            a.name.localeCompare(b.name)
+        ),
+    }));
 };
 
 export const useCities = () => {
     return useQuery({
-        queryKey: ['cities'],
-        queryFn: () => fetchCities(),
+        queryKey: ['cities-with-neighborhoods'],
+        queryFn: fetchCitiesWithNeighborhoods,
     });
 };

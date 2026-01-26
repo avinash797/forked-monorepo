@@ -1,11 +1,11 @@
-import { Database } from './database';
+import { Database } from './database.types';
 
 export interface Charm {
     id: string;
     timestamp: string;
 }
 
-export type Profile = Database['public']['Tables']['users']['Row'];
+export type UserProfile = Database['public']['Tables']['profiles']['Row'];
 
 export interface User {
     id: string;
@@ -16,7 +16,7 @@ export interface User {
 
 export interface AuthState {
     user: User | null;
-    profile: Profile | null;
+    profile: UserProfile | null;
     isAuthenticated: boolean;
     isLoading: boolean;
 }

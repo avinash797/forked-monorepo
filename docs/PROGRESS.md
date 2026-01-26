@@ -1,409 +1,220 @@
-# Forked - Progress Tracker
+# Forked v0.1 - Progress Tracker
 
-**Last Updated:** 2026-01-02
+**Last Updated:** 2026-01-20
 
-This document tracks completion metrics and historical progress for the Forked app development.
+This document tracks completion metrics for the **MVP v0.1 Pivot**.
 
 ---
 
-## 📊 Overall Progress
+## The Pivot
 
-### Project Completion: 60%
+On 2026-01-17, we pivoted from the original roadmap to a focused **MVP v0.1** with:
+
+- **Elo-based "This vs That"** comparisons (not simple ratings)
+- **Photo MANDATORY** for all submissions
+- **5 dish types only** at launch (NOLA focus)
+- **City + Neighborhood leaderboards**
+- **Ruthless simplicity** - if it doesn't serve the core loop, cut it
+
+**Core Loop:** `EAT -> SNAP -> COMPARE -> RANK`
+
+---
+
+## Overall Progress
+
+### Project Completion: 70%
 
 ```
-Foundation (Complete)    ████████████████████ 100%
-MVP Phase (In Progress)  ███████████░░░░░░░░░  55%
-V1.0 Phase (Not Started) ░░░░░░░░░░░░░░░░░░░░   0%
-V2.0 Phase (Not Started) ░░░░░░░░░░░░░░░░░░░░   0%
+Backend (Database/RPC)   ████████████████████ 100%
+Data Layer (Hooks)       ██████████████████░░  90%
+Core Screens (5 total)   ██████████████░░░░░░  70%
+Components               ██████████░░░░░░░░░░  50%
+Rating Flow Updates      ████░░░░░░░░░░░░░░░░  20%
 ─────────────────────────────────────────────
-Overall Progress         ████████████░░░░░░░░  60%
+Overall Progress         ██████████████░░░░░░  70%
 ```
 
 ---
 
-## 🎯 Phase Progress
+## Phase Progress
 
-### ✅ Foundation Phase - 100% Complete
+### Backend (Database & RPC) - 100% Complete
 
-**Goal:** Establish core architecture and authentication
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Database Schema | Complete | cities, neighborhoods, dish_types, restaurants, profiles, personal_ratings, comparisons, global_dish_scores, taste_tags |
+| RPC Functions | Complete | create_rating, process_comparison, get_leaderboard, get_nearby_leaderboard, get_my_best_ever, get_my_dish_rankings, get_pending_comparisons, get_user_stats |
+| Seed Data | Complete | New Orleans + 10 neighborhoods + 5 dish types + 15 taste tags |
+| RLS Policies | Complete | Row-level security configured |
+| Triggers | Complete | Auto-update timestamps, handle_new_user |
 
-| Feature Area          | Status      | Progress | Notes                                  |
-| --------------------- | ----------- | -------- | -------------------------------------- |
-| Authentication System | ✅ Complete | 100%     | Signup, login, password reset, profile |
-| Database Schema       | ✅ Complete | 100%     | 11 migrations covering all entities    |
-| UI Component Library  | ✅ Complete | 100%     | Themed components, navigation          |
-| App Architecture      | ✅ Complete | 100%     | Expo Router, TypeScript, themes        |
-| User Profiles         | ✅ Complete | 100%     | Profile viewing in Settings            |
-
-**Completed:** 2025-12-25
-
----
-
-### 🚧 MVP Phase - 55% Complete
-
-**Goal:** Ship core rating functionality
-
-| Feature Area         | Status      | Progress | Notes                                                        |
-| -------------------- | ----------- | -------- | ------------------------------------------------------------ |
-| Core Rating Flow     | ✅ Complete | 100%     | 0-10 rating scale, venue/dish selection, photo upload        |
-| Discovery & Browsing | ✅ Complete | 100%     | Home feed, dish/venue details, search, pagination            |
-| Photo System         | ✅ Complete | 100%     | Camera, upload, gallery display, Supabase Storage, avatars   |
-| Review Display       | 🚧 Partial  | 60%      | Review list/cards complete, needs helpful votes              |
-| Data Layer & API     | ✅ Complete | 100%     | React Query integration complete, all hooks migrated         |
-| Basic UI Components  | ✅ Complete | 100%     | All browse/rating components, empty states, skeletons        |
-| Leaderboard          | ✅ Complete | 100%     | Rankings by dish type, top 3 medals, animated UI             |
-| Profile System       | ✅ Complete | 100%     | View/edit profile, avatar upload, charms display, settings   |
-
-**Started:** 2025-12-26
-**Target Completion:** [TBD]
+**Migrations Applied:**
+- `20260117230624_v-0-1-0-init.sql`
+- `20260117231311_initial-rpc-functions.sql`
+- `20260117231502_initial-rls.sql`
+- `20260117231558_initial-triggers.sql`
+- `20260117231649_initial-storage-setup.sql`
+- `20260117231824_initial-seed-data.sql`
+- `20260118001220_update-handle_new_user.sql`
+- `20260118001221_update-handle_new_user_fix.sql`
+- `20260118004617_additional-missing-rpc-functions.sql`
 
 ---
 
-### ⏳ V1.0 Phase - 0% Complete
+### Data Layer (Hooks) - 90% Complete
 
-**Goal:** Complete full product specification
-
-| Feature Area           | Status         | Progress | Notes                                  |
-| ---------------------- | -------------- | -------- | -------------------------------------- |
-| Gamification & Charms  | ❌ Not Started | 0%       | Badge display, notifications, progress |
-| Advanced Search        | ❌ Not Started | 0%       | Filters, cross-venue queries, sorting  |
-| User Profiles & Social | ❌ Not Started | 0%       | Public profiles, follow, activity feed |
-| Review Management      | ❌ Not Started | 0%       | Edit, delete, edit history, reporting  |
-| Venue/Dish Management  | ❌ Not Started | 0%       | Add, edit, suggest corrections         |
-| Price Tracking         | ❌ Not Started | 0%       | History display, price reporting       |
-| Verification Systems   | ❌ Not Started | 0%       | AI photo, GPS, moderation queue        |
-| Testing & QA           | ❌ Not Started | 0%       | Unit, integration, E2E tests           |
-| Production Polish      | ❌ Not Started | 0%       | Error handling, offline, analytics     |
-
-**Target Completion:** [TBD]
+| Hook | Status | Notes |
+|------|--------|-------|
+| `useDishTypes` | Complete | Fetches active dish types |
+| `useLeaderboard` | Complete | Calls get_leaderboard_with_tiebreakers RPC |
+| `useTopDish` | Complete | Gets #1 dish for a type |
+| `useLocationStore` | Complete | DB integration for cities/neighborhoods |
+| `use-restaurants.ts` | Complete | Restaurant search/create |
+| `use-ratings.ts` | Complete | Create rating via RPC |
+| `use-comparisons.ts` | Complete | This vs That battles |
+| `use-user-stats.ts` | Complete | Profile stats (useUserStats, useMyBestEver, useUserBadges) |
 
 ---
 
-### 🌟 V2.0 Phase - 0% Complete
+### Core Screens - 70% Complete
 
-**Goal:** Advanced features and ecosystem expansion
-
-| Feature Area            | Status         | Progress | Notes                             |
-| ----------------------- | -------------- | -------- | --------------------------------- |
-| Advanced Social         | ❌ Not Started | 0%       | Following, activity feed, sharing |
-| Restaurant Partnerships | ❌ Not Started | 0%       | Claim, analytics, menu mgmt       |
-| Smart Recommendations   | ❌ Not Started | 0%       | ML-based suggestions, preferences |
-| Advanced Gamification   | ❌ Not Started | 0%       | Challenges, events, referrals     |
-| Additional Features     | ❌ Not Started | 0%       | Alerts, widgets, web app, API     |
-
-**Target Completion:** [TBD]
+| Screen | Status | Notes |
+|--------|--------|-------|
+| Home | Complete | Hero card, dish pills, location badge, FAB |
+| Leaderboard | Complete | City/Near Me/Neighborhood toggle, ranked list |
+| Dish Detail | Mostly Complete | Hero photo, restaurant info, confidence meter, taste tags |
+| This vs That | Partial | Split view exists, needs voting flow polish |
+| Profile | Complete | Avatar, home city, stats row, Best Ever cards, badges |
 
 ---
 
-## 📈 Progress History
+### Components - 50% Complete
 
-### 2026-01-02 - Profile System & React Query Integration 🎉
-
-- **Overall Progress:** 60% (+3%)
-- **Milestone:** Profile System Complete + React Query Migration
-- **Major Accomplishments:**
-    - ✅ **Profile System Complete** - Nested stack with view/edit/settings screens
-    - ✅ Profile viewing with avatar, bio, charms display
-    - ✅ Profile editing with form validation (react-hook-form + zod)
-    - ✅ Avatar upload to Supabase Storage (`user-avatars` bucket)
-    - ✅ Settings screen with theme switching (4 variants: default, genZ, foodies, critics)
-    - ✅ **Charm Component** - Display earned charms with SVG/image icons
-    - ✅ **React Query Integration** - All 14 hooks migrated to @tanstack/react-query
-    - ✅ Auth context updated to fetch user charms
-    - ✅ Database schema updates (taste_profile vector, google_place_id, location geography)
-    - ✅ Data Layer marked as 100% complete
-- **Files Created:** 4 new screens (profile stack: _layout, index, edit, settings), 1 component (Charm)
-- **Files Modified:** Auth context, theme context, photo upload hook, database types
-- **Dependencies Added:** @tanstack/react-query, react-hook-form, zod, @hookform/resolvers
-- **Notes:** Profile system fully functional with avatar upload, charms, and theme switching. React Query provides robust caching and data management.
-
-### 2025-12-29 - Discovery & Browsing Complete + UI Enhancements 🎉
-
-- **Overall Progress:** 57% (+20%)
-- **Milestone:** MVP Feature #2 - Discovery & Browsing fully implemented with premium UI
-- **Major Accomplishments:**
-    - ✅ Home feed with top-rated dishes, pagination, and pull-to-refresh
-    - ✅ Dish detail page with hero images and parallax scrolling
-    - ✅ Venue detail page with hero images and animated sticky headers
-    - ✅ Search functionality for dishes and venues
-    - ✅ 6 new browse components (ReviewCard, DishCardWithRating, PhotoGallery, ScoreBadge, etc.)
-    - ✅ 4 new screens (browse layout, search, dish/venue details)
-    - ✅ 4 new hooks (useTopDishes, useSearch, useDishDetail, useVenueDetail)
-    - ✅ **Rating system changed from 1-5 stars to 0-10 numeric scale**
-    - ✅ **ScoreBadge component** with color-coded ratings (green/yellow/red)
-    - ✅ **react-native-reanimated** for smooth parallax and header animations
-    - ✅ **expo-linear-gradient** for visual polish
-    - ✅ Photo-dominant design with gradient overlays
-    - ✅ Seed data added for diverse New Orleans venues and reviews
-- **Files Created:** 14 total (4 screens, 6 components, 4 hooks)
-- **Files Modified:** Multiple (home screen, hooks, database types, detail screens)
-- **Database:** 5 new seed data migrations added
-- **Notes:** Browse features complete with premium UI/UX, parallax effects, and smooth animations
-
-### 2025-12-26 - Core Rating Flow Complete 🎉
-
-- **Overall Progress:** 37% (+7%)
-- **Milestone:** MVP Feature #1 - Core Rating Flow fully implemented
-- **Major Accomplishments:**
-    - ✅ Complete rating flow (venue search → dish selection → rating → success)
-    - ✅ Photo upload system with Supabase Storage integration
-    - ✅ GPS verification with Haversine distance calculation
-    - ✅ 23 new files created (hooks, components, screens, types)
-    - ✅ Storage bucket and RLS policies configured
-    - ✅ FloatingActionButton entry point on home screen
-- **Files Created:** 24 total (23 new + 1 migration)
-- **Files Modified:** 3 (database types, root layout, home screen)
-- **Notes:** First end-to-end user feature complete and ready for testing
-
-### 2025-12-25 - Tracking System Setup
-
-- **Overall Progress:** 30% (unchanged)
-- **Milestone:** Created ROADMAP.md, TODO.md, PROGRESS.md
-- **Notes:** Established project management infrastructure
-
-### 2025-12-24 - Database Schema Complete
-
-- **Overall Progress:** 30%
-- **Milestone:** All 11 database migrations completed and documented
-- **Notes:** Comprehensive schema with RLS, triggers, helper functions
-
-### 2025-12-23 - Authentication Complete
-
-- **Overall Progress:** 25%
-- **Milestone:** Full auth flow working (signup, login, password reset)
-- **Notes:** Profile creation automated via trigger
-
-### 2025-12-22 - Initial Setup
-
-- **Overall Progress:** 15%
-- **Milestone:** Expo app initialized, theme system, navigation structure
-- **Notes:** Project foundation established
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Themed Components | Complete | ThemedText, ThemedView, ThemedButton, etc. |
+| LocationHeader | Complete | Location display with search |
+| LocationBottomSheet | Complete | City/neighborhood picker |
+| ScoreBadge | Complete | Color-coded rating badge |
+| PhotoPicker | Complete | Photo capture for ratings |
+| BestEverCard | Complete | Personal best dish card with share |
+| BestEverSection | Complete | Horizontal scrollable Best Ever cards |
+| StatsRow | Complete | User stats (dishes/cities/battles) |
+| BadgesSection | Complete | Horizontal scrollable badges display |
+| HeroCard | Not Started | Top dish display for home |
+| DishTypePills | Not Started | Horizontal selector |
+| ConfidenceMeter | Not Started | Fire emoji visualization |
+| ComparisonCard | Not Started | This vs That split view |
+| TasteTagChips | Not Started | Selectable tags |
 
 ---
 
-## 🏆 Key Metrics
+### Rating Flow - 0% Complete
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Use restaurants instead of venues | Not Started | Schema change |
+| Use dish_types instead of custom dishes | Not Started | Schema change |
+| Call create_rating RPC | Not Started | New flow |
+| Mandatory photo enforcement | Not Started | Must have photo |
+| Handle comparison trigger | Not Started | Navigate to This vs That |
+| Taste tags selection | Not Started | Optional quick tags |
+
+---
+
+## Progress History
+
+### 2026-01-20 - Profile Screen Update
+
+- **Profile Screen:** Complete redesign to match v0.1 spec
+  - Removed old 3-tab layout (Reviews, Activities, Achievements)
+  - Added StatsRow component (dishes/cities/battles)
+  - Added BestEverSection with horizontal scrolling cards
+  - Added BadgesSection with computed achievement badges
+  - Hero section shows avatar, display name, home city
+- **New Components:** StatsRow, BestEverSection, BadgesSection
+- **Deferred:** Map view toggle moved to post-v0.1
+- **Overall:** 70% complete
+
+### 2026-01-17 - MVP v0.1 Pivot
+
+- **Major Decision:** Pivoted from original roadmap to focused v0.1
+- **Database:** Complete new schema with Elo system
+- **Seed Data:** New Orleans + neighborhoods + dish types + taste tags
+- **RPC Functions:** All core functions implemented
+- **Overall:** 35% complete (backend ready, frontend needs work)
+
+### Previous Progress (Pre-Pivot)
+
+The following was completed before the pivot and can be leveraged:
+
+- Authentication system (signup, login, password reset)
+- UI component library (themed components)
+- React Query integration
+- Photo upload system
+- GPS/location services
+- Basic profile system
+
+---
+
+## Key Metrics
 
 ### Code Statistics
 
-- **Total Files:** ~120+ files
-- **Total Lines of Code:** ~13,000+ lines
-- **Database Tables:** 11 tables (all with RLS)
-- **Migration Files:** 27+ migrations (includes schema updates, seed data, storage buckets)
-- **React Components:** ~30+ components
-- **Screens:** 25 screens (5 auth, 4 tabs + profile nested stack, 6 rating flow, 4 browse flow)
-- **Custom Hooks:** 14 hooks (all migrated to React Query)
-- **Key Dependencies:** @tanstack/react-query, react-hook-form, zod, expo-linear-gradient, react-native-reanimated, @gorhom/bottom-sheet
+- **Database Tables:** 10 tables (all with RLS)
+- **RPC Functions:** 15+ functions
+- **Migration Files:** 9 migrations for v0.1
+- **Seed Data:** 1 city, 10 neighborhoods, 5 dish types, 15 taste tags
 
-### Database Coverage
+### Target Metrics (30 Days Post-Launch)
 
-- ✅ Users
-- ✅ Venues
-- ✅ Dishes
-- ✅ Dish Types
-- ✅ Reviews
-- ✅ Photos
-- ✅ Price History
-- ✅ Helpful Votes
-- ✅ Charms
-- ✅ User Charms
-
-### Feature Coverage
-
-- ✅ Authentication: 100%
-- ✅ Database Schema: 100%
-- ✅ UI Foundation: 100%
-- ✅ Core Rating Flow: 100% 🎉
-- ✅ Photo System: 100% (including avatars)
-- ✅ GPS/Location Services: 100%
-- ✅ Discovery & Browsing: 100% 🎉
-- ✅ Search: 100%
-- ✅ Leaderboard: 100% 🎉
-- ✅ Profile System: 100% 🎉
-- ✅ Data Layer (React Query): 100% 🎉
-- 🚧 Reviews Display: 60% (cards done, need votes/sorting)
-- ❌ Gamification UI: 0%
-- ❌ Advanced Filters: 0%
+| Metric | Target | Current |
+|--------|--------|---------|
+| Dishes rated | 500+ | 0 |
+| Comparisons logged | 2,000+ | 0 |
+| App downloads | 1,500+ | 0 |
+| DAU | 200+ | 0 |
+| Leaderboard confidence | Top 3 have 50+ battles | 0 |
 
 ---
 
-## 📅 Weekly Progress Updates
+## What Was Cut (Kill List)
 
-### Week of 2025-12-30 (ending 2026-01-02)
+Features from the original roadmap that are NOT in v0.1:
 
-- ✅ Migrated all hooks to React Query (@tanstack/react-query)
-- ✅ Redesigned profile system with nested stack navigation
-- ✅ Built profile viewing screen with avatar and charms
-- ✅ Implemented profile editing with form validation (react-hook-form + zod)
-- ✅ Created settings screen with theme switching (4 variants)
-- ✅ Added avatar upload to Supabase Storage (user-avatars bucket)
-- ✅ Created Charm component for displaying user achievements
-- ✅ Updated auth context to fetch and manage user charms
-- ✅ Enhanced database schema (taste_profile vector, google_place_id, location geography)
-- ✅ Deleted old flat settings.tsx, replaced with profile nested stack
-- ✅ Marked Data Layer as 100% complete
-- ✅ Updated overall project progress to 60%
-
-### Week of 2025-12-23
-
-- ✅ Set up tracking system (ROADMAP, TODO, PROGRESS)
-- ✅ Designed and implemented Core Rating Flow (0-10 rating scale)
-- ✅ Built complete photo upload system
-- ✅ Implemented GPS verification with distance calculation
-- ✅ Created 6 reusable rating components
-- ✅ Built 5 rating flow screens
-- ✅ Configured Supabase Storage bucket with RLS policies
-- ✅ Implemented Discovery & Browsing feature
-- ✅ Built home feed with top dishes and pagination
-- ✅ Created dish and venue detail pages
-- ✅ Implemented search functionality
-- ✅ Added photo gallery display
-- ✅ Created 5 browse components
-- ✅ Added seed data for New Orleans venues and reviews
-- ✅ Changed rating system from 1-5 stars to 0-10 scale
-- ✅ **Enhanced UI with hero images and parallax scrolling**
-- ✅ **Added animated sticky headers** (react-native-reanimated)
-- ✅ **Created ScoreBadge component** with color-coded ratings
-- ✅ **Redesigned DishCardWithRating** with photo-dominant layout
-- ✅ **Optimized photo fetching** in hooks
-
-### Week of 2025-12-16
-
-- ✅ Completed all database migrations
-- ✅ Fixed helpful_votes self-voting constraint
-- ✅ Updated README with schema documentation
-
-### Week of 2025-12-09
-
-- ✅ Implemented authentication system
-- ✅ Created themed component library
-- ✅ Set up Expo Router navigation
+- Social feed
+- Following users
+- Comments/long reviews
+- Restaurant discovery
+- AI taste profiles
+- Bookmarks/lists
+- Reservations/menus
+- Owner portals
+- Global leaderboards
+- Helpful votes
+- Review sorting
+- Price tracking
+- Gamification UI
 
 ---
 
-## 🎯 Next Milestones
+## Next Steps
 
-1. ✅ **MVP Feature #1 Complete** - Core Rating Flow (Completed: 2025-12-26)
-    - Measures: Users can submit ratings with photos and GPS verification
-    - Status: DONE - Ready for testing
-
-2. ✅ **MVP Feature #2 Complete** - Discovery & Browsing (Completed: 2025-12-29)
-    - Measures: Home feed shows reviews, dish/venue detail screens work, search functional
-    - Status: DONE - Ready for testing
-
-3. **MVP Feature #4 Next** - Complete Review Interactions (Target: [TBD])
-    - Measures: Helpful votes work, review sorting functional
-
-4. **MVP Beta Release** - All 6 MVP features complete (Target: [TBD])
-    - Measures: App is functional and testable by beta users
-
-5. **V1.0 Release** - Full feature set (Target: [TBD])
-    - Measures: All product spec features implemented and tested
-
-6. **App Store Launch** - Public release (Target: [TBD])
-    - Measures: Live on iOS App Store and Google Play Store
+1. **This vs That:** Polish voting flow - center prompt, tap to vote, tag selection
+2. **Rating Flow:** Update to use new schema with mandatory photo
+3. **Dish Detail:** Add ranking badge and map with directions
+4. **Components:** Build remaining components (HeroCard, DishTypePills, ConfidenceMeter)
+5. **Testing:** End-to-end testing of core loop (EAT -> SNAP -> COMPARE -> RANK)
 
 ---
 
-## 📝 Notes on Progress Tracking
+## Update Schedule
 
-### How Progress is Calculated
-
-**Overall Progress = (Weighted Feature Points Completed / Total Feature Points) × 100**
-
-**Feature Weights:**
-
-- Foundation: 30 points (100% complete = 30 points)
-- MVP: 40 points (0% complete = 0 points)
-- V1.0: 25 points (0% complete = 0 points)
-- V2.0: 5 points (0% complete = 0 points)
-- **Total:** 100 points
-
-**Current Score:** 60/100 = 60%
-
-**Latest Update Calculation (2026-01-02):**
-
-- Foundation: 30 points (100% complete)
-- MVP: 22 points (55% of 40 points complete)
-    - Core Rating Flow: 100% ✅
-    - Discovery & Browsing: 100% ✅
-    - Photo System: 100% ✅
-    - Basic UI Components: 100% ✅
-    - Data Layer: 100% ✅
-    - Leaderboard: 100% ✅
-    - Profile System: 100% ✅
-    - Review Display: 60% 🚧
-- V1.0: 0 points (0% complete)
-- V2.0: 0 points (0% complete)
-
-### Update Frequency
-
-- Update this file **weekly** during active development
-- Update after completing each major feature
+- **Daily** during active v0.1 development
+- Update after completing each phase
 - Update when milestones are reached
 
-### Status Definitions
-
-- ✅ **Complete:** Feature is done, tested, and merged
-- 🚧 **In Progress:** Actively being worked on
-- ⏳ **Planned:** Scheduled for upcoming sprint
-- ❌ **Not Started:** Not yet begun
-- ⏸️ **Paused:** Work stopped temporarily
-- ❗ **Blocked:** Cannot proceed due to dependency
-
 ---
 
-## 🔄 Change Log
-
-### 2026-01-02
-
-- **Major Update:** Profile System & React Query Integration (+3% overall progress)
-- Updated overall progress to 60% (from 57%)
-- Updated MVP Phase to 55% complete (from 50%)
-- Added 5 new screens (profile nested stack: _layout, index, edit, settings + leaderboard)
-- Added 1 new component (Charm)
-- Updated code statistics: 120+ files, 13,000+ LOC, 25 screens, 30+ components
-- Marked Data Layer as 100% complete (React Query migration done)
-- Marked Profile System as 100% complete
-- Marked Leaderboard as 100% complete
-- Added dependencies: @tanstack/react-query, react-hook-form, zod, @hookform/resolvers
-- Database schema enhancements: taste_profile vector, google_place_id, location geography
-- Deleted old settings.tsx, created profile nested stack
-- Added weekly progress entry for week of 2025-12-30
-
-### 2025-12-29
-
-- **Major Update:** Discovery & Browsing MVP complete with premium UI (+20% overall progress)
-- Updated MVP Phase to 50% complete (from 35%)
-- Added 14 new files (4 screens, 6 components, 4 hooks)
-- Updated code statistics: 91+ files, 11,000+ LOC, 15 screens, 27 components
-- **BREAKING CHANGE:** Rating system changed from 1-5 stars to 0-10 numeric scale
-- Marked Discovery & Browsing as 100% complete
-- Added 5 seed data migrations for diverse venues and reviews
-- **UI Enhancement:** Hero images with parallax scrolling (react-native-reanimated)
-- **UI Enhancement:** Animated sticky headers that appear on scroll
-- **New Component:** ScoreBadge with color-coded ratings
-- **Design Update:** Photo-dominant cards with gradient overlays
-- Added expo-linear-gradient and react-native-reanimated dependencies
-- Updated Photo System to 100% (added gallery display)
-- Updated Review Display to 60% (cards complete, need votes/sorting)
-- Updated Data Layer to 80% (custom hooks complete)
-
-### 2025-12-26
-
-- **Major Update:** Core Rating Flow MVP complete (+7% overall progress)
-- Updated MVP Phase to 35% complete (from 0%)
-- Added 24 new files (23 implementation + 1 migration)
-- Updated code statistics: 77 files, 5,500+ LOC, 11 screens, 21 components
-- Marked Core Rating Flow, Photo System, and GPS/Location as 100% complete
-- Added Supabase Storage bucket migration to schema
-
-### 2025-12-25
-
-- Created PROGRESS.md tracking document
-- Established progress calculation methodology
-- Set baseline at 30% completion (Foundation phase)
-
----
-
-**Last Review:** 2026-01-02
-**Next Review:** Weekly during MVP development (next: 2026-01-09)
+**Last Review:** 2026-01-20
+**Next Review:** Daily during active development
