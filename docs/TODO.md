@@ -123,8 +123,8 @@ We've pivoted from the original roadmap to a focused **MVP v0.1** targeting New 
 - [x] Full-screen split view
     - Top half: Photo A (new dish or random)
     - Bottom half: Photo B (comparison dish)
-- [ ] Center prompt: "Which [Dish Type] wins?"
-- [ ] Tap either photo to vote
+- [x] Center prompt: "Which [Dish Type] wins?"
+- [x] Tap either photo to vote
 - [ ] After vote:
     - Optional quick tag selection (skippable)
     - "Thanks! Rankings updated." -> dismiss
@@ -142,29 +142,29 @@ We've pivoted from the original roadmap to a focused **MVP v0.1** targeting New 
 
 ### Phase 3: Rating Flow Updates
 
-- [ ] Update rating flow to use new schema
+- [x] Update rating flow to use new schema
     - Use `restaurants` instead of `venues`
     - Use `dish_types` instead of custom dishes
     - Call `create_rating` RPC
-- [ ] Photo is MANDATORY (no submission without photo)
-- [ ] Raw score 1-10 input
-- [ ] Optional taste tags selection
-- [ ] Handle comparison trigger after rating
+- [x] Photo is MANDATORY (no submission without photo)
+- [x] Raw score 1-10 input
+- [x] Optional taste tags selection
+- [x] Handle comparison trigger after rating
     - If `should_compare` is true, navigate to This vs That
 
 ### Phase 4: Components
 
-- [ ] **HeroCard** - Top dish display for home
-- [ ] **DishTypePills** - Horizontal scrollable selector
-- [ ] **ConfidenceMeter** - Fire emoji visualization
-- [ ] **ComparisonCard** - Split screen for This vs That
-- [ ] **TasteTagChips** - Selectable tag chips
+- [x] **HeroCard** - Top dish display for home
+- [x] **DishTypePills** - Horizontal scrollable selector
+- [x] **ConfidenceMeter** - Fire emoji visualization
+- [x] **ComparisonCard** - Split screen for This vs That
+- [x] **TasteTagChips** - Selectable tag chips
 - [x] **BestEverCard** - Personal best dish card with share
 - [x] **BestEverSection** - Horizontal scrollable section for profile
 - [x] **StatsRow** - User stats display (dishes/cities/battles)
 - [x] **BadgesSection** - Horizontal scrollable badges display
 - [ ] **RankBadge** - "#X in [Location]" badge
-- [ ] **LeaderboardRow** - Ranked list item
+- [x] **LeaderboardRow** - Ranked list item
 
 ---
 
