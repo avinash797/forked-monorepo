@@ -71,6 +71,9 @@ export default function HomeScreen() {
                         </ThemedText>
                     </View>
 
+                    {/* Pending Comparisons CTA */}
+                    <PendingComparisonsCTA />
+
                     {dishTypes && (
                         <ScrollView
                             horizontal
@@ -96,9 +99,6 @@ export default function HomeScreen() {
                             ))}
                         </ScrollView>
                     )}
-
-                    {/* Pending Comparisons CTA */}
-                    <PendingComparisonsCTA />
 
                     {/* Recent Battle Ticker */}
                     <RecentBattleTicker cityId={cityId} />
