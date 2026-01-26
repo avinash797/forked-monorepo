@@ -1,3 +1,4 @@
+import { ThemedButton } from '@/components/themed-button';
 import { useTheme } from '@/contexts/theme-provider';
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
@@ -99,13 +100,11 @@ export default function OnboardingScreen() {
                     ))}
                 </View>
 
-                <Pressable onPress={handleNext} style={styles.nextButton}>
-                    <Text style={styles.nextText}>
-                        {currentIndex === slides.length - 1
-                            ? 'Get Started'
-                            : 'Next'}
-                    </Text>
-                </Pressable>
+                <ThemedButton onPress={handleNext}>
+                    {currentIndex === slides.length - 1
+                        ? 'Get Started'
+                        : 'Next'}
+                </ThemedButton>
             </View>
         </View>
     );
@@ -257,12 +256,6 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             height: 8,
             borderRadius: 4,
             backgroundColor: theme.color.accent,
-        },
-        nextButton: {
-            backgroundColor: theme.color.surface,
-            paddingVertical: theme.space.lg,
-            borderRadius: 16,
-            alignItems: 'center',
         },
         nextText: {
             fontSize: theme.font.size.lg,

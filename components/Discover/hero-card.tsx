@@ -1,11 +1,5 @@
-import {
-    Pressable,
-    StyleSheet,
-    useWindowDimensions,
-    View,
-} from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, {
-    FadeIn,
     FadeInRight,
     useAnimatedStyle,
     useSharedValue,
@@ -13,8 +7,8 @@ import Animated, {
     withTiming,
 } from 'react-native-reanimated';
 
-import { TopDishData } from '@/hooks/use-discover-data';
 import { useTheme } from '@/contexts/theme-provider';
+import { TopDishData } from '@/hooks/use-discover-data';
 import { trackEvent } from '@/lib/amplitude';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -47,10 +41,7 @@ export default function HeroCard({
     const { width: windowWidth } = useWindowDimensions();
     const styles = createStyles(theme, windowWidth);
 
-    const confidence = Math.max(
-        1,
-        Math.ceil((dish.confidence_score ?? 0) * 5)
-    );
+    const confidence = Math.max(1, Math.ceil((dish.confidence_score ?? 0) * 5));
     const flames = '🔥'.repeat(confidence);
 
     const handleHeroPress = () => {
@@ -70,7 +61,6 @@ export default function HeroCard({
     // Staggered entrance animation
     const enteringAnimation = FadeInRight.duration(400)
         .delay(index * 100)
-        .springify()
         .damping(15);
 
     return (
@@ -164,7 +154,11 @@ export function HeroCardSkeleton() {
         <View style={styles.container}>
             <View style={styles.card}>
                 <Animated.View
-                    style={[styles.imageContainer, styles.skeleton, animatedStyle]}
+                    style={[
+                        styles.imageContainer,
+                        styles.skeleton,
+                        animatedStyle,
+                    ]}
                 />
                 <View style={styles.content}>
                     <Animated.View

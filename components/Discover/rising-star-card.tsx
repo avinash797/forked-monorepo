@@ -6,12 +6,7 @@ import { RisingStarData } from '@/hooks/use-discover-data';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
-import {
-    Pressable,
-    StyleSheet,
-    useWindowDimensions,
-    View,
-} from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, {
     FadeInRight,
     useAnimatedStyle,
@@ -64,7 +59,6 @@ export default function RisingStarCard({
     // Staggered entrance animation
     const enteringAnimation = FadeInRight.duration(400)
         .delay(index * 100)
-        .springify()
         .damping(15);
 
     return (
@@ -170,7 +164,11 @@ export function RisingStarCardSkeleton() {
         <View style={styles.container}>
             <View style={styles.card}>
                 <Animated.View
-                    style={[styles.imageContainer, styles.skeleton, animatedStyle]}
+                    style={[
+                        styles.imageContainer,
+                        styles.skeleton,
+                        animatedStyle,
+                    ]}
                 />
                 <View style={styles.content}>
                     <Animated.View

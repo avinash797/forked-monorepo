@@ -3,6 +3,7 @@ import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useRecentBattles } from '@/hooks/use-recent-battles';
+import { makeShadow } from '@/lib/theme/makeStyles';
 import { formatDistanceToNow } from 'date-fns';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -18,7 +19,7 @@ interface RecentBattleTickerProps {
     cityId?: string;
 }
 
-const BANNER_HEIGHT = 72;
+const BANNER_HEIGHT = 100;
 const ANIMATION_DURATION = 600;
 const DISPLAY_DURATION = 5000; // Show each battle for 5 seconds
 
@@ -128,51 +129,53 @@ export function RecentBattleTicker({ cityId }: RecentBattleTickerProps) {
     return (
         <ThemedView style={styles.container}>
             <View style={styles.bannerWrapper}>
-                <Animated.View style={[styles.contentRow, animatedStyle]}>
-                    {/* Left: Activity icon */}
-                    <View style={styles.iconContainer}>
-                        <IconSymbol
-                            name="trophy-outline"
-                            size={20}
-                            color={theme.color.accent}
-                        />
-                    </View>
-
-                    {/* Center: Battle text */}
-                    <View style={styles.textContainer}>
-                        <ThemedText
-                            style={styles.primaryText}
-                            numberOfLines={2}
-                        >
-                            <ThemedText style={styles.username}>
-                                {currentBattle.username}
-                            </ThemedText>
-                            <ThemedText style={styles.action}>
-                                {' '}
-                                picked{' '}
-                            </ThemedText>
-                            <ThemedText style={styles.winner}>
-                                {currentBattle.winnerRestaurant}
-                            </ThemedText>
-                            <ThemedText style={styles.action}>
-                                {' '}
-                                over{' '}
-                            </ThemedText>
-                            <ThemedText style={styles.loser}>
-                                {currentBattle.loserRestaurant}
-                            </ThemedText>
-                        </ThemedText>
-                        <View style={styles.bottomTextContainer}>
-                            <ThemedText style={styles.secondaryText}>
-                                {currentBattle.dishTypeEmoji}{' '}
-                                {currentBattle.dishTypeName}
-                            </ThemedText>
-                            <ThemedText style={styles.timestamp}>
-                                {timeAgo}
-                            </ThemedText>
+                <View style={styles.innerContainer}>
+                    <Animated.View style={[styles.contentRow, animatedStyle]}>
+                        {/* Left: Activity icon */}
+                        <View style={styles.iconContainer}>
+                            <IconSymbol
+                                name="trophy-outline"
+                                size={20}
+                                color={theme.color.accent}
+                            />
                         </View>
-                    </View>
-                </Animated.View>
+
+                        {/* Center: Battle text */}
+                        <View style={styles.textContainer}>
+                            <ThemedText
+                                style={styles.primaryText}
+                                numberOfLines={2}
+                            >
+                                <ThemedText style={styles.username}>
+                                    {currentBattle.username}
+                                </ThemedText>
+                                <ThemedText style={styles.action}>
+                                    {' '}
+                                    picked{' '}
+                                </ThemedText>
+                                <ThemedText style={styles.winner}>
+                                    {currentBattle.winnerRestaurant}
+                                </ThemedText>
+                                <ThemedText style={styles.action}>
+                                    {' '}
+                                    over{' '}
+                                </ThemedText>
+                                <ThemedText style={styles.loser}>
+                                    {currentBattle.loserRestaurant}
+                                </ThemedText>
+                            </ThemedText>
+                            <View style={styles.bottomTextContainer}>
+                                <ThemedText style={styles.secondaryText}>
+                                    {currentBattle.dishTypeEmoji}{' '}
+                                    {currentBattle.dishTypeName}
+                                </ThemedText>
+                                <ThemedText style={styles.timestamp}>
+                                    {timeAgo}
+                                </ThemedText>
+                            </View>
+                        </View>
+                    </Animated.View>
+                </View>
             </View>
         </ThemedView>
     );
@@ -181,22 +184,27 @@ export function RecentBattleTicker({ cityId }: RecentBattleTickerProps) {
 const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     StyleSheet.create({
         container: {
-            marginVertical: theme.space.md,
             paddingHorizontal: theme.space.md,
+            marginVertical: theme.space.lg,
         },
         bannerWrapper: {
+            ...makeShadow(theme, 'md'),
             height: BANNER_HEIGHT,
-            overflow: 'hidden',
             borderRadius: theme.radius.md,
             backgroundColor:
                 theme.mode === 'dark'
-                    ? 'rgba(255, 255, 255, 0.03)'
-                    : 'rgba(0, 0, 0, 0.02)',
+                    ? theme.color.surface
+                    : theme.color.surface,
             borderWidth: 1,
             borderColor:
                 theme.mode === 'dark'
-                    ? 'rgba(255, 255, 255, 0.06)'
-                    : 'rgba(0, 0, 0, 0.04)',
+                    ? 'rgba(255, 255, 255, 0.08)'
+                    : 'rgba(0, 0, 0, 0.06)',
+        },
+        innerContainer: {
+            flex: 1,
+            overflow: 'hidden',
+            borderRadius: theme.radius.md,
         },
         contentRow: {
             height: BANNER_HEIGHT,
