@@ -52,6 +52,22 @@ export interface DishTypeWithData {
 }
 
 /**
+ * Location filter configuration for discover data queries.
+ *
+ * - cityName: filter by city name (case-insensitive)
+ * - nearby: filter by user lat/long within a radius
+ * - If neither is provided, all restaurants are returned.
+ */
+export interface DiscoverLocationFilter {
+    cityName?: string;
+    nearby?: {
+        latitude: number;
+        longitude: number;
+        radiusMeters: number;
+    };
+}
+
+/**
  * Hook to fetch all discover screen data in batch
  *
  * This hook fetches:
@@ -62,19 +78,34 @@ export interface DishTypeWithData {
  * Data is fetched in 3 batch queries instead of N+1 individual queries.
  * Uses RPC functions to exclude restaurants where the user has already rated dishes.
  *
- * @param cityId - The city to fetch data for
+ * Supports two location filtering modes:
+ * - City name: filters restaurants by matching city name
+ * - Nearby: filters restaurants within a radius of user coordinates
+ *
+ * @param locationFilter - Location filter configuration
  * @returns Object containing dish types with their associated data
  */
-export function useDiscoverData(cityId: string | undefined) {
+export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
     const { user } = useAuth();
 
     return useQuery({
-        // Include user ID in query key so data refreshes when user changes
-        queryKey: ['discover-data', cityId, user?.id ?? 'anonymous'],
+        // Include user ID and filter params in query key for proper cache invalidation
+        queryKey: [
+            'discover-data',
+            locationFilter.cityName ?? null,
+            locationFilter.nearby?.latitude ?? null,
+            locationFilter.nearby?.longitude ?? null,
+            locationFilter.nearby?.radiusMeters ?? null,
+            user?.id ?? 'anonymous',
+        ],
         queryFn: async () => {
-            if (!cityId) {
-                return { dishTypes: [], heroMap: {}, risingStarMap: {} };
-            }
+            // Build RPC params from location filter
+            const rpcLocationParams = {
+                p_city_name: locationFilter.cityName ?? null,
+                p_user_lat: locationFilter.nearby?.latitude ?? null,
+                p_user_long: locationFilter.nearby?.longitude ?? null,
+                p_radius_meters: locationFilter.nearby?.radiusMeters ?? null,
+            };
 
             // Fetch all data in parallel
             const [dishTypesResult, heroesResult, risingStarsResult] =
@@ -88,13 +119,13 @@ export function useDiscoverData(cityId: string | undefined) {
 
                     // 2. Fetch heroes using RPC (excludes user-rated restaurants)
                     supabase.rpc('get_discover_heroes', {
-                        p_city_id: cityId,
+                        ...rpcLocationParams,
                         p_min_battles: 5,
                     }),
 
                     // 3. Fetch rising stars using RPC (excludes user-rated restaurants)
                     supabase.rpc('get_discover_rising_stars', {
-                        p_city_id: cityId,
+                        ...rpcLocationParams,
                         p_min_score: 7.5,
                         p_max_battles: 10,
                         p_min_ratings: 2,
@@ -171,7 +202,8 @@ export function useDiscoverData(cityId: string | undefined) {
                 risingStarMap,
             };
         },
-        enabled: !!cityId,
+        enabled:
+            !!locationFilter.cityName || !!locationFilter.nearby,
         staleTime: 5 * 60 * 1000, // 5 minutes
     });
 }

@@ -10,30 +10,50 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
-import { useDiscoverData } from '@/hooks/use-discover-data';
+import {
+    DiscoverLocationFilter,
+    useDiscoverData,
+} from '@/hooks/use-discover-data';
 import { trackEvent } from '@/lib/amplitude';
-import { useLocationStore } from '@/stores/location.store';
+import { useLocationFilterStore, useLocationStore } from '@/stores';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const DEFAULT_NOLA_ID = '2865c3db-1a51-464d-bd8e-1a49777a866f';
+const DEFAULT_CITY_NAME = 'New Orleans';
 
 export default function HomeScreen() {
     const router = useRouter();
     const { currentCity, getCurrentLocation } = useLocationStore();
+    const { filterType, selectedCityName, nearbyConfig } =
+        useLocationFilterStore();
 
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
     const bottomSheetRef = useRef<BottomSheetModal>(null);
 
-    // Use current city or fallback to NOLA
-    const cityId = currentCity?.id || DEFAULT_NOLA_ID;
+    // Build location filter based on current filter state
+    const locationFilter: DiscoverLocationFilter = useMemo(() => {
+        if (filterType === 'nearby' && nearbyConfig) {
+            return {
+                nearby: {
+                    latitude: nearbyConfig.latitude,
+                    longitude: nearbyConfig.longitude,
+                    radiusMeters: nearbyConfig.radiusMeters,
+                },
+            };
+        }
+
+        // City filter or fallback
+        const cityName =
+            selectedCityName || currentCity?.name || DEFAULT_CITY_NAME;
+        return { cityName };
+    }, [filterType, selectedCityName, nearbyConfig, currentCity?.name]);
 
     // Fetch all discover data in a single batch
-    const { data: discoverData, isLoading } = useDiscoverData(cityId);
+    const { data: discoverData, isLoading } = useDiscoverData(locationFilter);
 
     // Filter dish types that have hero data
     const dishTypesWithHeroes =
@@ -109,7 +129,7 @@ export default function HomeScreen() {
                                     dishTypesWithHeroes.map(
                                         (dishType, index) => (
                                             <HeroCard
-                                                key={`${dishType.id}-${cityId}-hero`}
+                                                key={`${dishType.id}-hero`}
                                                 dishTypeId={dishType.id}
                                                 dish={dishType.topDish!}
                                                 index={index}
@@ -163,7 +183,7 @@ export default function HomeScreen() {
                                     dishTypesWithRisingStars.map(
                                         (dishType, index) => (
                                             <RisingStarCard
-                                                key={`${dishType.id}-${cityId}-rising-star`}
+                                                key={`${dishType.id}-rising-star`}
                                                 dish={dishType.risingStar!}
                                                 index={index}
                                             />
@@ -184,7 +204,7 @@ export default function HomeScreen() {
                     </View>
 
                     {/* Recent Battle Ticker */}
-                    <RecentBattleTicker cityId={cityId} />
+                    <RecentBattleTicker />
                 </ScrollView>
             </ThemedView>
 

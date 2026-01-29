@@ -1,6 +1,12 @@
 import { create } from 'zustand';
 
-type FilterType = 'city' | 'neighborhood';
+type FilterType = 'city' | 'neighborhood' | 'nearby';
+
+interface NearbyConfig {
+    latitude: number;
+    longitude: number;
+    radiusMeters: number;
+}
 
 interface LocationFilterState {
     // Current filter configuration
@@ -9,6 +15,7 @@ interface LocationFilterState {
     selectedCityName: string | null;
     selectedNeighborhoodId: string | null;
     selectedNeighborhoodName: string | null;
+    nearbyConfig: NearbyConfig | null;
 
     // Actions
     setCityFilter: (cityId: string, cityName: string) => void;
@@ -17,6 +24,11 @@ interface LocationFilterState {
         cityName: string,
         neighborhoodId: string,
         neighborhoodName: string
+    ) => void;
+    setNearbyFilter: (
+        latitude: number,
+        longitude: number,
+        radiusMeters: number
     ) => void;
     resetFilter: () => void;
 
@@ -32,6 +44,7 @@ export const useLocationFilterStore = create<LocationFilterState>(
         selectedCityName: null,
         selectedNeighborhoodId: null,
         selectedNeighborhoodName: null,
+        nearbyConfig: null,
 
         // Set city filter
         setCityFilter: (cityId, cityName) =>
@@ -41,6 +54,7 @@ export const useLocationFilterStore = create<LocationFilterState>(
                 selectedCityName: cityName,
                 selectedNeighborhoodId: null,
                 selectedNeighborhoodName: null,
+                nearbyConfig: null,
             }),
 
         // Set neighborhood filter (includes parent city)
@@ -56,6 +70,18 @@ export const useLocationFilterStore = create<LocationFilterState>(
                 selectedCityName: cityName,
                 selectedNeighborhoodId: neighborhoodId,
                 selectedNeighborhoodName: neighborhoodName,
+                nearbyConfig: null,
+            }),
+
+        // Set nearby filter (lat/long/radius)
+        setNearbyFilter: (latitude, longitude, radiusMeters) =>
+            set({
+                filterType: 'nearby',
+                selectedCityId: null,
+                selectedCityName: null,
+                selectedNeighborhoodId: null,
+                selectedNeighborhoodName: null,
+                nearbyConfig: { latitude, longitude, radiusMeters },
             }),
 
         // Reset to default (no filter)
@@ -66,11 +92,16 @@ export const useLocationFilterStore = create<LocationFilterState>(
                 selectedCityName: null,
                 selectedNeighborhoodId: null,
                 selectedNeighborhoodName: null,
+                nearbyConfig: null,
             }),
 
         // Get display name for UI
         getDisplayName: () => {
             const state = get();
+            if (state.filterType === 'nearby' && state.nearbyConfig) {
+                const km = (state.nearbyConfig.radiusMeters / 1000).toFixed(1);
+                return `Nearby (${km} km)`;
+            }
             if (state.filterType === 'neighborhood' && state.selectedNeighborhoodName) {
                 return state.selectedNeighborhoodName;
             }

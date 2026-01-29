@@ -3,8 +3,16 @@
 -- ============================================
 -- Returns top dishes (heroes) for the discover page, excluding restaurants
 -- where the current user has already rated any dish.
+--
+-- Location filtering:
+--   - If p_city_name is provided: filter by matching city name
+--   - If p_user_lat/p_user_long/p_radius_meters are provided: filter by proximity
+--   - If neither: return all restaurants (no location filter)
 CREATE OR REPLACE FUNCTION public.get_discover_heroes(
-    p_city_id UUID,
+    p_city_name TEXT DEFAULT NULL,
+    p_user_lat DOUBLE PRECISION DEFAULT NULL,
+    p_user_long DOUBLE PRECISION DEFAULT NULL,
+    p_radius_meters INTEGER DEFAULT NULL,
     p_min_battles INTEGER DEFAULT 5
 ) RETURNS TABLE (
     id UUID,
@@ -24,9 +32,15 @@ CREATE OR REPLACE FUNCTION public.get_discover_heroes(
 SET search_path = public AS $$
 DECLARE
     v_user_id UUID;
+    v_user_point extensions.GEOGRAPHY;
 BEGIN
     -- Get current user (can be null for unauthenticated users)
     v_user_id := auth.uid();
+
+    -- Build user geography point if coordinates provided
+    IF p_user_lat IS NOT NULL AND p_user_long IS NOT NULL THEN
+        v_user_point := ST_SetSRID(ST_MakePoint(p_user_long, p_user_lat), 4326)::geography;
+    END IF;
 
     RETURN QUERY
     SELECT
@@ -45,10 +59,21 @@ BEGIN
         gds.featured_photo_url
     FROM global_dish_scores gds
     JOIN restaurants r ON r.id = gds.restaurant_id
+    LEFT JOIN cities c ON c.id = gds.city_id
     LEFT JOIN neighborhoods n ON n.id = gds.neighborhood_id
-    WHERE gds.city_id = p_city_id
-        AND gds.total_battles >= p_min_battles
+    WHERE gds.total_battles >= p_min_battles
         AND r.is_closed = false
+        -- Location filter: city name match
+        AND (
+            p_city_name IS NULL
+            OR c.name ILIKE p_city_name
+        )
+        -- Location filter: proximity match
+        AND (
+            v_user_point IS NULL
+            OR p_radius_meters IS NULL
+            OR ST_DWithin(r.coordinates, v_user_point, p_radius_meters)
+        )
         -- Exclude restaurants where user has rated any dish
         AND (
             v_user_id IS NULL
@@ -68,8 +93,16 @@ $$;
 -- ============================================
 -- Returns rising star dishes for the discover page, excluding restaurants
 -- where the current user has already rated any dish.
+--
+-- Location filtering:
+--   - If p_city_name is provided: filter by matching city name
+--   - If p_user_lat/p_user_long/p_radius_meters are provided: filter by proximity
+--   - If neither: return all restaurants (no location filter)
 CREATE OR REPLACE FUNCTION public.get_discover_rising_stars(
-    p_city_id UUID,
+    p_city_name TEXT DEFAULT NULL,
+    p_user_lat DOUBLE PRECISION DEFAULT NULL,
+    p_user_long DOUBLE PRECISION DEFAULT NULL,
+    p_radius_meters INTEGER DEFAULT NULL,
     p_min_score DECIMAL DEFAULT 7.5,
     p_max_battles INTEGER DEFAULT 10,
     p_min_ratings INTEGER DEFAULT 2
@@ -93,9 +126,15 @@ CREATE OR REPLACE FUNCTION public.get_discover_rising_stars(
 SET search_path = public AS $$
 DECLARE
     v_user_id UUID;
+    v_user_point extensions.GEOGRAPHY;
 BEGIN
     -- Get current user (can be null for unauthenticated users)
     v_user_id := auth.uid();
+
+    -- Build user geography point if coordinates provided
+    IF p_user_lat IS NOT NULL AND p_user_long IS NOT NULL THEN
+        v_user_point := ST_SetSRID(ST_MakePoint(p_user_long, p_user_lat), 4326)::geography;
+    END IF;
 
     RETURN QUERY
     SELECT
@@ -117,12 +156,23 @@ BEGIN
     FROM global_dish_scores gds
     JOIN restaurants r ON r.id = gds.restaurant_id
     JOIN dish_types dt ON dt.id = gds.dish_type_id
+    LEFT JOIN cities c ON c.id = gds.city_id
     LEFT JOIN neighborhoods n ON n.id = gds.neighborhood_id
-    WHERE gds.city_id = p_city_id
-        AND gds.avg_raw_score >= p_min_score
+    WHERE gds.avg_raw_score >= p_min_score
         AND gds.total_battles < p_max_battles
         AND gds.total_ratings >= p_min_ratings
         AND r.is_closed = false
+        -- Location filter: city name match
+        AND (
+            p_city_name IS NULL
+            OR c.name ILIKE p_city_name
+        )
+        -- Location filter: proximity match
+        AND (
+            v_user_point IS NULL
+            OR p_radius_meters IS NULL
+            OR ST_DWithin(r.coordinates, v_user_point, p_radius_meters)
+        )
         -- Exclude restaurants where user has rated any dish
         AND (
             v_user_id IS NULL
@@ -138,5 +188,5 @@ END;
 $$;
 
 -- Add comments
-COMMENT ON FUNCTION public.get_discover_heroes IS 'Returns hero dishes for discover page, excluding restaurants user has already rated';
-COMMENT ON FUNCTION public.get_discover_rising_stars IS 'Returns rising star dishes for discover page, excluding restaurants user has already rated';
+COMMENT ON FUNCTION public.get_discover_heroes IS 'Returns hero dishes for discover page, excluding restaurants user has already rated. Supports city name or proximity-based location filtering.';
+COMMENT ON FUNCTION public.get_discover_rising_stars IS 'Returns rising star dishes for discover page, excluding restaurants user has already rated. Supports city name or proximity-based location filtering.';
