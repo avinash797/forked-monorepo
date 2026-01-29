@@ -72,7 +72,7 @@ BEGIN
         AND (
             v_user_point IS NULL
             OR p_radius_meters IS NULL
-            OR ST_DWithin(r.coordinates, v_user_point, p_radius_meters)
+            OR ST_DWithin(r.coordinates, v_user_point, p_radius_meters::double precision)
         )
         -- Exclude restaurants where user has rated any dish
         AND (
@@ -171,7 +171,7 @@ BEGIN
         AND (
             v_user_point IS NULL
             OR p_radius_meters IS NULL
-            OR ST_DWithin(r.coordinates, v_user_point, p_radius_meters)
+            OR ST_DWithin(r.coordinates, v_user_point, p_radius_meters::double precision)
         )
         -- Exclude restaurants where user has rated any dish
         AND (
