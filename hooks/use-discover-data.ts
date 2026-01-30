@@ -101,10 +101,10 @@ export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
         queryFn: async () => {
             // Build RPC params from location filter
             const rpcLocationParams = {
-                p_city_name: locationFilter.cityName ?? null,
-                p_user_lat: locationFilter.nearby?.latitude ?? null,
-                p_user_long: locationFilter.nearby?.longitude ?? null,
-                p_radius_meters: locationFilter.nearby?.radiusMeters ?? null,
+                p_city_name: locationFilter.cityName,
+                p_user_lat: locationFilter.nearby?.latitude,
+                p_user_long: locationFilter.nearby?.longitude,
+                p_radius_meters: locationFilter.nearby?.radiusMeters,
             };
 
             // Fetch all data in parallel
@@ -202,8 +202,7 @@ export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
                 risingStarMap,
             };
         },
-        enabled:
-            !!locationFilter.cityName || !!locationFilter.nearby,
+        enabled: !!locationFilter.cityName || !!locationFilter.nearby,
         staleTime: 5 * 60 * 1000, // 5 minutes
     });
 }
