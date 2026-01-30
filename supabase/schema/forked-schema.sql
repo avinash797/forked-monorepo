@@ -12,6 +12,15 @@ CREATE TABLE public.cities (
     updated_at timestamp with time zone DEFAULT now(),
     CONSTRAINT cities_pkey PRIMARY KEY (id)
 );
+CREATE TABLE public.city_known_dishes (
+    city_id uuid NOT NULL,
+    dish_type_id uuid NOT NULL,
+    display_order integer DEFAULT 0,
+    created_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT city_known_dishes_pkey PRIMARY KEY (city_id, dish_type_id),
+    CONSTRAINT city_known_dishes_city_id_fkey FOREIGN KEY (city_id) REFERENCES public.cities(id),
+    CONSTRAINT city_known_dishes_dish_type_id_fkey FOREIGN KEY (dish_type_id) REFERENCES public.dish_types(id)
+);
 CREATE TABLE public.comparisons (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     user_id uuid NOT NULL,
@@ -37,6 +46,17 @@ CREATE TABLE public.comparisons (
     CONSTRAINT comparisons_rating_a_id_fkey FOREIGN KEY (rating_a_id) REFERENCES public.personal_ratings(id),
     CONSTRAINT comparisons_rating_b_id_fkey FOREIGN KEY (rating_b_id) REFERENCES public.personal_ratings(id),
     CONSTRAINT comparisons_winner_rating_id_fkey FOREIGN KEY (winner_rating_id) REFERENCES public.personal_ratings(id)
+);
+CREATE TABLE public.dish_type_variations (
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    dish_type_id uuid NOT NULL,
+    name text NOT NULL,
+    slug text NOT NULL,
+    emoji text,
+    is_active boolean DEFAULT true,
+    created_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT dish_type_variations_pkey PRIMARY KEY (id),
+    CONSTRAINT dish_type_variations_dish_type_id_fkey FOREIGN KEY (dish_type_id) REFERENCES public.dish_types(id)
 );
 CREATE TABLE public.dish_types (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -73,6 +93,30 @@ CREATE TABLE public.global_dish_scores (
     CONSTRAINT global_dish_scores_neighborhood_id_fkey FOREIGN KEY (neighborhood_id) REFERENCES public.neighborhoods(id),
     CONSTRAINT global_dish_scores_featured_rating_id_fkey FOREIGN KEY (featured_rating_id) REFERENCES public.personal_ratings(id)
 );
+CREATE TABLE public.leaderboard_snapshots (
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    snapshot_date date NOT NULL,
+    global_dish_score_id uuid NOT NULL,
+    restaurant_id uuid NOT NULL,
+    dish_type_id uuid NOT NULL,
+    city_id uuid NOT NULL,
+    neighborhood_id uuid,
+    rank_position integer NOT NULL,
+    global_elo numeric NOT NULL,
+    avg_raw_score numeric,
+    total_ratings integer DEFAULT 0,
+    total_battles integer DEFAULT 0,
+    battles_won integer DEFAULT 0,
+    win_rate numeric,
+    confidence_score numeric,
+    created_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT leaderboard_snapshots_pkey PRIMARY KEY (id),
+    CONSTRAINT leaderboard_snapshots_global_dish_score_id_fkey FOREIGN KEY (global_dish_score_id) REFERENCES public.global_dish_scores(id),
+    CONSTRAINT leaderboard_snapshots_restaurant_id_fkey FOREIGN KEY (restaurant_id) REFERENCES public.restaurants(id),
+    CONSTRAINT leaderboard_snapshots_dish_type_id_fkey FOREIGN KEY (dish_type_id) REFERENCES public.dish_types(id),
+    CONSTRAINT leaderboard_snapshots_city_id_fkey FOREIGN KEY (city_id) REFERENCES public.cities(id),
+    CONSTRAINT leaderboard_snapshots_neighborhood_id_fkey FOREIGN KEY (neighborhood_id) REFERENCES public.neighborhoods(id)
+);
 CREATE TABLE public.neighborhoods (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     city_id uuid NOT NULL,
@@ -98,9 +142,9 @@ CREATE TABLE public.personal_ratings (
     dish_type_id uuid NOT NULL,
     photo_url text NOT NULL,
     photo_storage_path text,
-    raw_score integer NOT NULL CHECK (
-        raw_score >= 1
-        AND raw_score <= 10
+    raw_score numeric NOT NULL CHECK (
+        raw_score >= 1::numeric
+        AND raw_score <= 10::numeric
     ),
     personal_elo numeric DEFAULT 1500.00,
     battles_won integer DEFAULT 0,
@@ -112,7 +156,9 @@ CREATE TABLE public.personal_ratings (
     exif_timestamp timestamp with time zone,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
+    variation_id uuid,
     CONSTRAINT personal_ratings_pkey PRIMARY KEY (id),
+    CONSTRAINT personal_ratings_variation_id_fkey FOREIGN KEY (variation_id) REFERENCES public.dish_type_variations(id),
     CONSTRAINT personal_ratings_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
     CONSTRAINT personal_ratings_restaurant_id_fkey FOREIGN KEY (restaurant_id) REFERENCES public.restaurants(id),
     CONSTRAINT personal_ratings_dish_type_id_fkey FOREIGN KEY (dish_type_id) REFERENCES public.dish_types(id)
@@ -135,6 +181,26 @@ CREATE TABLE public.profiles (
     CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id),
     CONSTRAINT profiles_home_city_id_fkey FOREIGN KEY (home_city_id) REFERENCES public.cities(id)
 );
+CREATE TABLE public.restaurant_dishes (
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    restaurant_id uuid NOT NULL,
+    dish_type_id uuid NOT NULL,
+    variation_id uuid,
+    is_confirmed boolean DEFAULT false,
+    source text DEFAULT 'rating'::text CHECK (
+        source = ANY (
+            ARRAY ['rating'::text, 'manual'::text, 'menu_import'::text]
+        )
+    ),
+    first_rated_at timestamp with time zone,
+    total_ratings integer DEFAULT 0,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT restaurant_dishes_pkey PRIMARY KEY (id),
+    CONSTRAINT restaurant_dishes_restaurant_id_fkey FOREIGN KEY (restaurant_id) REFERENCES public.restaurants(id),
+    CONSTRAINT restaurant_dishes_dish_type_id_fkey FOREIGN KEY (dish_type_id) REFERENCES public.dish_types(id),
+    CONSTRAINT restaurant_dishes_variation_id_fkey FOREIGN KEY (variation_id) REFERENCES public.dish_type_variations(id)
+);
 CREATE TABLE public.restaurants (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     name text NOT NULL,
@@ -150,6 +216,7 @@ CREATE TABLE public.restaurants (
     closed_at timestamp with time zone,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
+    types ARRAY DEFAULT '{}'::text [],
     CONSTRAINT restaurants_pkey PRIMARY KEY (id),
     CONSTRAINT restaurants_city_id_fkey FOREIGN KEY (city_id) REFERENCES public.cities(id),
     CONSTRAINT restaurants_neighborhood_id_fkey FOREIGN KEY (neighborhood_id) REFERENCES public.neighborhoods(id)
