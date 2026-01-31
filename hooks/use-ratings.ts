@@ -4,27 +4,31 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 type PersonalRating = Database['public']['Tables']['personal_ratings']['Row'];
 
-// Type for the create_rating RPC response
+// Type for the post_rating_and_get_duel RPC response
 export interface CreateRatingResponse {
     rating_id: string;
-    should_compare: boolean;
-    comparison_candidate_id: string | null;
+    has_duel: boolean;
+    duel_data: {
+        comparison_id: string;
+        opponent_rating_id: string;
+        opponent_name: string;
+        opponent_photo: string;
+        opponent_score: number;
+    } | null;
 }
 
 export interface CreateRatingInput {
     restaurant_id: string;
     dish_type_id: string;
-    raw_score: number; // 1-10 scale
+    raw_score: number; // 0-10 scale
     photo_url: string;
-    photo_storage_path?: string;
+    variation_id?: string;
     notes?: string;
-    location_verified?: boolean;
-    taste_tag_ids?: string[];
 }
 
 /**
- * Create a new rating using the create_rating RPC
- * This handles the Elo initialization and determines if a comparison should be triggered
+ * Create a new rating using the post_rating_and_get_duel RPC
+ * Handles Elo initialization, credibility update, and duel matching in one transaction
  */
 export function useCreateRating() {
     const queryClient = useQueryClient();
@@ -33,16 +37,19 @@ export function useCreateRating() {
         mutationFn: async (
             input: CreateRatingInput
         ): Promise<CreateRatingResponse> => {
-            const { data, error } = await supabase.rpc('create_rating', {
-                p_restaurant_id: input.restaurant_id,
-                p_dish_type_id: input.dish_type_id,
-                p_raw_score: input.raw_score,
-                p_photo_url: input.photo_url,
-                p_photo_storage_path: input.photo_storage_path,
-                p_notes: input.notes,
-                p_location_verified: input.location_verified ?? false,
-                p_taste_tag_ids: input.taste_tag_ids,
-            });
+            const { data, error } = await supabase.rpc(
+                'post_rating_and_get_duel',
+                {
+                    p_restaurant_id: input.restaurant_id,
+                    p_dish_type_id: input.dish_type_id,
+                    p_raw_score: input.raw_score,
+                    p_photo_url: input.photo_url,
+                    p_variation_id: input.variation_id,
+                    p_notes: input.notes,
+                    //TODO: Need to add location_verified
+                    //TODO: Need to add taste_tag_ids
+                }
+            );
 
             if (error) throw error;
             return data as unknown as CreateRatingResponse;

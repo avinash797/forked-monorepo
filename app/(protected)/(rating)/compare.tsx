@@ -5,9 +5,9 @@ import { useTheme } from '@/contexts/theme-provider';
 import {
     PendingComparison,
     SKIP_REASONS,
-    useComparisonPair,
     usePendingComparisons,
     useProcessComparison,
+    useSubmitComparison,
 } from '@/hooks/use-comparisons';
 import { trackEvent } from '@/lib/amplitude';
 import { useRatingStore } from '@/stores';
@@ -43,61 +43,64 @@ export default function CompareScreen() {
         [theme, insets]
     );
 
-    // Get params if coming from rating flow
+    // Get params if coming from rating flow (post_rating_and_get_duel response)
     const params = useLocalSearchParams<{
+        comparisonId?: string;
         newRatingId?: string;
-        comparisonRatingId?: string;
+        yourPhoto?: string;
+        yourRestaurant?: string;
+        opponentRatingId?: string;
+        opponentName?: string;
+        opponentPhoto?: string;
+        opponentScore?: string;
         dishTypeId?: string;
     }>();
+
+    const isFromRatingFlow = !!params.comparisonId;
 
     const [showSkipModal, setShowSkipModal] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const { resetRating } = useRatingStore();
 
-    // If params are provided, fetch the specific comparison pair
-    const {
-        data: specificPair,
-        isLoading: isLoadingPair,
-        isSuccess: isSuccessPair,
-    } = useComparisonPair(
-        params.newRatingId || null,
-        params.comparisonRatingId || null,
-        params.dishTypeId || null
-    );
+    // Build duel comparison from params (rating flow)
+    const duelComparison: PendingComparison | null = isFromRatingFlow
+        ? {
+              dish_type_id: params.dishTypeId!,
+              dish_type_name: '',
+              rating_a_id: params.newRatingId!,
+              rating_a_photo: params.yourPhoto!,
+              rating_a_raw_score: 0,
+              rating_a_restaurant: params.yourRestaurant!,
+              rating_b_id: params.opponentRatingId!,
+              rating_b_photo: params.opponentPhoto!,
+              rating_b_raw_score: Number(params.opponentScore ?? 0),
+              rating_b_restaurant: params.opponentName!,
+          }
+        : null;
 
-    // Otherwise, get pending comparisons
+    // Standalone: get pending comparisons
     const {
         data: pendingComparisons,
-        isLoading: isLoadingPending,
         isSuccess: isSuccessPending,
         refetch: refetchPending,
-    } = usePendingComparisons(1);
+    } = usePendingComparisons(isFromRatingFlow ? 0 : 1);
 
     // Determine which comparison to show
     const comparison: PendingComparison | null =
-        specificPair || pendingComparisons?.[0] || null;
+        duelComparison || pendingComparisons?.[0] || null;
 
     // Route back to tabs if no comparisons are left
     useEffect(() => {
-        if (isProcessing) return;
+        if (isProcessing || isFromRatingFlow) return;
 
-        const isFullyLoaded = params.newRatingId
-            ? isSuccessPair || !!specificPair
-            : isSuccessPending;
-
-        if (isFullyLoaded && !comparison) {
+        if (isSuccessPending && !comparison) {
             router.replace('/(protected)/(tabs)');
         }
-    }, [
-        comparison,
-        isSuccessPair,
-        isSuccessPending,
-        isProcessing,
-        router,
-        params.newRatingId,
-        specificPair,
-    ]);
+    }, [comparison, isSuccessPending, isProcessing, isFromRatingFlow, router]);
 
+    // Rating flow: submit_comparison (pre-created comparison record)
+    const { mutateAsync: submitComparison } = useSubmitComparison();
+    // Standalone: process_comparison (creates + resolves comparison)
     const { mutateAsync: processComparison } = useProcessComparison();
 
     const handleVote = useCallback(
@@ -106,20 +109,27 @@ export default function CompareScreen() {
 
             setIsProcessing(true);
             try {
-                await processComparison({
-                    dish_type_id: comparison.dish_type_id,
-                    rating_a_id: comparison.rating_a_id,
-                    rating_b_id: comparison.rating_b_id,
-                    winner_id: winnerId,
-                });
+                if (isFromRatingFlow) {
+                    await submitComparison({
+                        comparison_id: params.comparisonId!,
+                        winner_rating_id: winnerId,
+                        dish_type_id: comparison.dish_type_id,
+                    });
+                } else {
+                    await processComparison({
+                        dish_type_id: comparison.dish_type_id,
+                        rating_a_id: comparison.rating_a_id,
+                        rating_b_id: comparison.rating_b_id,
+                        winner_id: winnerId,
+                    });
+                }
 
                 trackEvent('comparison_completed', {
                     dish_type_id: comparison.dish_type_id,
                     winner_id: winnerId,
                 });
 
-                // If from rating flow, go to tabs; otherwise fetch next
-                if (params.newRatingId) {
+                if (isFromRatingFlow) {
                     resetRating();
                     router.dismissAll();
                     router.replace('/(protected)/(tabs)');
@@ -134,8 +144,10 @@ export default function CompareScreen() {
         },
         [
             comparison,
+            submitComparison,
             processComparison,
-            params.newRatingId,
+            isFromRatingFlow,
+            params.comparisonId,
             router,
             refetchPending,
             isProcessing,
@@ -149,37 +161,39 @@ export default function CompareScreen() {
 
             setIsProcessing(true);
             setShowSkipModal(false);
-            try {
-                await processComparison({
-                    dish_type_id: comparison.dish_type_id,
-                    rating_a_id: comparison.rating_a_id,
-                    rating_b_id: comparison.rating_b_id,
-                    skipped: true,
-                    skip_reason: reason,
-                });
 
-                trackEvent('comparison_skipped', {
-                    dish_type_id: comparison.dish_type_id,
-                    skip_reason: reason,
-                });
+            trackEvent('comparison_skipped', {
+                dish_type_id: comparison.dish_type_id,
+                skip_reason: reason,
+            });
 
-                if (params.newRatingId) {
-                    resetRating();
-                    router.dismissAll();
-                    router.replace('/(protected)/(tabs)');
-                } else {
-                    refetchPending();
-                }
-            } catch (error) {
-                console.error('Error skipping comparison:', error);
-            } finally {
+            if (isFromRatingFlow) {
+                // Duel skip: just navigate away (comparison stays unresolved)
+                resetRating();
+                router.dismissAll();
+                router.replace('/(protected)/(tabs)');
                 setIsProcessing(false);
+            } else {
+                try {
+                    await processComparison({
+                        dish_type_id: comparison.dish_type_id,
+                        rating_a_id: comparison.rating_a_id,
+                        rating_b_id: comparison.rating_b_id,
+                        skipped: true,
+                        skip_reason: reason,
+                    });
+                    refetchPending();
+                } catch (error) {
+                    console.error('Error skipping comparison:', error);
+                } finally {
+                    setIsProcessing(false);
+                }
             }
         },
         [
             comparison,
             processComparison,
-            params.newRatingId,
+            isFromRatingFlow,
             router,
             refetchPending,
             isProcessing,
@@ -188,8 +202,7 @@ export default function CompareScreen() {
     );
 
     const handleClose = () => {
-        // If from rating flow, go to tabs; otherwise just go back
-        if (params.newRatingId) {
+        if (isFromRatingFlow) {
             resetRating();
             router.dismissAll();
             router.replace('/(protected)/(tabs)');
