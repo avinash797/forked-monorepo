@@ -22,7 +22,6 @@ export default function VenueSearchScreen() {
         searchQuery,
         setSearchQuery,
         combinedResults,
-        nearbyRestaurants,
         isSearching,
         isSelecting,
         selectRestaurant,
@@ -61,81 +60,66 @@ export default function VenueSearchScreen() {
 
     const renderItem = useCallback(
         ({ item }: { item: SearchResultItem }) => {
-            if (item.type === 'restaurant') {
-                return (
-                    <Pressable
-                        style={({ pressed }) => [
-                            styles.restaurantItem,
-                            pressed && styles.restaurantItemPressed,
-                        ]}
-                        onPress={() => handleRestaurantSelect(item.data)}
-                    >
-                        <View style={styles.restaurantContent}>
-                            <ThemedText
-                                style={styles.restaurantName}
-                                numberOfLines={1}
-                            >
-                                {item.data.name}
-                            </ThemedText>
-                            {item.data.address && (
-                                <ThemedText
-                                    style={styles.restaurantAddress}
-                                    numberOfLines={1}
-                                >
-                                    {item.data.address}
-                                </ThemedText>
-                            )}
-                        </View>
-                        <IconSymbol
-                            name="chevron-forward"
-                            size={20}
-                            color={iconColor}
-                        />
-                    </Pressable>
-                );
-            } else {
-                // Google Place Suggestion
-                const { structuredFormat } = item.data.placePrediction;
-                const mainText = structuredFormat.mainText.text;
-                const secondaryText = structuredFormat.secondaryText?.text;
+            const isRestaurant = item.type === 'restaurant';
 
-                return (
-                    <Pressable
-                        style={({ pressed }) => [
-                            styles.mapboxItem,
-                            pressed && styles.mapboxItemPressed,
-                        ]}
-                        onPress={() => handleAddressSelect(item.data)}
-                    >
-                        <View style={styles.mapboxContent}>
+            let name: string;
+            let address: string | undefined;
+            let handlePress: () => void;
+            let distance: number | undefined;
+
+            if (isRestaurant) {
+                name = item.data.name;
+                address = item.data.address || undefined;
+                handlePress = () => handleRestaurantSelect(item.data);
+                // Check if distance exists (it might be on the object even if not in the basic type if logic flows that way,
+                // but SearchResultItem types it as RestaurantWithDistance so it is safe)
+                distance = item.data.distance_meters;
+            } else {
+                const { structuredFormat } = item.data.placePrediction;
+                name = structuredFormat.mainText.text;
+                address = structuredFormat.secondaryText?.text;
+                handlePress = () => handleAddressSelect(item.data);
+            }
+
+            return (
+                <Pressable
+                    style={({ pressed }) => [
+                        styles.restaurantItem,
+                        pressed && styles.restaurantItemPressed,
+                    ]}
+                    onPress={handlePress}
+                >
+                    <View style={styles.restaurantContent}>
+                        <ThemedText
+                            style={styles.restaurantName}
+                            numberOfLines={1}
+                        >
+                            {name}
+                        </ThemedText>
+                        {address && (
                             <ThemedText
-                                style={styles.mapboxName}
+                                style={styles.restaurantAddress}
                                 numberOfLines={1}
                             >
-                                {mainText}
+                                {address}
                             </ThemedText>
-                            {secondaryText && (
-                                <ThemedText
-                                    style={styles.mapboxAddress}
-                                    numberOfLines={1}
-                                >
-                                    {secondaryText}
-                                </ThemedText>
-                            )}
-                            <ThemedText style={styles.mapboxMeta}>
-                                Google Place
-                            </ThemedText>
-                        </View>
-                        <IconSymbol
-                            name="chevron-forward"
-                            size={20}
-                            color={iconColor}
-                        />
-                    </Pressable>
-                );
-            }
+                        )}
+                    </View>
+                    <IconSymbol
+                        name="chevron-forward"
+                        size={20}
+                        color={iconColor}
+                    />
+                </Pressable>
+            );
         },
-        [styles, iconColor, handleRestaurantSelect, handleAddressSelect]
+        [
+            styles,
+            iconColor,
+            handleRestaurantSelect,
+            handleAddressSelect,
+            theme.color.accent,
+        ]
     );
 
     return (
@@ -154,8 +138,8 @@ export default function VenueSearchScreen() {
                     isLoading={isSearching || isSelecting}
                 />
 
-                {!searchQuery && nearbyRestaurants.length > 0 && (
-                    <View style={styles.listContent}>
+                {combinedResults.length > 0 && !searchQuery && (
+                    <View style={styles.sectionHeader}>
                         <ThemedText style={styles.emptyHint}>
                             Nearby Restaurants
                         </ThemedText>
@@ -202,6 +186,9 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             flex: 1,
             padding: theme.space.md,
             backgroundColor: theme.color.bg,
+        },
+        sectionHeader: {
+            paddingTop: theme.space.md,
         },
         listContent: {
             paddingVertical: theme.space.md,
@@ -252,40 +239,5 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             fontSize: theme.font.size.sm,
             color: theme.color.textSecondary,
             marginTop: 2,
-        },
-        mapboxItem: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            padding: theme.space.md,
-            backgroundColor: theme.color.surface,
-            borderRadius: theme.radius.md,
-            borderWidth: 1,
-            borderColor: theme.color.accent,
-            borderStyle: 'dashed',
-        },
-        mapboxItemPressed: {
-            backgroundColor: theme.color.surface2,
-        },
-        mapboxIcon: {
-            marginRight: theme.space.sm,
-        },
-        mapboxContent: {
-            flex: 1,
-        },
-        mapboxName: {
-            fontSize: theme.font.size.md,
-            fontWeight: '600',
-            color: theme.color.textPrimary,
-        },
-        mapboxAddress: {
-            fontSize: theme.font.size.sm,
-            color: theme.color.textSecondary,
-            marginTop: 2,
-        },
-        mapboxMeta: {
-            fontSize: theme.font.size.xs,
-            color: theme.color.accent,
-            fontWeight: '600',
-            marginTop: 4,
         },
     });

@@ -104,7 +104,7 @@ export default function DishSelectionScreen() {
                 )}
 
                 <ThemedText style={styles.hint}>
-                    We&apos;re focusing on iconic NOLA dishes for now. More
+                    We&apos;re focusing on iconic local dishes for now. More
                     categories coming soon!
                 </ThemedText>
             </ScrollView>
@@ -166,6 +166,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         emoji: {
             fontSize: 48,
+            lineHeight: 48,
             marginBottom: theme.space.sm,
         },
         dishTypeName: {

@@ -1,6 +1,7 @@
 import {
     GooglePlaceSuggestion,
     useAddressSearch,
+    useNearbyGooglePlaces,
 } from '@/hooks/use-address-search';
 import { useDebounce } from '@/hooks/use-debounce';
 import {
@@ -47,11 +48,17 @@ export function useVenueSearch() {
         setAddressQuery(searchQuery);
     }, [searchQuery, setAddressQuery]);
 
-    // Nearby restaurants (preloaded)
+    // Nearby restaurants from DB (preloaded)
     const { data: nearbyRestaurants = [] } = useNearbyRestaurants(
         location?.latitude || null,
         location?.longitude || null
     );
+
+    // Nearby restaurants from Google (preloaded, supplements DB results)
+    const { data: nearbyGooglePlaces = [] } = useNearbyGooglePlaces({
+        latitude: location?.latitude || null,
+        longitude: location?.longitude || null,
+    });
 
     // DB search by name (debounced)
     const { data: searchResults = [], isFetching: isSearchingRestaurants } =
@@ -60,49 +67,44 @@ export function useVenueSearch() {
     const { mutateAsync: createRestaurant, isPending: isCreating } =
         useCreateRestaurant();
 
-    // Merge nearby vs search results
-    const restaurantsWithDistance: RestaurantWithDistance[] = useMemo(() => {
-        if (!searchQuery && searchResults.length === 0)
-            return nearbyRestaurants;
-        if (!searchResults) return [];
-        return searchResults.map((restaurant) => ({
-            ...restaurant,
-            distance_meters: undefined,
-        }));
-    }, [searchResults, nearbyRestaurants, searchQuery]);
-
     // Combine DB + Google results with deduplication
+    // Idle: DB nearby + Google nearby (deduped), DB first
+    // Searching: DB search + Google autocomplete (deduped), DB first
     const combinedResults: SearchResultItem[] = useMemo(() => {
-        const restaurants: SearchResultItem[] = restaurantsWithDistance.map(
-            (r) => ({
-                type: 'restaurant' as const,
-                data: r,
-            })
-        );
+        const dbResults = searchQuery ? searchResults : nearbyRestaurants;
+        const googleSuggestions = searchQuery
+            ? addressSuggestions
+            : nearbyGooglePlaces;
 
-        // Collect google_place_ids from DB restaurants to deduplicate
+        const restaurants: SearchResultItem[] = dbResults.map((r) => ({
+            type: 'restaurant' as const,
+            data: r,
+        }));
+
+        // Collect google_place_ids from DB results to deduplicate
         const dbGooglePlaceIds = new Set<string>();
-        for (const r of restaurantsWithDistance) {
-            if (r.google_place_id) {
-                dbGooglePlaceIds.add(r.google_place_id);
-            }
-        }
-        for (const r of nearbyRestaurants) {
+        for (const r of dbResults) {
             if (r.google_place_id) {
                 dbGooglePlaceIds.add(r.google_place_id);
             }
         }
 
         // Filter out Google suggestions that already exist in DB
-        const dedupedAddresses: SearchResultItem[] = addressSuggestions
+        const dedupedGoogle: SearchResultItem[] = googleSuggestions
             .filter((s) => !dbGooglePlaceIds.has(s.placePrediction.placeId))
             .map((s) => ({
                 type: 'google' as const,
                 data: s,
             }));
 
-        return [...restaurants, ...dedupedAddresses];
-    }, [restaurantsWithDistance, addressSuggestions, nearbyRestaurants]);
+        return [...restaurants, ...dedupedGoogle];
+    }, [
+        searchResults,
+        nearbyRestaurants,
+        addressSuggestions,
+        nearbyGooglePlaces,
+        searchQuery,
+    ]);
 
     const selectRestaurant = useCallback(
         (restaurant: Restaurant): Restaurant => {
@@ -129,11 +131,14 @@ export function useVenueSearch() {
 
                 const newRestaurant = await createRestaurant({
                     name: addressData.name,
-                    address: `${addressData.street}, ${addressData.city}, ${addressData.state} ${addressData.zip}`,
+                    address: addressData.full_address,
                     city_id: currentCity?.id,
                     latitude: addressData.latitude,
                     longitude: addressData.longitude,
                     google_place_id: addressData.google_place_id,
+                    phone: addressData.phone,
+                    website: addressData.website,
+                    types: addressData.types,
                 });
 
                 if (!newRestaurant) {
@@ -164,7 +169,6 @@ export function useVenueSearch() {
         searchQuery,
         setSearchQuery,
         combinedResults,
-        nearbyRestaurants,
         isSearching,
         isSelecting: isSelecting || isCreating,
         selectRestaurant,

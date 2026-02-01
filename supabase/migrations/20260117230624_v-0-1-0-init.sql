@@ -90,6 +90,7 @@ CREATE TABLE public.restaurants (
         created_at TIMESTAMPTZ DEFAULT now(),
         updated_at TIMESTAMPTZ DEFAULT now()
 );
+CREATE INDEX idx_restaurants_name_trgm ON restaurants USING gin (name gin_trgm_ops);
 CREATE INDEX idx_restaurants_city ON public.restaurants(city_id);
 CREATE INDEX idx_restaurants_neighborhood ON public.restaurants(neighborhood_id);
 CREATE INDEX idx_restaurants_coordinates ON public.restaurants USING GIST(coordinates);
