@@ -5,17 +5,18 @@ import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useAddressSearch } from '@/hooks/use-address-search';
-import { useLocation } from '@/hooks/use-location';
+import { useDebounce } from '@/hooks/use-debounce';
 import {
     RestaurantWithDistance,
     useCreateRestaurant,
-    useRestaurants,
+    useNearbyRestaurants,
+    useSearchRestaurants,
 } from '@/hooks/use-restaurants';
 import { useRatingStore } from '@/stores';
 import { useLocationStore } from '@/stores/location.store';
 import { Database } from '@/types/database.types';
 import { Stack, useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
 
 type Restaurant = Database['public']['Tables']['restaurants']['Row'];
@@ -29,13 +30,18 @@ export default function VenueSearchScreen() {
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
     const { setSelectedRestaurant } = useRatingStore();
-    const { currentCity } = useLocationStore();
+    const { currentCity, currentLocation } = useLocationStore();
     const [searchQuery, setSearchQuery] = useState('');
+    const [isSelecting, setIsSelecting] = useState(false);
 
-    const { data: locationData } = useLocation();
-    const location = locationData?.location || null;
-    const hasPermission = locationData?.hasPermission || false;
+    // Debounce search query to prevent rapid API calls
+    const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
+    const location = currentLocation?.coords || null;
+
+    // Address Search
+    // Note: useAddressSearch has internal debouncing for the query it executes,
+    // but we pass the raw query to it to keep the input responsive.
     const {
         suggestions: addressSuggestions,
         setQuery: setAddressQuery,
@@ -47,37 +53,53 @@ export default function VenueSearchScreen() {
             : null,
     });
 
+    // Sync search query with address search
     useEffect(() => {
         setAddressQuery(searchQuery);
     }, [searchQuery, setAddressQuery]);
 
-    // Search restaurants by name
+    // Preload Nearby Restaurants
+    const { data: nearbyRestaurants = [] } = useNearbyRestaurants(
+        location?.latitude || null,
+        location?.longitude || null
+    );
+
+    // Search restaurants by name (using debounced query)
     const { data: searchResults = [], isFetching: isSearchingRestaurants } =
-        useRestaurants(searchQuery);
+        useSearchRestaurants(debouncedSearchQuery);
 
     const { mutateAsync: createRestaurant, isPending: isCreating } =
         useCreateRestaurant();
 
     const iconColor = theme.color.textTertiary;
 
+    // Combined loading state
     const isSearching = isSearchingRestaurants || isSearchingAddress;
 
-    // Add distance calculation to restaurants
+    // Process restaurant results
     const restaurantsWithDistance: RestaurantWithDistance[] = useMemo(() => {
+        if (!searchQuery && searchResults.length === 0)
+            return nearbyRestaurants;
         if (!searchResults) return [];
         return searchResults.map((restaurant) => ({
             ...restaurant,
             distance_meters: undefined, // PostGIS distance not available in simple query
         }));
-    }, [searchResults]);
+    }, [searchResults, nearbyRestaurants, searchQuery]);
 
-    const handleRestaurantSelect = (restaurant: Restaurant) => {
-        setSelectedRestaurant(restaurant);
-        router.push('/(protected)/(rating)/dish-selection');
-    };
+    const handleRestaurantSelect = useCallback(
+        (restaurant: Restaurant) => {
+            setSelectedRestaurant(restaurant);
+            router.push('/(protected)/(rating)/dish-selection');
+        },
+        [setSelectedRestaurant, router]
+    );
 
     const handleMapboxSelect = async (suggestion: any) => {
+        if (isSelecting || isCreating) return;
+
         try {
+            setIsSelecting(true);
             const addressData = await selectAddress(suggestion.mapbox_id);
 
             if (!addressData) {
@@ -104,6 +126,8 @@ export default function VenueSearchScreen() {
                 'Error',
                 'Could not select this restaurant. Please try again.'
             );
+        } finally {
+            setIsSelecting(false);
         }
     };
 
@@ -111,26 +135,38 @@ export default function VenueSearchScreen() {
         router.push('/(protected)/(rating)/create-venue');
     };
 
-    const combinedData: SearchResultItem[] = [
-        ...restaurantsWithDistance.map((r) => ({
-            type: 'restaurant' as const,
-            data: r,
-        })),
-        ...addressSuggestions.map((s) => ({
+    // Memoize combined data to prevent unnecessary re-computations
+    const combinedData: SearchResultItem[] = useMemo(() => {
+        const restaurants: SearchResultItem[] = restaurantsWithDistance.map(
+            (r) => ({
+                type: 'restaurant' as const,
+                data: r,
+            })
+        );
+
+        const addresses: SearchResultItem[] = addressSuggestions.map((s) => ({
             type: 'mapbox' as const,
             data: s,
-        })),
-    ];
+        }));
 
-    const renderItem = ({ item }: { item: SearchResultItem }) => {
-        if (item.type === 'restaurant') {
+        return [...restaurants, ...addresses];
+    }, [restaurantsWithDistance, addressSuggestions]);
+
+    const renderItem = useCallback(
+        ({ item }: { item: SearchResultItem }) => {
             return (
                 <Pressable
                     style={({ pressed }) => [
                         styles.restaurantItem,
                         pressed && styles.restaurantItemPressed,
                     ]}
-                    onPress={() => handleRestaurantSelect(item.data)}
+                    onPress={() => {
+                        if (item.type === 'restaurant') {
+                            handleRestaurantSelect(item.data);
+                        } else {
+                            handleMapboxSelect(item.data);
+                        }
+                    }}
                 >
                     <View style={styles.restaurantContent}>
                         <ThemedText
@@ -144,7 +180,12 @@ export default function VenueSearchScreen() {
                                 style={styles.restaurantAddress}
                                 numberOfLines={1}
                             >
-                                {item.data.address}
+                                {item.data.full_address
+                                    ? item.data.full_address
+                                          .split(',')
+                                          .slice(0, -1)
+                                          .join(',')
+                                    : item.data.address}
                             </ThemedText>
                         )}
                     </View>
@@ -155,39 +196,9 @@ export default function VenueSearchScreen() {
                     />
                 </Pressable>
             );
-        } else {
-            // Mapbox suggestion
-            return (
-                <Pressable
-                    style={({ pressed }) => [
-                        styles.mapboxItem,
-                        pressed && styles.mapboxItemPressed,
-                    ]}
-                    onPress={() => handleMapboxSelect(item.data)}
-                >
-                    <View style={styles.mapboxIcon}>
-                        <IconSymbol name="locate" size={24} color={iconColor} />
-                    </View>
-                    <View style={styles.mapboxContent}>
-                        <ThemedText style={styles.mapboxName}>
-                            {item.data.name}
-                        </ThemedText>
-                        <ThemedText style={styles.mapboxAddress}>
-                            {item.data.full_address}
-                        </ThemedText>
-                        <ThemedText style={styles.mapboxMeta}>
-                            Add New Restaurant
-                        </ThemedText>
-                    </View>
-                    <IconSymbol
-                        name="chevron-forward"
-                        size={20}
-                        color={iconColor}
-                    />
-                </Pressable>
-            );
-        }
-    };
+        },
+        [styles, iconColor, handleRestaurantSelect, handleMapboxSelect]
+    ); // Add handleMapboxSelect to deps
 
     return (
         <>
@@ -202,24 +213,16 @@ export default function VenueSearchScreen() {
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                     placeholder="Search for a restaurant..."
-                    isLoading={isSearching || isCreating}
+                    isLoading={isSearching || isCreating || isSelecting}
                 />
-                {/* 
-                {searchQuery.length === 0 && (
-                    <ThemedView style={styles.emptyState}>
-                        <IconSymbol
-                            name="restaurant"
-                            size={48}
-                            color={theme.color.textTertiary}
-                        />
-                        <ThemedText style={styles.emptyText}>
-                            Where did you eat?
-                        </ThemedText>
+
+                {!searchQuery && nearbyRestaurants.length > 0 && (
+                    <View style={styles.listContent}>
                         <ThemedText style={styles.emptyHint}>
-                            Search by restaurant name to get started
+                            Nearby Restaurants
                         </ThemedText>
-                    </ThemedView>
-                )} */}
+                    </View>
+                )}
 
                 {combinedData.length > 0 && (
                     <FlatList
@@ -232,6 +235,7 @@ export default function VenueSearchScreen() {
                         renderItem={renderItem}
                         contentContainerStyle={styles.listContent}
                         showsVerticalScrollIndicator={false}
+                        keyboardShouldPersistTaps="handled"
                     />
                 )}
 

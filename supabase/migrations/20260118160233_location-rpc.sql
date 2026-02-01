@@ -1,8 +1,8 @@
 -- Function to match a user's location (lat/long) to a City and Neighborhood
 -- Returns a JSON object with 'city' and 'neighborhood' fields
 create or replace function match_location(lat double precision, long double precision) returns json language plpgsql security definer as $$
-declare _city_record record;
-_neighborhood_record record;
+declare _city_record cities %ROWTYPE;
+_neighborhood_record neighborhoods %ROWTYPE;
 _point extensions.geometry;
 begin -- Create a point extensions.geometry from the input coordinates
 -- Note: PostGIS uses (long, lat) order

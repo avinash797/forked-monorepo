@@ -12,22 +12,20 @@ export interface RestaurantWithDistance extends Restaurant {
 /**
  * Search restaurants by name
  */
-export function useRestaurants(searchQuery: string = '') {
+export function useSearchRestaurants(searchQuery: string = '') {
     return useQuery({
         queryKey: ['restaurants', searchQuery],
         queryFn: async () => {
-            let query = supabase.from('restaurants').select('*').limit(20);
-
-            if (searchQuery) {
-                query = query.ilike('name', `%${searchQuery}%`);
-            }
-
-            const { data, error } = await query;
+            const { data, error } = await supabase
+                .from('restaurants')
+                .select('*')
+                .ilike('name', `%${searchQuery}%`)
+                .limit(20);
 
             if (error) throw error;
             return data as Restaurant[];
         },
-        enabled: true,
+        enabled: !!searchQuery,
     });
 }
 
@@ -42,36 +40,19 @@ export function useNearbyRestaurants(
     limit: number = 20
 ) {
     return useQuery({
-        queryKey: ['restaurants', 'nearby', latitude, longitude, radiusMeters],
+        queryKey: ['restaurants', 'nearby', latitude, longitude, radiusMeters, limit],
         queryFn: async () => {
             if (!latitude || !longitude) return [];
 
-            // Use raw SQL via RPC or PostGIS query
-            // For now, fetch all and sort client-side (can optimize later with RPC)
-            const { data, error } = await supabase
-                .from('restaurants')
-                .select('*')
-                .eq('is_closed', false)
-                .limit(limit * 3); // Fetch more to filter by distance
+            const { data, error } = await supabase.rpc('find_nearby_restaurants', {
+                p_lat: latitude,
+                p_long: longitude,
+                p_radius_meters: radiusMeters,
+                p_limit: limit,
+            });
 
             if (error) throw error;
-            if (!data) return [];
-
-            // Calculate distance and filter client-side
-            const withDistance = data
-                .map((restaurant) => {
-                    // If restaurant has coordinates, calculate distance
-                    // Note: coordinates are stored as geography type
-                    // For now, we'll return without distance calculation
-                    // Real implementation should use PostGIS RPC
-                    return {
-                        ...restaurant,
-                        distance_meters: undefined,
-                    } as RestaurantWithDistance;
-                })
-                .slice(0, limit);
-
-            return withDistance;
+            return (data ?? []) as RestaurantWithDistance[];
         },
         enabled: !!latitude && !!longitude,
     });
