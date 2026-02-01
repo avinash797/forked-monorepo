@@ -1,8 +1,8 @@
 # Forked v0.1 - Active TODO List
 
-**Last Updated:** 2026-01-20
+**Last Updated:** 2026-02-01
 
-This file tracks active work items for the **MVP v0.1 Pivot**. For the full specification, see `new-goals/forked_v0.1_spec.md`.
+This file tracks active work items for the **MVP v0.1 Pivot**. For the full specification, see `forked_v0.1_spec.md`.
 
 ---
 
@@ -26,18 +26,27 @@ We've pivoted from the original roadmap to a focused **MVP v0.1** targeting New 
 
 ## Database & Backend Status
 
-### Already Complete
+### Complete
 
-- [x] New database schema (`v-0-1-0-init.sql`)
+- [x] New database schema (v0.1 init + rating redefine + supporting tables)
     - cities, neighborhoods, dish_types, restaurants, profiles
-    - personal_ratings (with raw_score 1-10, personal_elo)
-    - comparisons (battle history with Elo audit trail)
-    - global_dish_scores (leaderboard data)
+    - personal_ratings (raw_score NUMERIC(3,1), personal_elo, battle stats)
+    - comparisons (battle history with Elo audit trail, skip reasons)
+    - global_dish_scores (leaderboard data with credibility-weighted Elo)
     - taste_tags, personal_rating_tags
+    - city_known_dishes (city-to-dish-type junction)
+    - dish_type_variations (sub-types like Pepperoni/Margherita)
+    - leaderboard_snapshots (daily historical ranking data)
+    - restaurant_dishes (auto-populated catalog with trigger)
 
 - [x] RPC Functions
-    - `create_rating` - Main entry point for rating a dish
-    - `process_comparison` - Handle This vs That battles
+    - `post_rating_and_get_duel` - Combined rating creation + duel matching (returns JSON)
+    - `submit_comparison` - Handle duels from rating flow (ELO delta calculation)
+    - `process_comparison` - Handle standalone This vs That battles
+    - `find_comparison_candidate` - Match opponents within ±400 Elo
+    - `update_global_dish_score` - Aggregate credibility-weighted scores
+    - `calculate_user_credibility` - Logarithmic credibility (1.0 + 0.5 * ln(count))
+    - `find_nearby_restaurants` - PostGIS geolocation search (ST_Distance/ST_DWithin)
     - `get_leaderboard` / `get_nearby_leaderboard` - City/neighborhood leaderboards
     - `get_my_best_ever` - User's top dish per type
     - `get_my_dish_rankings` - User's rankings for a dish type
@@ -50,157 +59,115 @@ We've pivoted from the original roadmap to a focused **MVP v0.1** targeting New 
     - 5 launch dish types with emojis and aliases
     - 15 taste tags
 
-- [x] RLS Policies and Triggers
+- [x] RLS Policies, Triggers, and PostGIS Integration
 
 ---
 
-## Current Sprint: Core v0.1 Implementation
+## Current Sprint: Final Polish & Testing
 
-### Phase 1: Data Layer (Hooks)
+### Remaining Screen Work
 
-- [x] **Update `location.store.ts`**
-    - Fetch actual cities from DB (not hardcoded)
-    - Match user location to city/neighborhood
-    - Store selected neighborhood for filtering
-
-- [x] **Create `use-restaurants.ts` hook**
-    - Search restaurants by name
-    - Get nearby restaurants with distance
-    - Create new restaurant
-
-- [x] **Create `use-ratings.ts` hook**
-    - Call `create_rating` RPC
-    - Handle comparison trigger response
-    - Update personal ratings
-
-- [x] **Create `use-comparisons.ts` hook**
-    - Call `process_comparison` RPC
-    - Get pending comparisons
-    - Track comparison history
-
-- [x] **Create `use-user-stats.ts` hook**
-    - Call `get_user_stats` RPC
-    - Call `get_my_best_ever` RPC
-    - Call `get_my_dish_rankings` RPC
-
-### Phase 2: Core Screens (5 Screens)
-
-#### Screen 1: Home - "What Should I Eat Right Now?"
-
-- [x] Location badge at top (city/neighborhood)
-- [x] Dish type selector pills (5 types)
-- [x] Hero card showing #1 dish for selected type
-    - Restaurant name, neighborhood, distance
-    - Confidence meter (fire emojis)
-    - Featured photo
+#### Home Screen
 - [ ] "Show #2 and #3" expandable
 - [ ] Get Directions CTA
-- [x] Floating camera button (FAB) bottom right
 
-#### Screen 2: Dish Leaderboard
-
-- [x] Header: "Best [Dish Type] in New Orleans"
-- [x] Toggle: `City` | `Near Me (2mi)` | `[Neighborhood]`
-- [x] Ranked list 1-10
-    - Crown emoji for #1
-    - Restaurant name + neighborhood
-    - Confidence meter
-    - Photo thumbnail
-- [x] Tappable rows -> Dish Detail
-
-#### Screen 3: Dish Detail
-
-- [x] Hero photo (full width)
-- [x] Dish name + Restaurant name
+#### Dish Detail
 - [ ] Ranking badge: "#X [Dish] in [Location]"
-- [x] Confidence meter (visual)
-- [x] Taste tags (crowd-sourced)
 - [ ] Map snippet with directions CTA
 - [ ] "Compare This Dish" button
 
-#### Screen 4: This vs That (The Elo Engine)
-
-- [x] Full-screen split view
-    - Top half: Photo A (new dish or random)
-    - Bottom half: Photo B (comparison dish)
-- [x] Center prompt: "Which [Dish Type] wins?"
-- [x] Tap either photo to vote
-- [ ] After vote:
-    - Optional quick tag selection (skippable)
-    - "Thanks! Rankings updated." -> dismiss
-- [ ] Skip option with reason picker
-
-#### Screen 5: Profile - "Your Taste History"
-
-- [x] Avatar + username + home city
-- [x] "Best Ever" cards (auto-generated per dish type)
-    - Photo + restaurant + date
-    - Share button
-- [x] Stats row: `X dishes` | `X cities` | `X battles`
-- [x] Badges: "Gumbo Authority" etc.
-- [-] Map view toggle (pins of what you've eaten) - Deferred to post-v0.1
-
-### Phase 3: Rating Flow Updates
-
-- [x] Update rating flow to use new schema
-    - Use `restaurants` instead of `venues`
-    - Use `dish_types` instead of custom dishes
-    - Call `create_rating` RPC
-- [x] Photo is MANDATORY (no submission without photo)
-- [x] Raw score 1-10 input
-- [x] Optional taste tags selection
-- [x] Handle comparison trigger after rating
-    - If `should_compare` is true, navigate to This vs That
-
-### Phase 4: Components
-
-- [x] **HeroCard** - Top dish display for home
-- [x] **DishTypePills** - Horizontal scrollable selector
-- [x] **ConfidenceMeter** - Fire emoji visualization
-- [x] **ComparisonCard** - Split screen for This vs That
-- [x] **TasteTagChips** - Selectable tag chips
-- [x] **BestEverCard** - Personal best dish card with share
-- [x] **BestEverSection** - Horizontal scrollable section for profile
-- [x] **StatsRow** - User stats display (dishes/cities/battles)
-- [x] **BadgesSection** - Horizontal scrollable badges display
+### Remaining Components
 - [ ] **RankBadge** - "#X in [Location]" badge
-- [x] **LeaderboardRow** - Ranked list item
+
+### Testing & Polish
+- [ ] End-to-end test: full rating flow (photo -> venue -> dish -> rate -> duel)
+- [ ] End-to-end test: standalone This vs That from pending comparisons
+- [ ] End-to-end test: venue search (Google Places + local DB hybrid)
+- [ ] Error handling audit across all screens
+- [ ] Loading state consistency check
+- [ ] Verify GPS verification flow on device
 
 ---
 
-## Existing Code to Leverage
+## Completed Work
 
-### Can Reuse (with modifications)
+### Phase 1: Data Layer (Hooks) - 100% Complete
 
-- `useDishTypes` hook - Already fetches active dish types
-- `useLeaderboard` / `useTopDish` hooks - Already call RPC functions
-- `useLocationStore` - Needs DB integration but structure is good
-- `usePhotoUpload` hook - Photo upload to Supabase Storage
-- Rating flow screens - Need updates for new schema
-- Profile screens - Need updates for new stats/best-ever
+- [x] `useLocationStore` - DB integration for cities/neighborhoods + currentLocation
+- [x] `use-restaurants.ts` - useSearchRestaurants, useNearbyRestaurants (PostGIS), useCreateRestaurant
+- [x] `use-ratings.ts` - useCreateRating (post_rating_and_get_duel), useUpdateRating, useMyDishRankings, useMyRatings, useCheckRateLimit, useTasteTags, usePersonalRating
+- [x] `use-comparisons.ts` - usePendingComparisons, useSubmitComparison, useProcessComparison, useCheckSkipRate, useComparisonHistory
+- [x] `use-user-stats.ts` - useUserStats, useMyBestEver, useUserBadges
+- [x] `use-address-search.ts` - Google Places Autocomplete with proximity bias, address parsing
+- [x] `use-debounce.ts` - Generic debounce utility hook
 
-### Existing Components to Keep
+### Phase 2: Core Screens - 85% Complete
 
-- `ThemedText`, `ThemedView`, `ThemedButton`, etc.
-- `ScoreBadge` - Can adapt for confidence display
-- `PhotoPicker` - For photo capture
-- `LocationHeader`, `LocationBottomSheet`
+- [x] **Home** - Hero card, dish pills, location badge, FAB
+- [x] **Leaderboard** - City/Near Me/Neighborhood toggle, ranked list 1-10
+- [x] **Dish Detail** - Hero photo, restaurant info, confidence meter, taste tags
+- [x] **This vs That** - Full duel flow: animated cards, gradient overlays, VS badge, skip with reasons, dual mode (from rating flow + standalone)
+- [x] **Profile** - Avatar, home city, stats row, Best Ever cards, badges
+- [x] **Venue Search** - Hybrid Google Places + local DB, nearby preload, auto-create from Google
+- [x] **Rating** - 0-10 numeric input, photo upload, taste tags, GPS verification, duel trigger
+
+### Phase 3: Rating Flow - 100% Complete
+
+- [x] Use `restaurants` instead of `venues`
+- [x] Use `dish_types` instead of custom dishes
+- [x] Call `post_rating_and_get_duel` RPC (combined rating + duel matching)
+- [x] Photo is MANDATORY (no submission without photo)
+- [x] Raw score 0-10 input (NUMERIC scale)
+- [x] Optional taste tags selection
+- [x] Handle comparison trigger after rating (navigate to This vs That if duel found)
+- [x] GPS verification with distance calculation
+
+### Phase 4: Components - 90% Complete
+
+- [x] HeroCard, DishTypePills, ConfidenceMeter
+- [x] ComparisonCard (animated split view with gradient overlays)
+- [x] TasteTagChips (selectable tag chips)
+- [x] BestEverCard, BestEverSection, StatsRow, BadgesSection
+- [x] LeaderboardRow
+- [x] All themed components (ThemedText, ThemedView, ThemedButton, etc.)
+
+### Venue Search & Creation - 100% Complete
+
+- [x] Google Places Autocomplete (proximity-biased, food/restaurant types)
+- [x] Local DB restaurant search (ilike + nearby PostGIS query)
+- [x] Hybrid search results (DB restaurants + Google Places suggestions)
+- [x] Auto-create restaurant from Google Place details
+- [x] Nearby restaurant preloading via find_nearby_restaurants RPC
+
+---
+
+## Environment Variables
+
+Required in `.env`:
+```
+EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key  # NEW - required for venue search
+EXPO_PUBLIC_MAPBOX_TOKEN=your_mapbox_token                 # Optional
+EXPO_PUBLIC_AMPLITUDE_API_KEY=your_amplitude_key           # Analytics
+```
 
 ---
 
 ## What's NOT in v0.1 (Kill List)
 
-- [ ] ~~Social feed~~
-- [ ] ~~Following users~~
-- [ ] ~~Comments/reviews text~~
-- [ ] ~~Restaurant discovery~~
-- [ ] ~~AI taste profiles~~
-- [ ] ~~Bookmarks/lists~~
-- [ ] ~~Reservations/menus~~
-- [ ] ~~Owner portals~~
-- [ ] ~~Global leaderboards~~
-- [ ] ~~Helpful votes~~
-- [ ] ~~Review sorting~~
+- [-] ~~Social feed~~
+- [-] ~~Following users~~
+- [-] ~~Comments/reviews text~~
+- [-] ~~Restaurant discovery~~
+- [-] ~~AI taste profiles~~ (collecting tags now, AI later)
+- [-] ~~Bookmarks/lists~~
+- [-] ~~Reservations/menus~~
+- [-] ~~Owner portals~~
+- [-] ~~Global leaderboards~~
+- [-] ~~Helpful votes~~
+- [-] ~~Review sorting~~
+- [-] ~~Map view on Profile~~ (deferred to post-v0.1)
 
 ---
 
@@ -218,10 +185,12 @@ We've pivoted from the original roadmap to a focused **MVP v0.1** targeting New 
 
 ## Notes
 
-- Database is READY - schema, RPC functions, seed data all in place
-- Focus on the 5 screens - they are the entire MVP
-- Keep it simple - if a feature doesn't serve the core loop, cut it
-- The "This vs That" screen is the data engine - make it feel like a game
+- Database is READY - 14 tables, 20+ RPCs, seed data all in place
+- ELO system: Initial Elo = 1000 + (raw_score * 100), K-factor = 32
+- Credibility weighting: Expert users' ratings count more in global scores
+- Google Maps API key required for venue search (Places API must be enabled)
+- PostGIS required on Supabase for geolocation features
+- restaurant_dishes table auto-populates via trigger when ratings are inserted
 
 ---
 

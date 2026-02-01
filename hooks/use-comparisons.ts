@@ -15,22 +15,10 @@ export interface PendingComparison {
     rating_b_restaurant: string;
 }
 
-// Type for process_comparison RPC response
-export interface ProcessComparisonResponse {
-    success: boolean;
+export interface SubmitComparisonInput {
     comparison_id: string;
-    winner_new_elo?: number;
-    loser_new_elo?: number;
-    message: string;
-}
-
-export interface ProcessComparisonInput {
-    dish_type_id: string;
-    rating_a_id: string;
-    rating_b_id: string;
-    winner_id?: string; // null if skipped
-    skipped?: boolean;
-    skip_reason?: string;
+    winner_rating_id: string;
+    dish_type_id: string; // Used for cache invalidation only
 }
 
 /**
@@ -56,77 +44,52 @@ export function usePendingComparisons(limit: number = 5) {
 }
 
 /**
- * Get a specific comparison pair for immediate use after rating
- * Used when create_rating returns should_compare: true
+ * Submit a duel created by post_rating_and_get_duel
+ * Uses the new submit_comparison RPC which takes a pre-created comparison_id
  */
-export function useComparisonPair(
-    newRatingId: string | null,
-    comparisonRatingId: string | null,
-    dishTypeId: string | null
-) {
-    return useQuery({
-        queryKey: ['comparisonPair', newRatingId, comparisonRatingId],
-        queryFn: async () => {
-            if (!newRatingId || !comparisonRatingId || !dishTypeId) return null;
+export function useSubmitComparison() {
+    const queryClient = useQueryClient();
 
-            // Fetch both ratings with restaurant info
-            const { data, error } = await supabase
-                .from('personal_ratings')
-                .select(
-                    `
-                    id,
-                    photo_url,
-                    raw_score,
-                    restaurant:restaurants(id, name)
-                `
-                )
-                .in('id', [newRatingId, comparisonRatingId]);
+    return useMutation({
+        mutationFn: async (input: SubmitComparisonInput): Promise<void> => {
+            const { error } = await supabase.rpc('submit_comparison', {
+                p_comparison_id: input.comparison_id,
+                p_winner_rating_id: input.winner_rating_id,
+            });
 
             if (error) throw error;
-            if (!data || data.length !== 2) return null;
-
-            const ratingA = data.find((r) => r.id === newRatingId);
-            const ratingB = data.find((r) => r.id === comparisonRatingId);
-
-            if (!ratingA || !ratingB) return null;
-
-            // Get dish type info
-            const { data: dishType } = await supabase
-                .from('dish_types')
-                .select('id, name')
-                .eq('id', dishTypeId)
-                .single();
-
-            return {
-                dish_type_id: dishTypeId,
-                dish_type_name: dishType?.name ?? '',
-                rating_a_id: ratingA.id,
-                rating_a_photo: ratingA.photo_url,
-                rating_a_raw_score: ratingA.raw_score,
-                rating_a_restaurant:
-                    (ratingA.restaurant as { name: string } | null)?.name ?? '',
-                rating_b_id: ratingB.id,
-                rating_b_photo: ratingB.photo_url,
-                rating_b_raw_score: ratingB.raw_score,
-                rating_b_restaurant:
-                    (ratingB.restaurant as { name: string } | null)?.name ?? '',
-            } as PendingComparison;
         },
-        enabled: !!newRatingId && !!comparisonRatingId && !!dishTypeId,
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['pendingComparisons'] });
+            queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+            queryClient.invalidateQueries({ queryKey: ['topDish'] });
+            queryClient.invalidateQueries({ queryKey: ['userStats'] });
+            queryClient.invalidateQueries({
+                queryKey: ['myDishRankings', variables.dish_type_id],
+            });
+            queryClient.invalidateQueries({ queryKey: ['myBestEver'] });
+        },
     });
 }
 
+export interface ProcessComparisonInput {
+    dish_type_id: string;
+    rating_a_id: string;
+    rating_b_id: string;
+    winner_id?: string;
+    skipped?: boolean;
+    skip_reason?: string;
+}
+
 /**
- * Process a comparison (This vs That battle)
- * Updates Elo scores for both ratings
+ * Process a pending comparison (standalone This vs That)
+ * Uses the original process_comparison RPC for comparisons not created by post_rating_and_get_duel
  */
 export function useProcessComparison() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (
-            input: ProcessComparisonInput
-        ): Promise<ProcessComparisonResponse> => {
+        mutationFn: async (input: ProcessComparisonInput) => {
             const { data, error } = await supabase.rpc('process_comparison', {
                 p_dish_type_id: input.dish_type_id,
                 p_rating_a_id: input.rating_a_id,
@@ -137,10 +100,9 @@ export function useProcessComparison() {
             });
 
             if (error) throw error;
-            return data as unknown as ProcessComparisonResponse;
+            return data;
         },
         onSuccess: (_, variables) => {
-            // Invalidate relevant queries after comparison
             queryClient.invalidateQueries({ queryKey: ['pendingComparisons'] });
             queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
             queryClient.invalidateQueries({ queryKey: ['topDish'] });
@@ -149,14 +111,6 @@ export function useProcessComparison() {
                 queryKey: ['myDishRankings', variables.dish_type_id],
             });
             queryClient.invalidateQueries({ queryKey: ['myBestEver'] });
-
-            // Invalidate specific rating queries
-            queryClient.invalidateQueries({
-                queryKey: ['personalRating', variables.rating_a_id],
-            });
-            queryClient.invalidateQueries({
-                queryKey: ['personalRating', variables.rating_b_id],
-            });
         },
     });
 }

@@ -28,12 +28,12 @@ Issue tracking, project boards, and CI/CD automation.
 
 **What it contains:**
 
-- Current project status (30% complete)
-- MVP features (6 major features) - Target: 80% complete
-- V1.0 features (9 major features) - Target: 100% complete
-- V2.0 features (5 major features) - Future enhancements
+- Current project status (85% complete)
+- MVP v0.1 pivot direction and implementation phases
+- The 5 screens and their status
+- Launch strategy (NOLA cold-start)
 - Progress metrics and completion tracking
-- Success criteria for each feature
+- Success criteria for launch
 
 **When to update:**
 
@@ -83,8 +83,8 @@ Issue tracking, project boards, and CI/CD automation.
 
 **What it contains:**
 
-- Overall project completion percentage (currently 30%)
-- Progress by phase (Foundation 100%, MVP 0%, V1.0 0%, V2.0 0%)
+- Overall project completion percentage (currently 85%)
+- Progress by phase (Backend 100%, Hooks 100%, Screens 85%, Components 70%, Rating Flow 100%)
 - Progress by feature area
 - Historical weekly updates
 - Key metrics (files, LOC, tables, components)
@@ -136,18 +136,19 @@ Issue tracking, project boards, and CI/CD automation.
 
 ---
 
-### [app-idea.md](./app-idea.md)
+### [forked_v0.1_spec.md](./forked_v0.1_spec.md)
 
-**Purpose:** Original product specification (reference document)
+**Purpose:** MVP v0.1 product specification (reference document)
 
 **What it contains:**
 
-- Core concept and differentiators
-- Feature specifications
-- Data architecture
-- User flows
-- Go-to-market strategy
-- Open questions
+- Core concept: Elo-based "This vs That" dish comparisons
+- The 5 screens specification
+- ELO algorithm and confidence scoring
+- Verification layer (photo, GPS, time window)
+- Launch dishes (5 NOLA dish types)
+- Cold-start strategy for New Orleans
+- Success metrics
 
 **When to update:**
 
@@ -290,15 +291,17 @@ Issue tracking, project boards, and CI/CD automation.
 
 ### Overall Progress Formula
 
-**Overall % = (Foundation × 30 + MVP × 40 + V1.0 × 25 + V2.0 × 5) / 100**
+**Overall % = weighted average of (Backend, Hooks, Screens, Components, Rating Flow, Venue Search)**
 
 **Current Calculation:**
 
-- Foundation: 100% × 30 = 30 points
-- MVP: 0% × 40 = 0 points
-- V1.0: 0% × 25 = 0 points
-- V2.0: 0% × 5 = 0 points
-- **Total: 30/100 = 30%**
+- Backend (Database/RPC): 100%
+- Data Layer (Hooks): 100%
+- Core Screens: 85%
+- Components: 70%
+- Rating Flow: 100%
+- Venue Search: 100%
+- **Overall: ~85%**
 
 ### Feature Progress Tracking
 

@@ -129,29 +129,26 @@ export default function RatingScreen() {
                 dish_type_id: selectedDishType.id,
                 raw_score: rating,
                 photo_url: uploaded.url,
-                photo_storage_path: uploaded.storagePath,
                 notes: reviewText.trim() || undefined,
-                // location_verified: gpsStatus.isVerified ?? true,
-                //TODO: Remove this when GPS verification is implemented
-                location_verified: true,
-                taste_tag_ids:
-                    selectedTags.length > 0 ? selectedTags : undefined,
             });
 
-            // If comparison should be triggered, navigate to compare screen
-            if (result.should_compare && result.comparison_candidate_id) {
-                // Navigate to compare screen - don't reset rating state yet
-                // The compare screen will handle cleanup when done
+            // If a duel was found, navigate to compare screen
+            if (result.has_duel && result.duel_data) {
                 router.push({
                     pathname: '/(protected)/(rating)/compare',
                     params: {
+                        comparisonId: result.duel_data.comparison_id,
                         newRatingId: result.rating_id,
-                        comparisonRatingId: result.comparison_candidate_id,
+                        yourPhoto: uploaded.url,
+                        yourRestaurant: selectedRestaurant.name,
+                        opponentRatingId: result.duel_data.opponent_rating_id,
+                        opponentName: result.duel_data.opponent_name,
+                        opponentPhoto: result.duel_data.opponent_photo,
+                        opponentScore: String(result.duel_data.opponent_score),
                         dishTypeId: selectedDishType.id,
                     },
                 });
             } else {
-                // Reset rating state and go back to home
                 resetRating();
                 router.dismissAll();
                 router.replace('/(protected)/(tabs)');
