@@ -4,7 +4,10 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
-import { useAddressSearch } from '@/hooks/use-address-search';
+import {
+    GooglePlaceSuggestion,
+    useAddressSearch,
+} from '@/hooks/use-address-search';
 import { useDebounce } from '@/hooks/use-debounce';
 import {
     RestaurantWithDistance,
@@ -23,7 +26,7 @@ type Restaurant = Database['public']['Tables']['restaurants']['Row'];
 
 type SearchResultItem =
     | { type: 'restaurant'; data: RestaurantWithDistance }
-    | { type: 'mapbox'; data: any };
+    | { type: 'google'; data: GooglePlaceSuggestion };
 
 export default function VenueSearchScreen() {
     const router = useRouter();
@@ -95,12 +98,13 @@ export default function VenueSearchScreen() {
         [setSelectedRestaurant, router]
     );
 
-    const handleMapboxSelect = async (suggestion: any) => {
+    const handleAddressSelect = async (suggestion: GooglePlaceSuggestion) => {
         if (isSelecting || isCreating) return;
 
         try {
             setIsSelecting(true);
-            const addressData = await selectAddress(suggestion.mapbox_id);
+            const placeId = suggestion.placePrediction.placeId;
+            const addressData = await selectAddress(placeId);
 
             if (!addressData) {
                 throw new Error('Could not retrieve restaurant details');
@@ -145,7 +149,7 @@ export default function VenueSearchScreen() {
         );
 
         const addresses: SearchResultItem[] = addressSuggestions.map((s) => ({
-            type: 'mapbox' as const,
+            type: 'google' as const,
             data: s,
         }));
 
@@ -154,51 +158,82 @@ export default function VenueSearchScreen() {
 
     const renderItem = useCallback(
         ({ item }: { item: SearchResultItem }) => {
-            return (
-                <Pressable
-                    style={({ pressed }) => [
-                        styles.restaurantItem,
-                        pressed && styles.restaurantItemPressed,
-                    ]}
-                    onPress={() => {
-                        if (item.type === 'restaurant') {
-                            handleRestaurantSelect(item.data);
-                        } else {
-                            handleMapboxSelect(item.data);
-                        }
-                    }}
-                >
-                    <View style={styles.restaurantContent}>
-                        <ThemedText
-                            style={styles.restaurantName}
-                            numberOfLines={1}
-                        >
-                            {item.data.name}
-                        </ThemedText>
-                        {item.data.address && (
+            if (item.type === 'restaurant') {
+                return (
+                    <Pressable
+                        style={({ pressed }) => [
+                            styles.restaurantItem,
+                            pressed && styles.restaurantItemPressed,
+                        ]}
+                        onPress={() => handleRestaurantSelect(item.data)}
+                    >
+                        <View style={styles.restaurantContent}>
                             <ThemedText
-                                style={styles.restaurantAddress}
+                                style={styles.restaurantName}
                                 numberOfLines={1}
                             >
-                                {item.data.full_address
-                                    ? item.data.full_address
-                                          .split(',')
-                                          .slice(0, -1)
-                                          .join(',')
-                                    : item.data.address}
+                                {item.data.name}
                             </ThemedText>
-                        )}
-                    </View>
-                    <IconSymbol
-                        name="chevron-forward"
-                        size={20}
-                        color={iconColor}
-                    />
-                </Pressable>
-            );
+                            {item.data.address && (
+                                <ThemedText
+                                    style={styles.restaurantAddress}
+                                    numberOfLines={1}
+                                >
+                                    {item.data.address}
+                                </ThemedText>
+                            )}
+                        </View>
+                        <IconSymbol
+                            name="chevron-forward"
+                            size={20}
+                            color={iconColor}
+                        />
+                    </Pressable>
+                );
+            } else {
+                // Google Place Suggestion
+                const { structuredFormat } = item.data.placePrediction;
+                const mainText = structuredFormat.mainText.text;
+                const secondaryText = structuredFormat.secondaryText?.text;
+
+                return (
+                    <Pressable
+                        style={({ pressed }) => [
+                            styles.mapboxItem,
+                            pressed && styles.mapboxItemPressed,
+                        ]}
+                        onPress={() => handleAddressSelect(item.data)}
+                    >
+                        <View style={styles.mapboxContent}>
+                            <ThemedText
+                                style={styles.mapboxName}
+                                numberOfLines={1}
+                            >
+                                {mainText}
+                            </ThemedText>
+                            {secondaryText && (
+                                <ThemedText
+                                    style={styles.mapboxAddress}
+                                    numberOfLines={1}
+                                >
+                                    {secondaryText}
+                                </ThemedText>
+                            )}
+                            <ThemedText style={styles.mapboxMeta}>
+                                Google Place
+                            </ThemedText>
+                        </View>
+                        <IconSymbol
+                            name="chevron-forward"
+                            size={20}
+                            color={iconColor}
+                        />
+                    </Pressable>
+                );
+            }
         },
-        [styles, iconColor, handleRestaurantSelect, handleMapboxSelect]
-    ); // Add handleMapboxSelect to deps
+        [styles, iconColor, handleRestaurantSelect, handleAddressSelect]
+    );
 
     return (
         <>
@@ -229,8 +264,8 @@ export default function VenueSearchScreen() {
                         data={combinedData}
                         keyExtractor={(item) =>
                             item.type === 'restaurant'
-                                ? item.data.id
-                                : item.data.mapbox_id
+                                ? `restaurant-${item.data.id}`
+                                : `google-${item.data.placePrediction.placeId}`
                         }
                         renderItem={renderItem}
                         contentContainerStyle={styles.listContent}

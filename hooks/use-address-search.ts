@@ -1,9 +1,11 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 
-const MAPBOX_TOKEN = process.env.EXPO_PUBLIC_MAPBOX_TOKEN;
-const SUGGEST_URL = 'https://api.mapbox.com/search/searchbox/v1/suggest';
-const RETRIEVE_URL = 'https://api.mapbox.com/search/searchbox/v1/retrieve';
+// Use the key from env, preferring the PUBLIC prefix for client-side usage if available,
+// but falling back to the one in .env.example
+const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+const BASE_URL = 'https://places.googleapis.com/v1';
 
 export interface AddressData {
     name: string;
@@ -15,53 +17,24 @@ export interface AddressData {
     country: string;
     latitude: number;
     longitude: number;
+    google_place_id: string; // Added for reference
 }
 
-interface MapboxSuggestion {
-    mapbox_id: string;
-    name: string;
-    full_address: string;
-}
-
-interface MapboxFeature {
-    type: string;
-    geometry: {
-        type: string;
-        coordinates: [number, number]; // [longitude, latitude]
-    };
-    properties: {
-        name: string;
-        full_address: string;
-        context: {
-            address?: {
-                street_name?: string;
-                address_number?: string;
+export interface GooglePlaceSuggestion {
+    placePrediction: {
+        placeId: string;
+        text: {
+            text: string;
+        };
+        structuredFormat: {
+            mainText: {
+                text: string;
             };
-            postcode?: {
-                name?: string;
-            };
-            place?: {
-                name?: string;
-            };
-            region?: {
-                region_code?: string;
-                name?: string;
-            };
-            country?: {
-                country_code?: string;
-                name?: string;
+            secondaryText?: {
+                text: string;
             };
         };
     };
-}
-
-// Generate a UUID v4 for session tokens
-function generateUUID(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-        const r = (Math.random() * 16) | 0;
-        const v = c === 'x' ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-    });
 }
 
 interface UseAddressSearchOptions {
@@ -74,7 +47,6 @@ interface UseAddressSearchOptions {
 export function useAddressSearch(options?: UseAddressSearchOptions) {
     const [query, setQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
-    const [sessionToken] = useState(() => generateUUID());
 
     // Debounce query
     useEffect(() => {
@@ -84,6 +56,8 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
         return () => clearTimeout(timer);
     }, [query]);
 
+    console.log('GOOGLE_API_KEY', GOOGLE_API_KEY);
+    console.log('debouncedQuery', debouncedQuery);
     // Suggestions Query
     const {
         data: suggestions = [],
@@ -92,37 +66,52 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
     } = useQuery({
         queryKey: ['address-search', debouncedQuery, options?.proximity],
         queryFn: async ({ signal }) => {
-            if (!debouncedQuery.trim() || !MAPBOX_TOKEN) return [];
+            if (!debouncedQuery.trim() || !GOOGLE_API_KEY) return [];
 
-            const params: Record<string, string> = {
-                q: debouncedQuery,
-                access_token: MAPBOX_TOKEN,
-                session_token: sessionToken,
-                country: 'US',
-                language: 'en',
-                types: 'address,poi',
-                poi_category: 'restaurant,food,food and drink',
-                limit: '5',
+            const requestBody: any = {
+                input: debouncedQuery,
+                includedPrimaryTypes: [
+                    'food',
+                    'restaurant',
+                    'cafe',
+                    'bar',
+                    'bakery',
+                ],
             };
 
             if (options?.proximity) {
-                params.proximity = `${options.proximity.longitude},${options.proximity.latitude}`;
+                requestBody.locationBias = {
+                    circle: {
+                        center: {
+                            latitude: options.proximity.latitude,
+                            longitude: options.proximity.longitude,
+                        },
+                        radius: 5000, // 5km bias
+                    },
+                };
             }
 
-            const urlParams = new URLSearchParams(params);
-            const response = await fetch(
-                `${SUGGEST_URL}?${urlParams.toString()}`,
-                { signal }
-            );
+            const response = await fetch(`${BASE_URL}/places:autocomplete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Goog-Api-Key': GOOGLE_API_KEY,
+                },
+                body: JSON.stringify(requestBody),
+                signal,
+            });
 
             if (!response.ok) {
-                throw new Error(`Mapbox API error: ${response.status}`);
+                const errorText = await response.text();
+                throw new Error(
+                    `Google Places API error: ${response.status} ${errorText}`
+                );
             }
 
             const data = await response.json();
-            return (data.suggestions || []) as MapboxSuggestion[];
+            return (data.suggestions || []) as GooglePlaceSuggestion[];
         },
-        enabled: !!debouncedQuery.trim() && !!MAPBOX_TOKEN,
+        enabled: !!debouncedQuery.trim() && !!GOOGLE_API_KEY,
     });
 
     // Details Mutation
@@ -131,55 +120,63 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
         isPending: isSelecting,
         error: selectError,
     } = useMutation({
-        mutationFn: async (suggestionId: string): Promise<AddressData> => {
-            if (!MAPBOX_TOKEN) throw new Error('Mapbox token not configured');
+        mutationFn: async (placeId: string): Promise<AddressData> => {
+            if (!GOOGLE_API_KEY)
+                throw new Error('Google Maps API Key not configured');
 
-            const params = new URLSearchParams({
-                access_token: MAPBOX_TOKEN,
-                session_token: sessionToken,
+            const response = await fetch(`${BASE_URL}/places/${placeId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Goog-Api-Key': GOOGLE_API_KEY,
+                    'X-Goog-FieldMask':
+                        'id,displayName,formattedAddress,addressComponents,location',
+                },
             });
 
-            const response = await fetch(
-                `${RETRIEVE_URL}/${suggestionId}?${params.toString()}`
-            );
-
             if (!response.ok) {
-                throw new Error(`Mapbox API error: ${response.status}`);
+                throw new Error(`Google Places API error: ${response.status}`);
             }
 
             const data = await response.json();
-            const feature: MapboxFeature = data.features?.[0];
 
-            if (!feature) {
-                throw new Error('No address details found');
-            }
+            // Map Google Address Components to our structure
+            // addressComponents is an array of { longText, shortText, types: string[] }
+            const components = data.addressComponents || [];
 
-            const { geometry, properties } = feature;
-            const [longitude, latitude] = geometry.coordinates;
-            const { context } = properties;
+            const getComponent = (type: string) =>
+                components.find((c: any) => c.types.includes(type))?.longText ||
+                '';
+            const getShortComponent = (type: string) =>
+                components.find((c: any) => c.types.includes(type))
+                    ?.shortText || '';
 
-            const streetNumber = context.address?.address_number || '';
-            const streetName = context.address?.street_name || '';
-            const street = [streetNumber, streetName]
+            const streetNumber = getComponent('street_number');
+            const route = getComponent('route');
+            const street = [streetNumber, route]
                 .filter(Boolean)
                 .join(' ')
                 .trim();
-            const city = context.place?.name || '';
-            const state = context.region?.region_code || '';
-            const zip = context.postcode?.name || '';
-            const country =
-                context.country?.country_code?.toUpperCase() || 'USA';
+
+            const city =
+                getComponent('locality') ||
+                getComponent('sublocality') ||
+                getComponent('administrative_area_level_2'); // fallback
+            const state = getShortComponent('administrative_area_level_1');
+            const zip = getComponent('postal_code');
+            const country = getShortComponent('country');
 
             return {
-                name: properties.name,
-                full_address: properties.full_address,
-                street: street || properties.name,
+                name: data.displayName?.text || street || data.formattedAddress,
+                full_address: data.formattedAddress,
+                street: street || data.displayName?.text || '',
                 city,
                 state,
                 zip,
                 country,
-                latitude,
-                longitude,
+                latitude: data.location?.latitude || 0,
+                longitude: data.location?.longitude || 0,
+                google_place_id: data.id,
             };
         },
     });
@@ -188,15 +185,19 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
         setQuery('');
     }, []);
 
-    const searchAddress = useCallback((newQuery: string) => {
-        setQuery(newQuery);
-        return Promise.resolve([]); // Breaking change: No longer returns immediate results
-    }, []);
-
     const error =
         (searchError as Error)?.message ||
         (selectError as Error)?.message ||
         null;
+
+    console.log('suggestions', {
+        query,
+        debouncedQuery,
+        suggestions,
+        isSearching,
+        searchError,
+        selectError,
+    });
 
     return {
         query,
@@ -205,7 +206,6 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
         loading: isSearching || isSelecting,
         error,
         selectAddress,
-        searchAddress,
         clearSearch,
     };
 }
