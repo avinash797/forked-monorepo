@@ -85,7 +85,7 @@ export const useLocationStore = create<LocationState>((set, get) => ({
                 set({ isLoading: false });
             }
         } catch (error: any) {
-            console.error('Error fetching location context:', error);
+            // console.error('Error fetching location context:', error);
             // Fallback for development/testing if RPC fails or no city found
             // For MVP launch we might want to default to NOLA if testing elsewhere
             set({ error: error.message, isLoading: false });

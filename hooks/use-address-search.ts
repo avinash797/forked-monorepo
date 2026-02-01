@@ -56,8 +56,6 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
         return () => clearTimeout(timer);
     }, [query]);
 
-    console.log('GOOGLE_API_KEY', GOOGLE_API_KEY);
-    console.log('debouncedQuery', debouncedQuery);
     // Suggestions Query
     const {
         data: suggestions = [],
@@ -189,15 +187,6 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
         (searchError as Error)?.message ||
         (selectError as Error)?.message ||
         null;
-
-    console.log('suggestions', {
-        query,
-        debouncedQuery,
-        suggestions,
-        isSearching,
-        searchError,
-        selectError,
-    });
 
     return {
         query,
