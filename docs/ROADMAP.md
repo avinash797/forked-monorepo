@@ -1,6 +1,6 @@
 # Forked v0.1 - Product Roadmap
 
-**Last Updated:** 2026-01-17
+**Last Updated:** 2026-02-01
 
 ## The Pivot
 
@@ -22,7 +22,7 @@ If a feature doesn't serve that, it's out.
 
 | Original Approach | New v0.1 Approach |
 |-------------------|-------------------|
-| 0-10 rating slider | **Elo-based "This vs That" battles** |
+| 0-10 rating slider | **Hybrid Elo-based "This vs That" + 0-10 raw score** |
 | Photo encouraged | **Photo MANDATORY** |
 | Any dish type | **5 dish types only** |
 | City-level leaderboards | **City + Neighborhood leaderboards** |
@@ -44,20 +44,24 @@ EAT -> SNAP -> COMPARE -> RANK
 
 ---
 
-## Current Status: 35% Complete
+## Current Status: 85% Complete
 
 ### Backend (Database & RPC) - 100% Complete
 
-- Database schema with Elo system
-- All RPC functions implemented
+- Database schema with Elo system (14 tables, all with RLS)
+- 20+ RPC functions including post_rating_and_get_duel, submit_comparison, find_nearby_restaurants
+- PostGIS geolocation for nearby restaurant discovery
+- Credibility-weighted global scoring system
 - Seed data for New Orleans
-- RLS policies and triggers
+- RLS policies, triggers, and auto-populated restaurant_dishes
 
-### Frontend - 20% Complete
+### Frontend - 85% Complete
 
-- Some hooks exist (need updates)
-- Some screens exist (need major updates)
-- Components partially ready
+- All hooks complete (ratings, comparisons, restaurants, address search, user stats)
+- Core screens implemented (Home, Leaderboard, Dish Detail, This vs That, Profile, Venue Search, Rating)
+- Venue search with hybrid Google Places + local DB
+- Rating flow with duel trigger integration
+- Remaining: RankBadge component, map/directions CTAs, "Show #2 and #3" on Home
 
 ---
 
@@ -132,32 +136,41 @@ EAT -> SNAP -> COMPARE -> RANK
 
 ## Implementation Phases
 
-### Phase 1: Data Layer (Current Sprint)
+### Phase 1: Data Layer - Complete
 
-- [ ] Update `location.store.ts` for DB cities
-- [ ] Create `use-restaurants.ts` hook
-- [ ] Create `use-ratings.ts` hook
-- [ ] Create `use-comparisons.ts` hook
-- [ ] Create `use-user-stats.ts` hook
+- [x] Update `location.store.ts` for DB cities + currentLocation
+- [x] Create `use-restaurants.ts` hook (search, nearby via PostGIS, create)
+- [x] Create `use-ratings.ts` hook (post_rating_and_get_duel, taste tags, rate limiting)
+- [x] Create `use-comparisons.ts` hook (submit, process, pending, skip tracking)
+- [x] Create `use-user-stats.ts` hook (stats, best ever, badges)
+- [x] Create `use-address-search.ts` hook (Google Places Autocomplete)
+- [x] Create `use-debounce.ts` utility hook
 
-### Phase 2: Core Screens
+### Phase 2: Core Screens - 85% Complete
 
-- [ ] Build Home screen with hero card
-- [ ] Build Leaderboard with neighborhood toggle
-- [ ] Build Dish Detail screen
-- [ ] Build This vs That screen
-- [ ] Update Profile with best-ever cards
+- [x] Build Home screen with hero card, dish pills, location badge, FAB
+- [x] Build Leaderboard with city/near me/neighborhood toggle
+- [x] Build Dish Detail screen with hero photo, confidence meter, taste tags
+- [x] Build This vs That screen with animated duel flow, skip reasons
+- [x] Update Profile with stats row, best-ever cards, badges
+- [x] Build Venue Search with hybrid Google Places + local DB
+- [x] Build Rating screen with 0-10 input, photo, GPS, duel trigger
+- [ ] Add ranking badge, map/directions to Dish Detail
+- [ ] Add "Show #2 and #3" and Get Directions to Home
 
-### Phase 3: Rating Flow
+### Phase 3: Rating Flow - Complete
 
-- [ ] Update to use new schema (restaurants, dish_types)
-- [ ] Enforce mandatory photo
-- [ ] Handle comparison trigger
-- [ ] Add taste tags selection
+- [x] Update to use new schema (restaurants, dish_types, post_rating_and_get_duel)
+- [x] Enforce mandatory photo
+- [x] Handle comparison trigger (navigate to This vs That if duel found)
+- [x] Add taste tags selection
+- [x] GPS verification with distance calculation
 
-### Phase 4: Polish & Launch
+### Phase 4: Polish & Launch (Current)
 
-- [ ] Test all flows
+- [ ] Build RankBadge component
+- [ ] Add map/directions CTAs
+- [ ] End-to-end testing of all flows
 - [ ] Seed initial data with Founding Forks
 - [ ] Beta launch to NOLA locals
 
@@ -258,5 +271,5 @@ AI becomes lethal AFTER:
 
 ---
 
-**Last Review:** 2026-01-17
+**Last Review:** 2026-02-01
 **Next Review:** Weekly during v0.1 development

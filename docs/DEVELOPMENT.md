@@ -1,6 +1,6 @@
 # Forked - Development Guide
 
-**Last Updated:** 2026-01-02
+**Last Updated:** 2026-02-01
 
 This guide covers the development workflow, coding standards, and contribution guidelines for the Forked project.
 
@@ -37,12 +37,17 @@ This guide covers the development workflow, coding standards, and contribution g
     cp .env.example .env
     ```
 
-    Then edit `.env` and add your Supabase credentials:
+    Then edit `.env` and add your credentials:
 
     ```
     EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
     EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+    EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key  # Required for venue search
+    EXPO_PUBLIC_MAPBOX_TOKEN=your_mapbox_token                 # Optional
+    EXPO_PUBLIC_AMPLITUDE_API_KEY=your_amplitude_key           # Analytics
     ```
+
+    **Google Maps API Key:** Must have "Places API" enabled in Google Cloud Console. Used for venue search autocomplete.
 
 4. **Run database migrations:**
     - Open your Supabase dashboard
@@ -62,27 +67,44 @@ This guide covers the development workflow, coding standards, and contribution g
 forked/
 ├── app/                      # Expo Router pages
 │   ├── (auth)/              # Auth screens (login, signup, etc.)
-│   ├── (tabs)/              # Main app tabs (home, settings, etc.)
+│   ├── (protected)/         # Protected routes requiring authentication
+│   │   ├── (tabs)/          # Tab navigation (home, settings)
+│   │   ├── (rating)/        # Rating flow (photo, venue, dish, rate, compare, success)
+│   │   └── (browse)/        # Browse flow (search, dish detail, venue detail)
 │   └── _layout.tsx          # Root layout with auth routing
 ├── components/              # Reusable UI components
 │   ├── ui/                  # Base UI primitives
+│   ├── rating/              # Rating flow components (photo-picker, rating-input, etc.)
+│   ├── browse/              # Browse components (review-card, dish-card, etc.)
 │   ├── themed-*.tsx         # Themed components
-│   └── *.tsx                # Feature components
-├── contexts/                # React contexts (auth, etc.)
-├── hooks/                   # Custom React hooks
+│   └── *.tsx                # Feature components (score-badge, fork-logo, etc.)
+├── contexts/                # React contexts (theme, supabase)
+├── hooks/                   # Custom React hooks (all use React Query)
+│   ├── use-ratings.ts      # Rating CRUD via post_rating_and_get_duel RPC
+│   ├── use-comparisons.ts  # This vs That duel system
+│   ├── use-restaurants.ts  # Restaurant search/create with PostGIS
+│   ├── use-address-search.ts # Google Places Autocomplete
+│   ├── use-debounce.ts     # Generic debounce utility
+│   └── ...                  # Additional hooks for dishes, venues, stats, etc.
+├── stores/                  # Zustand global state management
+│   ├── use-rating-store.ts # Rating flow state
+│   ├── use-ui-store.ts     # Global UI state (toasts, modals)
+│   └── use-preferences-store.ts # Persisted user preferences
 ├── lib/                     # Utility libraries
 │   ├── supabase.ts         # Supabase client
 │   └── validators.ts       # Form validation
 ├── types/                   # TypeScript type definitions
+│   ├── database.types.ts   # Auto-generated Supabase types
+│   └── rating.ts           # Rating flow types
 ├── constants/               # App constants (theme, config)
 ├── assets/                  # Images, fonts, etc.
 ├── supabase/               # Supabase configuration
-│   └── migrations/         # Database migrations
+│   └── migrations/         # Database migrations (14 migration files)
 └── docs/                    # Project documentation
     ├── ROADMAP.md          # Feature roadmap
     ├── TODO.md             # Active work tracking
     ├── PROGRESS.md         # Completion metrics
-    └── app-idea.md         # Product specification
+    └── forked_v0.1_spec.md # MVP v0.1 specification
 ```
 
 ---
@@ -243,11 +265,20 @@ import { styles } from './styles';
 
 ### Current Approach
 
-- **Authentication:** Context API (`AuthContext`) - user session, profile data, charms
+- **Authentication:** `useAuth()` hook with React Query (no provider needed)
 - **Theme:** Custom `ThemeProvider` (`context/theme-context.tsx`) - 4 theme variants with light/dark modes
-- **Data Fetching:** **@tanstack/react-query** (ALL hooks migrated)
-- **Rating Flow:** Context API (`RatingContext`) - temporary state during rating submission
+- **Server State:** **@tanstack/react-query** (ALL hooks use useQuery/useMutation/useInfiniteQuery)
+- **Client State:** **Zustand** stores for rating flow, UI state, user preferences
 - **Form State:** **react-hook-form** with **zod** validation
+
+### State Management Strategy
+
+| State Type | Tool | Examples |
+|------------|------|---------|
+| Server State | React Query | Dishes, restaurants, reviews, leaderboards |
+| Client State | Zustand | Rating flow (photo, venue, dish), UI (toasts, modals) |
+| Component State | useState | Form inputs, toggles |
+| Theme/Provider | Context API | Theme tokens, Supabase client |
 
 ### React Query Integration ✅
 
@@ -379,40 +410,49 @@ export function ProfileEditScreen() {
 }
 ```
 
-### Adding New Contexts
+### Zustand Stores
 
-1. Create in `contexts/` directory
-2. Export both provider and hook
-3. Wrap in appropriate layout file (`app/_layout.tsx`)
-4. Document in this file
-
-**Example:**
+Client-side global state uses Zustand (no providers needed):
 
 ```typescript
-// contexts/example-context.tsx
-import { createContext, useContext, useState } from 'react';
+import { useRatingStore } from '@/stores/use-rating-store';
+import { useUIStore } from '@/stores/use-ui-store';
+import { usePreferencesStore } from '@/stores/use-preferences-store';
 
-const ExampleContext = createContext<ExampleContextType | undefined>(
-    undefined
-);
+// Rating flow state
+const { photoUri, selectedRestaurant, setSelectedRestaurant, resetRating } = useRatingStore();
 
-export function ExampleProvider({ children }: { children: React.ReactNode }) {
-    const [state, setState] = useState<ExampleState>({});
-    return (
-        <ExampleContext.Provider value={{ state, setState }}>
-            {children}
-        </ExampleContext.Provider>
-    );
-}
+// UI state (toasts, modals)
+const { showToast } = useUIStore();
 
-export function useExample() {
-    const context = useContext(ExampleContext);
-    if (!context) {
-        throw new Error('useExample must be used within ExampleProvider');
-    }
-    return context;
-}
+// Persisted preferences
+const { hasCompletedOnboarding } = usePreferencesStore();
 ```
+
+### ELO Rating System
+
+The app uses an Elo-based competitive rating system:
+
+- **Initial Elo:** 1000 + (raw_score * 100) - a 0-10 score maps to 1000-2000 Elo
+- **K-factor:** 32 for Elo delta calculations
+- **Credibility weighting:** Users with more ratings have higher credibility (logarithmic: 1.0 + 0.5 * ln(count))
+- **Duel matching:** Opponents matched within ±400 Elo for balanced comparisons
+- **Global scores:** Credibility-weighted aggregation of all user ratings per restaurant+dish
+
+### Google Places Integration
+
+Venue search uses Google Places Autocomplete:
+
+```typescript
+import { useAddressSearch } from '@/hooks/use-address-search';
+
+// Proximity-biased search for food/restaurant types
+const { searchResults, searchQuery, setSearchQuery, selectAddress } = useAddressSearch({
+    proximity: { latitude: userLat, longitude: userLng }
+});
+```
+
+Requires `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` with Places API enabled.
 
 ---
 
@@ -482,9 +522,32 @@ function DishDetailScreen() {
 }
 ```
 
+### RPC Functions
+
+The app uses Supabase RPC functions for complex operations:
+
+```typescript
+// Rating with automatic duel matching
+const { data } = await supabase.rpc('post_rating_and_get_duel', {
+    p_restaurant_id: restaurantId,
+    p_dish_type_id: dishTypeId,
+    p_photo_url: photoUrl,
+    p_raw_score: 8.5,  // NUMERIC(3,1) - 0-10 scale
+});
+// Returns: { rating_id, has_duel, duel_data? }
+
+// PostGIS nearby restaurant search
+const { data } = await supabase.rpc('find_nearby_restaurants', {
+    p_lat: userLat,
+    p_long: userLng,
+    p_radius_meters: 5000,
+    p_limit: 20,
+});
+```
+
 ### RLS (Row Level Security)
 
-- All tables have RLS enabled
+- All 14 tables have RLS enabled
 - Policies defined in migration files
 - Test policies thoroughly
 - Don't bypass RLS in client code
@@ -503,6 +566,14 @@ export async function uploadPhoto(file: File, bucket: string) {
     return data;
 }
 ```
+
+### PostGIS
+
+The database uses PostGIS for geolocation:
+
+- Restaurant locations stored as `geography(POINT, 4326)`
+- `find_nearby_restaurants` RPC uses `ST_Distance` and `ST_DWithin`
+- Ensure PostGIS extension is enabled on your Supabase project
 
 ---
 

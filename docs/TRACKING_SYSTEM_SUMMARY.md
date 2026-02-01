@@ -53,13 +53,12 @@ cat docs/ROADMAP.md
 cat docs/TODO.md
 ```
 
-**Your first MVP feature: Core Rating Flow**
+**Current focus: Final polish and testing**
 
-- Rate a dish screen
-- Venue/dish selection
-- Star rating input
-- Photo upload
-- GPS verification
+- End-to-end testing of rating flow (photo -> venue -> dish -> rate -> duel)
+- RankBadge component for dish detail
+- Map/directions CTAs
+- Error handling audit
 
 ### Step 3: Track Your Progress (weekly)
 
@@ -94,29 +93,30 @@ edit docs/PROGRESS.md
 
 ## 🎯 Your Roadmap at a Glance
 
-### Current Status: 30% Complete
+### Current Status: 85% Complete
 
 ```
-FOUNDATION ████████████████████ 100% ✅
-MVP        ░░░░░░░░░░░░░░░░░░░░   0% 🚧
-V1.0       ░░░░░░░░░░░░░░░░░░░░   0% ⏳
-V2.0       ░░░░░░░░░░░░░░░░░░░░   0% 🌟
+Backend    ████████████████████ 100%
+Hooks      ████████████████████ 100%
+Screens    █████████████████░░░  85%
+Components ██████████████░░░░░░  70%
+Rating     ████████████████████ 100%
+Venue      ████████████████████ 100%
 ───────────────────────────────────────
-OVERALL    ██████░░░░░░░░░░░░░░  30%
+OVERALL    █████████████████░░░  85%
 ```
 
-### MVP Features (Target: 80% Project Completion)
+### Remaining Work
 
-| #   | Feature              | Status         | Priority  |
-| --- | -------------------- | -------------- | --------- |
-| 1   | Core Rating Flow     | ❌ Not Started | Critical  |
-| 2   | Discovery & Browsing | ❌ Not Started | Critical  |
-| 3   | Photo System         | ❌ Not Started | Critical  |
-| 4   | Review Display       | ❌ Not Started | Important |
-| 5   | Data Layer & API     | ❌ Not Started | Critical  |
-| 6   | Basic UI Components  | ❌ Not Started | Important |
+| #   | Task                        | Status         | Priority  |
+| --- | --------------------------- | -------------- | --------- |
+| 1   | RankBadge component         | Not Started    | Important |
+| 2   | Map/directions CTAs         | Not Started    | Important |
+| 3   | Home "Show #2 and #3"       | Not Started    | Nice to Have |
+| 4   | End-to-end testing          | Not Started    | Critical  |
+| 5   | Polish & error handling     | Not Started    | Important |
 
-**Start with Feature #1: Core Rating Flow** 🎯
+**Focus: Testing & Polish for launch**
 
 ---
 
@@ -200,19 +200,23 @@ If you want cloud-based issue tracking and project boards:
 
 **Current:**
 
-- Foundation: 100% × 30 = **30 points** ✅
-- MVP: 0% × 40 = **0 points**
-- V1.0: 0% × 25 = **0 points**
-- V2.0: 0% × 5 = **0 points**
-- **Total: 30/100 = 30%**
+- Backend (Database/RPC): **100%**
+- Data Layer (Hooks): **100%**
+- Core Screens: **85%**
+- Components: **70%**
+- Rating Flow: **100%**
+- Venue Search: **100%**
+- **Overall: ~85%**
 
-**After completing MVP (all 6 features):**
+**After completing remaining polish:**
 
-- Foundation: 100% × 30 = **30 points** ✅
-- MVP: 100% × 40 = **40 points** ✅
-- V1.0: 0% × 25 = **0 points**
-- V2.0: 0% × 5 = **0 points**
-- **Total: 70/100 = 70%** (almost there!)
+- Backend: 100%
+- Hooks: 100%
+- Screens: 100%
+- Components: 100%
+- Rating Flow: 100%
+- Venue Search: 100%
+- **Total: 100%** (ready for launch!)
 
 ### Updating Progress
 
