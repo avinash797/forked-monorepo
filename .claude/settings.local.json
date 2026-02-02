@@ -19,7 +19,9 @@
       "Bash(npx expo lint:*)",
       "Bash(powershell -Command \"Get-Content ''C:\\\\Users\\\\Avi\\\\workspace\\\\Forked-all\\\\forked\\\\types\\\\database.types.ts'' -Encoding Byte | Select-Object -First 10 | ForEach-Object { ''{0:X2}'' -f $_}\")",
       "Bash(powershell -Command:*)",
-      "mcp__plugin_supabase_supabase__search_docs"
+      "mcp__plugin_supabase_supabase__search_docs",
+      "Bash(grep:*)",
+      "mcp__plugin_supabase_supabase__get_advisors"
     ]
   },
   "enabledPlugins": {

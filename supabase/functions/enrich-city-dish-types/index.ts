@@ -241,6 +241,21 @@ Deno.serve(async (req: Request) => {
             }
         }
 
+        // Activate the city now that it has dish types
+        const { error: activateError } = await supabase
+            .from('cities')
+            .update({ is_active: true })
+            .eq('id', city_id);
+
+        if (activateError) {
+            console.error(
+                `Failed to activate city ${city_name}:`,
+                activateError
+            );
+        } else {
+            console.log(`Activated city: ${city_name}`);
+        }
+
         console.log(
             `Enrichment complete for ${city_name}: ${dishesAdded} dishes, ${tagsAdded} tags added`
         );
@@ -249,6 +264,7 @@ Deno.serve(async (req: Request) => {
             JSON.stringify({
                 success: true,
                 city_name,
+                city_activated: !activateError,
                 dishes_processed: geminiResult.dish_types.length,
                 dishes_added: dishesAdded,
                 tags_added: tagsAdded,
