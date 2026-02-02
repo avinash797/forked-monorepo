@@ -6,13 +6,14 @@ import {
 import { useDebounce } from '@/hooks/use-debounce';
 import {
     RestaurantWithDistance,
-    useCreateRestaurant,
     useNearbyRestaurants,
     useSearchRestaurants,
 } from '@/hooks/use-restaurants';
 import { useRatingStore } from '@/stores';
 import { useLocationStore } from '@/stores/location.store';
 import { Database } from '@/types/database.types';
+import { supabase } from '@/lib/supabase';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 type Restaurant = Database['public']['Tables']['restaurants']['Row'];
@@ -22,8 +23,9 @@ export type SearchResultItem =
     | { type: 'google'; data: GooglePlaceSuggestion };
 
 export function useVenueSearch() {
-    const { currentCity, currentLocation } = useLocationStore();
+    const { currentLocation } = useLocationStore();
     const { setSelectedRestaurant } = useRatingStore();
+    const queryClient = useQueryClient();
     const [searchQuery, setSearchQuery] = useState('');
     const [isSelecting, setIsSelecting] = useState(false);
 
@@ -63,9 +65,6 @@ export function useVenueSearch() {
     // DB search by name (debounced)
     const { data: searchResults = [], isFetching: isSearchingRestaurants } =
         useSearchRestaurants(debouncedSearchQuery);
-
-    const { mutateAsync: createRestaurant, isPending: isCreating } =
-        useCreateRestaurant();
 
     // Combine DB + Google results with deduplication
     // Idle: DB nearby + Google nearby (deduped), DB first
@@ -116,7 +115,7 @@ export function useVenueSearch() {
 
     const selectGooglePlace = useCallback(
         async (suggestion: GooglePlaceSuggestion): Promise<Restaurant> => {
-            if (isSelecting || isCreating) {
+            if (isSelecting) {
                 throw new Error('Selection already in progress');
             }
 
@@ -129,36 +128,47 @@ export function useVenueSearch() {
                     throw new Error('Could not retrieve restaurant details');
                 }
 
-                const newRestaurant = await createRestaurant({
-                    name: addressData.name,
-                    address: addressData.full_address,
-                    city_id: currentCity?.id,
-                    latitude: addressData.latitude,
-                    longitude: addressData.longitude,
-                    google_place_id: addressData.google_place_id,
-                    phone: addressData.phone,
-                    website: addressData.website,
-                    types: addressData.types,
-                });
+                // Use RPC to atomically finding/creating City, Neighborhood and Restaurant
+                const { data: newRestaurant, error } = await supabase.rpc(
+                    'upsert_restaurant_from_google',
+                    {
+                        p_google_place_id: addressData.google_place_id,
+                        p_name: addressData.name,
+                        p_address: addressData.full_address,
+                        p_city_name: addressData.city,
+                        p_state: addressData.state,
+                        p_country: addressData.country,
+                        p_neighborhood_name:
+                            addressData.neighborhood || undefined,
+                        p_lat: addressData.latitude,
+                        p_lng: addressData.longitude,
+                        p_phone: addressData.phone || undefined,
+                        p_website: addressData.website || undefined,
+                        p_types: addressData.types,
+                    }
+                );
 
-                if (!newRestaurant) {
+                if (error) {
+                    console.error('RPC Error:', error);
+                    throw new Error(error.message);
+                }
+
+                if (!newRestaurant || !newRestaurant[0]) {
                     throw new Error('Failed to create restaurant');
                 }
 
-                setSelectedRestaurant(newRestaurant);
-                return newRestaurant;
+                const restaurant = newRestaurant[0];
+                setSelectedRestaurant(restaurant);
+
+                // Invalidate restaurant caches so newly created restaurant appears in lists
+                queryClient.invalidateQueries({ queryKey: ['restaurants'] });
+
+                return restaurant;
             } finally {
                 setIsSelecting(false);
             }
         },
-        [
-            isSelecting,
-            isCreating,
-            selectAddress,
-            createRestaurant,
-            currentCity?.id,
-            setSelectedRestaurant,
-        ]
+        [isSelecting, selectAddress, setSelectedRestaurant]
     );
 
     const isSearching = isSearchingRestaurants || isSearchingAddress;
@@ -170,7 +180,7 @@ export function useVenueSearch() {
         setSearchQuery,
         combinedResults,
         isSearching,
-        isSelecting: isSelecting || isCreating,
+        isSelecting,
         selectRestaurant,
         selectGooglePlace,
         hasEmptyResults,

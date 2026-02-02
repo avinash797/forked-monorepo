@@ -3,16 +3,21 @@ import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-text-input';
 import { ThemedView } from '@/components/themed-view';
+import { supabase } from '@/lib/supabase';
 import { useRatingStore } from '@/stores';
-import { useCreateVenue } from '@/hooks/use-venues';
+import { Database } from '@/types/database.types';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { z } from 'zod';
 
+type Restaurant = Database['public']['Tables']['restaurants']['Row'];
+
 const venueFormSchema = z.object({
-    name: z.string().min(1, 'Venue name is required'),
+    name: z.string().min(1, 'Restaurant name is required'),
     address: z
         .string()
         .min(1, 'Address is required - please select from suggestions'),
@@ -23,28 +28,16 @@ const venueFormSchema = z.object({
     address_country: z.string(),
     latitude: z.number().nullable(),
     longitude: z.number().nullable(),
-    cuisine_types: z.string(),
-    price_range: z.string().refine(
-        (val) => {
-            if (!val || val === '') return true;
-            const num = parseInt(val, 10);
-            return !isNaN(num) && num >= 1 && num <= 4;
-        },
-        { message: 'Price range must be between 1 and 4' }
-    ),
 });
 
 type VenueFormData = z.infer<typeof venueFormSchema>;
 
 export default function CreateVenueScreen() {
     const router = useRouter();
-    const { setSelectedVenue } = useRatingStore();
-    const {
-        mutateAsync: createVenue,
-        isPending: isLoading,
-        error: createError,
-    } = useCreateVenue();
-    const error = createError ? (createError as Error).message : null;
+    const { setSelectedRestaurant } = useRatingStore();
+    const queryClient = useQueryClient();
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const {
         control,
@@ -63,43 +56,52 @@ export default function CreateVenueScreen() {
             address_country: 'USA',
             latitude: null,
             longitude: null,
-            cuisine_types: '',
-            price_range: '',
         },
     });
 
     const onSubmit = async (data: VenueFormData) => {
-        const cuisineTypes = data.cuisine_types
-            .split(',')
-            .map((t) => t.trim())
-            .filter(Boolean);
+        setIsLoading(true);
+        setError(null);
 
-        const priceRange =
-            data.price_range && data.price_range !== ''
-                ? parseInt(data.price_range, 10)
-                : null;
+        try {
+            const { data: result, error: rpcError } = await supabase.rpc(
+                'upsert_restaurant_from_google',
+                {
+                    p_google_place_id: null as unknown as string,
+                    p_name: data.name.trim(),
+                    p_address: data.address,
+                    p_city_name: data.address_city.trim(),
+                    p_state: data.address_state.trim(),
+                    p_country: data.address_country.trim(),
+                    p_lat: data.latitude ?? undefined,
+                    p_lng: data.longitude ?? undefined,
+                }
+            );
 
-        const venue = await createVenue({
-            name: data.name.trim(),
-            address_street: data.address_street.trim(),
-            address_city: data.address_city.trim(),
-            address_state: data.address_state.trim(),
-            address_zip: data.address_zip.trim(),
-            address_country: data.address_country.trim(),
-            latitude: data.latitude,
-            longitude: data.longitude,
-            cuisine_types: cuisineTypes,
-            price_range: priceRange,
-        });
+            if (rpcError) {
+                throw new Error(rpcError.message);
+            }
 
-        if (venue) {
-            setSelectedVenue(venue);
-            Alert.alert('Success', 'Venue created successfully!', [
+            if (!result || !result[0]) {
+                throw new Error('Failed to create restaurant');
+            }
+
+            const restaurant = result[0] as Restaurant;
+            setSelectedRestaurant(restaurant);
+            queryClient.invalidateQueries({ queryKey: ['restaurants'] });
+
+            Alert.alert('Success', 'Restaurant created successfully!', [
                 {
                     text: 'OK',
                     onPress: () => router.back(),
                 },
             ]);
+        } catch (err) {
+            setError(
+                err instanceof Error ? err.message : 'Failed to create restaurant'
+            );
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -107,7 +109,7 @@ export default function CreateVenueScreen() {
         <ScrollView style={styles.container}>
             <ThemedView style={styles.content}>
                 <ThemedText style={styles.sectionTitle}>
-                    Venue Information
+                    Restaurant Information
                 </ThemedText>
 
                 <Controller
@@ -115,7 +117,7 @@ export default function CreateVenueScreen() {
                     name="name"
                     render={({ field: { onChange, value } }) => (
                         <ThemedTextInput
-                            label="Venue Name"
+                            label="Restaurant Name"
                             value={value}
                             onChangeText={onChange}
                             placeholder="e.g., Joe's Diner"
@@ -126,7 +128,7 @@ export default function CreateVenueScreen() {
 
                 <ThemedView style={styles.fieldContainer}>
                     <ThemedText style={styles.fieldLabel}>
-                        Venue Address
+                        Restaurant Address
                     </ThemedText>
                     <Controller
                         control={control}
@@ -134,7 +136,6 @@ export default function CreateVenueScreen() {
                         render={({ field: { onChange } }) => (
                             <AddressAutocomplete
                                 onSelect={(addressData) => {
-                                    // Populate all address fields at once
                                     setValue(
                                         'address_street',
                                         addressData.street
@@ -156,44 +157,12 @@ export default function CreateVenueScreen() {
                                     );
                                     onChange(addressData.full_address);
                                 }}
-                                placeholder="Search for venue address..."
+                                placeholder="Search for restaurant address..."
                                 error={errors.address?.message}
                             />
                         )}
                     />
                 </ThemedView>
-
-                <ThemedText style={styles.sectionTitle}>
-                    Additional Details
-                </ThemedText>
-
-                <Controller
-                    control={control}
-                    name="cuisine_types"
-                    render={({ field: { onChange, value } }) => (
-                        <ThemedTextInput
-                            label="Cuisine Types (comma-separated)"
-                            value={value}
-                            onChangeText={onChange}
-                            placeholder="American, Italian"
-                        />
-                    )}
-                />
-
-                <Controller
-                    control={control}
-                    name="price_range"
-                    render={({ field: { onChange, value } }) => (
-                        <ThemedTextInput
-                            label="Price Range (1-4)"
-                            value={value}
-                            onChangeText={onChange}
-                            placeholder="2"
-                            keyboardType="numeric"
-                            error={errors.price_range?.message}
-                        />
-                    )}
-                />
 
                 {error && (
                     <ThemedText
@@ -210,7 +179,7 @@ export default function CreateVenueScreen() {
                     loading={isLoading}
                     style={styles.submitButton}
                 >
-                    Create Venue
+                    Create Restaurant
                 </ThemedButton>
             </ThemedView>
         </ScrollView>
