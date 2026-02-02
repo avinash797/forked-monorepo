@@ -244,7 +244,7 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
                 getComponent('locality') ||
                 getComponent('sublocality') ||
                 getComponent('administrative_area_level_2'); // fallback
-            const state = getShortComponent('administrative_area_level_1');
+            const state = getComponent('administrative_area_level_1');
             const zip = getComponent('postal_code');
             const country = getShortComponent('country');
             const neighborhood = getComponent('neighborhood');

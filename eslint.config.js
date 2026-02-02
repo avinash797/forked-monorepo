@@ -7,7 +7,7 @@ module.exports = defineConfig([
     expoConfig,
     prettierConfig,
     {
-        ignores: ['dist/*'],
+        ignores: ['dist/*', 'supabase/*'],
         rules: {
             'prettier/prettier': 'error',
         },
