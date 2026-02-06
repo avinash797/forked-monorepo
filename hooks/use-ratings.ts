@@ -20,8 +20,8 @@ export interface CreateRatingResponse {
 export interface CreateRatingInput {
     restaurant_id: string;
     dish_type_id: string;
-    raw_score: number; // 0-10 scale
-    photo_url: string;
+    raw_score: number; // 1-10 scale
+    photo_url?: string;
     variation_id?: string;
     notes?: string;
 }
@@ -43,12 +43,12 @@ export function useCreateRating() {
                     p_restaurant_id: input.restaurant_id,
                     p_dish_type_id: input.dish_type_id,
                     p_raw_score: input.raw_score,
-                    p_photo_url: input.photo_url,
+                    p_photo_url: input.photo_url ?? null,
                     p_variation_id: input.variation_id,
                     p_notes: input.notes,
                     //TODO: Need to add location_verified
                     //TODO: Need to add taste_tag_ids
-                }
+                } as any
             );
 
             if (error) throw error;

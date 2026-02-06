@@ -18,6 +18,7 @@ interface PhotoPickerProps {
     maxPhotos?: number;
     isLoading?: boolean;
     required?: boolean;
+    subtitle?: string;
 }
 
 export function PhotoPicker({
@@ -27,6 +28,7 @@ export function PhotoPicker({
     maxPhotos = 5,
     isLoading = false,
     required = false,
+    subtitle,
 }: PhotoPickerProps) {
     const { theme } = useTheme();
     const primaryColor = theme.color.accent;
@@ -44,12 +46,12 @@ export function PhotoPicker({
 
         Alert.alert('Add Photo', 'Choose photo source', [
             {
-                text: 'Camera',
-                onPress: () => onAddPhoto('camera'),
+                text: 'Choose from Gallery',
+                onPress: () => onAddPhoto('gallery'),
             },
             {
-                text: 'Gallery',
-                onPress: () => onAddPhoto('gallery'),
+                text: 'Take a Photo',
+                onPress: () => onAddPhoto('camera'),
             },
             {
                 text: 'Cancel',
@@ -95,6 +97,16 @@ export function PhotoPicker({
                     {photos.length}/{maxPhotos}
                 </ThemedText>
             </View>
+
+            {subtitle && photos.length === 0 && (
+                <ThemedText
+                    style={styles.subtitle}
+                    lightColor="#666"
+                    darkColor="#999"
+                >
+                    {subtitle}
+                </ThemedText>
+            )}
 
             <View style={styles.grid}>
                 {photos.map((uri) => (
@@ -203,6 +215,10 @@ const styles = StyleSheet.create({
         borderStyle: 'dashed',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    subtitle: {
+        fontSize: 13,
+        marginBottom: 8,
     },
     required: {
         fontSize: 13,

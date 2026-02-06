@@ -23,6 +23,7 @@ export default function RatingScreen() {
     const {
         selectedRestaurant,
         selectedDishType,
+        selectedVariationId,
         rating,
         reviewText,
         photoUri,
@@ -66,12 +67,6 @@ export default function RatingScreen() {
         [selectedTags, setSelectedTags]
     );
 
-    // useEffect(() => {
-    //     if (!selectedRestaurant || !selectedDishType) {
-    //         router.back();
-    //     }
-    // }, [selectedRestaurant, selectedDishType, router]);
-
     if (!selectedRestaurant || !selectedDishType) {
         return null;
     }
@@ -90,7 +85,7 @@ export default function RatingScreen() {
         }
     };
 
-    const handleRemovePhoto = () => {
+    const handleRemovePhoto = (_uri?: string) => {
         setPhotoUri(null);
     };
 
@@ -100,27 +95,27 @@ export default function RatingScreen() {
             return;
         }
 
-        if (!photoUri) {
-            Alert.alert(
-                'Photo Required',
-                'A photo is mandatory to submit a rating'
-            );
-            return;
-        }
-
         if (!user) {
             Alert.alert('Error', 'You must be logged in to submit a rating');
             return;
         }
 
-        const uploaded = await uploadPhoto(photoUri, 'dish', user.id);
+        let uploadedUrl: string | undefined;
+        let uploadedStoragePath: string | undefined;
 
-        if (!uploaded) {
-            Alert.alert(
-                'Upload Error',
-                'Failed to upload photo. Please try again.'
-            );
-            return;
+        // Upload photo if one was selected
+        if (photoUri) {
+            const uploaded = await uploadPhoto(photoUri, 'dish', user.id);
+
+            if (!uploaded) {
+                Alert.alert(
+                    'Upload Error',
+                    'Failed to upload photo. Please try again.'
+                );
+                return;
+            }
+            uploadedUrl = uploaded.url;
+            uploadedStoragePath = uploaded.storagePath;
         }
 
         try {
@@ -128,7 +123,8 @@ export default function RatingScreen() {
                 restaurant_id: selectedRestaurant.id,
                 dish_type_id: selectedDishType.id,
                 raw_score: rating,
-                photo_url: uploaded.url,
+                photo_url: uploadedUrl,
+                variation_id: selectedVariationId ?? undefined,
                 notes: reviewText.trim() || undefined,
             });
 
@@ -139,7 +135,7 @@ export default function RatingScreen() {
                     params: {
                         comparisonId: result.duel_data.comparison_id,
                         newRatingId: result.rating_id,
-                        yourPhoto: uploaded.url,
+                        yourPhoto: uploadedUrl ?? '',
                         yourRestaurant: selectedRestaurant.name,
                         opponentRatingId: result.duel_data.opponent_rating_id,
                         opponentName: result.duel_data.opponent_name,
@@ -154,7 +150,9 @@ export default function RatingScreen() {
                 router.replace('/(protected)/(tabs)');
             }
         } catch (error: any) {
-            await deletePhoto(uploaded.storagePath);
+            if (uploadedStoragePath) {
+                await deletePhoto(uploadedStoragePath);
+            }
             resetRating();
             Alert.alert(
                 'Error',
@@ -165,7 +163,7 @@ export default function RatingScreen() {
         }
     };
 
-    const canSubmit = rating > 0 && photoUri && !isSubmitting && !isUploading;
+    const canSubmit = rating > 0 && !isSubmitting && !isUploading;
 
     return (
         <ScrollView style={styles.container}>
@@ -188,18 +186,6 @@ export default function RatingScreen() {
                 </ThemedText>
 
                 <LocationStatusBanner status={gpsStatus} />
-
-                {/* Photo Section - Required */}
-                <ThemedView style={styles.section}>
-                    <PhotoPicker
-                        photos={photoUri ? [photoUri] : []}
-                        onAddPhoto={handleAddPhoto}
-                        onRemovePhoto={handleRemovePhoto}
-                        maxPhotos={1}
-                        isLoading={isUploading}
-                        required
-                    />
-                </ThemedView>
 
                 {/* Rating Section */}
                 <ThemedView style={styles.section}>
@@ -227,6 +213,18 @@ export default function RatingScreen() {
                             }
                         />
                     </View>
+                </ThemedView>
+
+                {/* Photo Section - Optional */}
+                <ThemedView style={styles.section}>
+                    <PhotoPicker
+                        photos={photoUri ? [photoUri] : []}
+                        onAddPhoto={handleAddPhoto}
+                        onRemovePhoto={handleRemovePhoto}
+                        maxPhotos={1}
+                        isLoading={isUploading}
+                        subtitle="Add a photo to increase the weight of your rating"
+                    />
                 </ThemedView>
 
                 {/* Taste Tags Section */}

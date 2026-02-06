@@ -25,6 +25,10 @@ interface RatingState {
     selectedDishType: DishType | null;
     setSelectedDishType: (dishType: DishType | null) => void;
 
+    // Variation state (from dish_type_variations)
+    selectedVariationId: string | null;
+    setSelectedVariationId: (variationId: string | null) => void;
+
     // Rating and review state
     rating: number;
     setRating: (rating: number) => void;
@@ -52,6 +56,7 @@ export const useRatingStore = create<RatingState>((set) => ({
     photoUri: null,
     selectedRestaurant: null,
     selectedDishType: null,
+    selectedVariationId: null,
     rating: 0,
     reviewText: '',
     selectedTags: [],
@@ -63,6 +68,8 @@ export const useRatingStore = create<RatingState>((set) => ({
     setSelectedRestaurant: (restaurant) =>
         set({ selectedRestaurant: restaurant }),
     setSelectedDishType: (dishType) => set({ selectedDishType: dishType }),
+    setSelectedVariationId: (variationId) =>
+        set({ selectedVariationId: variationId }),
     setRating: (rating) => set({ rating }),
     setReviewText: (text) => set({ reviewText: text }),
     setSelectedTags: (tags) => set({ selectedTags: tags }),
@@ -75,6 +82,7 @@ export const useRatingStore = create<RatingState>((set) => ({
             photoUri: null,
             selectedRestaurant: null,
             selectedDishType: null,
+            selectedVariationId: null,
             rating: 0,
             reviewText: '',
             selectedTags: [],

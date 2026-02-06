@@ -12,14 +12,13 @@ export default function RatingLayout() {
             <Stack.Screen
                 name="index"
                 options={{
-                    title: 'Take Photo',
                     headerShown: false,
                 }}
             />
             <Stack.Screen
                 name="venue-search"
                 options={{
-                    title: 'Find Venue',
+                    title: 'Find Restaurant',
                     headerBackVisible: true,
                 }}
             />
