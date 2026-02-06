@@ -209,6 +209,25 @@ export default function DishSelectionScreen() {
         selectedRestaurant.name,
     ]);
 
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+
+    /**
+     * Check if a (dish_type_id, variation_id) combination already exists in
+     * this restaurant's restaurant_dishes. If it does, return the existing
+     * entry so we reuse it instead of risking a duplicate.
+     */
+    const findExistingRestaurantDish = useCallback(
+        (dishTypeId: string, variationId: string | null) => {
+            if (!restaurantDishes?.length) return null;
+            return restaurantDishes.find(
+                (rd) =>
+                    rd.dish_type_id === dishTypeId &&
+                    rd.variation_id === (variationId ?? null)
+            ) ?? null;
+        },
+        [restaurantDishes]
+    );
+
     // ─── Handlers ────────────────────────────────────────────────────────────
 
     const handleRestaurantDishSelect = useCallback(
@@ -229,15 +248,23 @@ export default function DishSelectionScreen() {
                     expandedDishTypeId === dishType.id ? null : dishType.id
                 );
             } else {
-                // No variations: go directly to rating
-                setSelectedDishType(dishType);
-                setSelectedVariationId(null);
+                // No variations: check if this dish_type already exists
+                // in restaurant_dishes (with null variation) to avoid duplicates
+                const existing = findExistingRestaurantDish(dishType.id, null);
+                if (existing) {
+                    setSelectedDishType(existing.dish_type as DishType);
+                    setSelectedVariationId(existing.variation_id);
+                } else {
+                    setSelectedDishType(dishType);
+                    setSelectedVariationId(null);
+                }
                 router.push('/(protected)/(rating)/rating');
             }
         },
         [
             variationsByDishType,
             expandedDishTypeId,
+            findExistingRestaurantDish,
             setSelectedDishType,
             setSelectedVariationId,
             router,
@@ -246,11 +273,19 @@ export default function DishSelectionScreen() {
 
     const handleVariationSelect = useCallback(
         (dishType: PrioritizedDishType, variation: DishTypeVariation) => {
-            setSelectedDishType(dishType);
-            setSelectedVariationId(variation.id);
+            // Check if this (dish_type, variation) combo already exists
+            // in restaurant_dishes to avoid creating a duplicate entry
+            const existing = findExistingRestaurantDish(dishType.id, variation.id);
+            if (existing) {
+                setSelectedDishType(existing.dish_type as DishType);
+                setSelectedVariationId(existing.variation_id);
+            } else {
+                setSelectedDishType(dishType);
+                setSelectedVariationId(variation.id);
+            }
             router.push('/(protected)/(rating)/rating');
         },
-        [setSelectedDishType, setSelectedVariationId, router]
+        [findExistingRestaurantDish, setSelectedDishType, setSelectedVariationId, router]
     );
 
     // ─── Render helpers ──────────────────────────────────────────────────────
