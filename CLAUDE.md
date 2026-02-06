@@ -645,22 +645,6 @@ function ProfileScreen() {
 }
 ```
 
-**UI State (Toasts):**
-```typescript
-function SubmitButton() {
-  const { showToast } = useUIStore();
-
-  const handleSubmit = async () => {
-    try {
-      await submitData();
-      showToast('Success!', 'success');
-    } catch (error) {
-      showToast('Failed to submit', 'error');
-    }
-  };
-}
-```
-
 ### Best Practices
 
 1. **Use selectors for performance** - Only subscribe to needed state

@@ -16,11 +16,9 @@ export function useSearchRestaurants(searchQuery: string = '') {
     return useQuery({
         queryKey: ['restaurants', searchQuery],
         queryFn: async () => {
-            const { data, error } = await supabase
-                .from('restaurants')
-                .select('*')
-                .ilike('name', `%${searchQuery}%`)
-                .limit(20);
+            const { data, error } = await supabase.rpc('search_restaurants', {
+                search_term: searchQuery,
+            });
 
             if (error) throw error;
             return data as Restaurant[];
@@ -36,20 +34,30 @@ export function useSearchRestaurants(searchQuery: string = '') {
 export function useNearbyRestaurants(
     latitude: number | null,
     longitude: number | null,
-    radiusMeters: number = 5000,
+    radiusMeters: number = 1000,
     limit: number = 20
 ) {
     return useQuery({
-        queryKey: ['restaurants', 'nearby', latitude, longitude, radiusMeters, limit],
+        queryKey: [
+            'restaurants',
+            'nearby',
+            latitude,
+            longitude,
+            radiusMeters,
+            limit,
+        ],
         queryFn: async () => {
             if (!latitude || !longitude) return [];
 
-            const { data, error } = await supabase.rpc('find_nearby_restaurants', {
-                p_lat: latitude,
-                p_long: longitude,
-                p_radius_meters: radiusMeters,
-                p_limit: limit,
-            });
+            const { data, error } = await supabase.rpc(
+                'find_nearby_restaurants',
+                {
+                    p_lat: latitude,
+                    p_long: longitude,
+                    p_radius_meters: radiusMeters,
+                    p_limit: limit,
+                }
+            );
 
             if (error) throw error;
             return (data ?? []) as RestaurantWithDistance[];
@@ -96,6 +104,7 @@ export interface CreateRestaurantInput {
     google_place_id?: string;
     phone?: string;
     website?: string;
+    types?: string[];
 }
 
 /**
@@ -106,18 +115,17 @@ export function useCreateRestaurant() {
 
     return useMutation({
         mutationFn: async (input: CreateRestaurantInput) => {
+            const locationWkt = `POINT(${input.longitude} ${input.latitude})`;
+
             const insertData: RestaurantInsert = {
                 name: input.name,
                 address: input.address,
-                city_id: input.city_id,
-                neighborhood_id: input.neighborhood_id,
+                coordinates: locationWkt,
                 google_place_id: input.google_place_id,
                 phone: input.phone,
                 website: input.website,
+                types: input.types,
             };
-
-            // If coordinates provided, we'd need to convert to PostGIS format
-            // For now, this requires a backend RPC or trigger
 
             const { data, error } = await supabase
                 .from('restaurants')

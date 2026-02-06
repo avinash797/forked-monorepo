@@ -15,9 +15,13 @@ export interface AddressData {
     state: string;
     zip: string;
     country: string;
+    neighborhood: string;
     latitude: number;
     longitude: number;
     google_place_id: string; // Added for reference
+    phone: string;
+    website: string;
+    types: string[];
 }
 
 export interface GooglePlaceSuggestion {
@@ -44,6 +48,86 @@ interface UseAddressSearchOptions {
     } | null;
 }
 
+interface UseNearbyGooglePlacesOptions {
+    latitude: number | null;
+    longitude: number | null;
+    radiusMeters?: number;
+    maxResults?: number;
+}
+
+export function useNearbyGooglePlaces(options: UseNearbyGooglePlacesOptions) {
+    const {
+        latitude,
+        longitude,
+        radiusMeters = 1000,
+        maxResults = 10,
+    } = options;
+
+    return useQuery({
+        queryKey: [
+            'google-nearby-places',
+            latitude,
+            longitude,
+            radiusMeters,
+            maxResults,
+        ],
+        queryFn: async ({ signal }): Promise<GooglePlaceSuggestion[]> => {
+            if (!latitude || !longitude || !GOOGLE_API_KEY) return [];
+
+            const response = await fetch(`${BASE_URL}/places:searchNearby`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Goog-Api-Key': GOOGLE_API_KEY,
+                    'X-Goog-FieldMask':
+                        'places.id,places.displayName,places.formattedAddress',
+                },
+                body: JSON.stringify({
+                    includedTypes: ['restaurant', 'cafe', 'bar', 'bakery'],
+                    maxResultCount: maxResults,
+                    locationRestriction: {
+                        circle: {
+                            center: { latitude, longitude },
+                            radius: radiusMeters,
+                        },
+                    },
+                }),
+                signal,
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(
+                    `Google Nearby Search error: ${response.status} ${errorText}`
+                );
+            }
+
+            const data = await response.json();
+            const places: any[] = data.places || [];
+
+            // Map to GooglePlaceSuggestion shape for compatibility
+            return places.map((place) => ({
+                placePrediction: {
+                    placeId: place.id,
+                    text: {
+                        text: place.displayName?.text || '',
+                    },
+                    structuredFormat: {
+                        mainText: {
+                            text: place.displayName?.text || '',
+                        },
+                        secondaryText: place.formattedAddress
+                            ? { text: place.formattedAddress }
+                            : undefined,
+                    },
+                },
+            }));
+        },
+        enabled: !!latitude && !!longitude && !!GOOGLE_API_KEY,
+        staleTime: 5 * 60 * 1000, // 5 minutes — nearby places don't change often
+    });
+}
+
 export function useAddressSearch(options?: UseAddressSearchOptions) {
     const [query, setQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -56,8 +140,6 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
         return () => clearTimeout(timer);
     }, [query]);
 
-    console.log('GOOGLE_API_KEY', GOOGLE_API_KEY);
-    console.log('debouncedQuery', debouncedQuery);
     // Suggestions Query
     const {
         data: suggestions = [],
@@ -130,7 +212,7 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
                     'Content-Type': 'application/json',
                     'X-Goog-Api-Key': GOOGLE_API_KEY,
                     'X-Goog-FieldMask':
-                        'id,displayName,formattedAddress,addressComponents,location',
+                        'id,displayName,formattedAddress,addressComponents,location,websiteUri,nationalPhoneNumber,types',
                 },
             });
 
@@ -162,21 +244,30 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
                 getComponent('locality') ||
                 getComponent('sublocality') ||
                 getComponent('administrative_area_level_2'); // fallback
-            const state = getShortComponent('administrative_area_level_1');
+            const state = getComponent('administrative_area_level_1');
             const zip = getComponent('postal_code');
             const country = getShortComponent('country');
+            const neighborhood = getComponent('neighborhood');
+
+            const phone = data.nationalPhoneNumber;
+            const website = data.websiteUri;
+            const types = data.types;
 
             return {
-                name: data.displayName?.text || street || data.formattedAddress,
+                name: data.displayName?.text,
                 full_address: data.formattedAddress,
-                street: street || data.displayName?.text || '',
+                street: street,
                 city,
                 state,
                 zip,
                 country,
+                neighborhood,
                 latitude: data.location?.latitude || 0,
                 longitude: data.location?.longitude || 0,
                 google_place_id: data.id,
+                phone,
+                website,
+                types,
             };
         },
     });
@@ -189,15 +280,6 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
         (searchError as Error)?.message ||
         (selectError as Error)?.message ||
         null;
-
-    console.log('suggestions', {
-        query,
-        debouncedQuery,
-        suggestions,
-        isSearching,
-        searchError,
-        selectError,
-    });
 
     return {
         query,
