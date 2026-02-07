@@ -20,7 +20,7 @@ export default function DishTypePills({
     view = 'global',
 }: {
     selectedDishType: DishType | null;
-    handleDishTypeSelect: (dishType: DishType) => void;
+    handleDishTypeSelect: (dishType: DishType | null) => void;
     view?: 'global' | 'personal';
 }) {
     const { theme } = useTheme();
@@ -47,8 +47,16 @@ export default function DishTypePills({
     }, [dishTypes, userStats, view]);
 
     useEffect(() => {
-        if (!selectedDishType && displayDishTypes?.length) {
-            handleDishTypeSelect(displayDishTypes[0]);
+        if (displayDishTypes?.length) {
+            const isSelectedValid =
+                selectedDishType &&
+                displayDishTypes.some((dt) => dt.id === selectedDishType.id);
+
+            if (!isSelectedValid) {
+                handleDishTypeSelect(displayDishTypes[0]);
+            }
+        } else {
+            handleDishTypeSelect(null);
         }
     }, [displayDishTypes, selectedDishType, handleDishTypeSelect]);
 

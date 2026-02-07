@@ -45,8 +45,6 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
         : 0;
     const flames = Array(confidenceLevel).fill('🔥').join('');
 
-    console.log(item);
-
     return (
         <Pressable
             onPress={onPress}

@@ -126,6 +126,7 @@ export default function RatingScreen() {
                 photo_url: uploadedUrl,
                 variation_id: selectedVariationId ?? undefined,
                 notes: reviewText.trim() || undefined,
+                taste_tag_ids: selectedTags,
             });
 
             // If a duel was found, navigate to compare screen
@@ -153,12 +154,21 @@ export default function RatingScreen() {
             if (uploadedStoragePath) {
                 await deletePhoto(uploadedStoragePath);
             }
-            resetRating();
             Alert.alert(
                 'Error',
                 error.message?.includes('duplicate')
                     ? 'You have already rated this dish at this restaurant'
-                    : 'Failed to submit rating. Please try again.'
+                    : 'Failed to submit rating. Please try again.',
+                [
+                    {
+                        text: 'OK',
+                        onPress: () => {
+                            resetRating();
+                            router.dismissAll();
+                            router.replace('/(protected)/(tabs)');
+                        },
+                    },
+                ]
             );
         }
     };
