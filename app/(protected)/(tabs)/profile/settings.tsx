@@ -106,11 +106,11 @@ export default function SettingsScreen() {
                     </View>
                 )}
 
-                {profile?.location && (
+                {profile?.home_city_id && (
                     <View style={styles.infoContainer}>
                         <ThemedText style={styles.label}>Location</ThemedText>
                         <ThemedText style={styles.value}>
-                            {profile.location}
+                            {profile.home_city_id}
                         </ThemedText>
                     </View>
                 )}
@@ -120,7 +120,7 @@ export default function SettingsScreen() {
                         Reputation Score
                     </ThemedText>
                     <ThemedText style={styles.value}>
-                        {profile?.reputation_score || 0}
+                        {profile?.credibility_score || 0}
                     </ThemedText>
                 </View>
 

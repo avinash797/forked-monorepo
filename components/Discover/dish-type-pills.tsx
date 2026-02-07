@@ -2,7 +2,7 @@ import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
 import { useDishTypes } from '@/hooks/use-dish-types';
 import { useUserStats } from '@/hooks/use-user-stats';
-import { DishType } from '@/types/dishType';
+import { DishType } from '@/types/dishes';
 import React, { useEffect, useMemo } from 'react';
 import {
     Platform,

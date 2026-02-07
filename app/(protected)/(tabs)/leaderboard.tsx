@@ -9,7 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/contexts/theme-provider';
 import { useGetLeaderboardByDishType } from '@/hooks/use-leaderboard';
 import { useLocationStore } from '@/stores/location.store';
-import { DishType } from '@/types/dishType';
+import { DishType } from '@/types/dishes';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';

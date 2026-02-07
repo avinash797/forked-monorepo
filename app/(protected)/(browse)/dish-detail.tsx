@@ -419,7 +419,7 @@ export default function DishDetailScreen() {
                                 </View>
                             </View>
 
-                            {venue?.coordinates && (
+                            {venue?.google_place_id && (
                                 <View style={styles.mapSection}>
                                     <ThemedText
                                         type="defaultSemiBold"

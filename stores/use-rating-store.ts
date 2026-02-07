@@ -1,5 +1,5 @@
 import { Database } from '@/types/database.types';
-import { DishType } from '@/types/dishType';
+import { DishType } from '@/types/dishes';
 import type { LocationCoordinates } from '@/types/rating';
 import { create } from 'zustand';
 

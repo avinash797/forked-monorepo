@@ -1,20 +1,16 @@
-import { DishCardWithRating } from '@/components/browse/dish-card-with-rating';
 import { EmptyState } from '@/components/browse/empty-state';
 import { SectionHeader } from '@/components/browse/section-header';
-import { ScoreBadge } from '@/components/score-badge';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useLocation } from '@/hooks/use-location';
-import { useVenueDetail } from '@/hooks/use-venue-detail';
-import { Image } from 'expo-image';
+import { useRestaurantDetail } from '@/hooks/use-restaurant-detail';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import {
     ActivityIndicator,
     Dimensions,
-    ScrollView,
     StyleSheet,
     TouchableOpacity,
     View,
@@ -43,8 +39,8 @@ export default function VenueDetailScreen() {
     const { theme } = useTheme();
     const styles = createThemedStyles(theme, insets);
 
-    const { data, isLoading, error } = useVenueDetail(venueId);
-    const { venue, dishes = [], reviewPhotos = [] } = data || {};
+    const { data, isLoading, error } = useRestaurantDetail(venueId);
+    const { venue, dishes = [] } = data || {};
     const { data: locationData } = useLocation();
     const location = locationData?.location;
 
@@ -56,33 +52,6 @@ export default function VenueDetailScreen() {
             scrollY.value = event.contentOffset.y;
         },
     });
-
-    // Calculate distance to venue
-    const getDistance = () => {
-        if (!venue?.latitude || !venue?.longitude || !location) return null;
-
-        const R = 6371e3; // Earth radius in meters
-        const φ1 = (location.latitude * Math.PI) / 180;
-        const φ2 = (venue.latitude * Math.PI) / 180;
-        const Δφ = ((venue.latitude - location.latitude) * Math.PI) / 180;
-        const Δλ = ((venue.longitude - location.longitude) * Math.PI) / 180;
-
-        const a =
-            Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-            Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return R * c; // Distance in meters
-    };
-
-    const distance = getDistance();
-
-    // Format distance
-    const formatDistance = (meters: number | null) => {
-        if (meters === null) return null;
-        if (meters < 1000) return `${Math.round(meters)}m away`;
-        return `${(meters / 1000).toFixed(1)}km away`;
-    };
 
     // Animated props for the back button color
     const animatedIconProps = useAnimatedProps(() => {
@@ -196,7 +165,7 @@ export default function VenueDetailScreen() {
                 style={[styles.container, { backgroundColor: theme.color.bg }]}
             >
                 <EmptyState
-                    icon="error"
+                    icon="alert-circle-outline"
                     title="Unable to load venue"
                     message={
                         error?.message ||
@@ -208,12 +177,6 @@ export default function VenueDetailScreen() {
             </View>
         );
     }
-
-    const averageRating =
-        dishes.length > 0
-            ? dishes.reduce((acc, d) => acc + (d.average_rating || 0), 0) /
-              dishes.length
-            : null;
 
     return (
         <ThemedView style={styles.container}>
@@ -254,21 +217,13 @@ export default function VenueDetailScreen() {
                         >
                             {venue.name}
                         </ThemedText>
-                        {distance && (
-                            <ThemedText
-                                style={styles.headerSubtitle}
-                                numberOfLines={1}
-                            >
-                                {formatDistance(distance)}
-                            </ThemedText>
-                        )}
                     </View>
-                    {averageRating !== null && (
+                    {/* {averageRating !== null && (
                         <ScoreBadge
                             score={averageRating}
                             style={styles.headerBadge}
                         />
-                    )}
+                    )} */}
                 </View>
             </Animated.View>
 
@@ -281,7 +236,7 @@ export default function VenueDetailScreen() {
             >
                 {/* Animated Hero Carousel */}
                 <Animated.View style={[styles.heroSection, animatedHeroStyle]}>
-                    {reviewPhotos.length > 0 ? (
+                    {/* {reviewPhotos.length > 0 ? (
                         <ScrollView
                             horizontal
                             pagingEnabled
@@ -304,7 +259,13 @@ export default function VenueDetailScreen() {
                                 { backgroundColor: theme.color.surface },
                             ]}
                         />
-                    )}
+                    )} */}
+                    <View
+                        style={[
+                            StyleSheet.absoluteFill,
+                            { backgroundColor: theme.color.surface },
+                        ]}
+                    />
 
                     <LinearGradient
                         colors={[
@@ -325,7 +286,7 @@ export default function VenueDetailScreen() {
                             {venue.name}
                         </ThemedText>
 
-                        <View style={styles.metaRowHero}>
+                        {/* <View style={styles.metaRowHero}>
                             <View style={styles.cuisinesContainer}>
                                 {venue.cuisine_types?.map((cuisine, index) => (
                                     <ThemedText
@@ -342,7 +303,7 @@ export default function VenueDetailScreen() {
                                     {'$'.repeat(venue.price_range)}
                                 </ThemedText>
                             )}
-                        </View>
+                        </View> */}
                     </View>
                 </Animated.View>
 
@@ -357,20 +318,16 @@ export default function VenueDetailScreen() {
                             />
                             <View style={styles.addressTextContainer}>
                                 <ThemedText style={styles.addressText}>
-                                    {venue.address_street}
-                                </ThemedText>
-                                <ThemedText style={styles.addressSubtext}>
-                                    {venue.address_city}, {venue.address_state}{' '}
-                                    {venue.address_zip}
+                                    {venue.address}
                                 </ThemedText>
                             </View>
-                            {distance && (
+                            {/* {distance && (
                                 <View style={styles.distanceTag}>
                                     <ThemedText style={styles.distanceText}>
                                         {formatDistance(distance)}
                                     </ThemedText>
                                 </View>
-                            )}
+                            )} */}
                         </View>
                     </View>
 
@@ -388,7 +345,7 @@ export default function VenueDetailScreen() {
                         {dishes.length === 0 && (
                             <View style={styles.emptyDishes}>
                                 <EmptyState
-                                    icon="restaurant"
+                                    icon="restaurant-outline"
                                     title="No dishes yet"
                                     message="Be the first to rate a dish here!"
                                     actionLabel="Add a Dish"
@@ -398,14 +355,14 @@ export default function VenueDetailScreen() {
                         )}
 
                         <View style={styles.dishesList}>
-                            {dishes.map((dish) => (
+                            {/* {dishes.map((dish) => (
                                 <DishCardWithRating
                                     key={dish.id}
                                     dish={dish}
                                     onPress={() => handleDishPress(dish.id)}
                                     showVenue={false}
                                 />
-                            ))}
+                            ))} */}
                         </View>
                     </View>
                 </View>

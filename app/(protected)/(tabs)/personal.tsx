@@ -1,10 +1,13 @@
 import { EmptyState } from '@/components/browse/empty-state';
 import DishTypePills from '@/components/Discover/dish-type-pills';
-import { LeaderboardRow } from '@/components/Discover/leaderboard-row';
+import {
+    LeaderboardEntry,
+    LeaderboardRow,
+} from '@/components/Discover/leaderboard-row';
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/contexts/theme-provider';
 import { useMyDishRankings } from '@/hooks/use-ratings';
-import { DishType } from '@/types/dishType';
+import { DishType } from '@/types/dishes';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
@@ -30,6 +33,16 @@ const personal = () => {
     const dishRankings = Array.isArray(dishRankingsData)
         ? dishRankingsData
         : [];
+
+    const handleRowPress = (item: LeaderboardEntry) => {
+        router.push({
+            pathname: '/(protected)/(browse)/dish-detail',
+            params: {
+                restaurantId: item.restaurant_id,
+                dishTypeId: selectedDishType?.id || '',
+            },
+        });
+    };
 
     const ListHeader = () => (
         <View style={styles.listHeader}>
@@ -85,7 +98,10 @@ const personal = () => {
                         )}
                         key={`${item.restaurant_id}-${item.rank}`}
                     >
-                        <LeaderboardRow item={item} onPress={() => {}} />
+                        <LeaderboardRow
+                            item={item}
+                            onPress={() => handleRowPress(item)}
+                        />
                     </Animated.View>
                 ))}
             </ScrollView>

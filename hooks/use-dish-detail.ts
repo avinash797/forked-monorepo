@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { DishType, GlobalDishScore } from '@/types/dishType';
+import { DishType, GlobalDishScore } from '@/types/dishes';
 import { Restaurant } from '@/types/restaurant';
 import { TasteTag } from '@/types/taste_tags';
 import { useQuery } from '@tanstack/react-query';
@@ -35,7 +35,7 @@ export function useDishDetail(
                 )
                 .eq('dish_type_id', dishId)
                 .eq('restaurant_id', restaurantId)
-                .single();
+                .maybeSingle();
 
             const { data: tagsData, error: tagsError } = await supabase
                 .from('personal_ratings')
@@ -45,7 +45,11 @@ export function useDishDetail(
                 .single();
 
             if (error) {
-                throw new Error(error.message || 'Dish not found');
+                throw new Error(error.message || 'Failed to fetch dish');
+            }
+
+            if (!data) {
+                throw new Error('This dish has not been rated yet');
             }
 
             // Transform data to lift tags to the top level
