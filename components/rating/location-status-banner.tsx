@@ -1,8 +1,21 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import type { GPSVerificationStatus } from '@/types/rating';
 import { StyleSheet } from 'react-native';
+
+export interface LocationCoordinates {
+    latitude: number;
+    longitude: number;
+    accuracy: number | null;
+}
+
+export interface GPSVerificationStatus {
+    hasPermission: boolean;
+    isVerified: boolean;
+    distanceMeters: number | null;
+    location: LocationCoordinates | null;
+    error: string | null;
+}
 
 interface LocationStatusBannerProps {
     status: GPSVerificationStatus;

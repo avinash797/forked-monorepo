@@ -1,6 +1,7 @@
 import { SearchInput } from '@/components/rating/search-input';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import {
     DishTypeVariation,
@@ -414,7 +415,7 @@ export default function DishSelectionScreen() {
                     </View>
                 ) : (
                     <SectionList
-                        sections={sections}
+                        sections={sections as any}
                         keyExtractor={(item, index) => {
                             if ('dish_type' in item) {
                                 return `rd-${(item as RestaurantDishWithDetails).id}`;
@@ -518,9 +519,11 @@ function DishTypeRow({
                     )}
                 </View>
                 {hasVariations && (
-                    <ThemedText style={styles.chevron}>
-                        {isExpanded ? '▲' : '▼'}
-                    </ThemedText>
+                    <IconSymbol
+                        name={isExpanded ? 'chevron-up' : 'chevron-down'}
+                        size={16}
+                        color={theme.color.textSecondary}
+                    />
                 )}
             </Pressable>
 
@@ -723,7 +726,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             gap: 4,
         },
         chipPressed: {
-            backgroundColor: theme.color.accent,
+            backgroundColor: theme.color.accentSoft,
         },
         chipEmoji: {
             fontSize: 14,

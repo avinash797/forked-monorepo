@@ -64,7 +64,7 @@ export default function LeaderboardScreen() {
         getCurrentLocation();
     }, []);
 
-    const handleDishTypeSelect = (dishType: DishType) => {
+    const handleDishTypeSelect = (dishType: DishType | null) => {
         setSelectedDishType(dishType);
     };
 

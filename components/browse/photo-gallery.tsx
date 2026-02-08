@@ -1,7 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
-import { StyleSheet, Pressable, View } from 'react-native';
-import { Image } from 'expo-image';
 import { useTheme } from '@/contexts/theme-provider';
+import { Image } from 'expo-image';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 interface PhotoGalleryProps {
     photos: string[];
@@ -9,11 +9,6 @@ interface PhotoGalleryProps {
     maxVisible?: number;
 }
 
-/**
- * Photo gallery component displaying photos in a 3-column grid
- * Shows "+N more" overlay on last photo if there are more than maxVisible
- * Used in: Review cards, dish detail screen
- */
 export function PhotoGallery({
     photos,
     onPhotoPress,

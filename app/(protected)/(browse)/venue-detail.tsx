@@ -1,3 +1,4 @@
+import { DishCardWithRating } from '@/components/browse/dish-card-with-rating';
 import { EmptyState } from '@/components/browse/empty-state';
 import { SectionHeader } from '@/components/browse/section-header';
 import { ThemedText } from '@/components/themed-text';
@@ -6,6 +7,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useLocation } from '@/hooks/use-location';
 import { useRestaurantDetail } from '@/hooks/use-restaurant-detail';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import {
@@ -15,6 +17,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import Animated, {
     Extrapolation,
     interpolate,
@@ -35,12 +38,16 @@ const AnimatedIconSymbol = Animated.createAnimatedComponent(IconSymbol);
 export default function VenueDetailScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const { venueId } = useLocalSearchParams<{ venueId: string }>();
+    const { venueId, source } = useLocalSearchParams<{
+        venueId: string;
+        source: string;
+    }>();
     const { theme } = useTheme();
     const styles = createThemedStyles(theme, insets);
 
     const { data, isLoading, error } = useRestaurantDetail(venueId);
     const { venue, dishes = [] } = data || {};
+    const allPhotos = dishes.flatMap((dish) => dish.photos);
     const { data: locationData } = useLocation();
     const location = locationData?.location;
 
@@ -130,9 +137,13 @@ export default function VenueDetailScreen() {
 
     // Navigate to dish detail
     const handleDishPress = (dishId: string) => {
+        console.log('history', router.canGoBack());
         router.push({
             pathname: '/(protected)/(browse)/dish-detail',
-            params: { dishId },
+            params: {
+                restaurantId: venue?.id,
+                dishTypeId: dishId,
+            },
         });
     };
 
@@ -218,12 +229,6 @@ export default function VenueDetailScreen() {
                             {venue.name}
                         </ThemedText>
                     </View>
-                    {/* {averageRating !== null && (
-                        <ScoreBadge
-                            score={averageRating}
-                            style={styles.headerBadge}
-                        />
-                    )} */}
                 </View>
             </Animated.View>
 
@@ -236,17 +241,17 @@ export default function VenueDetailScreen() {
             >
                 {/* Animated Hero Carousel */}
                 <Animated.View style={[styles.heroSection, animatedHeroStyle]}>
-                    {/* {reviewPhotos.length > 0 ? (
+                    {allPhotos.length > 0 ? (
                         <ScrollView
                             horizontal
                             pagingEnabled
                             showsHorizontalScrollIndicator={false}
                             style={StyleSheet.absoluteFill}
                         >
-                            {reviewPhotos.map((photoUrl, index) => (
+                            {allPhotos.map((photoUrl, index) => (
                                 <Image
                                     key={index}
-                                    source={{ uri: photoUrl }}
+                                    source={{ uri: photoUrl! }}
                                     style={{ width, height: HERO_HEIGHT }}
                                     contentFit="cover"
                                 />
@@ -259,13 +264,7 @@ export default function VenueDetailScreen() {
                                 { backgroundColor: theme.color.surface },
                             ]}
                         />
-                    )} */}
-                    <View
-                        style={[
-                            StyleSheet.absoluteFill,
-                            { backgroundColor: theme.color.surface },
-                        ]}
-                    />
+                    )}
 
                     <LinearGradient
                         colors={[
@@ -321,13 +320,6 @@ export default function VenueDetailScreen() {
                                     {venue.address}
                                 </ThemedText>
                             </View>
-                            {/* {distance && (
-                                <View style={styles.distanceTag}>
-                                    <ThemedText style={styles.distanceText}>
-                                        {formatDistance(distance)}
-                                    </ThemedText>
-                                </View>
-                            )} */}
                         </View>
                     </View>
 
@@ -342,7 +334,7 @@ export default function VenueDetailScreen() {
                             }
                         />
 
-                        {dishes.length === 0 && (
+                        {dishes.length === 0 ? (
                             <View style={styles.emptyDishes}>
                                 <EmptyState
                                     icon="restaurant-outline"
@@ -352,18 +344,20 @@ export default function VenueDetailScreen() {
                                     onActionPress={handleAddDishPress}
                                 />
                             </View>
+                        ) : (
+                            <View style={styles.dishesList}>
+                                {dishes.map((dish) => (
+                                    <DishCardWithRating
+                                        key={dish.dish_type_id}
+                                        dish={dish}
+                                        onPress={() =>
+                                            handleDishPress(dish.dish_type_id)
+                                        }
+                                        viewMode="horizontal"
+                                    />
+                                ))}
+                            </View>
                         )}
-
-                        <View style={styles.dishesList}>
-                            {/* {dishes.map((dish) => (
-                                <DishCardWithRating
-                                    key={dish.id}
-                                    dish={dish}
-                                    onPress={() => handleDishPress(dish.id)}
-                                    showVenue={false}
-                                />
-                            ))} */}
-                        </View>
                     </View>
                 </View>
             </Animated.ScrollView>
