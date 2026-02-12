@@ -25,7 +25,7 @@ export function PhotoPicker({
     photos,
     onAddPhoto,
     onRemovePhoto,
-    maxPhotos = 5,
+    maxPhotos = 1,
     isLoading = false,
     required = false,
     subtitle,
@@ -44,20 +44,21 @@ export function PhotoPicker({
             return;
         }
 
-        Alert.alert('Add Photo', 'Choose photo source', [
-            {
-                text: 'Choose from Gallery',
-                onPress: () => onAddPhoto('gallery'),
-            },
-            {
-                text: 'Take a Photo',
-                onPress: () => onAddPhoto('camera'),
-            },
-            {
-                text: 'Cancel',
-                style: 'cancel',
-            },
-        ]);
+        // Alert.alert('Add Photo', 'Choose photo source', [
+        //     {
+        //         text: 'Choose from Gallery',
+        //         onPress: () => onAddPhoto('gallery'),
+        //     },
+        //     {
+        //         text: 'Take a Photo',
+        //         onPress: () => onAddPhoto('camera'),
+        //     },
+        //     {
+        //         text: 'Cancel',
+        //         style: 'cancel',
+        //     },
+        // ]);
+        onAddPhoto('gallery');
     };
 
     const handleRemovePress = (uri: string) => {

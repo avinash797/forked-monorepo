@@ -1,5 +1,4 @@
 import { ForkLogo } from '@/components/fork-logo';
-import { LocationStatusBanner } from '@/components/rating/location-status-banner';
 import { PhotoPicker } from '@/components/rating/photo-picker';
 import { RatingInput } from '@/components/rating/rating-input';
 import { ThemedButton } from '@/components/themed-button';
@@ -8,7 +7,6 @@ import { ThemedTextInput } from '@/components/themed-text-input';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
-import { useGPSVerification, useLocation } from '@/hooks/use-location';
 import { usePhotoUpload } from '@/hooks/use-photo-upload';
 import { useCreateRating, useTasteTags } from '@/hooks/use-ratings';
 import { useRatingStore } from '@/stores';
@@ -44,17 +42,9 @@ export default function RatingScreen() {
         deletePhoto,
         isLoading: isUploading,
     } = usePhotoUpload();
-    const { data: locationData } = useLocation();
-    const location = locationData?.location ?? null;
 
     // Get taste tags for the selected dish type
     const { data: tasteTags } = useTasteTags(selectedDishType?.id || null);
-
-    // GPS verification
-    const gpsStatus = useGPSVerification(
-        location,
-        null // Restaurant coordinates not available in flat format yet
-    );
 
     const toggleTag = useCallback(
         (tagId: string) => {
@@ -195,8 +185,6 @@ export default function RatingScreen() {
                     at {selectedRestaurant.name}
                 </ThemedText>
 
-                <LocationStatusBanner status={gpsStatus} />
-
                 {/* Rating Section */}
                 <ThemedView style={styles.section}>
                     <ThemedText type="defaultSemiBold" style={styles.label}>
@@ -302,7 +290,7 @@ export default function RatingScreen() {
                     {isUploading ? 'Uploading Photo...' : 'Submit Rating'}
                 </ThemedButton>
 
-                {!gpsStatus.isVerified && gpsStatus.hasPermission && (
+                {/* {!gpsStatus.isVerified && gpsStatus.hasPermission && (
                     <ThemedText
                         style={styles.warningText}
                         lightColor="#666"
@@ -310,7 +298,7 @@ export default function RatingScreen() {
                     >
                         Your rating will be submitted without GPS verification.
                     </ThemedText>
-                )}
+                )} */}
             </ThemedView>
         </ScrollView>
     );
