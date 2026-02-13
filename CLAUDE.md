@@ -2,60 +2,210 @@
 
 ## Project Overview
 
-This is the **web companion** for the Forked mobile app (Expo/React Native). It provides marketing pages, SEO-optimized leaderboard content, and will eventually include a blog and admin dashboard.
+This is the **web companion** for the Forked mobile app (Expo/React Native). It provides a marketing landing page, SEO-optimized public leaderboard pages, and will eventually include a blog CMS and admin dashboard.
+
+Both the mobile app and this web app share the same **Supabase** backend (database, RPC functions, storage).
 
 **Tech Stack:**
-- **Next.js 15** (App Router) with TypeScript
-- **Tailwind CSS v4** with CSS custom properties from shared design tokens
-- **Supabase** (shared backend with mobile app) via `@supabase/ssr`
-- **@tanstack/react-query** for data fetching
-- **Deployment:** Vercel
+- **Next.js 16** (App Router) with TypeScript (strict mode)
+- **Tailwind CSS v4** with CSS custom properties mapped from shared design tokens
+- **Supabase** via `@supabase/ssr` (cookie-based auth for server/client components)
+- **@tanstack/react-query** (available but not yet used — server components fetch directly)
+- **Deployment target:** Vercel
 
 ## Development Commands
 
 ```bash
-npm run dev        # Start dev server
-npm run build      # Production build (also generates sitemap)
+npm run dev        # Start dev server (http://localhost:3000)
+npm run build      # Production build (also generates sitemap via postbuild)
+npm run start      # Serve production build locally
 npm run lint       # ESLint
-npm run sync-types # Copy database.types.ts from mobile app
 ```
 
-## Architecture
+## Project Structure
 
-- `src/app/` — Next.js App Router pages
-- `src/components/` — Reusable UI and section components
-- `src/lib/` — Supabase clients, theme tokens, SEO helpers
-- `src/types/` — Shared TypeScript types (synced from mobile app)
+```
+src/
+├── app/                           # Next.js App Router
+│   ├── layout.tsx                 # Root layout: fonts, metadata, JSON-LD (WebSite + Organization)
+│   ├── page.tsx                   # Landing page — 7 sections, ISR 10min
+│   ├── globals.css                # Design tokens (CSS vars) + Tailwind @theme inline
+│   │
+│   ├── (marketing)/               # Route group with shared Navbar + Footer layout
+│   │   ├── layout.tsx
+│   │   ├── about/page.tsx
+│   │   └── how-it-works/page.tsx
+│   │
+│   ├── leaderboard/               # Public leaderboard pages
+│   │   ├── page.tsx               # Hub — lists active cities
+│   │   ├── [city]/page.tsx        # City overview — top 5 per dish type
+│   │   └── [city]/[dishType]/page.tsx  # Full leaderboard (25 entries) + FAQ + JSON-LD
+│   │
+│   └── api/
+│       ├── og/route.tsx           # Dynamic OG image generation (Edge runtime)
+│       └── revalidate/route.ts    # On-demand ISR webhook (POST, bearer token)
+│
+├── components/
+│   ├── icons/fork-logo.tsx        # Web SVG version of the fork logo
+│   ├── layout/
+│   │   ├── navbar.tsx             # Fixed top nav (dark bg, gold logo, accent CTA)
+│   │   └── footer.tsx             # 4-column footer (brand, explore, legal, download)
+│   ├── marketing/                 # Landing page section components
+│   │   ├── hero-section.tsx       # "use client" — animated dish type rotation
+│   │   ├── problem-section.tsx
+│   │   ├── how-it-works-section.tsx
+│   │   ├── leaderboard-preview.tsx  # Server component — fetches live data
+│   │   ├── mission-section.tsx
+│   │   ├── stats-section.tsx        # Server component — fetches aggregate counts
+│   │   └── cta-section.tsx
+│   ├── leaderboard/
+│   │   ├── leaderboard-table.tsx  # Ranked list with badges, photos, scores, confidence
+│   │   └── dish-type-tabs.tsx     # Pill-style tabs linking to dish type sub-pages
+│   └── ui/
+│       ├── button.tsx             # Variants: primary, secondary, ghost; Sizes: sm, md, lg
+│       ├── card.tsx               # Variants: surface, surface2, dark
+│       ├── badge.tsx              # Variants: default, accent, gold, silver, bronze
+│       ├── score-badge.tsx        # Color-coded score: green (≥7), yellow (4-6.9), red (<4)
+│       └── skeleton.tsx           # Animated loading placeholder
+│
+├── lib/
+│   ├── seo.ts                     # buildMetadata(), buildWebsiteJsonLd(), buildOrganizationJsonLd(),
+│   │                              # buildLeaderboardJsonLd() — all JSON-LD and metadata helpers
+│   ├── supabase/
+│   │   ├── client.ts              # createBrowserClient (for client components)
+│   │   ├── server.ts              # createServerClient (reads cookies from next/headers)
+│   │   └── static.ts             # createStaticClient (no cookies — for generateStaticParams)
+│   └── theme/
+│       └── tokens.ts              # TypeScript reference of all design tokens
+│
+└── types/
+    └── database.types.ts          # Supabase auto-generated types (Tables, Functions, etc.)
+```
 
 ## Git Workflow Rules
 
+**These rules are mandatory — follow them exactly.**
+
 ### Branch Strategy
 - `main` = **production**. Only receives merges from `development`.
-- `development` = **integration**. Priority branches merge here when complete.
-- Each priority phase (P0-P9) **must** be developed on its own branch.
-- Branch naming: `p<N>/<short-kebab-description>`
-- When starting a new priority: `git checkout -b p<N>/<description> development`
-- When complete: merge into `development` and push.
-- Never commit priority work directly to `development` or `main`.
+- `development` = **integration**. Feature branches merge here when complete.
+- Each priority phase (P0–P9) **must** be developed on its own branch.
+- Branch naming: `p<N>/<short-kebab-description>` (e.g., `p2/blog-system`).
+- Create branches from `development`: `git checkout -b p<N>/<description> development`.
+- When complete and verified, merge into `development` with `--no-ff` and push.
+- **Never** commit work directly to `development` or `main`.
 
 ### Commit Strategy
-- Each **task** within a priority **must** be its own commit.
-- Commit message format: `P<N>: <imperative summary>`
-- Every commit must leave the project in a buildable state.
+- Each **task** (a logical unit of work) **must** be its own commit.
+- Commit message format: `P<N>: <imperative summary>` (e.g., `P2: Create blog_posts migration`).
+- If multiple closely-related tasks must be combined, list each in the commit body:
+  ```
+  P2: Set up blog database schema
+
+  - Created blog_posts table with RLS policies
+  - Created blog_categories table
+  - Created blog_authors table
+  ```
+- Every commit **must** leave the project in a buildable state (`npm run build` should pass).
 - Do not bundle unrelated changes into one commit.
 
 ### Merge & Cleanup
-- After merging a priority branch to `development`, push `development` to origin.
-- PRs from `development` -> `main` are done for production releases.
-- Do not delete remote branches.
+- After merging a feature branch to `development`, push `development` to origin.
+- PRs from `development` → `main` are done for production releases.
+- Do **not** delete remote branches (keep them for history).
 
-## Design Token Source
+## Design System
 
-Design tokens come from `forked/lib/theme/token.default.ts`. CSS custom properties are defined in `globals.css` and mapped to Tailwind's theme via `@theme inline`. See `src/lib/theme/tokens.ts` for the TypeScript mapping.
+### Token Source
+Design tokens come from the mobile app's `forked/lib/theme/token.default.ts`. They are defined as CSS custom properties in `globals.css` and mapped to Tailwind via `@theme inline`.
+
+### Key Colors
+- **Accent:** `#ee6c2b` (orange)
+- **Dark backgrounds:** `#221610` (bg), `#342219` (surface), `#3d2a1f` (surface2)
+- **Light backgrounds:** `#f8f6f6` (bg), `#ffffff` (surface), `#F3F4F6` (surface2)
+- **Gold:** `#FBBF24` (used for logo, medals)
+- **Text (dark mode):** `#ECEDEE` (primary), `#c9a492` (secondary), `#9BA1A6` (tertiary)
+- **Text (light mode):** `#221610` (primary), `#4B5563` (secondary), `#687076` (tertiary)
+
+### Dark Mode
+Dark mode uses the `.dark` CSS class strategy. The Navbar, Footer, Hero, Mission, and CTA sections use dark styling directly (hard-coded dark tokens), since the landing page alternates between light and dark sections by design.
+
+### Using Tokens
+Always use Tailwind utility classes that reference token colors:
+```tsx
+// Correct
+<div className="bg-surface text-text-primary border-border" />
+<button className="bg-accent text-accent-on" />
+
+// Incorrect — don't use raw hex values
+<div className="bg-[#342219] text-[#ECEDEE]" />
+```
+
+Exception: hard-coded hex values are acceptable in dark-only sections (Navbar, Footer, Hero, Mission, CTA) where the background is always dark regardless of theme.
 
 ## Supabase Integration
 
-- Browser client: `src/lib/supabase/client.ts` (cookie-based via `@supabase/ssr`)
-- Server client: `src/lib/supabase/server.ts` (reads cookies from `next/headers`)
-- Same database, RPC functions, and anon key as the mobile app
-- Key RPCs: `get_leaderboard`, `get_leaderboard_with_tiebreakers`
+### Three Clients
+1. **Server client** (`lib/supabase/server.ts`) — for server components and route handlers. Uses `cookies()` from `next/headers`.
+2. **Browser client** (`lib/supabase/client.ts`) — for client components. Cookie-based via `@supabase/ssr`.
+3. **Static client** (`lib/supabase/static.ts`) — for `generateStaticParams` and other build-time contexts. Does NOT use cookies. Returns `null` if env vars aren't configured.
+
+### Key RPC Functions
+- `get_leaderboard(p_city_id, p_dish_type_id, p_limit, p_min_battles, p_min_ratings, p_neighborhood_id)` — returns ranked entries with elo, win_rate, confidence, etc.
+- `get_leaderboard_with_tiebreakers(p_city_id, p_dish_type_id, p_limit)` — same but with stricter tiebreaker ordering.
+
+### Data Fetching Pattern
+Leaderboard and stats data is fetched in **server components** using the server Supabase client. No React Query needed for these — server components call Supabase directly.
+
+```tsx
+// Server component pattern
+export default async function MyPage() {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("get_leaderboard", { ... });
+  return <LeaderboardTable entries={data ?? []} />;
+}
+```
+
+### Database Slugs
+City and dish type pages use slugs from the database for URL routing:
+- **Cities:** `new-orleans-louisiana`, `washington-district-of-columbia`
+- **Dish types:** `gumbo`, `po-boy`, `crawfish-touff-e`, `muffuletta`, `jambalaya`
+
+## SEO
+
+### Structured Data (JSON-LD)
+| Page | Schema |
+|------|--------|
+| Root layout | `WebSite` + `Organization` |
+| `/leaderboard/[city]/[dishType]` | `ItemList` (with `Restaurant` + `AggregateRating`) + `FAQPage` |
+
+### Metadata
+Use `buildMetadata()` from `lib/seo.ts` in `generateMetadata` exports. It handles title, description, OG tags, and Twitter cards.
+
+### LLM Optimization
+- `llms.txt` at `/llms.txt` describes the site for AI crawlers.
+- Dish type leaderboard pages include a direct-answer sentence: "The best [dish] in [city] is at [restaurant]..."
+- FAQ sections with `FAQPage` schema on leaderboard pages.
+
+### ISR
+All leaderboard and landing pages use `export const revalidate = 600` (10 minutes). On-demand revalidation is available via `POST /api/revalidate` with a bearer token.
+
+## Coding Conventions
+
+- **Prefer server components** — only add `"use client"` when you need browser APIs, state, or effects.
+- **Keep components focused** — one component per file, named export matching file name.
+- **Use design tokens** — never hard-code colors except in dark-only sections.
+- **No star symbols** — Forked does NOT use star ratings. Never use ★ or the word "star" for ratings. Use `ScoreBadge` for score display.
+- **Error handling** — Supabase calls should use try/catch and return empty arrays/fallback data on failure. Pages should never crash due to a Supabase error.
+- **Import aliases** — use `@/` (maps to `./src/`).
+- **File naming** — kebab-case for all files and directories.
+
+## Phase Status
+
+See [PLAN.md](./PLAN.md) for the full implementation roadmap.
+
+- **Phase 1:** Foundation + Landing + Leaderboards → **COMPLETE**
+- **Phase 2:** Blog System → NOT STARTED
+- **Phase 3:** Admin Dashboard → NOT STARTED
+- **Phase 4:** Supporting Content → NOT STARTED
+- **Phase 5:** Performance & Polish → NOT STARTED
