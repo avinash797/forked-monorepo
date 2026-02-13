@@ -13,6 +13,8 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import {
     ActivityIndicator,
     Dimensions,
+    Linking,
+    Pressable,
     StyleSheet,
     TouchableOpacity,
     View,
@@ -50,6 +52,8 @@ export default function VenueDetailScreen() {
     const allPhotos = dishes.flatMap((dish) => dish.photos);
     const { data: locationData } = useLocation();
     const location = locationData?.location;
+
+    const dishTypesServed = new Set(dishes.map((dish) => dish.dish_types.name));
 
     // Animation values
     const scrollY = useSharedValue(0);
@@ -137,7 +141,6 @@ export default function VenueDetailScreen() {
 
     // Navigate to dish detail
     const handleDishPress = (dishId: string) => {
-        console.log('history', router.canGoBack());
         router.push({
             pathname: '/(protected)/(browse)/dish-detail',
             params: {
@@ -150,6 +153,14 @@ export default function VenueDetailScreen() {
     // Navigate to rating flow
     const handleAddDishPress = () => {
         router.push('/(protected)/(rating)');
+    };
+
+    const handleAddressPress = () => {
+        if (venue?.google_place_id) {
+            const query = encodeURIComponent(venue.name || 'Venue');
+            const url = `https://www.google.com/maps/search/?api=1&query=${query}&query_place_id=${venue.google_place_id}`;
+            Linking.openURL(url);
+        }
     };
 
     // Loading state
@@ -252,7 +263,10 @@ export default function VenueDetailScreen() {
                                 <Image
                                     key={index}
                                     source={{ uri: photoUrl! }}
-                                    style={{ width, height: HERO_HEIGHT }}
+                                    style={{
+                                        width: width,
+                                        height: HERO_HEIGHT,
+                                    }}
                                     contentFit="cover"
                                 />
                             ))}
@@ -285,42 +299,42 @@ export default function VenueDetailScreen() {
                             {venue.name}
                         </ThemedText>
 
-                        {/* <View style={styles.metaRowHero}>
+                        <View style={styles.metaRowHero}>
                             <View style={styles.cuisinesContainer}>
-                                {venue.cuisine_types?.map((cuisine, index) => (
-                                    <ThemedText
-                                        key={index}
-                                        style={styles.cuisineTextHero}
-                                    >
-                                        {index > 0 ? ' • ' : ''}
-                                        {cuisine}
-                                    </ThemedText>
-                                ))}
+                                {dishTypesServed &&
+                                    [...dishTypesServed].map(
+                                        (dishType, index) => (
+                                            <ThemedText
+                                                key={index}
+                                                style={styles.cuisineTextHero}
+                                            >
+                                                {index > 0 ? ' • ' : ''}
+                                                {dishType}
+                                            </ThemedText>
+                                        )
+                                    )}
                             </View>
-                            {venue.price_range && (
-                                <ThemedText style={styles.priceHero}>
-                                    {'$'.repeat(venue.price_range)}
-                                </ThemedText>
-                            )}
-                        </View> */}
+                        </View>
                     </View>
                 </Animated.View>
 
                 {/* Content Section */}
                 <View style={styles.contentSection}>
                     <View style={styles.infoBox}>
-                        <View style={styles.addressRow}>
-                            <IconSymbol
-                                name="location-sharp"
-                                size={20}
-                                color={theme.color.textTertiary}
-                            />
-                            <View style={styles.addressTextContainer}>
-                                <ThemedText style={styles.addressText}>
-                                    {venue.address}
-                                </ThemedText>
+                        <Pressable onPress={handleAddressPress}>
+                            <View style={styles.addressRow}>
+                                <IconSymbol
+                                    name="location-sharp"
+                                    size={20}
+                                    color={theme.color.textTertiary}
+                                />
+                                <View style={styles.addressTextContainer}>
+                                    <ThemedText style={styles.addressText}>
+                                        {venue.address}
+                                    </ThemedText>
+                                </View>
                             </View>
-                        </View>
+                        </Pressable>
                     </View>
 
                     {/* Dishes Section */}
@@ -348,7 +362,7 @@ export default function VenueDetailScreen() {
                             <View style={styles.dishesList}>
                                 {dishes.map((dish) => (
                                     <DishCardWithRating
-                                        key={dish.dish_type_id}
+                                        key={`${dish.dish_type_id}-${dish.variation_id}`}
                                         dish={dish}
                                         onPress={() =>
                                             handleDishPress(dish.dish_type_id)
@@ -538,6 +552,7 @@ const createThemedStyles = (
         },
         dishesList: {
             paddingHorizontal: theme.space.md,
+            gap: theme.space.md,
         },
         emptyDishes: {
             paddingVertical: theme.space.xxl,

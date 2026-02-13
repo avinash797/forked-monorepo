@@ -91,9 +91,11 @@ export function DishCardWithRating({
 
                     {/* Review Count & Category */}
                     <ThemedText style={styles.subtext} numberOfLines={1}>
+                        {dish.dish_type_variations?.name
+                            ? `${dish.dish_type_variations.name} • `
+                            : ''}
                         {dish.total_ratings}{' '}
-                        {dish.total_ratings === 1 ? 'rating' : 'ratings'} •{' '}
-                        {dish.dish_types.name}
+                        {dish.total_ratings === 1 ? 'rating' : 'ratings'}
                     </ThemedText>
                 </View>
             </View>

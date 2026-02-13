@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 export type DishWithRestaurant = GlobalDishScore & {
     restaurant: Restaurant;
     dish_type: DishType;
-    tags: TasteTag[];
+    tags: (TasteTag & { count: number })[];
 };
 
 /**
@@ -41,8 +41,7 @@ export function useDishDetail(
                 .from('personal_ratings')
                 .select(`tags:personal_rating_tags(taste_tags(*))`)
                 .eq('dish_type_id', dishId)
-                .eq('restaurant_id', restaurantId)
-                .single();
+                .eq('restaurant_id', restaurantId);
 
             if (error) {
                 throw new Error(error.message || 'Failed to fetch dish');
@@ -52,12 +51,31 @@ export function useDishDetail(
                 throw new Error('This dish has not been rated yet');
             }
 
+            const tagMap = new Map<string, TasteTag & { count: number }>();
+            tagsData?.forEach((rating: any) => {
+                rating.tags?.forEach((t: any) => {
+                    if (t.taste_tags) {
+                        const tag = t.taste_tags;
+                        const existing = tagMap.get(tag.id);
+                        if (existing) {
+                            existing.count++;
+                        } else {
+                            tagMap.set(tag.id, { ...tag, count: 1 });
+                        }
+                    }
+                });
+            });
+
+            const flatTags = Array.from(tagMap.values()).sort(
+                (a, b) => b.count - a.count
+            );
+
             // Transform data to lift tags to the top level
             // We need to match DishWithRestaurant interface where tags are direct children
             const dishData = data as any;
             const transformedData: DishWithRestaurant = {
                 ...dishData,
-                tags: tagsData?.tags.map((tag: any) => tag.taste_tags) || [],
+                tags: flatTags,
             };
 
             return transformedData;

@@ -370,6 +370,11 @@ export default function DishDetailScreen() {
                                             <ThemedText style={styles.tagText}>
                                                 {tag?.name}
                                             </ThemedText>
+                                            <ThemedText
+                                                style={styles.tagCountText}
+                                            >
+                                                ({tag.count})
+                                            </ThemedText>
                                         </View>
                                     ))}
                                 </View>
@@ -683,6 +688,9 @@ const createThemedStyles = (
             paddingHorizontal: theme.space.sm,
             paddingVertical: theme.space.xxs + 2,
             borderRadius: theme.radius.pill,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.space.xxs,
             backgroundColor:
                 theme.mode === 'dark'
                     ? 'rgba(255,255,255,0.1)'
@@ -696,6 +704,13 @@ const createThemedStyles = (
         tagText: {
             fontSize: theme.font.size.xs + 1,
             color: theme.color.textSecondary,
+            fontWeight: theme.font.weight.semibold,
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+        },
+        tagCountText: {
+            fontSize: theme.font.size.xs,
+            color: theme.color.textTertiary,
             fontWeight: theme.font.weight.semibold,
             textTransform: 'uppercase',
             letterSpacing: 0.5,
