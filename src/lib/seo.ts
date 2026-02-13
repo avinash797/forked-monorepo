@@ -1,0 +1,122 @@
+import type { Metadata } from "next";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://getforked.app";
+const SITE_NAME = "Forked";
+const SITE_DESCRIPTION =
+  "Not restaurant ratings. Dish ratings. Find the best specific dish in your city, powered by real people and Elo-ranked battles.";
+
+export function buildMetadata(overrides: Partial<Metadata> = {}): Metadata {
+  return {
+    title: overrides.title || `${SITE_NAME} — Find the Best Dish in Your City`,
+    description: overrides.description || SITE_DESCRIPTION,
+    metadataBase: new URL(SITE_URL),
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      title:
+        (overrides.openGraph as Record<string, string>)?.title ||
+        (overrides.title as string) ||
+        `${SITE_NAME} — Find the Best Dish in Your City`,
+      description:
+        (overrides.openGraph as Record<string, string>)?.description ||
+        (overrides.description as string) ||
+        SITE_DESCRIPTION,
+      url: SITE_URL,
+      ...overrides.openGraph,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title:
+        (overrides.twitter as Record<string, string>)?.title ||
+        (overrides.title as string) ||
+        SITE_NAME,
+      description:
+        (overrides.twitter as Record<string, string>)?.description ||
+        (overrides.description as string) ||
+        SITE_DESCRIPTION,
+      ...overrides.twitter,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+    ...overrides,
+  };
+}
+
+export function buildWebsiteJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    url: SITE_URL,
+    description: SITE_DESCRIPTION,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${SITE_URL}/leaderboard/{city}/{dishType}`,
+      },
+      "query-input": "required name=city required name=dishType",
+    },
+  };
+}
+
+export function buildOrganizationJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: `${SITE_URL}/images/fork-logo/fork-gold.png`,
+    description: SITE_DESCRIPTION,
+    foundingLocation: {
+      "@type": "Place",
+      name: "New Orleans, Louisiana",
+    },
+  };
+}
+
+export function buildLeaderboardJsonLd({
+  city,
+  dishType,
+  entries,
+}: {
+  city: string;
+  dishType: string;
+  entries: {
+    rank: number;
+    restaurant_name: string;
+    neighborhood_name: string;
+    avg_raw_score: number;
+    total_ratings: number;
+  }[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `Best ${dishType} in ${city}`,
+    description: `Ranked list of the best ${dishType.toLowerCase()} in ${city}, powered by Elo-rated dish battles on Forked.`,
+    numberOfItems: entries.length,
+    itemListElement: entries.map((entry) => ({
+      "@type": "ListItem",
+      position: entry.rank,
+      item: {
+        "@type": "Restaurant",
+        name: entry.restaurant_name,
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: city,
+          addressRegion: entry.neighborhood_name,
+        },
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: entry.avg_raw_score.toFixed(1),
+          bestRating: "10",
+          worstRating: "1",
+          ratingCount: entry.total_ratings,
+        },
+      },
+    })),
+  };
+}
