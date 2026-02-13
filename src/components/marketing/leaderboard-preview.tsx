@@ -22,7 +22,7 @@ async function getLeaderboardPreview(): Promise<LeaderboardEntry[]> {
     const { data: city } = await supabase
       .from("cities")
       .select("id")
-      .eq("slug", "new-orleans")
+      .eq("slug", "new-orleans-louisiana")
       .single();
 
     if (!city) return [];
@@ -107,7 +107,7 @@ export async function LeaderboardPreview() {
         )}
 
         <div className="text-center">
-          <Link href="/leaderboard/new-orleans/gumbo">
+          <Link href="/leaderboard/new-orleans-louisiana/gumbo">
             <Button variant="secondary" size="lg">
               See Full Leaderboard
             </Button>
