@@ -1,11 +1,21 @@
 import { supabase } from '@/lib/supabase';
-import type {
-    GPSVerificationStatus,
-    LocationCoordinates,
-} from '@/types/rating';
 import { useQuery } from '@tanstack/react-query';
 import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
+
+interface GPSVerificationStatus {
+    hasPermission: boolean;
+    isVerified: boolean;
+    distanceMeters: number | null;
+    location: LocationCoordinates | null;
+    error: string | null;
+}
+
+interface LocationCoordinates {
+    latitude: number;
+    longitude: number;
+    accuracy: number | null;
+}
 
 export function useLocation() {
     return useQuery({

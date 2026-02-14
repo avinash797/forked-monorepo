@@ -26,7 +26,8 @@ const DEFAULT_CITY_NAME = 'New Orleans';
 
 export default function HomeScreen() {
     const router = useRouter();
-    const { currentCity, getCurrentLocation } = useLocationStore();
+    const { currentCity, getCurrentMatchedLocation: getCurrentLocation } =
+        useLocationStore();
     const { filterType, selectedCityName, nearbyConfig } =
         useLocationFilterStore();
 

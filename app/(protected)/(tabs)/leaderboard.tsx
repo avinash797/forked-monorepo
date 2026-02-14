@@ -8,15 +8,13 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/contexts/theme-provider';
 import { useGetLeaderboardByDishType } from '@/hooks/use-leaderboard';
-import { useLocationStore } from '@/stores/location.store';
+import { useLocationFilterStore } from '@/stores';
 import { DishType } from '@/types/dishes';
 import { useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-const DEFAULT_NOLA_ID = '2865c3db-1a51-464d-bd8e-1a49777a866f';
 
 type LocationFilter = 'city' | 'near_me' | 'neighborhood';
 
@@ -29,14 +27,20 @@ export default function LeaderboardScreen() {
         [theme, insets]
     );
 
-    const { currentCity, getCurrentLocation } = useLocationStore();
+    const {
+        filterType,
+        selectedCityId,
+        selectedCityName,
+        selectedNeighborhoodId,
+        nearbyConfig,
+    } = useLocationFilterStore();
 
     const [selectedDishType, setSelectedDishType] = useState<DishType | null>(
         null
     );
 
     // Use current city or fallback to NOLA
-    const cityId = currentCity?.id || DEFAULT_NOLA_ID;
+    const cityId = selectedCityId;
 
     // Fetch leaderboard data
     const {
@@ -45,7 +49,7 @@ export default function LeaderboardScreen() {
         error,
         refetch,
     } = useGetLeaderboardByDishType({
-        cityId,
+        cityId: cityId ?? '',
         dishTypeId: selectedDishType?.id || '',
         limit: 10,
     });
@@ -58,11 +62,6 @@ export default function LeaderboardScreen() {
             rank: item.rank || index + 1,
         }));
     }, [leaderboardData]);
-
-    // Get location on mount
-    useEffect(() => {
-        getCurrentLocation();
-    }, []);
 
     const handleDishTypeSelect = (dishType: DishType | null) => {
         setSelectedDishType(dishType);
@@ -86,7 +85,7 @@ export default function LeaderboardScreen() {
                     Best {selectedDishType?.name || 'Dishes'}
                 </ThemedText>
                 <ThemedText style={styles.mainSubtitle}>
-                    in {currentCity?.name || 'New Orleans'}
+                    in {selectedCityName}
                 </ThemedText>
             </View>
         </View>
@@ -132,7 +131,7 @@ export default function LeaderboardScreen() {
                         <EmptyState
                             icon="restaurant-outline"
                             title="No Rankings Yet"
-                            message={`There's not enough ${selectedDishType?.name || 'dishes'} ratings yet in ${currentCity?.name}. \nBe the trendsetter and rate one!`}
+                            message={`There's not enough ${selectedDishType?.name || 'dishes'} ratings yet in ${selectedCityName}. \nBe the trendsetter and rate one!`}
                             actionLabel="Rate a Dish"
                             onActionPress={() =>
                                 router.push('/(protected)/(rating)')

@@ -12,7 +12,7 @@ interface LocationState {
 
     // Actions
     requestPermission: () => Promise<boolean>;
-    getCurrentLocation: () => Promise<void>;
+    getCurrentMatchedLocation: () => Promise<void>;
     setCurrentCity: (city: City) => void;
     setCurrentNeighborhood: (neighborhood: Neighborhood | null) => void;
 }
@@ -44,7 +44,7 @@ export const useLocationStore = create<LocationState>((set, get) => ({
         return status === 'granted';
     },
 
-    getCurrentLocation: async () => {
+    getCurrentMatchedLocation: async () => {
         set({ isLoading: true, error: null });
 
         try {
