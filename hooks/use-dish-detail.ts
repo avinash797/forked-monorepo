@@ -3,11 +3,17 @@ import { DishType, GlobalDishScore } from '@/types/dishes';
 import { Restaurant } from '@/types/restaurant';
 import { TasteTag } from '@/types/taste_tags';
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from './use-auth';
 
 export type DishWithRestaurant = GlobalDishScore & {
     restaurant: Restaurant;
     dish_type: DishType;
     tags: (TasteTag & { count: number })[];
+    userRatingData: {
+        user_id: string;
+        raw_score: number;
+        tags: (TasteTag & { count: number })[];
+    };
 };
 
 /**
@@ -18,6 +24,7 @@ export function useDishDetail(
     dishId: string | null,
     restaurantId: string | null
 ) {
+    const { user } = useAuth();
     return useQuery({
         queryKey: ['dish', dishId, restaurantId],
         queryFn: async () => {
@@ -37,11 +44,14 @@ export function useDishDetail(
                 .eq('restaurant_id', restaurantId)
                 .maybeSingle();
 
-            const { data: tagsData, error: tagsError } = await supabase
-                .from('personal_ratings')
-                .select(`tags:personal_rating_tags(taste_tags(*))`)
-                .eq('dish_type_id', dishId)
-                .eq('restaurant_id', restaurantId);
+            const { data: personalRatingData, error: tagsError } =
+                await supabase
+                    .from('personal_ratings')
+                    .select(
+                        `user_id, raw_score, tags:personal_rating_tags(taste_tags(*))`
+                    )
+                    .eq('dish_type_id', dishId)
+                    .eq('restaurant_id', restaurantId);
 
             if (error) {
                 throw new Error(error.message || 'Failed to fetch dish');
@@ -52,7 +62,7 @@ export function useDishDetail(
             }
 
             const tagMap = new Map<string, TasteTag & { count: number }>();
-            tagsData?.forEach((rating: any) => {
+            personalRatingData?.forEach((rating: any) => {
                 rating.tags?.forEach((t: any) => {
                     if (t.taste_tags) {
                         const tag = t.taste_tags;
@@ -76,6 +86,9 @@ export function useDishDetail(
             const transformedData: DishWithRestaurant = {
                 ...dishData,
                 tags: flatTags,
+                userRatingData: personalRatingData?.find(
+                    (rating: any) => rating.user_id === user?.id
+                ),
             };
 
             return transformedData;

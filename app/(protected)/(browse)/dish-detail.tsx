@@ -4,10 +4,8 @@ import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { MapCard } from '@/components/ui/map-card';
 import { useTheme } from '@/contexts/theme-provider';
 import { useDishDetail } from '@/hooks/use-dish-detail';
-import { parsePostgresPoint } from '@/lib/geo';
 import { useRatingStore } from '@/stores';
 import { Restaurant } from '@/types/restaurant';
 import { Image } from 'expo-image';
@@ -15,6 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
     ActivityIndicator,
+    Alert,
     Dimensions,
     StyleSheet,
     TouchableOpacity,
@@ -176,13 +175,38 @@ export default function DishDetailScreen() {
     // Navigate to rating flow with pre-populated restaurant and dish type
     const handleRateDishPress = () => {
         if (dish && venue) {
-            // Reset any previous rating state first
-            resetRating();
-            // Pre-populate the rating store with current dish and restaurant
-            setSelectedRestaurant(venue);
-            setSelectedDishType(dish.dish_type);
+            if (dish.userRatingData) {
+                Alert.alert(
+                    'Update Your Rating',
+                    `You previously rated this ${dish.dish_type.name} ${dish.userRatingData.raw_score}. Has it changed since then?`,
+                    [
+                        {
+                            text: 'No',
+                            style: 'cancel',
+                        },
+                        {
+                            text: 'Yes',
+                            style: 'default',
+                            onPress: async () => {
+                                // Reset any previous rating state first
+                                resetRating();
+                                // Pre-populate the rating store with current dish and restaurant
+                                setSelectedRestaurant(venue);
+                                setSelectedDishType(dish.dish_type);
+                                router.push('/(protected)/(rating)');
+                            },
+                        },
+                    ]
+                );
+            } else {
+                // Reset any previous rating state first
+                resetRating();
+                // Pre-populate the rating store with current dish and restaurant
+                setSelectedRestaurant(venue);
+                setSelectedDishType(dish.dish_type);
+                router.push('/(protected)/(rating)');
+            }
         }
-        router.push('/(protected)/(rating)');
     };
 
     const heroPhoto = dish?.featured_photo_url;
@@ -365,18 +389,25 @@ export default function DishDetailScreen() {
                         <View style={styles.infoSection}>
                             {dish.tags && dish.tags.length > 0 && (
                                 <View style={styles.tagsContainer}>
-                                    {dish.tags.map((tag, index) => (
-                                        <View key={index} style={styles.tag}>
-                                            <ThemedText style={styles.tagText}>
-                                                {tag?.name}
-                                            </ThemedText>
-                                            <ThemedText
-                                                style={styles.tagCountText}
+                                    {dish.tags
+                                        .sort((a, b) => b.count - a.count)
+                                        .map((tag, index) => (
+                                            <View
+                                                key={index}
+                                                style={styles.tag}
                                             >
-                                                ({tag.count})
-                                            </ThemedText>
-                                        </View>
-                                    ))}
+                                                <ThemedText
+                                                    style={styles.tagText}
+                                                >
+                                                    {tag?.name}
+                                                </ThemedText>
+                                                <ThemedText
+                                                    style={styles.tagCountText}
+                                                >
+                                                    ({tag.count})
+                                                </ThemedText>
+                                            </View>
+                                        ))}
                                 </View>
                             )}
 
@@ -423,32 +454,6 @@ export default function DishDetailScreen() {
                                     </ThemedText>
                                 </View>
                             </View>
-
-                            {venue?.google_place_id && (
-                                <View style={styles.mapSection}>
-                                    <ThemedText
-                                        type="defaultSemiBold"
-                                        style={styles.sectionTitle}
-                                    >
-                                        Location
-                                    </ThemedText>
-                                    {(() => {
-                                        const coords = parsePostgresPoint(
-                                            venue.coordinates
-                                        );
-                                        if (!coords) return null;
-                                        return (
-                                            <MapCard
-                                                latitude={coords.latitude}
-                                                longitude={coords.longitude}
-                                                title={venue.name}
-                                                address={venue.address || ''}
-                                                height={180}
-                                            />
-                                        );
-                                    })()}
-                                </View>
-                            )}
                         </View>
                     </View>
 
@@ -457,7 +462,9 @@ export default function DishDetailScreen() {
                             onPress={handleRateDishPress}
                             style={styles.rateButton}
                         >
-                            Rate This Dish
+                            {dish?.userRatingData
+                                ? 'Update Rating'
+                                : 'Rate This Dish'}
                         </ThemedButton>
                     </View>
                 </View>

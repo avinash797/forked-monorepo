@@ -1,6 +1,7 @@
 import { DishCardWithRating } from '@/components/browse/dish-card-with-rating';
 import { EmptyState } from '@/components/browse/empty-state';
 import { SectionHeader } from '@/components/browse/section-header';
+import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -9,12 +10,12 @@ import { useLocation } from '@/hooks/use-location';
 import { useRestaurantDetail } from '@/hooks/use-restaurant-detail';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useRef } from 'react';
 import {
     ActivityIndicator,
     Dimensions,
     Linking,
-    Pressable,
     StyleSheet,
     TouchableOpacity,
     View,
@@ -51,9 +52,26 @@ export default function VenueDetailScreen() {
     const { venue, dishes = [] } = data || {};
     const allPhotos = dishes.flatMap((dish) => dish.photos);
     const { data: locationData } = useLocation();
-    const location = locationData?.location;
+    const scrollViewRef = useRef<ScrollView>(null);
 
     const dishTypesServed = new Set(dishes.map((dish) => dish.dish_types.name));
+
+    useEffect(() => {
+        if (!isLoading && allPhotos.length > 1) {
+            const timeout1 = setTimeout(() => {
+                scrollViewRef.current?.scrollTo({ x: 60, animated: true });
+            }, 500);
+
+            const timeout2 = setTimeout(() => {
+                scrollViewRef.current?.scrollTo({ x: 0, animated: true });
+            }, 1200);
+
+            return () => {
+                clearTimeout(timeout1);
+                clearTimeout(timeout2);
+            };
+        }
+    }, [isLoading, allPhotos.length]);
 
     // Animation values
     const scrollY = useSharedValue(0);
@@ -118,7 +136,7 @@ export default function VenueDetailScreen() {
                     translateY: interpolate(
                         scrollY.value,
                         [HERO_HEIGHT * 0.7, HERO_HEIGHT * 0.9],
-                        [-10, 0],
+                        [-1, 0],
                         Extrapolation.CLAMP
                     ),
                 },
@@ -163,6 +181,18 @@ export default function VenueDetailScreen() {
         }
     };
 
+    const handlePhonePress = () => {
+        if (venue?.phone) {
+            Linking.openURL(`tel:${venue.phone}`);
+        }
+    };
+
+    const handleWebsitePress = () => {
+        if (venue?.website) {
+            Linking.openURL(venue.website);
+        }
+    };
+
     // Loading state
     if (isLoading) {
         return (
@@ -202,8 +232,6 @@ export default function VenueDetailScreen() {
 
     return (
         <ThemedView style={styles.container}>
-            <Stack.Screen options={{ headerShown: false }} />
-
             {/* Hero Control (Back Button) */}
             <View style={[styles.topControls, { marginTop: insets.top }]}>
                 <TouchableOpacity
@@ -254,6 +282,7 @@ export default function VenueDetailScreen() {
                 <Animated.View style={[styles.heroSection, animatedHeroStyle]}>
                     {allPhotos.length > 0 ? (
                         <ScrollView
+                            ref={scrollViewRef}
                             horizontal
                             pagingEnabled
                             showsHorizontalScrollIndicator={false}
@@ -321,20 +350,48 @@ export default function VenueDetailScreen() {
                 {/* Content Section */}
                 <View style={styles.contentSection}>
                     <View style={styles.infoBox}>
-                        <Pressable onPress={handleAddressPress}>
-                            <View style={styles.addressRow}>
+                        <ThemedButton
+                            variant="secondary"
+                            style={{ flex: 1 }}
+                            onPress={handleWebsitePress}
+                            icon={
+                                <IconSymbol
+                                    name="globe-outline"
+                                    size={20}
+                                    color={theme.color.textTertiary}
+                                />
+                            }
+                        >
+                            Website
+                        </ThemedButton>
+                        <ThemedButton
+                            variant="secondary"
+                            style={{ flex: 1 }}
+                            onPress={handlePhonePress}
+                            icon={
+                                <IconSymbol
+                                    name="call-outline"
+                                    size={20}
+                                    color={theme.color.textTertiary}
+                                />
+                            }
+                        >
+                            Phone
+                        </ThemedButton>
+                        <ThemedButton
+                            variant="secondary"
+                            style={{ flex: 1 }}
+                            onPress={handleAddressPress}
+                            icon={
                                 <IconSymbol
                                     name="location-sharp"
                                     size={20}
                                     color={theme.color.textTertiary}
                                 />
-                                <View style={styles.addressTextContainer}>
-                                    <ThemedText style={styles.addressText}>
-                                        {venue.address}
-                                    </ThemedText>
-                                </View>
-                            </View>
-                        </Pressable>
+                            }
+                        >
+                            Directions
+                        </ThemedButton>
                     </View>
 
                     {/* Dishes Section */}
@@ -508,23 +565,24 @@ const createThemedStyles = (
             borderTopLeftRadius: theme.radius.xl,
             borderTopRightRadius: theme.radius.xl,
             marginTop: -theme.radius.xl,
-            minHeight: height,
+            minHeight: Dimensions.get('window').height - HERO_HEIGHT,
             paddingTop: theme.space.lg,
+            flex: 1,
+            justifyContent: 'space-between',
+            alignItems: 'center',
         },
         infoBox: {
             marginHorizontal: theme.space.md,
-            padding: theme.space.md,
             backgroundColor: theme.color.surface2 + '40',
             borderRadius: theme.radius.lg,
             marginBottom: theme.space.lg,
+            flexDirection: 'row',
+            gap: theme.space.md,
         },
         addressRow: {
             flexDirection: 'row',
             alignItems: 'flex-start',
             gap: theme.space.sm,
-        },
-        addressTextContainer: {
-            flex: 1,
         },
         addressText: {
             fontSize: theme.font.size.md,
