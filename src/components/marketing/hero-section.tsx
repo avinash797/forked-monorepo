@@ -42,8 +42,8 @@ export function HeroSection() {
         {/* Headline */}
         <motion.h1
           className="font-display italic font-black text-6xl md:text-8xl lg:text-9xl leading-[0.9] mb-6 tracking-tighter"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ y: 30 }}
+          animate={{ y: 0 }}
           transition={{ delay: 0.2, duration: 0.8 }}
         >
           Ditch the <br />
