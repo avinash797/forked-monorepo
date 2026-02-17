@@ -25,6 +25,7 @@
     "next-sitemap": "^4.2.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "recharts": "^3.7.0",
     "schema-dts": "^1.1.5"
   },
   "devDependencies": {

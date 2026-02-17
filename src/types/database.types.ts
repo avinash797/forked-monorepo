@@ -1215,6 +1215,35 @@ export type Database = {
           website: string
         }[]
       }
+      get_admin_city_breakdown: {
+        Args: never
+        Returns: {
+          city_id: string
+          city_name: string
+          total_battles: number
+          total_ratings: number
+          total_restaurants: number
+        }[]
+      }
+      get_admin_daily_stats: {
+        Args: { p_end_date?: string; p_start_date?: string }
+        Returns: {
+          day: string
+          new_battles: number
+          new_ratings: number
+          new_users: number
+        }[]
+      }
+      get_admin_dish_type_breakdown: {
+        Args: never
+        Returns: {
+          avg_score: number
+          dish_type_id: string
+          dish_type_name: string
+          total_battles: number
+          total_ratings: number
+        }[]
+      }
       get_comparison_candidate: {
         Args: {
           p_dish_type_id: string
