@@ -26,9 +26,9 @@ export function EloBattleSection() {
   };
 
   return (
-    <section id="elo" className="py-24 md:py-32 px-6 relative overflow-hidden bg-black">
-      <div className="max-w-4xl mx-auto text-center mb-16 md:mb-20">
-        <h2 className="font-display italic font-black text-4xl md:text-7xl mb-6 tracking-tighter">
+    <section id="elo" className="py-16 md:py-32 px-6 relative overflow-hidden bg-black snap-start snap-always">
+      <div className="max-w-4xl mx-auto text-center mb-10 md:mb-20">
+        <h2 className="font-display italic font-black text-3xl md:text-7xl mb-4 md:mb-6 tracking-tighter">
           The Battle For{" "}
           <span className="text-[#FF4D00]">The Best.</span>
         </h2>
@@ -39,7 +39,7 @@ export function EloBattleSection() {
         </p>
       </div>
 
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-4 relative items-center">
+      <div className="max-w-6xl mx-auto grid grid-cols-2 gap-3 md:gap-4 relative items-center">
         {/* Battle Line */}
         <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-white/10 z-0" />
         <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black border border-white/20 items-center justify-center z-10">
@@ -61,12 +61,12 @@ export function EloBattleSection() {
             alt="Smash Burger"
             width={800}
             height={1000}
-            className="w-full aspect-[4/5] object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+            className="w-full aspect-[3/4] md:aspect-[4/5] object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
             unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-          <div className="absolute bottom-6 left-6 right-6">
-            <h3 className="text-3xl font-black italic mb-1 uppercase tracking-tight">
+          <div className="absolute bottom-4 left-4 right-4 md:bottom-6 md:left-6 md:right-6">
+            <h3 className="text-lg md:text-3xl font-black italic mb-1 uppercase tracking-tight">
               Smash Burger
             </h3>
             <div className="flex items-center justify-between">
@@ -77,7 +77,7 @@ export function EloBattleSection() {
                 <span className="text-[10px] text-white/40 uppercase font-black block">
                   ELO SCORE
                 </span>
-                <span className="text-2xl font-mono font-bold text-[#FF4D00]">
+                <span className="text-lg md:text-2xl font-mono font-bold text-[#FF4D00]">
                   {scores.left}
                 </span>
               </div>
@@ -109,12 +109,12 @@ export function EloBattleSection() {
             alt="Truffle Brioche"
             width={800}
             height={1000}
-            className="w-full aspect-[4/5] object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+            className="w-full aspect-[3/4] md:aspect-[4/5] object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
             unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-          <div className="absolute bottom-6 left-6 right-6">
-            <h3 className="text-3xl font-black italic mb-1 uppercase tracking-tight">
+          <div className="absolute bottom-4 left-4 right-4 md:bottom-6 md:left-6 md:right-6">
+            <h3 className="text-lg md:text-3xl font-black italic mb-1 uppercase tracking-tight">
               Truffle Brioche
             </h3>
             <div className="flex items-center justify-between">
@@ -125,7 +125,7 @@ export function EloBattleSection() {
                 <span className="text-[10px] text-white/40 uppercase font-black block">
                   ELO SCORE
                 </span>
-                <span className="text-2xl font-mono font-bold text-[#FF4D00]">
+                <span className="text-lg md:text-2xl font-mono font-bold text-[#FF4D00]">
                   {scores.right}
                 </span>
               </div>
@@ -143,7 +143,7 @@ export function EloBattleSection() {
         </motion.div>
       </div>
 
-      <div className="mt-12 text-center">
+      <div className="mt-8 md:mt-12 text-center">
         <p className="text-xs font-bold tracking-[0.3em] uppercase text-white/30">
           Tap to decide who wins this round
         </p>

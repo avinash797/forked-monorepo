@@ -143,6 +143,10 @@
    Base Styles
    ============================== */
 
+html {
+  scroll-snap-type: y proximity;
+}
+
 body {
   background: var(--bg);
   color: var(--text-primary);
