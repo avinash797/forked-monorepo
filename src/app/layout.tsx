@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import { buildMetadata, buildWebsiteJsonLd, buildOrganizationJsonLd } from "@/lib/seo";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-body",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const playfair = Playfair_Display({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: ["400", "700", "800", "900"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = buildMetadata();
@@ -37,7 +39,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} ${playfair.variable} antialiased`}
       >
         {children}
       </body>

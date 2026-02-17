@@ -1,94 +1,128 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ForkLogo } from "@/components/icons/fork-logo";
-import { Button } from "@/components/ui/button";
-
-const DISH_TYPES = ["Po'boy", "Burger", "Tacos", "Pizza", "Fried Chicken"];
+import Image from "next/image";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { Smartphone, Flame } from "lucide-react";
 
 export function HeroSection() {
-  const [dishIndex, setDishIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsAnimating(true);
-      setTimeout(() => {
-        setDishIndex((i) => (i + 1) % DISH_TYPES.length);
-        setIsAnimating(false);
-      }, 300);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+  const { scrollYProgress } = useScroll();
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, -200]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, 300]);
+  const scale = useTransform(scrollYProgress, [0, 0.3], [1, 0.8]);
+  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#221610] to-[#342219]">
-      {/* Subtle radial glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(238,108,43,0.08)_0%,transparent_70%)]" />
+    <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden px-6 bg-[#050505]">
+      {/* Background Glow */}
+      <motion.div
+        style={{ y: y1 }}
+        className="absolute top-20 -left-20 w-[600px] h-[600px] bg-[#FF4D00]/5 rounded-full blur-[120px]"
+      />
+      <motion.div
+        style={{ y: y2 }}
+        className="absolute bottom-20 -right-20 w-[400px] h-[400px] bg-[#FF4D00]/10 rounded-full blur-[100px]"
+      />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center pt-24 pb-16">
-        <div className="flex justify-center mb-8">
-          <ForkLogo size={72} color="#FBBF24" />
-        </div>
+      <motion.div
+        style={{ scale, opacity }}
+        className="relative z-10 text-center max-w-4xl"
+      >
+        {/* Glass Badge */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 mb-8 text-[10px] uppercase font-bold tracking-[0.2em]"
+        >
+          <Flame size={12} className="text-[#FF4D00]" />
+          Available Now on iOS &amp; Android
+        </motion.div>
 
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
-          Find the Best{" "}
-          <span
-            className={`inline-block text-[#ee6c2b] transition-all duration-300 ${
-              isAnimating
-                ? "opacity-0 translate-y-2"
-                : "opacity-100 translate-y-0"
-            }`}
-          >
-            {DISH_TYPES[dishIndex]}
-          </span>
+        {/* Headline */}
+        <motion.h1
+          className="font-display italic font-black text-6xl md:text-8xl lg:text-9xl leading-[0.9] mb-6 tracking-tighter"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.8 }}
+        >
+          Ditch the <br />
+          <span className="text-[#FF4D00] drop-shadow-[0_0_20px_rgba(255,77,0,0.3)]">
+            Vibe.
+          </span>{" "}
           <br />
-          in Your City
-        </h1>
+          Rate the{" "}
+          <span className="underline decoration-white/20">Dish.</span>
+        </motion.h1>
 
-        <p className="text-lg sm:text-xl text-[#c9a492] max-w-2xl mx-auto mb-10">
-          Not restaurant ratings. Dish ratings. Powered by real people, ranked
-          by real battles.
-        </p>
+        {/* Subheadline */}
+        <motion.p
+          className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed font-light"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 1 }}
+        >
+          Forked is the real-time ranking engine for food obsessives. We strip
+          away the fancy curtains to find the city&apos;s absolute champions. No
+          averages. No fake reviews. Just data-driven dominance.
+        </motion.p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-          <Button size="lg" className="w-full sm:w-auto text-base">
-            Download the App
-          </Button>
-          <Link href="/leaderboard">
-            <Button
-              variant="secondary"
-              size="lg"
-              className="w-full sm:w-auto text-base bg-transparent border-white/20 text-white hover:bg-white/10"
-            >
-              See the Leaderboards
-            </Button>
+        {/* CTAs */}
+        <motion.div
+          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.6 }}
+        >
+          <a
+            href="#download"
+            className="w-full sm:w-auto bg-[#FF4D00] text-white px-8 py-4 rounded-xl font-black text-sm tracking-widest flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-[0_10px_30px_rgba(255,77,0,0.4)]"
+          >
+            <Smartphone size={20} />
+            DOWNLOAD APP
+          </a>
+          <Link
+            href="/leaderboard"
+            className="w-full sm:w-auto bg-white/5 backdrop-blur-sm border border-white/10 text-white px-8 py-4 rounded-xl font-black text-sm tracking-widest hover:bg-white/10 transition-all text-center"
+          >
+            SEE LEADERBOARDS
           </Link>
-        </div>
+        </motion.div>
+      </motion.div>
 
-        {/* App store badges */}
-        <div className="flex items-center justify-center gap-4">
-          <a
-            href="#"
-            className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white px-5 py-3 rounded-lg text-sm font-medium transition-colors"
-          >
-            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-            </svg>
-            App Store
-          </a>
-          <a
-            href="#"
-            className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white px-5 py-3 rounded-lg text-sm font-medium transition-colors"
-          >
-            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1 1 0 010 1.73l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.802 8.99l-2.303 2.303-8.635-8.635z" />
-            </svg>
-            Google Play
-          </a>
-        </div>
-      </div>
+      {/* Floating Food Images (Parallax) */}
+      <motion.div style={{ y: y1 }} className="absolute -left-20 md:left-20 top-1/4 z-0 opacity-50 md:opacity-100">
+        <Image
+          src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=400"
+          alt="Burger dish"
+          width={192}
+          height={192}
+          className="w-32 md:w-48 rounded-2xl grayscale hover:grayscale-0 transition-all duration-700 shadow-2xl -rotate-12"
+          unoptimized
+        />
+      </motion.div>
+      <motion.div style={{ y: y2 }} className="absolute -right-20 md:right-40 bottom-1/4 z-0 opacity-50 md:opacity-100">
+        <Image
+          src="https://images.unsplash.com/photo-1551782450-a2132b4ba21d?auto=format&fit=crop&q=80&w=400"
+          alt="Sandwich dish"
+          width={256}
+          height={256}
+          className="w-40 md:w-64 rounded-2xl shadow-2xl rotate-[8deg]"
+          unoptimized
+        />
+      </motion.div>
+
+      {/* Scroll Hint */}
+      <motion.div
+        animate={{ y: [0, 10, 0] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/20 flex flex-col items-center gap-2"
+      >
+        <span className="text-[10px] font-bold tracking-widest uppercase">
+          Scroll to uncover
+        </span>
+        <div className="w-px h-12 bg-gradient-to-b from-white/20 to-transparent" />
+      </motion.div>
     </section>
   );
 }
