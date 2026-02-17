@@ -28,7 +28,7 @@ async function getLeaderboardPreview(): Promise<LeaderboardEntry[]> {
     const { data: dishType } = await supabase
       .from("dish_types")
       .select("id")
-      .eq("slug", "gumbo")
+      .eq("slug", "po-boy")
       .single();
 
     if (!dishType) return [];
@@ -57,20 +57,19 @@ export async function LeaderboardPreview() {
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-16 gap-6">
           <div>
             <h2 className="font-display italic font-black text-4xl md:text-6xl uppercase leading-none mb-4 tracking-tighter">
-              The{" "}
-              <span className="text-[#FF4D00]">Champions</span>{" "}
-              Wall
+              The <span className="text-[#FF4D00]">Champions</span> Wall
             </h2>
             <p className="text-white/40 text-sm max-w-md">
-              Live rankings from New Orleans. Best Gumbo, ranked by real dish battles.
+              Live rankings from New Orleans. Best Po'boys, ranked by real dish
+              battles.
             </p>
           </div>
           <div className="flex gap-2">
             <span className="bg-[#FF4D00] border border-[#FF4D00] px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-white shadow-[0_5px_15px_rgba(255,77,0,0.3)]">
-              GUMBO
+              PO'BOY
             </span>
             <span className="bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-white/60">
-              PO&apos;BOY
+              GUMBO
             </span>
             <span className="bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-white/60">
               JAMBALAYA
@@ -84,7 +83,7 @@ export async function LeaderboardPreview() {
             {entries.map((entry) => (
               <div
                 key={`${entry.restaurant_name}-${entry.rank}`}
-                className="group flex items-center justify-between p-4 md:p-6 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer"
+                className="group flex items-center justify-between p-4 md:p-6 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 hover:border-white/20 transition-all "
               >
                 <div className="flex items-center gap-6">
                   <span
@@ -122,10 +121,6 @@ export async function LeaderboardPreview() {
                       SCORE
                     </p>
                   </div>
-                  <ArrowRight
-                    className="text-white/20 group-hover:text-white transition-colors"
-                    size={20}
-                  />
                 </div>
               </div>
             ))}
@@ -145,7 +140,8 @@ export async function LeaderboardPreview() {
               Think You&apos;re a Connoisseur?
             </h3>
             <p className="text-white/60 text-sm font-light">
-              Explore the full leaderboards and see who dominates every dish type.
+              Explore the full leaderboards and see who dominates every dish
+              type.
             </p>
           </div>
           <Link
