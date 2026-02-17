@@ -1,9 +1,6 @@
 import { useTheme } from '@/contexts/theme-provider';
-import { useAuth } from '@/hooks/use-auth';
-import { useDishTypes } from '@/hooks/use-dish-types';
-import { useUserStats } from '@/hooks/use-user-stats';
-import { DishType } from '@/types/dishType';
-import React, { useEffect, useMemo } from 'react';
+import { DishType } from '@/types/dishes';
+import React, { useEffect } from 'react';
 import {
     Platform,
     Pressable,
@@ -15,42 +12,36 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import DishTypePill from '../ui/dish-type-pill';
 
 export default function DishTypePills({
+    dishTypes,
     selectedDishType,
     handleDishTypeSelect,
-    view = 'global',
+    initialDishTypeId,
 }: {
+    dishTypes: DishType[];
     selectedDishType: DishType | null;
-    handleDishTypeSelect: (dishType: DishType) => void;
-    view?: 'global' | 'personal';
+    handleDishTypeSelect: (dishType: DishType | null) => void;
+    initialDishTypeId?: string;
 }) {
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
-    const { user, profile } = useAuth();
-
-    const { data: dishTypes, isLoading: dishTypesLoading } = useDishTypes();
-
-    // Fetch user stats
-    const { data: userStats, isLoading: isStatsLoading } = useUserStats(
-        user?.id
-    );
-
-    const displayDishTypes = useMemo(() => {
-        if (view === 'personal' && userStats) {
-            if (!userStats.dishes_by_type) {
-                return [];
-            }
-            return dishTypes?.filter((dishType) =>
-                Object.keys(userStats.dishes_by_type).includes(dishType.name)
-            );
-        }
-        return dishTypes;
-    }, [dishTypes, userStats, view]);
 
     useEffect(() => {
-        if (!selectedDishType && displayDishTypes?.length) {
-            handleDishTypeSelect(displayDishTypes[0]);
+        if (dishTypes?.length) {
+            const isSelectedValid =
+                selectedDishType &&
+                dishTypes.some((dt) => dt.id === selectedDishType.id);
+
+            if (!isSelectedValid) {
+                // Prefer the initial dish type from URL params if provided
+                const initialMatch = initialDishTypeId
+                    ? dishTypes.find((dt) => dt.id === initialDishTypeId)
+                    : undefined;
+                handleDishTypeSelect(initialMatch ?? dishTypes[0]);
+            }
+        } else {
+            handleDishTypeSelect(null);
         }
-    }, [displayDishTypes, selectedDishType, handleDishTypeSelect]);
+    }, [dishTypes, selectedDishType, handleDishTypeSelect, initialDishTypeId]);
 
     return (
         <View style={styles.chipContainer}>
@@ -61,7 +52,7 @@ export default function DishTypePills({
                 fadingEdgeLength={10}
             >
                 <View style={{ paddingHorizontal: theme.space.xs }} />
-                {displayDishTypes?.map((dishType, index) => {
+                {dishTypes?.map((dishType, index) => {
                     const isSelected = dishType.id === selectedDishType?.id;
                     return (
                         <Animated.View

@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { DishType } from '@/types/dishType';
+import { DishType } from '@/types/dishes';
 import { useQuery } from '@tanstack/react-query';
 
 export function useDishTypes() {
@@ -79,8 +79,7 @@ export function useCityDishTypes(cityId: string | null | undefined) {
             // Sort city-known by display_order
             cityKnown.sort(
                 (a, b) =>
-                    (cityDishMap.get(a.id) ?? 0) -
-                    (cityDishMap.get(b.id) ?? 0)
+                    (cityDishMap.get(a.id) ?? 0) - (cityDishMap.get(b.id) ?? 0)
             );
 
             return [...cityKnown, ...other];

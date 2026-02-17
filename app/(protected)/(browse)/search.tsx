@@ -1,16 +1,21 @@
 import { EmptyState } from '@/components/browse/empty-state';
-import { CompactDishCardWithRating } from '@/components/browse/search-dish-card';
 import { SectionHeader } from '@/components/browse/section-header';
 import { SearchInput } from '@/components/rating/search-input';
-import { VenueCard } from '@/components/rating/venue-card';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
-import { useSearch } from '@/hooks/use-search';
+import {
+    RestaurantDishSearchResult,
+    SearchResults,
+    useSearch,
+} from '@/hooks/use-search';
+import { DishType } from '@/types/dishes';
+import { Restaurant } from '@/types/restaurant';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { Pressable, SectionList, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SearchScreen() {
@@ -20,69 +25,61 @@ export default function SearchScreen() {
     const styles = createThemedStyles(theme);
 
     const {
-        data: results = [],
+        data: results,
         isFetching: isLoading,
         error: searchError,
     } = useSearch(query);
     const error = searchError ? (searchError as Error).message : null;
 
-    // Group results by type
-    const dishResults = results.filter((r) => r.type === 'dish');
-    const venueResults = results.filter((r) => r.type === 'venue');
+    const {
+        dishTypes = [],
+        restaurants = [],
+        restaurantDishes = [],
+    } = results ?? ({} as Partial<SearchResults>);
 
-    // Create sections for SectionList
-    const sections: any = useMemo(() => {
-        const sectionData = [];
+    const hasResults =
+        dishTypes.length > 0 ||
+        restaurants.length > 0 ||
+        restaurantDishes.length > 0;
 
-        if (dishResults.length > 0) {
-            sectionData.push({
-                title: 'Dishes',
-                subtitle: `${dishResults.length} ${dishResults.length === 1 ? 'result' : 'results'}`,
-                data: dishResults,
-                type: 'dish' as const,
-            });
-        }
+    // ── Navigation handlers ─────────────────────────────────────────────
 
-        if (venueResults.length > 0) {
-            sectionData.push({
-                title: 'Venues',
-                subtitle: `${venueResults.length} ${venueResults.length === 1 ? 'result' : 'results'}`,
-                data: venueResults,
-                type: 'venue' as const,
-            });
-        }
+    const handleDishTypePress = (dishType: DishType) => {
+        router.push({
+            pathname: '/(protected)/(tabs)/leaderboard',
+            params: { dishTypeId: dishType.id },
+        });
+    };
 
-        return sectionData;
-    }, [dishResults, venueResults]);
+    const handleRestaurantPress = (restaurant: Restaurant) => {
+        router.push({
+            pathname: '/(protected)/(browse)/restaurant-detail',
+            params: { venueId: restaurant.id },
+        });
+    };
 
-    // Navigate to dish detail
-    const handleDishPress = (dishId: string) => {
+    const handleFoodItemPress = (item: RestaurantDishSearchResult) => {
         router.push({
             pathname: '/(protected)/(browse)/dish-detail',
-            params: { dishId },
+            params: {
+                restaurantId: item.restaurant_id,
+                dishTypeId: item.dish_type_id,
+            },
         });
     };
 
-    // Navigate to venue detail
-    const handleVenuePress = (venueId: string) => {
-        router.push({
-            pathname: '/(protected)/(browse)/venue-detail',
-            params: { venueId },
-        });
-    };
+    // ── Empty / hint / error states ─────────────────────────────────────
 
-    // Render empty state when no query
     const renderEmptyQuery = () => (
         <View style={styles.emptyContainer}>
             <EmptyState
                 icon="search-outline"
-                title="Search for dishes and venues"
-                message="Find your favorite dishes or discover new places to eat"
+                title="Search for dishes and restaurants"
+                message="Find your favorite dishes, restaurants, or food items"
             />
         </View>
     );
 
-    // Render no results state
     const renderNoResults = () => (
         <View style={styles.emptyContainer}>
             <EmptyState
@@ -95,7 +92,6 @@ export default function SearchScreen() {
         </View>
     );
 
-    // Render error state
     const renderError = () => (
         <View style={styles.emptyContainer}>
             <EmptyState
@@ -105,6 +101,182 @@ export default function SearchScreen() {
             />
         </View>
     );
+
+    // ── Result row components ───────────────────────────────────────────
+
+    const renderDishTypeRow = (dishType: DishType) => (
+        <Pressable
+            key={dishType.id}
+            onPress={() => handleDishTypePress(dishType)}
+            style={({ pressed }) => [
+                styles.resultRow,
+                pressed && { opacity: 0.7 },
+            ]}
+            android_ripple={{ color: 'rgba(0, 0, 0, 0.1)' }}
+        >
+            <View style={styles.emojiContainer}>
+                <ThemedText style={styles.emoji}>
+                    {dishType.emoji || '🍽️'}
+                </ThemedText>
+            </View>
+            <View style={styles.resultTextContainer}>
+                <ThemedText style={styles.resultTitle} numberOfLines={1}>
+                    {dishType.name}
+                </ThemedText>
+            </View>
+            <IconSymbol
+                name="chevron-forward"
+                size={18}
+                color={theme.color.textTertiary}
+            />
+        </Pressable>
+    );
+
+    const renderRestaurantRow = (restaurant: Restaurant) => (
+        <Pressable
+            key={restaurant.id}
+            onPress={() => handleRestaurantPress(restaurant)}
+            style={({ pressed }) => [
+                styles.resultRow,
+                pressed && { opacity: 0.7 },
+            ]}
+            android_ripple={{ color: 'rgba(0, 0, 0, 0.1)' }}
+        >
+            <View style={styles.iconContainer}>
+                <IconSymbol
+                    name="location-sharp"
+                    size={20}
+                    color={theme.color.accent}
+                />
+            </View>
+            <View style={styles.resultTextContainer}>
+                <ThemedText style={styles.resultTitle} numberOfLines={1}>
+                    {restaurant.name}
+                </ThemedText>
+                {restaurant.address && (
+                    <ThemedText style={styles.resultSubtitle} numberOfLines={1}>
+                        {restaurant.address}
+                    </ThemedText>
+                )}
+            </View>
+            <IconSymbol
+                name="chevron-forward"
+                size={18}
+                color={theme.color.textTertiary}
+            />
+        </Pressable>
+    );
+
+    const renderFoodItemRow = (item: RestaurantDishSearchResult) => {
+        const hasPhoto = item.photos && item.photos.length > 0;
+        const photoUrl = hasPhoto ? item.photos[0] : null;
+
+        return (
+            <Pressable
+                key={item.restaurant_dish_id}
+                onPress={() => handleFoodItemPress(item)}
+                style={({ pressed }) => [
+                    styles.resultRow,
+                    pressed && { opacity: 0.7 },
+                ]}
+                android_ripple={{ color: 'rgba(0, 0, 0, 0.1)' }}
+            >
+                {photoUrl ? (
+                    <Image
+                        source={{ uri: photoUrl }}
+                        style={styles.foodItemPhoto}
+                        contentFit="cover"
+                        transition={200}
+                    />
+                ) : (
+                    <View style={styles.emojiContainer}>
+                        <ThemedText style={styles.emoji}>
+                            {item.dish_type_emoji || '🍽️'}
+                        </ThemedText>
+                    </View>
+                )}
+                <View style={styles.resultTextContainer}>
+                    <ThemedText style={styles.resultTitle} numberOfLines={1}>
+                        {item.dish_type_name}
+                    </ThemedText>
+                    <ThemedText style={styles.resultSubtitle} numberOfLines={1}>
+                        @{item.restaurant_name}
+                    </ThemedText>
+                </View>
+                <IconSymbol
+                    name="chevron-forward"
+                    size={18}
+                    color={theme.color.textTertiary}
+                />
+            </Pressable>
+        );
+    };
+
+    // ── Main render ─────────────────────────────────────────────────────
+
+    const renderContent = () => {
+        if (error) return renderError();
+        if (query.length === 0) return renderEmptyQuery();
+        if (query.length > 0 && query.length < 2) {
+            return (
+                <View style={styles.hintContainer}>
+                    <ThemedText style={styles.hintText}>
+                        Type at least 2 characters to search
+                    </ThemedText>
+                </View>
+            );
+        }
+        if (query.length >= 2 && !isLoading && !hasResults) {
+            return renderNoResults();
+        }
+
+        return (
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+            >
+                {/* Dish Types Section */}
+                {dishTypes.length > 0 && (
+                    <View style={styles.section}>
+                        <SectionHeader
+                            title="Dish Types"
+                            subtitle={`${dishTypes.length} ${dishTypes.length === 1 ? 'result' : 'results'}`}
+                        />
+                        <View style={styles.resultsList}>
+                            {dishTypes.map(renderDishTypeRow)}
+                        </View>
+                    </View>
+                )}
+
+                {/* Restaurants Section */}
+                {restaurants.length > 0 && (
+                    <View style={styles.section}>
+                        <SectionHeader
+                            title="Restaurants"
+                            subtitle={`${restaurants.length} ${restaurants.length === 1 ? 'result' : 'results'}`}
+                        />
+                        <View style={styles.resultsList}>
+                            {restaurants.map(renderRestaurantRow)}
+                        </View>
+                    </View>
+                )}
+
+                {/* Food Items (Restaurant Dishes) Section */}
+                {restaurantDishes.length > 0 && (
+                    <View style={styles.section}>
+                        <SectionHeader
+                            title="Food Items"
+                            subtitle={`${restaurantDishes.length} ${restaurantDishes.length === 1 ? 'result' : 'results'}`}
+                        />
+                        <View style={styles.resultsList}>
+                            {restaurantDishes.map(renderFoodItemRow)}
+                        </View>
+                    </View>
+                )}
+            </ScrollView>
+        );
+    };
 
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -134,72 +306,14 @@ export default function SearchScreen() {
                         <SearchInput
                             value={query}
                             onChangeText={setQuery}
-                            placeholder="Search dishes and venues..."
+                            placeholder="Search dishes and restaurants..."
                             isLoading={isLoading}
                             autoFocus={true}
                         />
                     </View>
                 </View>
 
-                {/* Search Results using SectionList */}
-                <SectionList
-                    sections={sections}
-                    keyExtractor={(item) => item.data.id}
-                    renderItem={({ item, section }) => {
-                        if (section.type === 'dish') {
-                            return (
-                                <CompactDishCardWithRating
-                                    dish={item.data}
-                                    onPress={() =>
-                                        handleDishPress(item.data.id)
-                                    }
-                                    showVenue={true}
-                                />
-                            );
-                        } else {
-                            return (
-                                <VenueCard
-                                    venue={item.data}
-                                    onPress={() =>
-                                        handleVenuePress(item.data.id)
-                                    }
-                                    showDistance={false}
-                                />
-                            );
-                        }
-                    }}
-                    renderSectionHeader={({ section }) => (
-                        <SectionHeader
-                            title={section.title}
-                            subtitle={section.subtitle}
-                        />
-                    )}
-                    stickySectionHeadersEnabled={false}
-                    contentContainerStyle={styles.sectionListContent}
-                    contentInsetAdjustmentBehavior="automatic"
-                    showsVerticalScrollIndicator={false}
-                    keyboardShouldPersistTaps="handled"
-                    ListEmptyComponent={() => {
-                        if (error) return renderError();
-                        if (query.length === 0) return renderEmptyQuery();
-                        if (
-                            query.length >= 2 &&
-                            !isLoading &&
-                            results.length === 0
-                        )
-                            return renderNoResults();
-                        if (query.length > 0 && query.length < 2) {
-                            return (
-                                <View style={styles.hintContainer}>
-                                    <ThemedText style={styles.hintText}>
-                                        Type at least 2 characters to search
-                                    </ThemedText>
-                                </View>
-                            );
-                        }
-                        return null;
-                    }}
-                />
+                {renderContent()}
             </ThemedView>
         </SafeAreaView>
     );
@@ -228,9 +342,62 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         searchInputContainer: {
             flex: 1,
         },
-        sectionListContent: {
+        scrollContent: {
+            paddingBottom: theme.space.xxl,
+        },
+        section: {
+            marginTop: theme.space.xs,
+        },
+        resultsList: {
+            paddingHorizontal: theme.space.md,
+        },
+        resultRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingVertical: theme.space.sm + 2,
             paddingHorizontal: theme.space.sm,
-            paddingTop: theme.space.xs,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            borderBottomColor: theme.color.border,
+            gap: theme.space.sm,
+        },
+        emojiContainer: {
+            width: 40,
+            height: 40,
+            borderRadius: theme.radius.md,
+            backgroundColor: theme.color.surface2 + '40',
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        iconContainer: {
+            width: 40,
+            height: 40,
+            borderRadius: theme.radius.md,
+            backgroundColor: theme.color.accent + '15',
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        foodItemPhoto: {
+            width: 40,
+            height: 40,
+            borderRadius: theme.radius.md,
+            backgroundColor: theme.color.surface2,
+        },
+        emoji: {
+            fontSize: 20,
+        },
+        resultTextContainer: {
+            flex: 1,
+            justifyContent: 'center',
+        },
+        resultTitle: {
+            fontSize: theme.font.size.md,
+            fontWeight: theme.font.weight.semibold,
+            color: theme.color.textPrimary,
+        },
+        resultSubtitle: {
+            fontSize: theme.font.size.sm,
+            color: theme.color.textSecondary,
+            marginTop: 1,
         },
         emptyContainer: {
             flex: 1,

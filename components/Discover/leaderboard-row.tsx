@@ -113,7 +113,8 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
                     <View style={styles.confidenceRow}>
                         <ThemedText style={styles.flames}>{flames}</ThemedText>
                         <ThemedText style={styles.battleCount}>
-                            {item.total_battles} battles
+                            {item.battles_total ?? item.total_battles ?? 0}{' '}
+                            battles
                         </ThemedText>
                     </View>
                 </View>

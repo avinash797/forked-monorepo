@@ -1,24 +1,26 @@
 import { DishCardWithRating } from '@/components/browse/dish-card-with-rating';
 import { EmptyState } from '@/components/browse/empty-state';
 import { SectionHeader } from '@/components/browse/section-header';
-import { ScoreBadge } from '@/components/score-badge';
+import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useLocation } from '@/hooks/use-location';
-import { useVenueDetail } from '@/hooks/use-venue-detail';
+import { useRestaurantDetail } from '@/hooks/use-restaurant-detail';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useRef } from 'react';
 import {
     ActivityIndicator,
     Dimensions,
-    ScrollView,
+    Linking,
     StyleSheet,
     TouchableOpacity,
     View,
 } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import Animated, {
     Extrapolation,
     interpolate,
@@ -36,17 +38,40 @@ const HEADER_HEIGHT = 60;
 
 const AnimatedIconSymbol = Animated.createAnimatedComponent(IconSymbol);
 
-export default function VenueDetailScreen() {
+export default function RestaurantDetailScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const { venueId } = useLocalSearchParams<{ venueId: string }>();
+    const { venueId, source } = useLocalSearchParams<{
+        venueId: string;
+        source: string;
+    }>();
     const { theme } = useTheme();
     const styles = createThemedStyles(theme, insets);
 
-    const { data, isLoading, error } = useVenueDetail(venueId);
-    const { venue, dishes = [], reviewPhotos = [] } = data || {};
+    const { data, isLoading, error } = useRestaurantDetail(venueId);
+    const { venue, dishes = [] } = data || {};
+    const allPhotos = dishes.flatMap((dish) => dish.photos);
     const { data: locationData } = useLocation();
-    const location = locationData?.location;
+    const scrollViewRef = useRef<ScrollView>(null);
+
+    const dishTypesServed = new Set(dishes.map((dish) => dish.dish_types.name));
+
+    useEffect(() => {
+        if (!isLoading && allPhotos.length > 1) {
+            const timeout1 = setTimeout(() => {
+                scrollViewRef.current?.scrollTo({ x: 60, animated: true });
+            }, 500);
+
+            const timeout2 = setTimeout(() => {
+                scrollViewRef.current?.scrollTo({ x: 0, animated: true });
+            }, 1200);
+
+            return () => {
+                clearTimeout(timeout1);
+                clearTimeout(timeout2);
+            };
+        }
+    }, [isLoading, allPhotos.length]);
 
     // Animation values
     const scrollY = useSharedValue(0);
@@ -56,33 +81,6 @@ export default function VenueDetailScreen() {
             scrollY.value = event.contentOffset.y;
         },
     });
-
-    // Calculate distance to venue
-    const getDistance = () => {
-        if (!venue?.latitude || !venue?.longitude || !location) return null;
-
-        const R = 6371e3; // Earth radius in meters
-        const φ1 = (location.latitude * Math.PI) / 180;
-        const φ2 = (venue.latitude * Math.PI) / 180;
-        const Δφ = ((venue.latitude - location.latitude) * Math.PI) / 180;
-        const Δλ = ((venue.longitude - location.longitude) * Math.PI) / 180;
-
-        const a =
-            Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-            Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return R * c; // Distance in meters
-    };
-
-    const distance = getDistance();
-
-    // Format distance
-    const formatDistance = (meters: number | null) => {
-        if (meters === null) return null;
-        if (meters < 1000) return `${Math.round(meters)}m away`;
-        return `${(meters / 1000).toFixed(1)}km away`;
-    };
 
     // Animated props for the back button color
     const animatedIconProps = useAnimatedProps(() => {
@@ -138,7 +136,7 @@ export default function VenueDetailScreen() {
                     translateY: interpolate(
                         scrollY.value,
                         [HERO_HEIGHT * 0.7, HERO_HEIGHT * 0.9],
-                        [-10, 0],
+                        [-1, 0],
                         Extrapolation.CLAMP
                     ),
                 },
@@ -163,13 +161,36 @@ export default function VenueDetailScreen() {
     const handleDishPress = (dishId: string) => {
         router.push({
             pathname: '/(protected)/(browse)/dish-detail',
-            params: { dishId },
+            params: {
+                restaurantId: venue?.id,
+                dishTypeId: dishId,
+            },
         });
     };
 
     // Navigate to rating flow
     const handleAddDishPress = () => {
         router.push('/(protected)/(rating)');
+    };
+
+    const handleAddressPress = () => {
+        if (venue?.google_place_id) {
+            const query = encodeURIComponent(venue.name || 'Venue');
+            const url = `https://www.google.com/maps/search/?api=1&query=${query}&query_place_id=${venue.google_place_id}`;
+            Linking.openURL(url);
+        }
+    };
+
+    const handlePhonePress = () => {
+        if (venue?.phone) {
+            Linking.openURL(`tel:${venue.phone}`);
+        }
+    };
+
+    const handleWebsitePress = () => {
+        if (venue?.website) {
+            Linking.openURL(venue.website);
+        }
     };
 
     // Loading state
@@ -196,7 +217,7 @@ export default function VenueDetailScreen() {
                 style={[styles.container, { backgroundColor: theme.color.bg }]}
             >
                 <EmptyState
-                    icon="error"
+                    icon="alert-circle-outline"
                     title="Unable to load venue"
                     message={
                         error?.message ||
@@ -209,16 +230,8 @@ export default function VenueDetailScreen() {
         );
     }
 
-    const averageRating =
-        dishes.length > 0
-            ? dishes.reduce((acc, d) => acc + (d.average_rating || 0), 0) /
-              dishes.length
-            : null;
-
     return (
         <ThemedView style={styles.container}>
-            <Stack.Screen options={{ headerShown: false }} />
-
             {/* Hero Control (Back Button) */}
             <View style={[styles.topControls, { marginTop: insets.top }]}>
                 <TouchableOpacity
@@ -254,21 +267,7 @@ export default function VenueDetailScreen() {
                         >
                             {venue.name}
                         </ThemedText>
-                        {distance && (
-                            <ThemedText
-                                style={styles.headerSubtitle}
-                                numberOfLines={1}
-                            >
-                                {formatDistance(distance)}
-                            </ThemedText>
-                        )}
                     </View>
-                    {averageRating !== null && (
-                        <ScoreBadge
-                            score={averageRating}
-                            style={styles.headerBadge}
-                        />
-                    )}
                 </View>
             </Animated.View>
 
@@ -281,18 +280,22 @@ export default function VenueDetailScreen() {
             >
                 {/* Animated Hero Carousel */}
                 <Animated.View style={[styles.heroSection, animatedHeroStyle]}>
-                    {reviewPhotos.length > 0 ? (
+                    {allPhotos.length > 0 ? (
                         <ScrollView
+                            ref={scrollViewRef}
                             horizontal
                             pagingEnabled
                             showsHorizontalScrollIndicator={false}
                             style={StyleSheet.absoluteFill}
                         >
-                            {reviewPhotos.map((photoUrl, index) => (
+                            {allPhotos.map((photoUrl, index) => (
                                 <Image
                                     key={index}
-                                    source={{ uri: photoUrl }}
-                                    style={{ width, height: HERO_HEIGHT }}
+                                    source={{ uri: photoUrl! }}
+                                    style={{
+                                        width: width,
+                                        height: HERO_HEIGHT,
+                                    }}
                                     contentFit="cover"
                                 />
                             ))}
@@ -327,21 +330,19 @@ export default function VenueDetailScreen() {
 
                         <View style={styles.metaRowHero}>
                             <View style={styles.cuisinesContainer}>
-                                {venue.cuisine_types?.map((cuisine, index) => (
-                                    <ThemedText
-                                        key={index}
-                                        style={styles.cuisineTextHero}
-                                    >
-                                        {index > 0 ? ' • ' : ''}
-                                        {cuisine}
-                                    </ThemedText>
-                                ))}
+                                {dishTypesServed &&
+                                    [...dishTypesServed].map(
+                                        (dishType, index) => (
+                                            <ThemedText
+                                                key={index}
+                                                style={styles.cuisineTextHero}
+                                            >
+                                                {index > 0 ? ' • ' : ''}
+                                                {dishType}
+                                            </ThemedText>
+                                        )
+                                    )}
                             </View>
-                            {venue.price_range && (
-                                <ThemedText style={styles.priceHero}>
-                                    {'$'.repeat(venue.price_range)}
-                                </ThemedText>
-                            )}
                         </View>
                     </View>
                 </Animated.View>
@@ -349,29 +350,48 @@ export default function VenueDetailScreen() {
                 {/* Content Section */}
                 <View style={styles.contentSection}>
                     <View style={styles.infoBox}>
-                        <View style={styles.addressRow}>
-                            <IconSymbol
-                                name="location-sharp"
-                                size={20}
-                                color={theme.color.textTertiary}
-                            />
-                            <View style={styles.addressTextContainer}>
-                                <ThemedText style={styles.addressText}>
-                                    {venue.address_street}
-                                </ThemedText>
-                                <ThemedText style={styles.addressSubtext}>
-                                    {venue.address_city}, {venue.address_state}{' '}
-                                    {venue.address_zip}
-                                </ThemedText>
-                            </View>
-                            {distance && (
-                                <View style={styles.distanceTag}>
-                                    <ThemedText style={styles.distanceText}>
-                                        {formatDistance(distance)}
-                                    </ThemedText>
-                                </View>
-                            )}
-                        </View>
+                        <ThemedButton
+                            variant="secondary"
+                            style={{ flex: 1 }}
+                            onPress={handleWebsitePress}
+                            icon={
+                                <IconSymbol
+                                    name="globe-outline"
+                                    size={20}
+                                    color={theme.color.textTertiary}
+                                />
+                            }
+                        >
+                            Website
+                        </ThemedButton>
+                        <ThemedButton
+                            variant="secondary"
+                            style={{ flex: 1 }}
+                            onPress={handlePhonePress}
+                            icon={
+                                <IconSymbol
+                                    name="call-outline"
+                                    size={20}
+                                    color={theme.color.textTertiary}
+                                />
+                            }
+                        >
+                            Phone
+                        </ThemedButton>
+                        <ThemedButton
+                            variant="secondary"
+                            style={{ flex: 1 }}
+                            onPress={handleAddressPress}
+                            icon={
+                                <IconSymbol
+                                    name="location-sharp"
+                                    size={20}
+                                    color={theme.color.textTertiary}
+                                />
+                            }
+                        >
+                            Directions
+                        </ThemedButton>
                     </View>
 
                     {/* Dishes Section */}
@@ -385,28 +405,30 @@ export default function VenueDetailScreen() {
                             }
                         />
 
-                        {dishes.length === 0 && (
+                        {dishes.length === 0 ? (
                             <View style={styles.emptyDishes}>
                                 <EmptyState
-                                    icon="restaurant"
+                                    icon="restaurant-outline"
                                     title="No dishes yet"
                                     message="Be the first to rate a dish here!"
                                     actionLabel="Add a Dish"
                                     onActionPress={handleAddDishPress}
                                 />
                             </View>
+                        ) : (
+                            <View style={styles.dishesList}>
+                                {dishes.map((dish) => (
+                                    <DishCardWithRating
+                                        key={`${dish.dish_type_id}-${dish.variation_id}`}
+                                        dish={dish}
+                                        onPress={() =>
+                                            handleDishPress(dish.dish_type_id)
+                                        }
+                                        viewMode="horizontal"
+                                    />
+                                ))}
+                            </View>
                         )}
-
-                        <View style={styles.dishesList}>
-                            {dishes.map((dish) => (
-                                <DishCardWithRating
-                                    key={dish.id}
-                                    dish={dish}
-                                    onPress={() => handleDishPress(dish.id)}
-                                    showVenue={false}
-                                />
-                            ))}
-                        </View>
                     </View>
                 </View>
             </Animated.ScrollView>
@@ -543,23 +565,24 @@ const createThemedStyles = (
             borderTopLeftRadius: theme.radius.xl,
             borderTopRightRadius: theme.radius.xl,
             marginTop: -theme.radius.xl,
-            minHeight: height,
+            minHeight: Dimensions.get('window').height - HERO_HEIGHT,
             paddingTop: theme.space.lg,
+            flex: 1,
+            justifyContent: 'space-between',
+            alignItems: 'center',
         },
         infoBox: {
             marginHorizontal: theme.space.md,
-            padding: theme.space.md,
             backgroundColor: theme.color.surface2 + '40',
             borderRadius: theme.radius.lg,
             marginBottom: theme.space.lg,
+            flexDirection: 'row',
+            gap: theme.space.md,
         },
         addressRow: {
             flexDirection: 'row',
             alignItems: 'flex-start',
             gap: theme.space.sm,
-        },
-        addressTextContainer: {
-            flex: 1,
         },
         addressText: {
             fontSize: theme.font.size.md,
@@ -587,6 +610,7 @@ const createThemedStyles = (
         },
         dishesList: {
             paddingHorizontal: theme.space.md,
+            gap: theme.space.md,
         },
         emptyDishes: {
             paddingVertical: theme.space.xxl,

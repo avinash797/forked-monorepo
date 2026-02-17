@@ -1,20 +1,15 @@
-import { ScoreBadge } from '@/components/score-badge';
 import { ThemedText } from '@/components/themed-text';
-import { TrendIndicator } from '@/components/trend-indicator';
 import { useTheme } from '@/contexts/theme-provider';
-import type { DishWithVenue, TrendingDish } from '@/types/browse';
+import { RestaurantDishWithDetails } from '@/types/restaurant';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 
 interface DishCardWithRatingProps {
     /** The dish to display (can be DishWithVenue or TrendingDish) */
-    dish: DishWithVenue | TrendingDish;
+    dish: RestaurantDishWithDetails;
     onPress: () => void;
-    showVenue?: boolean;
     viewMode?: 'vertical' | 'horizontal';
-    /** Show trend indicator if dish has trending data */
-    showTrend?: boolean;
 }
 
 /**
@@ -26,19 +21,13 @@ interface DishCardWithRatingProps {
 export function DishCardWithRating({
     dish,
     onPress,
-    showVenue = false,
     viewMode = 'vertical',
-    showTrend = false,
 }: DishCardWithRatingProps) {
     const { theme } = useTheme();
     const styles = createThemedStyles(theme, Dimensions.get('window').width);
 
     const hasPhoto = dish.photos && dish.photos.length > 0;
     const photoUrl = hasPhoto ? dish.photos?.[0] : null;
-
-    // Check if dish has trending data (TrendingDish type)
-    const trendingDish = dish as TrendingDish;
-    const hasTrendData = showTrend && trendingDish.trend_direction;
 
     return (
         <Pressable
@@ -80,21 +69,10 @@ export function DishCardWithRating({
             <View style={styles.cardContent}>
                 {/* Top Right: Rating Badge + Trend Indicator */}
                 <View style={styles.topRightContainer}>
-                    {hasTrendData && trendingDish.trend_direction !== 'new' && (
-                        <View style={styles.trendBadge}>
-                            <TrendIndicator
-                                direction={trendingDish.trend_direction}
-                                change={trendingDish.rating_change_7d}
-                                showChange={true}
-                                size="md"
-                            />
-                        </View>
-                    )}
-                    {dish.average_rating !== null && dish.review_count > 0 && (
-                        <ScoreBadge
-                            score={dish.average_rating}
-                            style={styles.ratingBadge}
-                        />
+                    {dish.total_ratings !== null && dish.total_ratings > 0 && (
+                        <ThemedText style={styles.ratingBadge}>
+                            {dish.total_ratings} ratings
+                        </ThemedText>
                     )}
                 </View>
 
@@ -107,28 +85,18 @@ export function DishCardWithRating({
                             style={styles.name}
                             numberOfLines={2}
                         >
-                            {dish.name}
+                            {dish.dish_types.name}
                         </ThemedText>
-                        {dish.current_price && (
-                            <ThemedText style={styles.price}>
-                                ${dish.current_price.toFixed(0)}
-                            </ThemedText>
-                        )}
                     </View>
 
                     {/* Review Count & Category */}
                     <ThemedText style={styles.subtext} numberOfLines={1}>
-                        {dish.review_count}{' '}
-                        {dish.review_count === 1 ? 'review' : 'reviews'} •{' '}
-                        {dish.category}
+                        {dish.dish_type_variations?.name
+                            ? `${dish.dish_type_variations.name} • `
+                            : ''}
+                        {dish.total_ratings}{' '}
+                        {dish.total_ratings === 1 ? 'rating' : 'ratings'}
                     </ThemedText>
-
-                    {/* Venue Name (optional) */}
-                    {showVenue && dish.venue && (
-                        <ThemedText style={styles.venueName} numberOfLines={1}>
-                            @ {dish.venue.name}
-                        </ThemedText>
-                    )}
                 </View>
             </View>
         </Pressable>

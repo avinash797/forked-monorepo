@@ -1,7 +1,9 @@
 import { ThemedText } from '@/components/themed-text';
-import { StyleSheet, Pressable, View } from 'react-native';
-import { Image } from 'expo-image';
 import { useTheme } from '@/contexts/theme-provider';
+import { Image } from 'expo-image';
+import { useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
+import ImageViewing from 'react-native-image-viewing';
 
 interface PhotoGalleryProps {
     photos: string[];
@@ -9,11 +11,6 @@ interface PhotoGalleryProps {
     maxVisible?: number;
 }
 
-/**
- * Photo gallery component displaying photos in a 3-column grid
- * Shows "+N more" overlay on last photo if there are more than maxVisible
- * Used in: Review cards, dish detail screen
- */
 export function PhotoGallery({
     photos,
     onPhotoPress,
@@ -21,6 +18,17 @@ export function PhotoGallery({
 }: PhotoGalleryProps) {
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
+    const [viewerIndex, setViewerIndex] = useState<number | null>(null);
+
+    const openViewer = (index: number) => {
+        if (onPhotoPress) {
+            onPhotoPress(index);
+        } else {
+            setViewerIndex(index);
+        }
+    };
+
+    const closeViewer = () => setViewerIndex(null);
 
     if (!photos || photos.length === 0) {
         return null;
@@ -29,6 +37,8 @@ export function PhotoGallery({
     const visiblePhotos = photos.slice(0, maxVisible);
     const remainingCount = photos.length - maxVisible;
     const hasMore = remainingCount > 0;
+
+    const images = photos.map((uri) => ({ uri }));
 
     return (
         <View style={styles.container}>
@@ -40,12 +50,11 @@ export function PhotoGallery({
                     return (
                         <Pressable
                             key={index}
-                            onPress={() => onPhotoPress?.(index)}
+                            onPress={() => openViewer(index)}
                             style={({ pressed }) => [
                                 styles.photoContainer,
                                 pressed && { opacity: 0.8 },
                             ]}
-                            disabled={!onPhotoPress}
                             android_ripple={{ color: 'rgba(0, 0, 0, 0.1)' }}
                         >
                             <Image
@@ -67,6 +76,13 @@ export function PhotoGallery({
                     );
                 })}
             </View>
+
+            <ImageViewing
+                images={images}
+                imageIndex={viewerIndex ?? 0}
+                visible={viewerIndex !== null}
+                onRequestClose={closeViewer}
+            />
         </View>
     );
 }

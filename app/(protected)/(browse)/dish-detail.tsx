@@ -1,26 +1,27 @@
 import { EmptyState } from '@/components/browse/empty-state';
+import { PhotoGallery } from '@/components/browse/photo-gallery';
 import { ScoreBadge } from '@/components/score-badge';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { MapCard } from '@/components/ui/map-card';
 import { useTheme } from '@/contexts/theme-provider';
 import { useDishDetail } from '@/hooks/use-dish-detail';
-import { parsePostgresPoint } from '@/lib/geo';
 import { useRatingStore } from '@/stores';
 import { Restaurant } from '@/types/restaurant';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect } from 'react';
 import {
-    ActivityIndicator,
+    Alert,
     Dimensions,
     StyleSheet,
     TouchableOpacity,
     View,
 } from 'react-native';
 import Animated, {
+    Easing,
     Extrapolation,
     interpolate,
     interpolateColor,
@@ -28,6 +29,8 @@ import Animated, {
     useAnimatedScrollHandler,
     useAnimatedStyle,
     useSharedValue,
+    withRepeat,
+    withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -35,6 +38,100 @@ const HERO_HEIGHT = 450;
 const HEADER_HEIGHT = 60;
 
 const AnimatedIconSymbol = Animated.createAnimatedComponent(IconSymbol);
+
+// ── Skeleton placeholder with pulsing animation ─────────────────────────
+function SkeletonBlock({
+    width,
+    height,
+    borderRadius,
+    style,
+}: {
+    width: number | string;
+    height: number;
+    borderRadius?: number;
+    style?: any;
+}) {
+    const opacity = useSharedValue(0.3);
+
+    useEffect(() => {
+        opacity.value = withRepeat(
+            withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+            -1,
+            true
+        );
+    }, []);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        opacity: opacity.value,
+    }));
+
+    return (
+        <Animated.View
+            style={[
+                {
+                    width: width as any,
+                    height,
+                    borderRadius: borderRadius ?? 8,
+                    backgroundColor: 'rgba(150,150,150,0.2)',
+                },
+                animatedStyle,
+                style,
+            ]}
+        />
+    );
+}
+
+// ── Skeleton for the tags section ───────────────────────────────────────
+function TagsSkeleton() {
+    return (
+        <View
+            style={{
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                gap: 6,
+                marginBottom: 12,
+            }}
+        >
+            {[80, 60, 90, 50, 70].map((w, i) => (
+                <SkeletonBlock
+                    key={i}
+                    width={w}
+                    height={26}
+                    borderRadius={20}
+                />
+            ))}
+        </View>
+    );
+}
+
+// ── Skeleton for the photo gallery ──────────────────────────────────────
+function PhotoGallerySkeleton() {
+    return (
+        <View
+            style={{
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                gap: 6,
+                marginVertical: 6,
+            }}
+        >
+            {[1, 2, 3].map((i) => (
+                <SkeletonBlock
+                    key={i}
+                    width="31%"
+                    height={100}
+                    borderRadius={6}
+                    style={{ aspectRatio: 1 }}
+                />
+            ))}
+        </View>
+    );
+}
+
+// ── Skeleton button ─────────────────────────────────────────────────────
+function ButtonSkeleton() {
+    return <SkeletonBlock width="100%" height={48} borderRadius={12} />;
+}
 
 export default function DishDetailScreen() {
     const router = useRouter();
@@ -46,12 +143,15 @@ export default function DishDetailScreen() {
     const { theme } = useTheme();
     const styles = createThemedStyles(theme, insets);
 
-    const {
-        data: dish,
-        isLoading,
-        error,
-    } = useDishDetail(dishTypeId, restaurantId);
-    const venue = dish?.restaurant as Restaurant;
+    // Split hooks – core loads first, menu & ratings load independently
+    const { core, menu, ratings } = useDishDetail(dishTypeId, restaurantId);
+
+    const coreData = core.data;
+    const venue = coreData?.restaurant as Restaurant | undefined;
+
+    // Secondary data
+    const menuData = menu.data;
+    const ratingsData = ratings.data;
 
     // Rating store for pre-populating when user wants to rate this dish
     const { setSelectedRestaurant, setSelectedDishType, resetRating } =
@@ -167,45 +267,106 @@ export default function DishDetailScreen() {
     const handleVenuePress = () => {
         if (venue && venue.id) {
             router.push({
-                pathname: '/(protected)/(browse)/venue-detail',
-                params: { venueId: venue.id },
+                pathname: '/(protected)/(browse)/restaurant-detail',
+                params: { venueId: venue.id, source: 'dish-detail' },
             });
         }
     };
 
     // Navigate to rating flow with pre-populated restaurant and dish type
     const handleRateDishPress = () => {
-        if (dish && venue) {
-            // Reset any previous rating state first
-            resetRating();
-            // Pre-populate the rating store with current dish and restaurant
-            setSelectedRestaurant(venue);
-            setSelectedDishType(dish.dish_type);
+        if (coreData && venue) {
+            if (ratingsData?.userRatingData) {
+                Alert.alert(
+                    'Update Your Rating',
+                    `You previously rated this ${coreData.dish_type.name} ${ratingsData.userRatingData.raw_score}. Has it changed since then?`,
+                    [
+                        {
+                            text: 'No',
+                            style: 'cancel',
+                        },
+                        {
+                            text: 'Yes',
+                            style: 'default',
+                            onPress: async () => {
+                                resetRating();
+                                setSelectedRestaurant(venue);
+                                setSelectedDishType(coreData.dish_type);
+                                router.push('/(protected)/(rating)');
+                            },
+                        },
+                    ]
+                );
+            } else {
+                resetRating();
+                setSelectedRestaurant(venue);
+                setSelectedDishType(coreData.dish_type);
+                router.push('/(protected)/(rating)');
+            }
         }
-        router.push('/(protected)/(rating)');
     };
 
-    const heroPhoto = dish?.featured_photo_url;
+    const heroPhoto = coreData?.featured_photo_url;
 
-    // Loading state
-    if (isLoading) {
+    // Primary loading state — only block on core data
+    if (core.isLoading) {
         return (
-            <View
-                style={[
-                    styles.loadingContainer,
-                    { backgroundColor: theme.color.bg },
-                ]}
-            >
-                <ActivityIndicator size="large" />
-                <ThemedText style={styles.loadingText}>
-                    Loading dish details...
-                </ThemedText>
-            </View>
+            <ThemedView style={styles.container}>
+                {/* Back button always available */}
+                <View style={[styles.topControls, { marginTop: insets.top }]}>
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        activeOpacity={0.7}
+                    >
+                        <View style={styles.backButton}>
+                            <IconSymbol
+                                name="arrow-back"
+                                size={24}
+                                color={theme.color.textOnImage}
+                            />
+                        </View>
+                    </TouchableOpacity>
+                </View>
+                {/* Hero skeleton */}
+                <SkeletonBlock
+                    width="100%"
+                    height={HERO_HEIGHT}
+                    borderRadius={0}
+                />
+                {/* Content skeleton */}
+                <View style={styles.contentSection}>
+                    <View>
+                        <SkeletonBlock
+                            width="70%"
+                            height={28}
+                            borderRadius={6}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <SkeletonBlock
+                            width="50%"
+                            height={18}
+                            borderRadius={6}
+                            style={{ marginBottom: 16 }}
+                        />
+                        <TagsSkeleton />
+                        <SkeletonBlock
+                            width="100%"
+                            height={60}
+                            borderRadius={12}
+                            style={{ marginBottom: 16 }}
+                        />
+                        <PhotoGallerySkeleton />
+                    </View>
+                    <View style={styles.rateButtonContainer}>
+                        <ButtonSkeleton />
+                    </View>
+                </View>
+            </ThemedView>
         );
     }
 
     // Error state
-    if (error || !dish) {
+    if (core.error || !coreData) {
         return (
             <View
                 style={[styles.container, { backgroundColor: theme.color.bg }]}
@@ -214,7 +375,7 @@ export default function DishDetailScreen() {
                     icon="alert-circle-outline"
                     title="Unable to load dish"
                     message={
-                        error?.message ||
+                        core.error?.message ||
                         'This dish may no longer be available.'
                     }
                     actionLabel="Go Back"
@@ -259,7 +420,7 @@ export default function DishDetailScreen() {
                             style={styles.headerTitle}
                             numberOfLines={1}
                         >
-                            {dish.dish_type.name}
+                            {coreData.dish_type.name}
                         </ThemedText>
                         <ThemedText
                             style={styles.headerSubtitle}
@@ -268,9 +429,9 @@ export default function DishDetailScreen() {
                             at {venue?.name}
                         </ThemedText>
                     </View>
-                    {dish.avg_raw_score !== null && (
+                    {coreData.avg_raw_score !== null && (
                         <ScoreBadge
-                            score={dish.avg_raw_score}
+                            score={coreData.avg_raw_score}
                             style={styles.headerRating}
                         />
                     )}
@@ -331,7 +492,7 @@ export default function DishDetailScreen() {
                                     type="title"
                                     style={styles.dishNameHero}
                                 >
-                                    {dish.dish_type.name}
+                                    {coreData.dish_type.name}
                                 </ThemedText>
 
                                 <TouchableOpacity
@@ -343,7 +504,7 @@ export default function DishDetailScreen() {
                                         type="subtitle"
                                         style={styles.venueNameHero}
                                     >
-                                        at {dish.restaurant.name}{' '}
+                                        at {coreData.restaurant.name}{' '}
                                     </ThemedText>
                                     <IconSymbol
                                         name="chevron-forward"
@@ -352,10 +513,10 @@ export default function DishDetailScreen() {
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.ratingContainer}>
-                                {dish.avg_raw_score !== null &&
-                                    dish.total_ratings! > 0 && (
+                                {coreData.avg_raw_score !== null &&
+                                    coreData.total_ratings! > 0 && (
                                         <ScoreBadge
-                                            score={dish.avg_raw_score}
+                                            score={coreData.avg_raw_score}
                                             style={styles.ratingBadge}
                                         />
                                     )}
@@ -363,22 +524,42 @@ export default function DishDetailScreen() {
                         </View>
                         {/* Detailed Info */}
                         <View style={styles.infoSection}>
-                            {dish.tags && dish.tags.length > 0 && (
-                                <View style={styles.tagsContainer}>
-                                    {dish.tags.map((tag, index) => (
-                                        <View key={index} style={styles.tag}>
-                                            <ThemedText style={styles.tagText}>
-                                                {tag?.name}
-                                            </ThemedText>
-                                        </View>
-                                    ))}
-                                </View>
+                            {/* Tags: skeleton while loading, real tags when ready */}
+                            {ratings.isLoading ? (
+                                <TagsSkeleton />
+                            ) : (
+                                ratingsData?.tags &&
+                                ratingsData.tags.length > 0 && (
+                                    <View style={styles.tagsContainer}>
+                                        {ratingsData.tags
+                                            .sort((a, b) => b.count - a.count)
+                                            .map((tag, index) => (
+                                                <View
+                                                    key={index}
+                                                    style={styles.tag}
+                                                >
+                                                    <ThemedText
+                                                        style={styles.tagText}
+                                                    >
+                                                        {tag?.name}
+                                                    </ThemedText>
+                                                    <ThemedText
+                                                        style={
+                                                            styles.tagCountText
+                                                        }
+                                                    >
+                                                        ({tag.count})
+                                                    </ThemedText>
+                                                </View>
+                                            ))}
+                                    </View>
+                                )
                             )}
 
                             <View style={styles.statCard}>
                                 <View style={styles.statItem}>
                                     <ThemedText style={styles.statValue}>
-                                        {dish.total_ratings || 0}
+                                        {coreData.total_ratings || 0}
                                     </ThemedText>
                                     <ThemedText style={styles.statLabel}>
                                         Ratings
@@ -387,7 +568,7 @@ export default function DishDetailScreen() {
                                 <View style={styles.statDivider} />
                                 <View style={styles.statItem}>
                                     <ThemedText style={styles.statValue}>
-                                        {dish.total_battles || 0}
+                                        {coreData.total_battles || 0}
                                     </ThemedText>
                                     <ThemedText style={styles.statLabel}>
                                         Battles
@@ -396,9 +577,9 @@ export default function DishDetailScreen() {
                                 <View style={styles.statDivider} />
                                 <View style={styles.statItem}>
                                     <ThemedText style={styles.statValue}>
-                                        {((dish.win_rate || 0) * 100).toFixed(
-                                            0
-                                        )}
+                                        {(
+                                            (coreData.win_rate || 0) * 100
+                                        ).toFixed(0)}
                                         %
                                     </ThemedText>
                                     <ThemedText style={styles.statLabel}>
@@ -409,7 +590,8 @@ export default function DishDetailScreen() {
                                 <View style={styles.statItem}>
                                     <ThemedText style={styles.statValue}>
                                         {(
-                                            (dish.confidence_score || 0) * 100
+                                            (coreData.confidence_score || 0) *
+                                            100
                                         ).toFixed(0)}
                                         %
                                     </ThemedText>
@@ -419,41 +601,33 @@ export default function DishDetailScreen() {
                                 </View>
                             </View>
 
-                            {venue?.coordinates && (
-                                <View style={styles.mapSection}>
-                                    <ThemedText
-                                        type="defaultSemiBold"
-                                        style={styles.sectionTitle}
-                                    >
-                                        Location
-                                    </ThemedText>
-                                    {(() => {
-                                        const coords = parsePostgresPoint(
-                                            venue.coordinates
-                                        );
-                                        if (!coords) return null;
-                                        return (
-                                            <MapCard
-                                                latitude={coords.latitude}
-                                                longitude={coords.longitude}
-                                                title={venue.name}
-                                                address={venue.address || ''}
-                                                height={180}
-                                            />
-                                        );
-                                    })()}
-                                </View>
+                            {/* Photos: skeleton while loading, gallery when ready */}
+                            {menu.isLoading ? (
+                                <PhotoGallerySkeleton />
+                            ) : (
+                                menuData &&
+                                menuData.photos.length > 0 && (
+                                    <PhotoGallery
+                                        photos={[...menuData.photos]}
+                                    />
+                                )
                             )}
                         </View>
                     </View>
 
                     <View style={styles.rateButtonContainer}>
-                        <ThemedButton
-                            onPress={handleRateDishPress}
-                            style={styles.rateButton}
-                        >
-                            Rate This Dish
-                        </ThemedButton>
+                        {ratings.isLoading ? (
+                            <ButtonSkeleton />
+                        ) : (
+                            <ThemedButton
+                                onPress={handleRateDishPress}
+                                style={styles.rateButton}
+                            >
+                                {ratingsData?.userRatingData
+                                    ? 'Update Rating'
+                                    : 'Rate This Dish'}
+                            </ThemedButton>
+                        )}
                     </View>
                 </View>
             </Animated.ScrollView>
@@ -683,6 +857,9 @@ const createThemedStyles = (
             paddingHorizontal: theme.space.sm,
             paddingVertical: theme.space.xxs + 2,
             borderRadius: theme.radius.pill,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.space.xxs,
             backgroundColor:
                 theme.mode === 'dark'
                     ? 'rgba(255,255,255,0.1)'
@@ -696,6 +873,13 @@ const createThemedStyles = (
         tagText: {
             fontSize: theme.font.size.xs + 1,
             color: theme.color.textSecondary,
+            fontWeight: theme.font.weight.semibold,
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+        },
+        tagCountText: {
+            fontSize: theme.font.size.xs,
+            color: theme.color.textTertiary,
             fontWeight: theme.font.weight.semibold,
             textTransform: 'uppercase',
             letterSpacing: 0.5,

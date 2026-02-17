@@ -3,6 +3,7 @@ import {
     ActivityIndicator,
     Pressable,
     type PressableProps,
+    View,
 } from 'react-native';
 
 import { useTheme } from '@/contexts/theme-provider';
@@ -10,9 +11,10 @@ import { buildComponentStyles } from '@/lib/theme/componentStyles';
 import { ThemedText } from './themed-text';
 
 export type ThemedButtonProps = PressableProps & {
-    children: ReactNode;
+    children?: ReactNode;
     variant?: 'primary' | 'secondary';
     loading?: boolean;
+    icon?: ReactNode;
 };
 
 export function ThemedButton({
@@ -21,6 +23,7 @@ export function ThemedButton({
     loading = false,
     disabled,
     style,
+    icon,
     ...rest
 }: ThemedButtonProps) {
     const { theme } = useTheme();
@@ -60,18 +63,29 @@ export function ThemedButton({
                             : theme.color.textPrimary
                     }
                 />
-            ) : typeof children === 'string' ? (
-                <ThemedText
-                    style={
-                        variant === 'primary'
-                            ? builtStyles.buttonPrimaryText
-                            : builtStyles.buttonSecondaryText
-                    }
-                >
-                    {children}
-                </ThemedText>
             ) : (
-                children
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 8,
+                    }}
+                >
+                    {icon}
+                    {typeof children === 'string' ? (
+                        <ThemedText
+                            style={
+                                variant === 'primary'
+                                    ? builtStyles.buttonPrimaryText
+                                    : builtStyles.buttonSecondaryText
+                            }
+                        >
+                            {children}
+                        </ThemedText>
+                    ) : (
+                        children
+                    )}
+                </View>
             )}
         </Pressable>
     );

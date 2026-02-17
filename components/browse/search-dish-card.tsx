@@ -1,12 +1,11 @@
-import { ScoreBadge } from '@/components/score-badge';
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/contexts/theme-provider';
-import type { DishWithVenue } from '@/types/browse';
+import { RestaurantDishWithDetails } from '@/types/dishes';
 import { Image } from 'expo-image';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 interface CompactDishCardWithRatingProps {
-    dish: DishWithVenue;
+    dish: RestaurantDishWithDetails;
     onPress: () => void;
     showVenue?: boolean;
 }
@@ -54,28 +53,28 @@ export function CompactDishCardWithRating({
                 {/* Dish & Venue Info */}
                 <View style={styles.infoContainer}>
                     <ThemedText style={styles.dishName} numberOfLines={1}>
-                        {dish.name}
+                        {dish.dish_type.name}
                     </ThemedText>
                     <ThemedText style={styles.venueName} numberOfLines={1}>
-                        {dish.venue?.name}
+                        @{dish.restaurant.name}
                     </ThemedText>
                     <View style={styles.metaRow}>
-                        {dish.current_price && (
+                        {/* {dish.current_price && (
                             <ThemedText style={styles.price}>
                                 ${dish.current_price.toFixed(0)}
                             </ThemedText>
-                        )}
+                        )} */}
                         <ThemedText style={styles.reviewCount}>
-                            {dish.review_count}{' '}
-                            {dish.review_count === 1 ? 'review' : 'reviews'}
+                            {dish.total_ratings}{' '}
+                            {dish.total_ratings === 1 ? 'rating' : 'ratings'}
                         </ThemedText>
                     </View>
                 </View>
 
                 {/* Rating Badge */}
-                {dish.average_rating !== null && (
+                {/* {dish.average_rating !== null && (
                     <ScoreBadge score={dish.average_rating} />
-                )}
+                )} */}
             </View>
         </Pressable>
     );

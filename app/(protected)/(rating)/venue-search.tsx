@@ -42,12 +42,8 @@ export default function VenueSearchScreen() {
     const handleAddressSelect = useCallback(
         async (suggestion: GooglePlaceSuggestion) => {
             try {
-                const { isNewCity } = await selectGooglePlace(suggestion);
-                if (isNewCity) {
-                    router.push('/(protected)/(rating)/city-onboarding');
-                } else {
-                    router.push('/(protected)/(rating)/dish-selection');
-                }
+                await selectGooglePlace(suggestion);
+                router.push('/(protected)/(rating)/dish-selection');
             } catch (err) {
                 Alert.alert(
                     'Error',

@@ -1,6 +1,7 @@
 import { SearchInput } from '@/components/rating/search-input';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import {
     DishTypeVariation,
@@ -13,7 +14,7 @@ import {
     useRestaurantDishes,
 } from '@/hooks/use-restaurant-dishes';
 import { useRatingStore } from '@/stores';
-import { DishType } from '@/types/dishType';
+import { DishType } from '@/types/dishes';
 import { Stack, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -54,11 +55,8 @@ export default function DishSelectionScreen() {
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
 
-    const {
-        selectedRestaurant,
-        setSelectedDishType,
-        setSelectedVariationId,
-    } = useRatingStore();
+    const { selectedRestaurant, setSelectedDishType, setSelectedVariationId } =
+        useRatingStore();
 
     // Search state
     const [searchQuery, setSearchQuery] = useState('');
@@ -70,8 +68,9 @@ export default function DishSelectionScreen() {
     // Data hooks
     const { data: restaurantDishes, isLoading: isLoadingRestDishes } =
         useRestaurantDishes(selectedRestaurant?.id);
-    const { data: dishTypes, isLoading: isLoadingDishTypes } =
-        useCityDishTypes(selectedRestaurant?.city_id);
+    const { data: dishTypes, isLoading: isLoadingDishTypes } = useCityDishTypes(
+        selectedRestaurant?.city_id
+    );
     const { data: allVariations = [] } = useAllDishTypeVariations();
 
     const variationsByDishType = useMemo(
@@ -219,11 +218,13 @@ export default function DishSelectionScreen() {
     const findExistingRestaurantDish = useCallback(
         (dishTypeId: string, variationId: string | null) => {
             if (!restaurantDishes?.length) return null;
-            return restaurantDishes.find(
-                (rd) =>
-                    rd.dish_type_id === dishTypeId &&
-                    rd.variation_id === (variationId ?? null)
-            ) ?? null;
+            return (
+                restaurantDishes.find(
+                    (rd) =>
+                        rd.dish_type_id === dishTypeId &&
+                        rd.variation_id === (variationId ?? null)
+                ) ?? null
+            );
         },
         [restaurantDishes]
     );
@@ -275,7 +276,10 @@ export default function DishSelectionScreen() {
         (dishType: PrioritizedDishType, variation: DishTypeVariation) => {
             // Check if this (dish_type, variation) combo already exists
             // in restaurant_dishes to avoid creating a duplicate entry
-            const existing = findExistingRestaurantDish(dishType.id, variation.id);
+            const existing = findExistingRestaurantDish(
+                dishType.id,
+                variation.id
+            );
             if (existing) {
                 setSelectedDishType(existing.dish_type as DishType);
                 setSelectedVariationId(existing.variation_id);
@@ -285,7 +289,12 @@ export default function DishSelectionScreen() {
             }
             router.push('/(protected)/(rating)/rating');
         },
-        [findExistingRestaurantDish, setSelectedDishType, setSelectedVariationId, router]
+        [
+            findExistingRestaurantDish,
+            setSelectedDishType,
+            setSelectedVariationId,
+            router,
+        ]
     );
 
     // ─── Render helpers ──────────────────────────────────────────────────────
@@ -401,14 +410,12 @@ export default function DishSelectionScreen() {
                     <View style={styles.emptyContainer}>
                         <ThemedText style={styles.emptyText}>
                             No dishes found
-                            {normalizedQuery
-                                ? ` for "${searchQuery}"`
-                                : ''}
+                            {normalizedQuery ? ` for "${searchQuery}"` : ''}
                         </ThemedText>
                     </View>
                 ) : (
                     <SectionList
-                        sections={sections}
+                        sections={sections as any}
                         keyExtractor={(item, index) => {
                             if ('dish_type' in item) {
                                 return `rd-${(item as RestaurantDishWithDetails).id}`;
@@ -482,10 +489,7 @@ function DishTypeRow({
     isExpanded: boolean;
     variations: DishTypeVariation[];
     onPress: (item: PrioritizedDishType) => void;
-    onVariationSelect: (
-        dt: PrioritizedDishType,
-        v: DishTypeVariation
-    ) => void;
+    onVariationSelect: (dt: PrioritizedDishType, v: DishTypeVariation) => void;
     theme: ReturnType<typeof useTheme>['theme'];
     styles: ReturnType<typeof createThemedStyles>;
 }) {
@@ -515,9 +519,11 @@ function DishTypeRow({
                     )}
                 </View>
                 {hasVariations && (
-                    <ThemedText style={styles.chevron}>
-                        {isExpanded ? '▲' : '▼'}
-                    </ThemedText>
+                    <IconSymbol
+                        name={isExpanded ? 'chevron-up' : 'chevron-down'}
+                        size={16}
+                        color={theme.color.textSecondary}
+                    />
                 )}
             </Pressable>
 
@@ -720,7 +726,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             gap: 4,
         },
         chipPressed: {
-            backgroundColor: theme.color.accent,
+            backgroundColor: theme.color.accentSoft,
         },
         chipEmoji: {
             fontSize: 14,

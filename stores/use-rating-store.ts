@@ -1,6 +1,5 @@
 import { Database } from '@/types/database.types';
-import { DishType } from '@/types/dishType';
-import type { LocationCoordinates } from '@/types/rating';
+import { DishType } from '@/types/dishes';
 import { create } from 'zustand';
 
 type Restaurant = Database['public']['Tables']['restaurants']['Row'];
@@ -40,8 +39,8 @@ interface RatingState {
     setSelectedTags: (tags: string[]) => void;
 
     // Location state
-    location: LocationCoordinates | null;
-    setLocation: (location: LocationCoordinates | null) => void;
+    location: any | null;
+    setLocation: (location: any | null) => void;
 
     // New city info (set when user triggers city creation, used by onboarding screen)
     newCityInfo: NewCityInfo | null;

@@ -1,6 +1,6 @@
 # Forked v0.1 - Active TODO List
 
-**Last Updated:** 2026-02-01
+**Last Updated:** 2026-02-17
 
 This file tracks active work items for the **MVP v0.1 Pivot**. For the full specification, see `forked_v0.1_spec.md`.
 
@@ -45,9 +45,10 @@ We've pivoted from the original roadmap to a focused **MVP v0.1** targeting New 
     - `process_comparison` - Handle standalone This vs That battles
     - `find_comparison_candidate` - Match opponents within ±400 Elo
     - `update_global_dish_score` - Aggregate credibility-weighted scores
-    - `calculate_user_credibility` - Logarithmic credibility (1.0 + 0.5 * ln(count))
+    - `calculate_user_credibility` - Logarithmic credibility (1.0 + 0.5 \* ln(count))
     - `find_nearby_restaurants` - PostGIS geolocation search (ST_Distance/ST_DWithin)
-    - `get_leaderboard` / `get_nearby_leaderboard` - City/neighborhood leaderboards
+    - `get_leaderboard` - City/neighborhood leaderboard with standardized tie-breaking
+    - `search_restaurants` / `search_dish_types` / `search_restaurant_dishes` - Fuzzy cross-search using pg_trgm
     - `get_my_best_ever` - User's top dish per type
     - `get_my_dish_rankings` - User's rankings for a dish type
     - `get_pending_comparisons` - Find pairs to compare
@@ -68,18 +69,22 @@ We've pivoted from the original roadmap to a focused **MVP v0.1** targeting New 
 ### Remaining Screen Work
 
 #### Home Screen
+
 - [ ] "Show #2 and #3" expandable
 - [ ] Get Directions CTA
 
 #### Dish Detail
+
 - [ ] Ranking badge: "#X [Dish] in [Location]"
 - [ ] Map snippet with directions CTA
 - [ ] "Compare This Dish" button
 
 ### Remaining Components
+
 - [ ] **RankBadge** - "#X in [Location]" badge
 
 ### Testing & Polish
+
 - [ ] End-to-end test: full rating flow (photo -> venue -> dish -> rate -> duel)
 - [ ] End-to-end test: standalone This vs That from pending comparisons
 - [ ] End-to-end test: venue search (Google Places + local DB hybrid)
@@ -135,15 +140,17 @@ We've pivoted from the original roadmap to a focused **MVP v0.1** targeting New 
 
 - [x] Google Places Autocomplete (proximity-biased, food/restaurant types)
 - [x] Local DB restaurant search (ilike + nearby PostGIS query)
-- [x] Hybrid search results (DB restaurants + Google Places suggestions)
+- [x] Hybrid search results (DB restaurants + Google Places suggestions). Now with fuzzy cross-search.
 - [x] Auto-create restaurant from Google Place details
 - [x] Nearby restaurant preloading via find_nearby_restaurants RPC
+- [x] Fuzzy Cross-Search RPCs for all categories
 
 ---
 
 ## Environment Variables
 
 Required in `.env`:
+
 ```
 EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -186,7 +193,7 @@ EXPO_PUBLIC_AMPLITUDE_API_KEY=your_amplitude_key           # Analytics
 ## Notes
 
 - Database is READY - 14 tables, 20+ RPCs, seed data all in place
-- ELO system: Initial Elo = 1000 + (raw_score * 100), K-factor = 32
+- ELO system: Initial Elo = 1000 + (raw_score \* 100), K-factor = 32
 - Credibility weighting: Expert users' ratings count more in global scores
 - Google Maps API key required for venue search (Places API must be enabled)
 - PostGIS required on Supabase for geolocation features

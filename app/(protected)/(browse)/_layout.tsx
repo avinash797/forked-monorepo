@@ -21,7 +21,7 @@ export default function BrowseLayout() {
                 }}
             />
             <Stack.Screen
-                name="venue-detail"
+                name="restaurant-detail"
                 options={{
                     title: 'Venue',
                     headerShown: false,
@@ -32,7 +32,7 @@ export default function BrowseLayout() {
                 options={{
                     title: 'Search',
                     headerShown: false, // Custom header in component
-                    presentation: 'card',
+                    presentation: 'containedModal',
                 }}
             />
         </Stack>

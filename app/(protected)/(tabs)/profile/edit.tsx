@@ -62,7 +62,7 @@ export default function EditProfileScreen() {
         defaultValues: {
             display_name: profile?.display_name || '',
             username: profile?.username || '',
-            location: profile?.location || '',
+            location: profile?.home_city_id || '',
             bio: profile?.bio || '',
         },
     });
@@ -82,7 +82,7 @@ export default function EditProfileScreen() {
                             uri,
                             'avatar',
                             user.id,
-                            'user-avatars'
+                            'avatars'
                         );
                         if (result) {
                             setAvatarUrl(result.url);
@@ -99,7 +99,7 @@ export default function EditProfileScreen() {
                             uri,
                             'avatar',
                             user.id,
-                            'user-avatars'
+                            'avatars'
                         );
                         if (result) {
                             setAvatarUrl(result.url);
@@ -121,7 +121,7 @@ export default function EditProfileScreen() {
                 userId: string;
             }) => {
                 const { error } = await supabase
-                    .from('users')
+                    .from('profiles')
                     .update(updates)
                     .eq('id', userId);
                 if (error) throw error;

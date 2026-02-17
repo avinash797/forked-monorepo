@@ -1,10 +1,16 @@
 import { EmptyState } from '@/components/browse/empty-state';
 import DishTypePills from '@/components/Discover/dish-type-pills';
-import { LeaderboardRow } from '@/components/Discover/leaderboard-row';
+import {
+    LeaderboardEntry,
+    LeaderboardRow,
+} from '@/components/Discover/leaderboard-row';
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/contexts/theme-provider';
+import { useAuth } from '@/hooks/use-auth';
+import { useDishTypes } from '@/hooks/use-dish-types';
 import { useMyDishRankings } from '@/hooks/use-ratings';
-import { DishType } from '@/types/dishType';
+import { useUserStats } from '@/hooks/use-user-stats';
+import { DishType } from '@/types/dishes';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
@@ -16,10 +22,24 @@ const personal = () => {
 
     const { theme } = useTheme();
     const styles = useMemo(() => createThemedStyles(theme), [theme]);
+    const { user } = useAuth();
 
     const [selectedDishType, setSelectedDishType] = useState<DishType | null>(
         null
     );
+
+    // Fetch dish types and user stats, then filter to only types the user has rated
+    const { data: allDishTypes } = useDishTypes();
+    const { data: userStats } = useUserStats(user?.id);
+
+    const personalDishTypes = useMemo(() => {
+        if (!userStats?.dishes_by_type) return [];
+        return (
+            allDishTypes?.filter((dt) =>
+                Object.keys(userStats.dishes_by_type).includes(dt.name)
+            ) ?? []
+        );
+    }, [allDishTypes, userStats]);
 
     const {
         data: dishRankingsData,
@@ -30,6 +50,16 @@ const personal = () => {
     const dishRankings = Array.isArray(dishRankingsData)
         ? dishRankingsData
         : [];
+
+    const handleRowPress = (item: LeaderboardEntry) => {
+        router.push({
+            pathname: '/(protected)/(browse)/dish-detail',
+            params: {
+                restaurantId: item.restaurant_id,
+                dishTypeId: selectedDishType?.id || '',
+            },
+        });
+    };
 
     const ListHeader = () => (
         <View style={styles.listHeader}>
@@ -45,9 +75,9 @@ const personal = () => {
         <SafeAreaView style={styles.container}>
             <ListHeader />
             <DishTypePills
+                dishTypes={personalDishTypes}
                 selectedDishType={selectedDishType}
                 handleDishTypeSelect={setSelectedDishType}
-                view="personal"
             />
             <ScrollView
                 refreshControl={
@@ -85,7 +115,10 @@ const personal = () => {
                         )}
                         key={`${item.restaurant_id}-${item.rank}`}
                     >
-                        <LeaderboardRow item={item} onPress={() => {}} />
+                        <LeaderboardRow
+                            item={item}
+                            onPress={() => handleRowPress(item)}
+                        />
                     </Animated.View>
                 ))}
             </ScrollView>

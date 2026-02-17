@@ -24,6 +24,7 @@ export interface CreateRatingInput {
     photo_url?: string;
     variation_id?: string;
     notes?: string;
+    taste_tag_ids?: string[];
 }
 
 /**
@@ -46,8 +47,7 @@ export function useCreateRating() {
                     p_photo_url: input.photo_url ?? null,
                     p_variation_id: input.variation_id,
                     p_notes: input.notes,
-                    //TODO: Need to add location_verified
-                    //TODO: Need to add taste_tag_ids
+                    p_taste_tag_ids: input.taste_tag_ids,
                 } as any
             );
 

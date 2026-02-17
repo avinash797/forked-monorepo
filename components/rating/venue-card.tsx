@@ -1,10 +1,10 @@
 import { useTheme } from '@/contexts/theme-provider';
 import { buildComponentStyles } from '@/lib/theme/componentStyles';
-import type { Venue, VenueWithDistance } from '@/types/rating';
+import { Restaurant } from '@/types/restaurant';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface VenueCardProps {
-    venue: Venue | VenueWithDistance;
+    venue: Restaurant;
     onPress: () => void;
     showDistance?: boolean;
 }
@@ -18,17 +18,13 @@ export function VenueCard({
     const builtStyles = buildComponentStyles(theme);
     const styles = createThemedStyles(theme);
 
-    const address = `${venue.address_city}, ${venue.address_state}`;
-    const cuisines = venue.cuisine_types.join(', ');
-    const distance = 'distanceMeters' in venue ? venue.distanceMeters : null;
+    const address = venue.address;
 
     const formatDistance = (meters: number | null | undefined) => {
         if (meters === null || meters === undefined) return null;
         if (meters < 1000) return `${Math.round(meters)}m away`;
         return `${(meters / 1000).toFixed(1)}km away`;
     };
-
-    const priceRange = venue.price_range ? '$'.repeat(venue.price_range) : null;
 
     return (
         <Pressable
@@ -39,22 +35,15 @@ export function VenueCard({
             <View style={builtStyles.card}>
                 <View style={styles.header}>
                     <Text style={builtStyles.h2}>{venue.name}</Text>
-                    {priceRange && (
-                        <Text style={builtStyles.body}>{priceRange}</Text>
-                    )}
                 </View>
-
-                {cuisines && (
-                    <Text style={builtStyles.caption}>{cuisines}</Text>
-                )}
 
                 <Text style={builtStyles.caption}>{address}</Text>
 
-                {showDistance && distance !== null && (
+                {/* {showDistance && (
                     <Text style={builtStyles.accentTag}>
-                        {formatDistance(distance)}
+                        {formatDistance(venue.distanceMeters ?? 0)}
                     </Text>
-                )}
+                )} */}
             </View>
         </Pressable>
     );
