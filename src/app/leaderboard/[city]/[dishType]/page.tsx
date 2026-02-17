@@ -9,6 +9,8 @@ import {
   type LeaderboardEntry,
 } from "@/components/leaderboard/leaderboard-table";
 import { buildMetadata, buildLeaderboardJsonLd } from "@/lib/seo";
+import { getRelatedBlogPosts } from "@/lib/blog/queries";
+import { BlogPostCard } from "@/components/blog/blog-post-card";
 
 export const revalidate = 600;
 
@@ -111,7 +113,10 @@ export default async function DishTypeLeaderboard({ params }: Props) {
 
   if (!city || !dishType) notFound();
 
-  const entries = await getLeaderboardEntries(city.id, dishType.id);
+  const [entries, relatedPosts] = await Promise.all([
+    getLeaderboardEntries(city.id, dishType.id),
+    getRelatedBlogPosts(city.id, dishType.id),
+  ]);
 
   const topEntry = entries[0];
   const jsonLd = buildLeaderboardJsonLd({
@@ -237,6 +242,31 @@ export default async function DishTypeLeaderboard({ params }: Props) {
                   }),
                 }}
               />
+            </section>
+          )}
+
+          {/* Related Articles */}
+          {relatedPosts.length > 0 && (
+            <section className="mt-16">
+              <h2 className="text-xl font-bold text-text-primary mb-6">
+                Related Articles
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {relatedPosts.slice(0, 3).map((post) => (
+                  <BlogPostCard
+                    key={post.id}
+                    title={post.title}
+                    slug={post.slug}
+                    excerpt={post.excerpt}
+                    featuredImageUrl={post.featured_image_url}
+                    publishedAt={post.published_at}
+                    authorName={post.blog_authors?.name ?? "Forked Team"}
+                    authorAvatarUrl={post.blog_authors?.avatar_url ?? null}
+                    categoryName={post.blog_categories?.name ?? "Uncategorized"}
+                    categorySlug={post.blog_categories?.slug ?? ""}
+                  />
+                ))}
+              </div>
             </section>
           )}
         </div>
