@@ -17,7 +17,7 @@ export function Footer() {
               Forked
             </span>
           </Link>
-          <p className="text-white/30 text-xs font-medium max-w-xs uppercase tracking-widest leading-loose">
+          <p className="text-white/50 text-xs font-medium max-w-xs uppercase tracking-widest leading-loose">
             The dish-level ranking engine for the next generation of food lovers.
             Built for data. Built for taste.
           </p>
@@ -25,7 +25,7 @@ export function Footer() {
 
         <div className="flex gap-12 text-xs font-black tracking-widest text-white/40 uppercase">
           <div className="space-y-4">
-            <p className="text-white/10">EXPLORE</p>
+            <p className="text-white/30">EXPLORE</p>
             <Link href="/leaderboard" className="block hover:text-white transition-colors">
               Leaderboards
             </Link>
@@ -37,7 +37,7 @@ export function Footer() {
             </Link>
           </div>
           <div className="space-y-4">
-            <p className="text-white/10">COMPANY</p>
+            <p className="text-white/30">COMPANY</p>
             <Link href="/about" className="block hover:text-white transition-colors">
               About
             </Link>
@@ -46,7 +46,7 @@ export function Footer() {
             </Link>
           </div>
           <div className="space-y-4">
-            <p className="text-white/10">LEGAL</p>
+            <p className="text-white/30">LEGAL</p>
             <Link href="/privacy" className="block hover:text-white transition-colors">
               Privacy
             </Link>
@@ -58,7 +58,7 @@ export function Footer() {
       </div>
 
       <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 text-center md:text-left">
-        <p className="text-white/10 text-[10px] font-bold tracking-[0.5em] uppercase">
+        <p className="text-white/30 text-[10px] font-bold tracking-[0.5em] uppercase">
           Made with love in New Orleans
         </p>
       </div>

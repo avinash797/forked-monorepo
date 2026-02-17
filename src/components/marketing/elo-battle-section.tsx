@@ -144,7 +144,7 @@ export function EloBattleSection() {
       </div>
 
       <div className="mt-8 md:mt-12 text-center">
-        <p className="text-xs font-bold tracking-[0.3em] uppercase text-white/30">
+        <p className="text-xs font-bold tracking-[0.3em] uppercase text-white/50">
           Tap to decide who wins this round
         </p>
         <button
