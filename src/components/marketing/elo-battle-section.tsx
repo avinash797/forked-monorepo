@@ -48,12 +48,23 @@ export function EloBattleSection() {
 
         {/* Left Dish */}
         <motion.div
+          role="button"
+          tabIndex={voted ? -1 : 0}
+          aria-label="Vote for Smash Burger from Tony's Diner"
+          aria-pressed={voted === "left"}
+          aria-disabled={!!voted}
           className={`relative group cursor-pointer rounded-2xl overflow-hidden border-2 transition-all duration-500 ${
             voted === "left"
               ? "border-[#FF4D00] scale-[1.02] shadow-[0_0_40px_rgba(255,77,0,0.2)]"
               : "border-white/5 opacity-80 hover:opacity-100"
           }`}
           onClick={() => handleVote("left")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleVote("left");
+            }
+          }}
           whileTap={!voted ? { scale: 0.98 } : undefined}
         >
           <Image
@@ -96,12 +107,23 @@ export function EloBattleSection() {
 
         {/* Right Dish */}
         <motion.div
+          role="button"
+          tabIndex={voted ? -1 : 0}
+          aria-label="Vote for Truffle Brioche from L'Avenue Grill"
+          aria-pressed={voted === "right"}
+          aria-disabled={!!voted}
           className={`relative group cursor-pointer rounded-2xl overflow-hidden border-2 transition-all duration-500 ${
             voted === "right"
               ? "border-[#FF4D00] scale-[1.02] shadow-[0_0_40px_rgba(255,77,0,0.2)]"
               : "border-white/5 opacity-80 hover:opacity-100"
           }`}
           onClick={() => handleVote("right")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleVote("right");
+            }
+          }}
           whileTap={!voted ? { scale: 0.98 } : undefined}
         >
           <Image

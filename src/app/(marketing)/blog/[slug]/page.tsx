@@ -40,6 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return buildMetadata({
     title,
     description,
+    canonicalPath: `/blog/${post.slug}`,
     openGraph: {
       type: "article",
       title,

@@ -90,6 +90,7 @@ export function VisionSection() {
               src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=1000"
               alt="Hole in the wall restaurant with incredible food"
               fill
+              priority
               className="object-cover grayscale brightness-50 contrast-125"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />

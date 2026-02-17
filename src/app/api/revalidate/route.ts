@@ -14,6 +14,12 @@ export async function POST(request: NextRequest) {
     const { path } = body as { path?: string };
 
     if (path) {
+      // Only allow revalidation of known public content paths
+      const allowedPrefixes = ["/leaderboard", "/blog", "/about", "/how-it-works"];
+      const isAllowed = path === "/" || allowedPrefixes.some((p) => path.startsWith(p));
+      if (!isAllowed) {
+        return NextResponse.json({ error: "Path not allowed" }, { status: 400 });
+      }
       revalidatePath(path);
       return NextResponse.json({ revalidated: true, path });
     }

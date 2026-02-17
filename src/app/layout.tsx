@@ -17,7 +17,7 @@ const playfair = Playfair_Display({
   style: ["normal", "italic"],
 });
 
-export const metadata: Metadata = buildMetadata();
+export const metadata: Metadata = buildMetadata({ canonicalPath: "/" });
 
 export default function RootLayout({
   children,

@@ -17,21 +17,21 @@ async function getLeaderboardPreview(): Promise<LeaderboardEntry[]> {
   try {
     const supabase = await createClient();
 
-    const { data: city } = await supabase
-      .from("cities")
-      .select("id")
-      .eq("slug", "new-orleans-louisiana")
-      .single();
+    // Resolve city and dish type IDs in parallel
+    const [{ data: city }, { data: dishType }] = await Promise.all([
+      supabase
+        .from("cities")
+        .select("id")
+        .eq("slug", "new-orleans-louisiana")
+        .single(),
+      supabase
+        .from("dish_types")
+        .select("id")
+        .eq("slug", "po-boy")
+        .single(),
+    ]);
 
-    if (!city) return [];
-
-    const { data: dishType } = await supabase
-      .from("dish_types")
-      .select("id")
-      .eq("slug", "po-boy")
-      .single();
-
-    if (!dishType) return [];
+    if (!city || !dishType) return [];
 
     const { data } = await supabase.rpc("get_leaderboard", {
       p_city_id: city.id,

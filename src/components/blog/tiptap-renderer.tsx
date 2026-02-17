@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { Json } from "@/types/database.types";
 
 interface TipTapNode {
@@ -28,25 +29,26 @@ function renderMarks(text: string, marks?: TipTapMark[]): React.ReactNode {
             {acc}
           </code>
         );
-      case "link":
+      case "link": {
+        const rawHref = mark.attrs?.href as string;
+        // Prevent javascript: and other dangerous URI schemes
+        const safeHref =
+          rawHref?.startsWith("https://") ||
+          rawHref?.startsWith("http://") ||
+          rawHref?.startsWith("/")
+            ? rawHref
+            : "#";
         return (
           <a
-            href={mark.attrs?.href as string}
-            target={
-              (mark.attrs?.href as string)?.startsWith("/")
-                ? undefined
-                : "_blank"
-            }
-            rel={
-              (mark.attrs?.href as string)?.startsWith("/")
-                ? undefined
-                : "noopener noreferrer"
-            }
+            href={safeHref}
+            target={safeHref.startsWith("/") ? undefined : "_blank"}
+            rel={safeHref.startsWith("/") ? undefined : "noopener noreferrer"}
             className="text-accent hover:underline"
           >
             {acc}
           </a>
         );
+      }
       case "underline":
         return <u>{acc}</u>;
       case "strike":
@@ -172,12 +174,15 @@ function RenderNode({
       const imgTitle = node.attrs?.title as string | undefined;
       return (
         <figure className="my-6">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={imgSrc}
-            alt={imgAlt}
-            className="rounded-lg max-w-full"
-          />
+          <div className="relative aspect-[16/9] w-full">
+            <Image
+              src={imgSrc}
+              alt={imgAlt}
+              fill
+              className="rounded-lg object-cover"
+              sizes="(max-width: 768px) 100vw, 768px"
+            />
+          </div>
           {imgTitle && (
             <figcaption className="text-sm text-text-tertiary mt-2 text-center">
               {imgTitle}
