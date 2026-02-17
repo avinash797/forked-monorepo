@@ -794,6 +794,7 @@ export type Database = {
           home_city_id: string | null
           id: string
           push_enabled: boolean | null
+          role: string
           total_battles: number | null
           total_ratings: number | null
           updated_at: string | null
@@ -809,6 +810,7 @@ export type Database = {
           home_city_id?: string | null
           id: string
           push_enabled?: boolean | null
+          role?: string
           total_battles?: number | null
           total_ratings?: number | null
           updated_at?: string | null
@@ -824,6 +826,7 @@ export type Database = {
           home_city_id?: string | null
           id?: string
           push_enabled?: boolean | null
+          role?: string
           total_battles?: number | null
           total_ratings?: number | null
           updated_at?: string | null
@@ -1300,6 +1303,7 @@ export type Database = {
         Returns: Json
       }
       get_user_stats: { Args: { p_user_id?: string }; Returns: Json }
+      is_admin: { Args: never; Returns: boolean }
       match_location: { Args: { lat: number; long: number }; Returns: Json }
       post_rating_and_get_duel: {
         Args: {
