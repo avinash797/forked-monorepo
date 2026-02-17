@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { buildMetadata, buildWebsiteJsonLd, buildOrganizationJsonLd } from "@/lib/seo";
 import "./globals.css";
 
@@ -25,6 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="theme-color" content="#050505" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -42,6 +45,8 @@ export default function RootLayout({
         className={`${inter.variable} ${playfair.variable} antialiased`}
       >
         {children}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

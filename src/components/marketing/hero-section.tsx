@@ -42,8 +42,8 @@ export function HeroSection() {
         {/* Headline */}
         <motion.h1
           className="font-display italic font-black text-6xl md:text-8xl lg:text-9xl leading-[0.9] mb-6 tracking-tighter"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ y: 30 }}
+          animate={{ y: 0 }}
           transition={{ delay: 0.2, duration: 0.8 }}
         >
           Ditch the <br />
@@ -98,7 +98,7 @@ export function HeroSection() {
           width={192}
           height={192}
           className="w-32 md:w-48 rounded-2xl grayscale hover:grayscale-0 transition-all duration-700 shadow-2xl -rotate-12"
-          unoptimized
+          sizes="(max-width: 768px) 128px, 192px"
         />
       </motion.div>
       <motion.div style={{ y: y2 }} className="absolute -right-20 md:right-40 bottom-1/4 z-0 opacity-50 md:opacity-100">
@@ -108,7 +108,7 @@ export function HeroSection() {
           width={256}
           height={256}
           className="w-40 md:w-64 rounded-2xl shadow-2xl rotate-[8deg]"
-          unoptimized
+          sizes="(max-width: 768px) 160px, 256px"
         />
       </motion.div>
 

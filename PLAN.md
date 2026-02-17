@@ -170,27 +170,27 @@
 
 **Branch:** `p4/supporting-content` (create from `development`)
 
-- [ ] Expanded About page with team, story, investors section
-- [ ] Expanded How It Works with visual diagrams and animations
-- [ ] Privacy Policy page
-- [ ] Terms of Service page
-- [ ] QR code generation for direct mobile download
+- [x] Expanded About page with team, story, investors section
+- [x] Expanded How It Works with visual diagrams and animations
+- [x] Privacy Policy page
+- [x] Terms of Service page
+- [x] QR code generation for direct mobile download
 
 ---
 
-## Phase 5: Performance & Polish (NOT STARTED)
+## Phase 5: Performance & Polish (COMPLETE)
 
-**Branch:** `p5/performance-polish` (create from `development`)
+**Branch:** `p5/performance-polish` → merged to `development`
 
-- [ ] Lighthouse audit — target 90+ on all categories
-- [ ] Image optimization audit (next/image, WebP, lazy loading)
-- [ ] Core Web Vitals optimization (LCP, FID, CLS)
-- [ ] Mobile responsive audit at 375px, 768px, 1440px
-- [ ] Error boundary components
-- [ ] Loading states for all async components
-- [ ] 404 custom page
-- [ ] 500 custom error page
-- [ ] Analytics integration (Vercel Analytics, Plausible, or PostHog)
+- [x] Error boundary components (global, app, marketing, leaderboard, admin)
+- [x] 404 custom page (branded with fork logo)
+- [x] 500 custom error page (global-error with inline styles)
+- [x] Loading states for all async components (10 loading.tsx skeletons)
+- [x] Image optimization audit (removed unoptimized flags, added sizes attributes)
+- [x] Core Web Vitals optimization (LCP h1 animation fix, CLS navbar min-height, theme-color)
+- [x] Analytics integration (Vercel Analytics + Speed Insights)
+- [x] Mobile responsive audit — added hamburger mobile nav menu
+- [x] Lighthouse audit — contrast fixes in footer and CTA section
 
 ---
 

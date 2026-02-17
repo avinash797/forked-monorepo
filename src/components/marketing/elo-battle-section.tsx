@@ -62,7 +62,7 @@ export function EloBattleSection() {
             width={800}
             height={1000}
             className="w-full aspect-[3/4] md:aspect-[4/5] object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-            unoptimized
+            sizes="(max-width: 768px) 50vw, 400px"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
           <div className="absolute bottom-4 left-4 right-4 md:bottom-6 md:left-6 md:right-6">
@@ -110,7 +110,7 @@ export function EloBattleSection() {
             width={800}
             height={1000}
             className="w-full aspect-[3/4] md:aspect-[4/5] object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-            unoptimized
+            sizes="(max-width: 768px) 50vw, 400px"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
           <div className="absolute bottom-4 left-4 right-4 md:bottom-6 md:left-6 md:right-6">
@@ -144,7 +144,7 @@ export function EloBattleSection() {
       </div>
 
       <div className="mt-8 md:mt-12 text-center">
-        <p className="text-xs font-bold tracking-[0.3em] uppercase text-white/30">
+        <p className="text-xs font-bold tracking-[0.3em] uppercase text-white/50">
           Tap to decide who wins this round
         </p>
         <button

@@ -30,7 +30,7 @@ export function CtaSection() {
               size={32}
               className="mx-auto mb-4 group-hover:scale-110 transition-transform"
             />
-            <p className="text-[10px] font-black tracking-widest mb-1 text-white/40 group-hover:text-white/80">
+            <p className="text-[10px] font-black tracking-widest mb-1 text-white/60 group-hover:text-white/80">
               DOWNLOAD ON THE
             </p>
             <h4 className="text-lg font-black uppercase">App Store</h4>
@@ -43,7 +43,7 @@ export function CtaSection() {
               size={32}
               className="mx-auto mb-4 group-hover:scale-110 transition-transform"
             />
-            <p className="text-[10px] font-black tracking-widest mb-1 text-white/40 group-hover:text-white/80">
+            <p className="text-[10px] font-black tracking-widest mb-1 text-white/60 group-hover:text-white/80">
               GET IT ON
             </p>
             <h4 className="text-lg font-black uppercase">Google Play</h4>
