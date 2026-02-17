@@ -1,6 +1,6 @@
 # Forked v0.1 - Progress Tracker
 
-**Last Updated:** 2026-02-01
+**Last Updated:** 2026-02-17
 
 This document tracks completion metrics for the **MVP v0.1 Pivot**.
 
@@ -66,6 +66,8 @@ Overall Progress         █████████████████░�
 - `20260130223621_rating-redefine-part-2.sql` - city_known_dishes, dish_type_variations, leaderboard_snapshots, restaurant_dishes
 - `20260131000006_fix_raw_score_type_in_rpcs.sql` - Fixed 7 RPCs for NUMERIC raw_score type
 - `20260131181759_find_nearby_restaurants_rpc.sql` - PostGIS geolocation search
+- `20260216000000_search_rpc_functions.sql` - Cross-search RPC functions using pg_trgm fuzzy matching
+- `20260217130500_standardize_leaderboard_functions.sql` - Consolidated leaderboard logic with robust tie-breaking
 
 ---
 
@@ -144,17 +146,31 @@ Overall Progress         █████████████████░�
 
 ### Venue Search & Creation - 100% Complete
 
-| Task                               | Status   | Notes                                                         |
-| ---------------------------------- | -------- | ------------------------------------------------------------- |
-| Google Places Autocomplete         | Complete | Proximity-biased search for food/restaurant types             |
-| Local DB restaurant search         | Complete | ilike search + nearby PostGIS query                           |
-| Hybrid search results              | Complete | DB restaurants (solid border) + Google Places (dashed border) |
-| Auto-create restaurant from Google | Complete | Parses address, creates restaurant record                     |
-| Nearby restaurant preloading       | Complete | GPS-based preload via find_nearby_restaurants RPC             |
+| Task                               | Status   | Notes                                                                                       |
+| ---------------------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| Google Places Autocomplete         | Complete | Proximity-biased search for food/restaurant types                                           |
+| Local DB restaurant search         | Complete | ilike search + nearby PostGIS query                                                         |
+| Hybrid search results              | Complete | DB restaurants (solid border) + Google Places (dashed border). Now with fuzzy cross-search. |
+| Auto-create restaurant from Google | Complete | Parses address, creates restaurant record                                                   |
+| Nearby restaurant preloading       | Complete | GPS-based preload via find_nearby_restaurants RPC                                           |
+| Fuzzy Cross-Search RPCs            | Complete | `search_restaurants`, `search_dish_types`, and `search_restaurant_dishes`                   |
 
 ---
 
 ## Progress History
+
+### 2026-02-17 - Discovery & Standardization Overhaul
+
+- **Search:** Implemented fuzzy cross-search using `pg_trgm`.
+    - Search across Dish Types, Restaurants, and specific Restaurant Dishes.
+    - Added `useSearch` hook with debouncing and consolidated result handling.
+- **Leaderboard:** Standardized `get_leaderboard` logic.
+    - Consolidated tie-breaker logic (Elo -> Win Rate -> Battles -> Avg Score -> Created At).
+    - Removed redundant `get_leaderboard_with_tiebreakers` RPC.
+- **Infrastructure:** Major type cleanup.
+    - Removed legacy `types/browse.ts`, `types/rating.ts`, and `types/database.ts`.
+    - Regenerated `types/database.types.ts` to match schema.
+- **Overall:** 90% complete
 
 ### 2026-02-01 - Venue Search & Database Overhaul
 
