@@ -312,11 +312,13 @@ export function useUserLeaderboardPosition(
 
             // Get the leaderboard to find position
             const { data: leaderboard } = await supabase.rpc(
-                'get_leaderboard_with_tiebreakers',
+                'get_leaderboard',
                 {
                     p_city_id: cityId,
                     p_dish_type_id: dishTypeId,
                     p_limit: 100,
+                    p_min_battles: 0, // Lower thresholds for personal ranking
+                    p_min_ratings: 0,
                 }
             );
 

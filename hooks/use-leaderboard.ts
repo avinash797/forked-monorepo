@@ -10,40 +10,28 @@ interface LeaderboardParams {
     minimumRatingRequirement?: number;
 }
 
-export function useLeaderboardWithTieBreakers({
+/**
+ * Main hook for fetching leaderboard data.
+ * Now supports both strict tie-breaking and flexible filtering.
+ */
+export function useLeaderboard({
     cityId,
     dishTypeId,
-    limit = 10,
-}: LeaderboardParams) {
-    return useQuery({
-        queryKey: ['leaderboard', cityId, dishTypeId, limit],
-        queryFn: async () => {
-            const { data, error } = await supabase.rpc(
-                'get_leaderboard_with_tiebreakers',
-                {
-                    p_city_id: cityId,
-                    p_dish_type_id: dishTypeId,
-                    p_limit: limit,
-                }
-            );
-
-            if (error) throw error;
-            return data;
-        },
-        enabled: !!cityId && !!dishTypeId,
-    });
-}
-
-export function useGetLeaderboardByDishType({
-    cityId,
-    dishTypeId,
-    limit = 10,
-    minimumBattlesRequirement = 0,
-    minimumRatingRequirement = 0,
     neighborhoodId,
+    limit = 10,
+    minimumBattlesRequirement = 5,
+    minimumRatingRequirement = 3,
 }: LeaderboardParams) {
     return useQuery({
-        queryKey: ['leaderboard', cityId, dishTypeId, limit],
+        queryKey: [
+            'leaderboard',
+            cityId,
+            dishTypeId,
+            neighborhoodId,
+            limit,
+            minimumBattlesRequirement,
+            minimumRatingRequirement,
+        ],
         queryFn: async () => {
             const { data, error } = await supabase.rpc('get_leaderboard', {
                 p_city_id: cityId,
@@ -61,22 +49,6 @@ export function useGetLeaderboardByDishType({
     });
 }
 
-export function useTopDish(cityId: string, dishTypeId: string) {
-    return useQuery({
-        queryKey: ['topDish', cityId, dishTypeId],
-        queryFn: async () => {
-            const { data, error } = await supabase.rpc(
-                'get_leaderboard_with_tiebreakers',
-                {
-                    p_city_id: cityId,
-                    p_dish_type_id: dishTypeId,
-                    p_limit: 1,
-                }
-            );
-
-            if (error) throw error;
-            return data?.[0] || null;
-        },
-        enabled: !!cityId && !!dishTypeId,
-    });
-}
+// Keep aliases for backward compatibility if needed, but they all point to useLeaderboard
+export const useLeaderboardWithTieBreakers = useLeaderboard;
+export const useGetLeaderboardByDishType = useLeaderboard;

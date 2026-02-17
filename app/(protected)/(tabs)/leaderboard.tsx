@@ -7,6 +7,7 @@ import {
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/contexts/theme-provider';
+import { useCityDishTypes } from '@/hooks/use-dish-types';
 import { useGetLeaderboardByDishType } from '@/hooks/use-leaderboard';
 import { useLocationFilterStore } from '@/stores';
 import { DishType } from '@/types/dishes';
@@ -44,6 +45,9 @@ export default function LeaderboardScreen() {
 
     // Use current city or fallback to NOLA
     const cityId = selectedCityId;
+
+    // Fetch city-prioritized dish types
+    const { data: cityDishTypes } = useCityDishTypes(cityId);
 
     // Fetch leaderboard data
     const {
@@ -114,6 +118,7 @@ export default function LeaderboardScreen() {
         <ThemedView style={styles.container}>
             <ListHeader />
             <DishTypePills
+                dishTypes={cityDishTypes ?? []}
                 selectedDishType={selectedDishType}
                 handleDishTypeSelect={handleDishTypeSelect}
                 initialDishTypeId={initialDishTypeId}

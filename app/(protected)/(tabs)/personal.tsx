@@ -6,7 +6,10 @@ import {
 } from '@/components/Discover/leaderboard-row';
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/contexts/theme-provider';
+import { useAuth } from '@/hooks/use-auth';
+import { useDishTypes } from '@/hooks/use-dish-types';
 import { useMyDishRankings } from '@/hooks/use-ratings';
+import { useUserStats } from '@/hooks/use-user-stats';
 import { DishType } from '@/types/dishes';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
@@ -19,10 +22,24 @@ const personal = () => {
 
     const { theme } = useTheme();
     const styles = useMemo(() => createThemedStyles(theme), [theme]);
+    const { user } = useAuth();
 
     const [selectedDishType, setSelectedDishType] = useState<DishType | null>(
         null
     );
+
+    // Fetch dish types and user stats, then filter to only types the user has rated
+    const { data: allDishTypes } = useDishTypes();
+    const { data: userStats } = useUserStats(user?.id);
+
+    const personalDishTypes = useMemo(() => {
+        if (!userStats?.dishes_by_type) return [];
+        return (
+            allDishTypes?.filter((dt) =>
+                Object.keys(userStats.dishes_by_type).includes(dt.name)
+            ) ?? []
+        );
+    }, [allDishTypes, userStats]);
 
     const {
         data: dishRankingsData,
@@ -58,9 +75,9 @@ const personal = () => {
         <SafeAreaView style={styles.container}>
             <ListHeader />
             <DishTypePills
+                dishTypes={personalDishTypes}
                 selectedDishType={selectedDishType}
                 handleDishTypeSelect={setSelectedDishType}
-                view="personal"
             />
             <ScrollView
                 refreshControl={
