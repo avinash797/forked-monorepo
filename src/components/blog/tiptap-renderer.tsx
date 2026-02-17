@@ -166,22 +166,26 @@ function RenderNode({
     case "hardBreak":
       return <br />;
 
-    case "image":
+    case "image": {
+      const imgSrc = node.attrs?.src as string;
+      const imgAlt = (node.attrs?.alt as string) ?? "";
+      const imgTitle = node.attrs?.title as string | undefined;
       return (
         <figure className="my-6">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={node.attrs?.src as string}
-            alt={(node.attrs?.alt as string) ?? ""}
+            src={imgSrc}
+            alt={imgAlt}
             className="rounded-lg max-w-full"
           />
-          {node.attrs?.title && (
+          {imgTitle && (
             <figcaption className="text-sm text-text-tertiary mt-2 text-center">
-              {node.attrs.title as string}
+              {imgTitle}
             </figcaption>
           )}
         </figure>
       );
+    }
 
     case "horizontalRule":
       return <hr className="border-border my-8" />;

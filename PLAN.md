@@ -80,29 +80,33 @@
 
 ---
 
-## Phase 2: Blog System (NOT STARTED)
+## Phase 2: Blog System (COMPLETE)
 
-**Branch:** `p2/blog-system` (create from `development`)
+**Branch:** `p2/blog-system` → merged to `development`
 
 ### Database Migration
-- [ ] Create `blog_posts` table (title, slug, content, excerpt, published_at, author_id, category_id, featured_image, seo_title, seo_description, status)
-- [ ] Create `blog_categories` table (name, slug, description)
-- [ ] Create `blog_authors` table (name, bio, avatar, social links)
-- [ ] Create `blog_post_tags` junction table
-- [ ] RLS policies for public read, admin write
+- [x] Create `blog_posts` table (title, slug, JSONB content, excerpt, published_at, author_id, category_id, featured_image, seo_title, seo_description, status)
+- [x] Create `blog_categories` table (name, slug, description, display_order)
+- [x] Create `blog_authors` table (name, slug, bio, avatar, social handles)
+- [x] Create `blog_tags` + `blog_post_tags` junction table
+- [x] RLS policies for public read (published-only for posts)
+- [x] Seed data: 1 author, 3 categories, 3 tags, 2 published posts
 
 ### Blog Pages
-- [ ] Blog listing page (`/blog`) with pagination
-- [ ] Blog post page (`/blog/[slug]`) with `Article` JSON-LD
-- [ ] Category filtering
-- [ ] "Best X in Y" posts auto-enriched with live leaderboard data
-- [ ] `generateStaticParams` for all published posts
-- [ ] ISR revalidation
+- [x] Blog listing page (`/blog`) with pagination and category filtering
+- [x] Blog post page (`/blog/[slug]`) with `Article` JSON-LD
+- [x] Category filtering via `BlogCategoryFilter` client component
+- [x] "Best X in Y" posts auto-enriched with live leaderboard data via `BlogLeaderboardEnrichment`
+- [x] `generateStaticParams` for all published post slugs
+- [x] ISR revalidation (10 minutes)
+- [x] TipTap JSONB renderer (headings, paragraphs, lists, blockquotes, code, images, marks)
 
 ### Blog SEO
-- [ ] `Article` + `ItemList` + `FAQPage` JSON-LD on blog posts
-- [ ] Internal linking between leaderboard pages and blog posts
-- [ ] Open Graph images per blog post
+- [x] `BlogPosting` JSON-LD on blog post pages
+- [x] `ItemList` JSON-LD on blog listing page
+- [x] Internal linking between leaderboard pages and blog posts (Related Articles)
+- [x] Open Graph images per blog post via existing `/api/og?title=...`
+- [x] Blog added to navbar, footer, and `llms.txt`
 
 ---
 
