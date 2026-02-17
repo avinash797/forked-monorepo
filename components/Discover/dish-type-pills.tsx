@@ -18,10 +18,12 @@ export default function DishTypePills({
     selectedDishType,
     handleDishTypeSelect,
     view = 'global',
+    initialDishTypeId,
 }: {
     selectedDishType: DishType | null;
     handleDishTypeSelect: (dishType: DishType | null) => void;
     view?: 'global' | 'personal';
+    initialDishTypeId?: string;
 }) {
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
@@ -53,12 +55,21 @@ export default function DishTypePills({
                 displayDishTypes.some((dt) => dt.id === selectedDishType.id);
 
             if (!isSelectedValid) {
-                handleDishTypeSelect(displayDishTypes[0]);
+                // Prefer the initial dish type from URL params if provided
+                const initialMatch = initialDishTypeId
+                    ? displayDishTypes.find((dt) => dt.id === initialDishTypeId)
+                    : undefined;
+                handleDishTypeSelect(initialMatch ?? displayDishTypes[0]);
             }
         } else {
             handleDishTypeSelect(null);
         }
-    }, [displayDishTypes, selectedDishType, handleDishTypeSelect]);
+    }, [
+        displayDishTypes,
+        selectedDishType,
+        handleDishTypeSelect,
+        initialDishTypeId,
+    ]);
 
     return (
         <View style={styles.chipContainer}>

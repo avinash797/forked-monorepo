@@ -1,11 +1,37 @@
 import { supabase } from '@/lib/supabase';
-import type { SearchResult } from '@/types/browse';
-import type { Venue } from '@/types/rating';
+import { DishType } from '@/types/dishes';
+import { Restaurant } from '@/types/restaurant';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
+/** Shape returned by the search_restaurant_dishes RPC */
+export interface RestaurantDishSearchResult {
+    restaurant_dish_id: string;
+    dish_type_id: string;
+    dish_type_name: string;
+    dish_type_emoji: string | null;
+    restaurant_id: string;
+    restaurant_name: string;
+    photos: string[];
+    total_ratings: number;
+}
+
+/** Combined search results across all three categories */
+export interface SearchResults {
+    dishTypes: DishType[];
+    restaurants: Restaurant[];
+    restaurantDishes: RestaurantDishSearchResult[];
+}
+
+const EMPTY_RESULTS: SearchResults = {
+    dishTypes: [],
+    restaurants: [],
+    restaurantDishes: [],
+};
+
 /**
- * Hook to search dishes and venues globally
+ * Hook to cross-search restaurants, dish types, and restaurant dishes
+ * Uses Supabase RPC functions with pg_trgm fuzzy matching
  * Used in: Search screen
  */
 export function useSearch(query: string) {
@@ -23,92 +49,41 @@ export function useSearch(query: string) {
 
     return useQuery({
         queryKey: ['search', debouncedQuery],
-        queryFn: async ({ signal }): Promise<SearchResult[]> => {
+        queryFn: async (): Promise<SearchResults> => {
             if (debouncedQuery.length < 2) {
-                return [];
+                return EMPTY_RESULTS;
             }
 
-            // Search dishes and venues in parallel
-            const [dishesResult, venuesResult] = await Promise.all([
-                // Search dishes by name
-                supabase
-                    .from('dishes')
-                    .select(
-                        `
-            *,
-            venue:venues(name, address_city, address_state),
-            review_photos:reviews(photo_urls)
-          `
-                    )
-                    .ilike('name', `%${debouncedQuery}%`)
-                    .eq('is_available', true)
-                    .limit(20)
-                    .abortSignal(signal),
+            const [dishTypesResult, restaurantsResult, restaurantDishesResult] =
+                await Promise.all([
+                    // @ts-expect-error - RPC not in generated types yet, remove after type regeneration
+                    supabase.rpc('search_dish_types', {
+                        search_term: debouncedQuery,
+                    }),
+                    supabase.rpc('search_restaurants', {
+                        search_term: debouncedQuery,
+                    }),
+                    // @ts-expect-error - RPC not in generated types yet, remove after type regeneration
+                    supabase.rpc('search_restaurant_dishes', {
+                        search_term: debouncedQuery,
+                    }),
+                ]);
 
-                // Search venues by name or city
-                supabase
-                    .from('venues')
-                    .select('*')
-                    .or(
-                        `name.ilike.%${debouncedQuery}%,address_city.ilike.%${debouncedQuery}%`
-                    )
-                    .limit(20)
-                    .abortSignal(signal),
-            ]);
+            if (dishTypesResult.error) throw dishTypesResult.error;
+            if (restaurantsResult.error) throw restaurantsResult.error;
+            if (restaurantDishesResult.error)
+                throw restaurantDishesResult.error;
 
-            // Handle errors
-            if (dishesResult.error) throw dishesResult.error;
-            if (venuesResult.error) throw venuesResult.error;
-
-            // Combine results into discriminated union
-            const dishResults = (dishesResult.data || []).map((dish) => {
-                const reviewPhotos =
-                    dish.review_photos?.flatMap(
-                        (r: any) => r.photo_urls || []
-                    ) || [];
-                return {
-                    type: 'dish' as const,
-                    data: {
-                        ...dish,
-                        photos: reviewPhotos,
-                    },
-                };
-            });
-
-            const venueResults: SearchResult[] = (venuesResult.data || []).map(
-                (venue) => ({
-                    type: 'venue' as const,
-                    data: venue as Venue,
-                })
-            );
-
-            // Interleave results for better UX
-            // Pattern: dish, dish, venue, dish, dish, venue...
-            const combined: SearchResult[] = [];
-            let dishIndex = 0;
-            let venueIndex = 0;
-
-            while (
-                dishIndex < dishResults.length ||
-                venueIndex < venueResults.length
-            ) {
-                // Add 2 dishes
-                if (dishIndex < dishResults.length) {
-                    combined.push(dishResults[dishIndex++] as any);
-                }
-                if (dishIndex < dishResults.length) {
-                    combined.push(dishResults[dishIndex++] as any);
-                }
-
-                // Add 1 venue
-                if (venueIndex < venueResults.length) {
-                    combined.push(venueResults[venueIndex++]);
-                }
-            }
-
-            return combined;
+            return {
+                dishTypes: (dishTypesResult.data ??
+                    []) as unknown as DishType[],
+                restaurants: (restaurantsResult.data ??
+                    []) as unknown as Restaurant[],
+                restaurantDishes: (restaurantDishesResult.data ??
+                    []) as unknown as RestaurantDishSearchResult[],
+            };
         },
         enabled: debouncedQuery.length >= 2,
-        placeholderData: (previousData) => previousData, // Keep previous results while fetching new ones
+        placeholderData: (previousData) => previousData,
     });
 }

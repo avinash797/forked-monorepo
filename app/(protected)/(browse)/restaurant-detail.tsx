@@ -38,7 +38,7 @@ const HEADER_HEIGHT = 60;
 
 const AnimatedIconSymbol = Animated.createAnimatedComponent(IconSymbol);
 
-export default function VenueDetailScreen() {
+export default function RestaurantDetailScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const { venueId, source } = useLocalSearchParams<{

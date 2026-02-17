@@ -10,7 +10,7 @@ import { useTheme } from '@/contexts/theme-provider';
 import { useGetLeaderboardByDishType } from '@/hooks/use-leaderboard';
 import { useLocationFilterStore } from '@/stores';
 import { DishType } from '@/types/dishes';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -20,6 +20,9 @@ type LocationFilter = 'city' | 'near_me' | 'neighborhood';
 
 export default function LeaderboardScreen() {
     const router = useRouter();
+    const { dishTypeId: initialDishTypeId } = useLocalSearchParams<{
+        dishTypeId?: string;
+    }>();
     const insets = useSafeAreaInsets();
     const { theme } = useTheme();
     const styles = useMemo(
@@ -113,6 +116,7 @@ export default function LeaderboardScreen() {
             <DishTypePills
                 selectedDishType={selectedDishType}
                 handleDishTypeSelect={handleDishTypeSelect}
+                initialDishTypeId={initialDishTypeId}
             />
             <ScrollView
                 refreshControl={
