@@ -1,10 +1,5 @@
 @import "tailwindcss";
 
-/* ==============================
-   Forked Design Tokens
-   Source: forked/lib/theme/token.default.ts
-   ============================== */
-
 :root {
   /* Brand */
   --accent: #ee6c2b;

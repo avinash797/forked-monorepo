@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ForkLogo } from "@/components/icons/fork-logo";
 import { Button } from "@/components/ui/button";
 
-const DISH_TYPES = ["Gumbo", "Po'boy", "Fried Chicken", "Muffuletta", "Crawfish"];
+const DISH_TYPES = ["Po'boy", "Burger", "Tacos", "Pizza", "Fried Chicken"];
 
 export function HeroSection() {
   const [dishIndex, setDishIndex] = useState(0);
@@ -48,8 +48,8 @@ export function HeroSection() {
         </h1>
 
         <p className="text-lg sm:text-xl text-[#c9a492] max-w-2xl mx-auto mb-10">
-          Not restaurant ratings. Dish ratings. Powered by real people, ranked by
-          real battles.
+          Not restaurant ratings. Dish ratings. Powered by real people, ranked
+          by real battles.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
@@ -60,7 +60,7 @@ export function HeroSection() {
             <Button
               variant="secondary"
               size="lg"
-              className="w-full sm:w-auto text-base border-white/20 text-white hover:bg-white/10"
+              className="w-full sm:w-auto text-base bg-transparent border-white/20 text-white hover:bg-white/10"
             >
               See the Leaderboards
             </Button>
