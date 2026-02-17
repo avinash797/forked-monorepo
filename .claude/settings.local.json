@@ -35,7 +35,14 @@
       "Bash(npx supabase gen types:*)",
       "mcp__plugin_supabase_supabase__get_advisors",
       "mcp__plugin_supabase_supabase__search_docs",
-      "Bash(find \"C:\\\\Users\\\\Avi\\\\workspace\\\\web-sample\"\" -type f -name \"* \")"
+      "Bash(find \"C:\\\\Users\\\\Avi\\\\workspace\\\\web-sample\"\" -type f -name \"* \")",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_resize",
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "mcp__plugin_playwright_playwright__browser_click",
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "mcp__plugin_playwright_playwright__browser_evaluate",
+      "mcp__plugin_playwright_playwright__browser_wait_for"
     ]
   },
   "hooks": {
