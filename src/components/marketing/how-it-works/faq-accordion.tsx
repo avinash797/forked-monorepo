@@ -1,0 +1,102 @@
+"use client";
+
+import { useState, useRef } from "react";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import { Plus, Minus } from "lucide-react";
+
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+const faqs: FaqItem[] = [
+  {
+    question: "Why Elo instead of a 5-point scale?",
+    answer:
+      "Traditional rating scales are noisy and inflated — most dishes cluster around 4.2. Elo uses head-to-head comparisons, which are faster, more intuitive, and produce much more granular rankings. You don't need to decide if something is a 3.7 or a 3.8 — you just pick which dish you liked better.",
+  },
+  {
+    question: "Why are photos mandatory?",
+    answer:
+      "Photos keep ratings honest. They prove you actually ate the dish, they make leaderboards visually compelling, and they help other users discover new food. A rating without a photo is just a number — a rating with a photo tells a story.",
+  },
+  {
+    question: "How many battles does a dish need to be ranked?",
+    answer:
+      "A dish needs a minimum number of battles before it appears on public leaderboards. This ensures rankings are statistically meaningful, not just based on one or two opinions. The more battles, the higher the confidence score.",
+  },
+  {
+    question: "Can restaurants pay to boost their ranking?",
+    answer:
+      "No. Rankings are 100% algorithmic and based on real user battles. There is no pay-to-play, no sponsored placements, and no editorial override. The only way to climb the leaderboard is to serve better food.",
+  },
+  {
+    question: "Is Forked available in my city?",
+    answer:
+      "We launched in New Orleans and are expanding to new cities based on demand. If you want Forked in your city, download the app and start rating — we prioritize cities with active user communities.",
+  },
+];
+
+export function FaqAccordion() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: false, amount: 0.2 });
+
+  return (
+    <section ref={ref} className="space-y-8">
+      <motion.div
+        className="text-center"
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+        transition={{ duration: 0.6 }}
+      >
+        <p className="text-[10px] font-black tracking-[0.3em] uppercase text-[#FF4D00] mb-4">
+          FAQ
+        </p>
+        <h2 className="font-display italic font-black text-3xl md:text-5xl tracking-tighter">
+          Common Questions
+        </h2>
+      </motion.div>
+
+      <div className="max-w-2xl mx-auto space-y-3">
+        {faqs.map((faq, i) => (
+          <motion.div
+            key={i}
+            className="border border-white/10 rounded-xl overflow-hidden"
+            animate={
+              isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
+            }
+            transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
+          >
+            <button
+              onClick={() => setOpenIndex(openIndex === i ? null : i)}
+              className="w-full flex items-center justify-between p-5 text-left hover:bg-white/5 transition-colors"
+            >
+              <span className="text-sm font-bold text-white pr-4">
+                {faq.question}
+              </span>
+              {openIndex === i ? (
+                <Minus size={16} className="text-[#FF4D00] shrink-0" />
+              ) : (
+                <Plus size={16} className="text-white/30 shrink-0" />
+              )}
+            </button>
+            <AnimatePresence>
+              {openIndex === i && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <p className="px-5 pb-5 text-sm text-white/40 leading-relaxed">
+                    {faq.answer}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
