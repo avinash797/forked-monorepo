@@ -32,7 +32,8 @@
       "Bash(cat:*)",
       "Bash(npx dotenv:*)",
       "mcp__plugin_supabase_supabase__list_projects",
-      "Bash(npx supabase gen types:*)"
+      "Bash(npx supabase gen types:*)",
+      "mcp__plugin_supabase_supabase__get_advisors"
     ]
   },
   "hooks": {

@@ -1,7 +1,15 @@
+# *
 User-agent: *
 Allow: /
+
+# *
+User-agent: *
 Disallow: /admin/*
 Disallow: /auth/*
 Disallow: /api/*
 
+# Host
+Host: https://getforked.app
+
+# Sitemaps
 Sitemap: https://getforked.app/sitemap.xml
