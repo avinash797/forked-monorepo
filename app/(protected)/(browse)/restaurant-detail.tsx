@@ -283,7 +283,7 @@ export default function RestaurantDetailScreen() {
                 />
 
                 {/* Content skeleton */}
-                <View style={styles.contentSection}>
+                <View style={[{ display: 'flex', flexDirection: 'column' }]}>
                     {/* Action buttons skeleton */}
                     <View style={styles.infoBox}>
                         <SkeletonBlock
