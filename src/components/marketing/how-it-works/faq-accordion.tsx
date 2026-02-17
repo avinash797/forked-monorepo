@@ -69,20 +69,25 @@ export function FaqAccordion() {
           >
             <button
               onClick={() => setOpenIndex(openIndex === i ? null : i)}
+              aria-expanded={openIndex === i}
+              aria-controls={`faq-answer-${i}`}
               className="w-full flex items-center justify-between p-5 text-left hover:bg-white/5 transition-colors"
             >
               <span className="text-sm font-bold text-white pr-4">
                 {faq.question}
               </span>
               {openIndex === i ? (
-                <Minus size={16} className="text-[#FF4D00] shrink-0" />
+                <Minus size={16} className="text-[#FF4D00] shrink-0" aria-hidden="true" />
               ) : (
-                <Plus size={16} className="text-white/30 shrink-0" />
+                <Plus size={16} className="text-white/30 shrink-0" aria-hidden="true" />
               )}
             </button>
             <AnimatePresence>
               {openIndex === i && (
                 <motion.div
+                  id={`faq-answer-${i}`}
+                  role="region"
+                  aria-labelledby={`faq-question-${i}`}
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
