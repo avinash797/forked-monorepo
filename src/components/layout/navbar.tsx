@@ -19,6 +19,12 @@ export function Navbar() {
               Leaderboards
             </Link>
             <Link
+              href="/blog"
+              className="text-sm text-[#c9a492] hover:text-white transition-colors"
+            >
+              Blog
+            </Link>
+            <Link
               href="/about"
               className="text-sm text-[#c9a492] hover:text-white transition-colors"
             >

@@ -27,13 +27,23 @@ Forked is a dish-specific rating and ranking platform. Unlike traditional restau
 - Muffuletta
 - Jambalaya
 
+### Blog
+- URL pattern: /blog (listing with pagination and category filtering)
+- URL pattern: /blog/{post-slug} (individual article)
+- Example: /blog/ultimate-guide-gumbo-new-orleans
+- Contains: Articles about food rankings, city guides, dish deep dives, and product updates
+- Data: Title, author, category, tags, rich content, and optional live leaderboard data for city/dish-specific posts
+- Categories: City Guides, Dish Deep Dives, News & Updates
+
 ## Data freshness
-Leaderboard data is revalidated every 10 minutes via ISR.
+Leaderboard and blog data is revalidated every 10 minutes via ISR.
 
 ## Structured data
 All leaderboard pages include JSON-LD structured data:
 - ItemList schema with Restaurant items and AggregateRating
 - FAQPage schema with common questions about rankings
+- BlogPosting schema on individual blog posts
+- ItemList schema on the blog listing page
 
 ## Contact
 Website: https://getforked.app
