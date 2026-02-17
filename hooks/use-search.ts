@@ -29,6 +29,19 @@ const EMPTY_RESULTS: SearchResults = {
     restaurantDishes: [],
 };
 
+/** Keeps only the first result per restaurant+dish_type combo */
+function dedupeByRestaurant(
+    items: RestaurantDishSearchResult[]
+): RestaurantDishSearchResult[] {
+    const seen = new Set<string>();
+    return items.filter((item) => {
+        const key = `${item.restaurant_id}:${item.dish_type_id}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+}
+
 /**
  * Hook to cross-search restaurants, dish types, and restaurant dishes
  * Uses Supabase RPC functions with pg_trgm fuzzy matching
@@ -79,8 +92,10 @@ export function useSearch(query: string) {
                     []) as unknown as DishType[],
                 restaurants: (restaurantsResult.data ??
                     []) as unknown as Restaurant[],
-                restaurantDishes: (restaurantDishesResult.data ??
-                    []) as unknown as RestaurantDishSearchResult[],
+                restaurantDishes: dedupeByRestaurant(
+                    (restaurantDishesResult.data ??
+                        []) as unknown as RestaurantDishSearchResult[]
+                ),
             };
         },
         enabled: debouncedQuery.length >= 2,

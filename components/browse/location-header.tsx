@@ -2,6 +2,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useLocationFilterStore } from '@/stores';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { SearchInput } from '../rating/search-input';
 import { ThemedText } from '../themed-text';
 
 interface LocationHeaderProps {
@@ -16,7 +17,10 @@ export function LocationHeader({
     const { theme } = useTheme();
     // Subscribe to the actual state values for reactivity
     const displayText = useLocationFilterStore((state) => {
-        if (state.filterType === 'neighborhood' && state.selectedNeighborhoodName) {
+        if (
+            state.filterType === 'neighborhood' &&
+            state.selectedNeighborhoodName
+        ) {
             return state.selectedNeighborhoodName;
         }
         if (state.filterType === 'city' && state.selectedCityName) {
@@ -57,15 +61,15 @@ export function LocationHeader({
             </Pressable>
 
             {/* Search Input */}
-            {/* <View style={styles.searchWrapper}>
+            <View style={styles.searchWrapper}>
                 <SearchInput
                     value=""
                     onChangeText={() => {}}
-                    placeholder="What are you craving?"
+                    placeholder="Search what you want..."
                     onFocus={onSearchPress}
                     isLoading={false}
                 />
-            </View> */}
+            </View>
         </View>
     );
 }

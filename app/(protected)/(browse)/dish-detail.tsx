@@ -267,7 +267,7 @@ export default function DishDetailScreen() {
     const handleVenuePress = () => {
         if (venue && venue.id) {
             router.push({
-                pathname: '/(protected)/(browse)/venue-detail',
+                pathname: '/(protected)/(browse)/restaurant-detail',
                 params: { venueId: venue.id, source: 'dish-detail' },
             });
         }
