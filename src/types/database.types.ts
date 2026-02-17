@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_actions: {
+        Row: {
+          action_type: string
+          admin_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          action_type: string
+          admin_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          action_type?: string
+          admin_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: []
+      }
       blog_authors: {
         Row: {
           avatar_url: string | null
@@ -372,6 +402,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      content_flags: {
+        Row: {
+          created_at: string
+          flag_type: string
+          id: string
+          reason: string | null
+          reporter_id: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          created_at?: string
+          flag_type: string
+          id?: string
+          reason?: string | null
+          reporter_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          created_at?: string
+          flag_type?: string
+          id?: string
+          reason?: string | null
+          reporter_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: []
       }
       dish_type_variations: {
         Row: {
@@ -786,6 +855,8 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          ban_reason: string | null
+          banned_at: string | null
           bio: string | null
           created_at: string | null
           credibility_score: number | null
@@ -793,14 +864,20 @@ export type Database = {
           expo_push_token: string | null
           home_city_id: string | null
           id: string
+          is_banned: boolean
           push_enabled: boolean | null
+          role: string
           total_battles: number | null
           total_ratings: number | null
           updated_at: string | null
           username: string | null
+          warn_count: number
+          warned_at: string | null
         }
         Insert: {
           avatar_url?: string | null
+          ban_reason?: string | null
+          banned_at?: string | null
           bio?: string | null
           created_at?: string | null
           credibility_score?: number | null
@@ -808,14 +885,20 @@ export type Database = {
           expo_push_token?: string | null
           home_city_id?: string | null
           id: string
+          is_banned?: boolean
           push_enabled?: boolean | null
+          role?: string
           total_battles?: number | null
           total_ratings?: number | null
           updated_at?: string | null
           username?: string | null
+          warn_count?: number
+          warned_at?: string | null
         }
         Update: {
           avatar_url?: string | null
+          ban_reason?: string | null
+          banned_at?: string | null
           bio?: string | null
           created_at?: string | null
           credibility_score?: number | null
@@ -823,11 +906,15 @@ export type Database = {
           expo_push_token?: string | null
           home_city_id?: string | null
           id?: string
+          is_banned?: boolean
           push_enabled?: boolean | null
+          role?: string
           total_battles?: number | null
           total_ratings?: number | null
           updated_at?: string | null
           username?: string | null
+          warn_count?: number
+          warned_at?: string | null
         }
         Relationships: [
           {
@@ -1128,6 +1215,35 @@ export type Database = {
           website: string
         }[]
       }
+      get_admin_city_breakdown: {
+        Args: never
+        Returns: {
+          city_id: string
+          city_name: string
+          total_battles: number
+          total_ratings: number
+          total_restaurants: number
+        }[]
+      }
+      get_admin_daily_stats: {
+        Args: { p_end_date?: string; p_start_date?: string }
+        Returns: {
+          day: string
+          new_battles: number
+          new_ratings: number
+          new_users: number
+        }[]
+      }
+      get_admin_dish_type_breakdown: {
+        Args: never
+        Returns: {
+          avg_score: number
+          dish_type_id: string
+          dish_type_name: string
+          total_battles: number
+          total_ratings: number
+        }[]
+      }
       get_comparison_candidate: {
         Args: {
           p_dish_type_id: string
@@ -1300,6 +1416,7 @@ export type Database = {
         Returns: Json
       }
       get_user_stats: { Args: { p_user_id?: string }; Returns: Json }
+      is_admin: { Args: never; Returns: boolean }
       match_location: { Args: { lat: number; long: number }; Returns: Json }
       post_rating_and_get_duel: {
         Args: {
