@@ -97,6 +97,7 @@ export function HeroSection() {
           alt="Burger dish"
           width={192}
           height={192}
+          priority
           className="w-32 md:w-48 rounded-2xl grayscale hover:grayscale-0 transition-all duration-700 shadow-2xl -rotate-12"
           sizes="(max-width: 768px) 128px, 192px"
         />
@@ -107,6 +108,7 @@ export function HeroSection() {
           alt="Sandwich dish"
           width={256}
           height={256}
+          priority
           className="w-40 md:w-64 rounded-2xl shadow-2xl rotate-[8deg]"
           sizes="(max-width: 768px) 160px, 256px"
         />
