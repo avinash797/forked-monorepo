@@ -110,39 +110,42 @@
 
 ---
 
-## Phase 3: Admin Dashboard (NOT STARTED)
+## Phase 3: Admin Dashboard (COMPLETE)
 
-**Branch:** `p3/admin-dashboard` (create from `development`)
+**Branch:** `p3/admin-dashboard` → merged to `development`
 
 ### Auth
-- [ ] Admin login page (`/auth/login`)
-- [ ] Auth callback route (`/auth/callback`)
-- [ ] Middleware for protected `/admin/*` routes
-- [ ] Add `role` column to `profiles` table (or separate `admin_users` table)
+- [x] Admin login page (`/auth/login`)
+- [x] Auth callback route (`/auth/callback`)
+- [x] Middleware for protected `/admin/*` routes
+- [x] Add `role` column to `profiles` table with `is_admin()` SQL function
+- [x] Admin RLS policies for blog tables and storage bucket
 
 ### Admin Layout
-- [ ] Admin sidebar navigation
-- [ ] Dashboard overview page (`/admin`)
+- [x] Admin sidebar navigation with active state highlighting
+- [x] Dashboard overview page (`/admin`) with metric cards and recent activity
 
 ### Blog Editor
-- [ ] Rich text editor for blog posts (`/admin/blog`)
-- [ ] Blog post CRUD (create, edit, publish, unpublish, delete)
-- [ ] Image upload to Supabase Storage
-- [ ] Draft/preview system
+- [x] Rich text editor for blog posts (`/admin/blog`) using TipTap
+- [x] Blog post CRUD (create, edit, publish, unpublish, delete)
+- [x] Image upload to Supabase Storage (`blog-images` bucket)
+- [x] Draft/publish workflow with SEO fields
 
 ### User Management
-- [ ] User list with search and filters (`/admin/users`)
-- [ ] User detail view with activity history
-- [ ] Moderation actions (ban, warn)
+- [x] User list with search and filters (`/admin/users`)
+- [x] User detail view with activity history
+- [x] Moderation actions (ban, unban, warn, role change) with audit logging
 
 ### Moderation Queue
-- [ ] Flagged content review (`/admin/moderation`)
-- [ ] Photo moderation
-- [ ] Restaurant merge/cleanup tools
+- [x] Flagged content review (`/admin/moderation`) with resolve/dismiss
+- [x] Photo review grid (`/admin/moderation/photos`)
+- [x] Restaurant management tools (`/admin/moderation/restaurants`) with verify/close
 
 ### Analytics
-- [ ] Dashboard with key metrics (ratings, battles, users, cities)
-- [ ] Charts for trends over time
+- [x] Dashboard with key metrics (ratings, battles, users, cities)
+- [x] Activity line chart with date range selector (7d/14d/30d/90d)
+- [x] City and dish type breakdown bar charts
+- [x] Leaderboard health confidence distribution
 
 ---
 

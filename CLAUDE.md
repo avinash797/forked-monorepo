@@ -36,6 +36,26 @@ src/
 │   │   ├── about/page.tsx
 │   │   └── how-it-works/page.tsx
 │   │
+│   ├── admin/                     # Protected admin dashboard
+│   │   ├── layout.tsx             # Admin layout: sidebar (256px) + header + content area
+│   │   ├── page.tsx               # Dashboard: metric cards + recent activity
+│   │   ├── blog/                  # Blog CRUD with TipTap editor
+│   │   │   ├── page.tsx           # Post list with status filters, search, pagination
+│   │   │   ├── new/page.tsx       # Create new post
+│   │   │   └── [id]/edit/page.tsx # Edit existing post
+│   │   ├── users/                 # User management
+│   │   │   ├── page.tsx           # User list with search and filters
+│   │   │   └── [id]/page.tsx      # User detail + moderation actions
+│   │   ├── moderation/            # Content moderation
+│   │   │   ├── page.tsx           # Flag overview with resolve/dismiss
+│   │   │   ├── photos/page.tsx    # Photo review grid
+│   │   │   └── restaurants/page.tsx # Restaurant verify/close tools
+│   │   └── analytics/page.tsx     # Recharts visualizations + leaderboard health
+│   │
+│   ├── auth/                      # Authentication routes
+│   │   ├── login/page.tsx         # Email/password login, dark branded styling
+│   │   └── callback/route.ts      # Exchange auth code for session
+│   │
 │   ├── leaderboard/               # Public leaderboard pages
 │   │   ├── page.tsx               # Hub — lists active cities
 │   │   ├── [city]/page.tsx        # City overview — top 5 per dish type
@@ -45,35 +65,58 @@ src/
 │       ├── og/route.tsx           # Dynamic OG image generation (Edge runtime)
 │       └── revalidate/route.ts    # On-demand ISR webhook (POST, bearer token)
 │
+├── middleware.ts                   # Protects /admin/* (auth + admin role check)
+│
 ├── components/
 │   ├── icons/fork-logo.tsx        # Web SVG version of the fork logo
+│   ├── auth/login-form.tsx        # Client-side login form
+│   ├── admin/                     # Admin dashboard components
+│   │   ├── admin-sidebar.tsx      # Dark sidebar with ForkLogo + nav links
+│   │   ├── admin-nav-links.tsx    # usePathname() for active nav highlighting
+│   │   ├── admin-header.tsx       # Top bar with user info
+│   │   ├── admin-logout-button.tsx # Sign out + redirect
+│   │   ├── metric-card.tsx        # Title + large value metric display
+│   │   ├── confirm-dialog.tsx     # Reusable confirmation modal
+│   │   ├── blog/                  # Blog editor components
+│   │   │   ├── blog-post-editor.tsx    # Main editor form: title, slug, content, metadata
+│   │   │   ├── tiptap-editor.tsx       # TipTap editor with StarterKit + extensions
+│   │   │   ├── editor-toolbar.tsx      # Formatting buttons
+│   │   │   ├── image-upload.tsx        # Drag-drop upload to blog-images bucket
+│   │   │   └── blog-post-list-table.tsx # Table rows with status badges
+│   │   ├── users/                 # User management components
+│   │   │   ├── user-list-table.tsx      # User rows with avatar, stats, badges
+│   │   │   ├── user-moderation-panel.tsx # Ban/unban/warn/role-change actions
+│   │   │   └── user-activity-tabs.tsx   # Tabs: Ratings, Mod History
+│   │   ├── moderation/            # Content moderation components
+│   │   │   ├── flag-list.tsx            # Flag rows with resolve/dismiss
+│   │   │   ├── photo-review-card.tsx    # Photo card display
+│   │   │   └── restaurant-actions.tsx   # Verify/close actions
+│   │   └── analytics/             # Analytics chart components
+│   │       ├── activity-chart.tsx       # Line chart: users/ratings/battles over time
+│   │       ├── city-breakdown-chart.tsx  # Bar chart: per-city metrics
+│   │       ├── dish-type-breakdown-chart.tsx # Bar chart: per-dish-type metrics
+│   │       ├── leaderboard-health.tsx   # Confidence score distribution
+│   │       └── date-range-selector.tsx  # Preset date range buttons
 │   ├── layout/
 │   │   ├── navbar.tsx             # Fixed top nav (dark bg, gold logo, accent CTA)
 │   │   └── footer.tsx             # 4-column footer (brand, explore, legal, download)
 │   ├── marketing/                 # Landing page section components
-│   │   ├── hero-section.tsx       # "use client" — animated dish type rotation
-│   │   ├── problem-section.tsx
-│   │   ├── how-it-works-section.tsx
-│   │   ├── leaderboard-preview.tsx  # Server component — fetches live data
-│   │   ├── mission-section.tsx
-│   │   ├── stats-section.tsx        # Server component — fetches aggregate counts
-│   │   └── cta-section.tsx
-│   ├── leaderboard/
-│   │   ├── leaderboard-table.tsx  # Ranked list with badges, photos, scores, confidence
-│   │   └── dish-type-tabs.tsx     # Pill-style tabs linking to dish type sub-pages
-│   └── ui/
-│       ├── button.tsx             # Variants: primary, secondary, ghost; Sizes: sm, md, lg
-│       ├── card.tsx               # Variants: surface, surface2, dark
-│       ├── badge.tsx              # Variants: default, accent, gold, silver, bronze
-│       ├── score-badge.tsx        # Color-coded score: green (≥7), yellow (4-6.9), red (<4)
-│       └── skeleton.tsx           # Animated loading placeholder
+│   ├── leaderboard/               # Leaderboard display components
+│   └── ui/                        # Shared UI primitives (Button, Card, Badge, etc.)
 │
 ├── lib/
-│   ├── seo.ts                     # buildMetadata(), buildWebsiteJsonLd(), buildOrganizationJsonLd(),
-│   │                              # buildLeaderboardJsonLd() — all JSON-LD and metadata helpers
+│   ├── seo.ts                     # buildMetadata(), JSON-LD helpers
+│   ├── admin/                     # Admin-specific logic
+│   │   ├── auth.ts                # getAdminUser(), requireAdmin() helpers
+│   │   ├── queries.ts             # Dashboard stats, recent activity
+│   │   ├── blog-queries.ts        # Blog CRUD query helpers
+│   │   ├── user-queries.ts        # User list/detail/activity queries
+│   │   ├── moderation-queries.ts  # Flag/photo/restaurant queries
+│   │   └── analytics-queries.ts   # RPC call wrappers for charts
 │   ├── supabase/
 │   │   ├── client.ts              # createBrowserClient (for client components)
 │   │   ├── server.ts              # createServerClient (reads cookies from next/headers)
+│   │   ├── middleware.ts          # createServerClient for middleware (request/response cookies)
 │   │   └── static.ts             # createStaticClient (no cookies — for generateStaticParams)
 │   └── theme/
 │       └── tokens.ts              # TypeScript reference of all design tokens
@@ -205,7 +248,7 @@ All leaderboard and landing pages use `export const revalidate = 600` (10 minute
 See [PLAN.md](./PLAN.md) for the full implementation roadmap.
 
 - **Phase 1:** Foundation + Landing + Leaderboards → **COMPLETE**
-- **Phase 2:** Blog System → NOT STARTED
-- **Phase 3:** Admin Dashboard → NOT STARTED
+- **Phase 2:** Blog System → **COMPLETE**
+- **Phase 3:** Admin Dashboard → **COMPLETE**
 - **Phase 4:** Supporting Content → NOT STARTED
 - **Phase 5:** Performance & Polish → NOT STARTED
