@@ -8,7 +8,12 @@ import { ForkLogo } from "@/components/icons/fork-logo";
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/admin";
+  const rawRedirect = searchParams.get("redirectTo") || "/admin";
+  // Prevent open redirect — only allow relative paths
+  const redirectTo =
+    rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
+      ? rawRedirect
+      : "/admin";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
