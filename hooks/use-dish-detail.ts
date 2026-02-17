@@ -14,6 +14,10 @@ export type DishWithRestaurant = GlobalDishScore & {
         raw_score: number;
         tags: (TasteTag & { count: number })[];
     };
+    menuData: {
+        variations: string[];
+        photos: string[];
+    };
 };
 
 /**
@@ -43,6 +47,12 @@ export function useDishDetail(
                 .eq('dish_type_id', dishId)
                 .eq('restaurant_id', restaurantId)
                 .maybeSingle();
+
+            const { data: restaurantDishData } = await supabase
+                .from('restaurant_dishes')
+                .select(`*, variation:dish_type_variations(name, is_active)`)
+                .eq('dish_type_id', dishId)
+                .eq('restaurant_id', restaurantId);
 
             const { data: personalRatingData, error: tagsError } =
                 await supabase
@@ -89,6 +99,14 @@ export function useDishDetail(
                 userRatingData: personalRatingData?.find(
                     (rating: any) => rating.user_id === user?.id
                 ),
+                menuData: {
+                    variations: restaurantDishData?.map(
+                        (v: any) => v.is_active && v.variation?.name
+                    ),
+                    photos: restaurantDishData?.flatMap((v: any) =>
+                        v.photos.flat()
+                    ),
+                },
             };
 
             return transformedData;

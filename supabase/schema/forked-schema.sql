@@ -196,6 +196,7 @@ CREATE TABLE public.restaurant_dishes (
     total_ratings integer DEFAULT 0,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
+    photos ARRAY DEFAULT '{}'::text [],
     CONSTRAINT restaurant_dishes_pkey PRIMARY KEY (id),
     CONSTRAINT restaurant_dishes_restaurant_id_fkey FOREIGN KEY (restaurant_id) REFERENCES public.restaurants(id),
     CONSTRAINT restaurant_dishes_dish_type_id_fkey FOREIGN KEY (dish_type_id) REFERENCES public.dish_types(id),

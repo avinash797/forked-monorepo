@@ -1,4 +1,5 @@
 import { EmptyState } from '@/components/browse/empty-state';
+import { PhotoGallery } from '@/components/browse/photo-gallery';
 import { ScoreBadge } from '@/components/score-badge';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
@@ -454,6 +455,8 @@ export default function DishDetailScreen() {
                                     </ThemedText>
                                 </View>
                             </View>
+
+                            <PhotoGallery photos={[...dish.menuData.photos]} />
                         </View>
                     </View>
 
