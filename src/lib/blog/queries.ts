@@ -53,6 +53,7 @@ export async function getBlogPosts({
     let query = supabase
       .from("blog_posts")
       .select(POST_LIST_SELECT)
+      .eq("status", "published")
       .order("published_at", { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -80,6 +81,7 @@ export async function getBlogPostBySlug(slug: string) {
       .from("blog_posts")
       .select(POST_DETAIL_SELECT)
       .eq("slug", slug)
+      .eq("status", "published")
       .single();
 
     return data;
@@ -105,6 +107,7 @@ export async function getBlogPostCount(categorySlug?: string) {
       const { count } = await supabase
         .from("blog_posts")
         .select("id", { count: "exact", head: true })
+        .eq("status", "published")
         .eq("category_id", category.id);
 
       return count ?? 0;
@@ -112,7 +115,8 @@ export async function getBlogPostCount(categorySlug?: string) {
 
     const { count } = await supabase
       .from("blog_posts")
-      .select("id", { count: "exact", head: true });
+      .select("id", { count: "exact", head: true })
+      .eq("status", "published");
 
     return count ?? 0;
   } catch {
@@ -148,6 +152,7 @@ export async function getRelatedBlogPosts(
     let query = supabase
       .from("blog_posts")
       .select(POST_LIST_SELECT)
+      .eq("status", "published")
       .order("published_at", { ascending: false })
       .limit(limit);
 
