@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { UtensilsCrossed } from "lucide-react";
+import Image from "next/image";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -22,9 +22,12 @@ export function Navbar() {
       }`}
     >
       <Link href="/" className="flex items-center gap-2">
-        <div className="bg-[#FF4D00] p-1.5 rounded-lg">
-          <UtensilsCrossed size={20} color="white" strokeWidth={3} />
-        </div>
+        <Image
+          src="/images/fork-logo/fork-gold.png"
+          alt="Forked logo"
+          width={28}
+          height={28}
+        />
         <span className="text-xl font-extrabold tracking-tighter uppercase italic text-white">
           Forked
         </span>

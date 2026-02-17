@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { UtensilsCrossed } from "lucide-react";
+import Image from "next/image";
 
 export function Footer() {
   return (
@@ -7,9 +7,12 @@ export function Footer() {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-12">
         <div className="space-y-4">
           <Link href="/" className="flex items-center gap-2">
-            <div className="bg-[#FF4D00] p-1.5 rounded-lg">
-              <UtensilsCrossed size={20} color="white" strokeWidth={3} />
-            </div>
+            <Image
+              src="/images/fork-logo/fork-gold.png"
+              alt="Forked logo"
+              width={28}
+              height={28}
+            />
             <span className="text-2xl font-extrabold tracking-tighter uppercase italic text-white">
               Forked
             </span>
