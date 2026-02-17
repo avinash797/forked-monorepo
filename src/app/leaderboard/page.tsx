@@ -12,6 +12,7 @@ export const metadata: Metadata = buildMetadata({
   title: "Leaderboards — Forked",
   description:
     "Browse Elo-ranked dish leaderboards across cities. Find the best gumbo, po'boy, and more.",
+  canonicalPath: "/leaderboard",
 });
 
 interface City {

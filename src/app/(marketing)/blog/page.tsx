@@ -27,7 +27,7 @@ export async function generateMetadata({
   const description =
     "Articles about food rankings, city guides, and the best dishes — from the Forked team.";
 
-  return buildMetadata({ title, description });
+  return buildMetadata({ title, description, canonicalPath: "/blog" });
 }
 
 export default async function BlogListingPage({ searchParams }: Props) {

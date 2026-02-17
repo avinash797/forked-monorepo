@@ -80,6 +80,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     openGraph: { title, description },
+    canonicalPath: `/leaderboard/${city.slug}/${dishType.slug}`,
   });
 }
 

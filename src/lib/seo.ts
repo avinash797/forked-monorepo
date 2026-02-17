@@ -5,42 +5,49 @@ const SITE_NAME = "Forked";
 const SITE_DESCRIPTION =
   "Not restaurant ratings. Dish ratings. Find the best specific dish in your city, powered by real people and Elo-ranked battles.";
 
-export function buildMetadata(overrides: Partial<Metadata> = {}): Metadata {
+export function buildMetadata(
+  overrides: Partial<Metadata> & { canonicalPath?: string } = {}
+): Metadata {
+  const { canonicalPath, ...metadataOverrides } = overrides;
+
   return {
-    title: overrides.title || `${SITE_NAME} — Find the Best Dish in Your City`,
-    description: overrides.description || SITE_DESCRIPTION,
+    title: metadataOverrides.title || `${SITE_NAME} — Find the Best Dish in Your City`,
+    description: metadataOverrides.description || SITE_DESCRIPTION,
     metadataBase: new URL(SITE_URL),
+    ...(canonicalPath
+      ? { alternates: { canonical: canonicalPath } }
+      : {}),
     openGraph: {
       type: "website",
       siteName: SITE_NAME,
       title:
-        (overrides.openGraph as Record<string, string>)?.title ||
-        (overrides.title as string) ||
+        (metadataOverrides.openGraph as Record<string, string>)?.title ||
+        (metadataOverrides.title as string) ||
         `${SITE_NAME} — Find the Best Dish in Your City`,
       description:
-        (overrides.openGraph as Record<string, string>)?.description ||
-        (overrides.description as string) ||
+        (metadataOverrides.openGraph as Record<string, string>)?.description ||
+        (metadataOverrides.description as string) ||
         SITE_DESCRIPTION,
       url: SITE_URL,
-      ...overrides.openGraph,
+      ...metadataOverrides.openGraph,
     },
     twitter: {
       card: "summary_large_image",
       title:
-        (overrides.twitter as Record<string, string>)?.title ||
-        (overrides.title as string) ||
+        (metadataOverrides.twitter as Record<string, string>)?.title ||
+        (metadataOverrides.title as string) ||
         SITE_NAME,
       description:
-        (overrides.twitter as Record<string, string>)?.description ||
-        (overrides.description as string) ||
+        (metadataOverrides.twitter as Record<string, string>)?.description ||
+        (metadataOverrides.description as string) ||
         SITE_DESCRIPTION,
-      ...overrides.twitter,
+      ...metadataOverrides.twitter,
     },
     robots: {
       index: true,
       follow: true,
     },
-    ...overrides,
+    ...metadataOverrides,
   };
 }
 
