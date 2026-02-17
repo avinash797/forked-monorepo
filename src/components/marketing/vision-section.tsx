@@ -91,7 +91,7 @@ export function VisionSection() {
               alt="Hole in the wall restaurant with incredible food"
               fill
               className="object-cover grayscale brightness-50 contrast-125"
-              unoptimized
+              sizes="(max-width: 1024px) 100vw, 50vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
 
