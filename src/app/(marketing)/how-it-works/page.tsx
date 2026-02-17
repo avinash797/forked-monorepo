@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
+import { StepDiagrams } from "@/components/marketing/how-it-works/step-diagrams";
+import { EloExplainer } from "@/components/marketing/how-it-works/elo-explainer";
+import { FaqAccordion } from "@/components/marketing/how-it-works/faq-accordion";
 
 export const metadata: Metadata = buildMetadata({
   title: "How It Works — Forked",
@@ -9,50 +12,30 @@ export const metadata: Metadata = buildMetadata({
 
 export default function HowItWorksPage() {
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6">
-      <h1 className="text-3xl sm:text-4xl font-bold text-text-primary mb-6">
-        How It Works
-      </h1>
-      <div className="space-y-8 text-text-secondary">
-        <div>
-          <h2 className="text-xl font-bold text-text-primary mb-2">
-            1. Eat a dish worth rating
-          </h2>
-          <p>
-            Find a dish you feel strongly about — good or bad. We don&apos;t
-            care about the restaurant&apos;s ambiance or service. We care about
-            the food.
+    <div className="bg-[#050505] -mt-24 pt-24">
+      <div className="max-w-6xl mx-auto px-6 py-24 md:py-32 space-y-32">
+        {/* Hero */}
+        <div className="text-center">
+          <p className="text-[10px] font-black tracking-[0.3em] uppercase text-[#FF4D00] mb-4">
+            HOW IT WORKS
+          </p>
+          <h1 className="font-display italic font-black text-4xl md:text-7xl tracking-tighter text-white">
+            EAT. SNAP. COMPARE. RANK.
+          </h1>
+          <p className="text-white/40 mt-6 max-w-md mx-auto text-sm leading-relaxed">
+            Four simple steps to find the best food in your city. No inflated
+            ratings. No sponsored reviews. Just honest, battle-tested rankings.
           </p>
         </div>
-        <div>
-          <h2 className="text-xl font-bold text-text-primary mb-2">
-            2. Snap a photo
-          </h2>
-          <p>
-            Photos are mandatory on Forked. They&apos;re your proof, your
-            memory, and they make leaderboards come alive. No photo, no rating.
-          </p>
-        </div>
-        <div>
-          <h2 className="text-xl font-bold text-text-primary mb-2">
-            3. Compare in &quot;This vs That&quot; battles
-          </h2>
-          <p>
-            After rating a dish, we show you a head-to-head matchup against a
-            similarly-rated dish you&apos;ve had before. Pick the winner. It
-            takes 3 seconds.
-          </p>
-        </div>
-        <div>
-          <h2 className="text-xl font-bold text-text-primary mb-2">
-            4. Watch the leaderboard update
-          </h2>
-          <p>
-            Every battle updates Elo scores in real-time. The more battles a
-            dish wins, the higher it climbs. The best food rises to the top —
-            naturally.
-          </p>
-        </div>
+
+        {/* Step Diagrams */}
+        <StepDiagrams />
+
+        {/* Elo Explainer */}
+        <EloExplainer />
+
+        {/* FAQ */}
+        <FaqAccordion />
       </div>
     </div>
   );

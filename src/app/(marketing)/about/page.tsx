@@ -1,33 +1,39 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
+import { AboutHero } from "@/components/marketing/about/about-hero";
+import { StorySection } from "@/components/marketing/about/story-section";
+import { TeamSection } from "@/components/marketing/about/team-section";
+import { InvestorsSection } from "@/components/marketing/about/investors-section";
+import { QRCodeDownload } from "@/components/marketing/qr-code-download";
 
 export const metadata: Metadata = buildMetadata({
   title: "About — Forked",
   description:
-    "Forked is an Elo-based dish rating platform. Not restaurant ratings. Dish ratings.",
+    "Forked is an Elo-based dish rating platform born in New Orleans. Not restaurant ratings. Dish ratings.",
 });
 
 export default function AboutPage() {
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6">
-      <h1 className="text-3xl sm:text-4xl font-bold text-text-primary mb-6">
-        About Forked
-      </h1>
-      <div className="prose prose-lg text-text-secondary space-y-4">
-        <p>
-          Forked is a dish-specific rating and ranking platform born in New
-          Orleans. We believe the best food discovery doesn&apos;t come from
-          rating restaurants — it comes from rating individual dishes.
-        </p>
-        <p>
-          Using an Elo rating system (the same system used to rank chess
-          players), we pit dishes against each other in head-to-head battles.
-          The result? Rankings that reflect what real people actually prefer.
-        </p>
-        <p>
-          No inflated star ratings. No sponsored reviews. Just honest,
-          battle-tested rankings of the best food in your city.
-        </p>
+    <div className="bg-[#050505] -mt-24 pt-24">
+      <div className="max-w-6xl mx-auto px-6 py-24 md:py-32 space-y-32">
+        <AboutHero />
+        <StorySection />
+        <TeamSection />
+        <InvestorsSection />
+
+        {/* Download Strip */}
+        <section className="text-center space-y-6">
+          <h2 className="font-display italic font-black text-3xl md:text-5xl tracking-tighter text-white">
+            Get the App
+          </h2>
+          <p className="text-white/40 text-sm max-w-md mx-auto">
+            Scan the QR code to download Forked and start rating dishes in your
+            city.
+          </p>
+          <div className="flex justify-center">
+            <QRCodeDownload />
+          </div>
+        </section>
       </div>
     </div>
   );

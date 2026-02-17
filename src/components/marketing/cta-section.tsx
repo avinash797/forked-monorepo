@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Smartphone } from "lucide-react";
+import { QRCodeDownload } from "@/components/marketing/qr-code-download";
 
 export function CtaSection() {
   return (
@@ -20,7 +21,7 @@ export function CtaSection() {
           <span className="text-[#FF4D00]">Fork?</span>
         </h2>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 flex-wrap">
           <a
             href="#"
             className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-xl w-64 group hover:bg-[#FF4D00] hover:border-[#FF4D00] transition-all cursor-pointer text-center"
@@ -47,6 +48,9 @@ export function CtaSection() {
             </p>
             <h4 className="text-lg font-black uppercase">Google Play</h4>
           </a>
+          <div className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-xl w-64 flex flex-col items-center justify-center">
+            <QRCodeDownload />
+          </div>
         </div>
       </motion.div>
     </section>

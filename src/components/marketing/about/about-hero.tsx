@@ -1,0 +1,28 @@
+"use client";
+
+import { motion } from "framer-motion";
+
+export function AboutHero() {
+  return (
+    <section className="text-center space-y-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <p className="text-[10px] font-black tracking-[0.3em] uppercase text-[#FF4D00] mb-4">
+          ABOUT FORKED
+        </p>
+        <h1 className="font-display italic font-black text-4xl md:text-7xl tracking-tighter text-white">
+          We Rate Dishes,{" "}
+          <span className="text-[#FF4D00]">Not Restaurants.</span>
+        </h1>
+        <p className="text-white/40 mt-6 max-w-lg mx-auto text-sm leading-relaxed">
+          Forked is the Elo-powered dish ranking engine built for people who
+          care about what&apos;s on the plate — not the ambiance, not the
+          service, not the hype.
+        </p>
+      </motion.div>
+    </section>
+  );
+}
