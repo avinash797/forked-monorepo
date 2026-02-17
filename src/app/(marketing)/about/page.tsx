@@ -4,6 +4,7 @@ import { AboutHero } from "@/components/marketing/about/about-hero";
 import { StorySection } from "@/components/marketing/about/story-section";
 import { TeamSection } from "@/components/marketing/about/team-section";
 import { InvestorsSection } from "@/components/marketing/about/investors-section";
+import { QRCodeDownload } from "@/components/marketing/qr-code-download";
 
 export const metadata: Metadata = buildMetadata({
   title: "About — Forked",
@@ -19,6 +20,20 @@ export default function AboutPage() {
         <StorySection />
         <TeamSection />
         <InvestorsSection />
+
+        {/* Download Strip */}
+        <section className="text-center space-y-6">
+          <h2 className="font-display italic font-black text-3xl md:text-5xl tracking-tighter text-white">
+            Get the App
+          </h2>
+          <p className="text-white/40 text-sm max-w-md mx-auto">
+            Scan the QR code to download Forked and start rating dishes in your
+            city.
+          </p>
+          <div className="flex justify-center">
+            <QRCodeDownload />
+          </div>
+        </section>
       </div>
     </div>
   );
