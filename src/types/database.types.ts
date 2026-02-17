@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_actions: {
+        Row: {
+          action_type: string
+          admin_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          action_type: string
+          admin_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          action_type?: string
+          admin_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: []
+      }
       blog_authors: {
         Row: {
           avatar_url: string | null
@@ -786,6 +816,8 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          ban_reason: string | null
+          banned_at: string | null
           bio: string | null
           created_at: string | null
           credibility_score: number | null
@@ -793,15 +825,20 @@ export type Database = {
           expo_push_token: string | null
           home_city_id: string | null
           id: string
+          is_banned: boolean
           push_enabled: boolean | null
           role: string
           total_battles: number | null
           total_ratings: number | null
           updated_at: string | null
           username: string | null
+          warn_count: number
+          warned_at: string | null
         }
         Insert: {
           avatar_url?: string | null
+          ban_reason?: string | null
+          banned_at?: string | null
           bio?: string | null
           created_at?: string | null
           credibility_score?: number | null
@@ -809,15 +846,20 @@ export type Database = {
           expo_push_token?: string | null
           home_city_id?: string | null
           id: string
+          is_banned?: boolean
           push_enabled?: boolean | null
           role?: string
           total_battles?: number | null
           total_ratings?: number | null
           updated_at?: string | null
           username?: string | null
+          warn_count?: number
+          warned_at?: string | null
         }
         Update: {
           avatar_url?: string | null
+          ban_reason?: string | null
+          banned_at?: string | null
           bio?: string | null
           created_at?: string | null
           credibility_score?: number | null
@@ -825,12 +867,15 @@ export type Database = {
           expo_push_token?: string | null
           home_city_id?: string | null
           id?: string
+          is_banned?: boolean
           push_enabled?: boolean | null
           role?: string
           total_battles?: number | null
           total_ratings?: number | null
           updated_at?: string | null
           username?: string | null
+          warn_count?: number
+          warned_at?: string | null
         }
         Relationships: [
           {
