@@ -20,17 +20,13 @@ export type DishWithRestaurant = GlobalDishScore & {
     };
 };
 
-/**
- * Hook to fetch dish details with reviews
- * Used in: Dish detail screen
- */
-export function useDishDetail(
+// ── Primary query: global_dish_scores + restaurant + dish_type ──────────
+export function useDishCore(
     dishId: string | null,
     restaurantId: string | null
 ) {
-    const { user } = useAuth();
     return useQuery({
-        queryKey: ['dish', dishId, restaurantId],
+        queryKey: ['dish-core', dishId, restaurantId],
         queryFn: async () => {
             if (!dishId) throw new Error('No dish ID provided');
             if (!restaurantId) throw new Error('No restaurant ID provided');
@@ -39,29 +35,14 @@ export function useDishDetail(
                 .from('global_dish_scores')
                 .select(
                     `
-            *,
-            restaurant:restaurants(*),
-            dish_type:dish_types(*)
-          `
+                    *,
+                    restaurant:restaurants(*),
+                    dish_type:dish_types(*)
+                    `
                 )
                 .eq('dish_type_id', dishId)
                 .eq('restaurant_id', restaurantId)
                 .maybeSingle();
-
-            const { data: restaurantDishData } = await supabase
-                .from('restaurant_dishes')
-                .select(`*, variation:dish_type_variations(name, is_active)`)
-                .eq('dish_type_id', dishId)
-                .eq('restaurant_id', restaurantId);
-
-            const { data: personalRatingData, error: tagsError } =
-                await supabase
-                    .from('personal_ratings')
-                    .select(
-                        `user_id, raw_score, tags:personal_rating_tags(taste_tags(*))`
-                    )
-                    .eq('dish_type_id', dishId)
-                    .eq('restaurant_id', restaurantId);
 
             if (error) {
                 throw new Error(error.message || 'Failed to fetch dish');
@@ -71,6 +52,67 @@ export function useDishDetail(
                 throw new Error('This dish has not been rated yet');
             }
 
+            return data as GlobalDishScore & {
+                restaurant: Restaurant;
+                dish_type: DishType;
+            };
+        },
+        enabled: !!dishId && !!restaurantId,
+    });
+}
+
+// ── Secondary query: restaurant_dishes (photos + variations) ────────────
+export function useDishMenu(
+    dishId: string | null,
+    restaurantId: string | null
+) {
+    return useQuery({
+        queryKey: ['dish-menu', dishId, restaurantId],
+        queryFn: async () => {
+            if (!dishId || !restaurantId) return { variations: [], photos: [] };
+
+            const { data: restaurantDishData } = await supabase
+                .from('restaurant_dishes')
+                .select(`*, variation:dish_type_variations(name, is_active)`)
+                .eq('dish_type_id', dishId)
+                .eq('restaurant_id', restaurantId);
+
+            return {
+                variations:
+                    restaurantDishData
+                        ?.map((v: any) => v.is_active && v.variation?.name)
+                        .filter(Boolean) ?? [],
+                photos:
+                    restaurantDishData?.flatMap((v: any) => v.photos.flat()) ??
+                    [],
+            };
+        },
+        enabled: !!dishId && !!restaurantId,
+    });
+}
+
+// ── Secondary query: personal_ratings (tags + user rating) ──────────────
+export function useDishRatings(
+    dishId: string | null,
+    restaurantId: string | null
+) {
+    const { user } = useAuth();
+
+    return useQuery({
+        queryKey: ['dish-ratings', dishId, restaurantId, user?.id],
+        queryFn: async () => {
+            if (!dishId || !restaurantId)
+                return { tags: [], userRatingData: undefined };
+
+            const { data: personalRatingData } = await supabase
+                .from('personal_ratings')
+                .select(
+                    `user_id, raw_score, tags:personal_rating_tags(taste_tags(*))`
+                )
+                .eq('dish_type_id', dishId)
+                .eq('restaurant_id', restaurantId);
+
+            // Aggregate tags across all raters
             const tagMap = new Map<string, TasteTag & { count: number }>();
             personalRatingData?.forEach((rating: any) => {
                 rating.tags?.forEach((t: any) => {
@@ -90,27 +132,43 @@ export function useDishDetail(
                 (a, b) => b.count - a.count
             );
 
-            // Transform data to lift tags to the top level
-            // We need to match DishWithRestaurant interface where tags are direct children
-            const dishData = data as any;
-            const transformedData: DishWithRestaurant = {
-                ...dishData,
+            return {
                 tags: flatTags,
                 userRatingData: personalRatingData?.find(
                     (rating: any) => rating.user_id === user?.id
-                ),
-                menuData: {
-                    variations: restaurantDishData?.map(
-                        (v: any) => v.is_active && v.variation?.name
-                    ),
-                    photos: restaurantDishData?.flatMap((v: any) =>
-                        v.photos.flat()
-                    ),
-                },
+                ) as
+                    | {
+                          user_id: string;
+                          raw_score: number;
+                          tags: (TasteTag & { count: number })[];
+                      }
+                    | undefined,
             };
-
-            return transformedData;
         },
         enabled: !!dishId && !!restaurantId,
     });
+}
+
+// ── Composite hook (preserves external API) ─────────────────────────────
+
+/**
+ * Hook to fetch dish details with reviews.
+ * Returns split loading states so the UI can progressively render.
+ */
+export function useDishDetail(
+    dishId: string | null,
+    restaurantId: string | null
+) {
+    const core = useDishCore(dishId, restaurantId);
+    const menu = useDishMenu(dishId, restaurantId);
+    const ratings = useDishRatings(dishId, restaurantId);
+
+    return {
+        /** Primary data – renders the hero & stats immediately */
+        core,
+        /** Secondary – photo gallery / menu variations */
+        menu,
+        /** Secondary – taste tags & current user's rating */
+        ratings,
+    };
 }
