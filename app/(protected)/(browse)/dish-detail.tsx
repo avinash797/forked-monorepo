@@ -524,38 +524,6 @@ export default function DishDetailScreen() {
                         </View>
                         {/* Detailed Info */}
                         <View style={styles.infoSection}>
-                            {/* Tags: skeleton while loading, real tags when ready */}
-                            {ratings.isLoading ? (
-                                <TagsSkeleton />
-                            ) : (
-                                ratingsData?.tags &&
-                                ratingsData.tags.length > 0 && (
-                                    <View style={styles.tagsContainer}>
-                                        {ratingsData.tags
-                                            .sort((a, b) => b.count - a.count)
-                                            .map((tag, index) => (
-                                                <View
-                                                    key={index}
-                                                    style={styles.tag}
-                                                >
-                                                    <ThemedText
-                                                        style={styles.tagText}
-                                                    >
-                                                        {tag?.name}
-                                                    </ThemedText>
-                                                    <ThemedText
-                                                        style={
-                                                            styles.tagCountText
-                                                        }
-                                                    >
-                                                        ({tag.count})
-                                                    </ThemedText>
-                                                </View>
-                                            ))}
-                                    </View>
-                                )
-                            )}
-
                             <View style={styles.statCard}>
                                 <View style={styles.statItem}>
                                     <ThemedText style={styles.statValue}>
@@ -600,6 +568,80 @@ export default function DishDetailScreen() {
                                     </ThemedText>
                                 </View>
                             </View>
+
+                            {menu.isLoading ? (
+                                <TagsSkeleton />
+                            ) : (
+                                menuData?.variations &&
+                                menuData.variations.length > 0 && (
+                                    <>
+                                        <ThemedText type="defaultSemiBold">
+                                            Variations Offered
+                                        </ThemedText>
+                                        <View style={styles.tagsContainer}>
+                                            {menuData.variations
+                                                .sort(
+                                                    (a, b) => b.count - a.count
+                                                )
+                                                .map((variation, index) => (
+                                                    <View
+                                                        key={index}
+                                                        style={styles.tag}
+                                                    >
+                                                        <ThemedText
+                                                            style={
+                                                                styles.variationText
+                                                            }
+                                                        >
+                                                            {variation}
+                                                        </ThemedText>
+                                                    </View>
+                                                ))}
+                                        </View>
+                                    </>
+                                )
+                            )}
+
+                            {/* Tags: skeleton while loading, real tags when ready */}
+                            {ratings.isLoading ? (
+                                <TagsSkeleton />
+                            ) : (
+                                ratingsData?.tags &&
+                                ratingsData.tags.length > 0 && (
+                                    <>
+                                        <ThemedText type="defaultSemiBold">
+                                            User Tags
+                                        </ThemedText>
+                                        <View style={styles.tagsContainer}>
+                                            {ratingsData.tags
+                                                .sort(
+                                                    (a, b) => b.count - a.count
+                                                )
+                                                .map((tag, index) => (
+                                                    <View
+                                                        key={index}
+                                                        style={styles.tag}
+                                                    >
+                                                        <ThemedText
+                                                            style={
+                                                                styles.tagText
+                                                            }
+                                                        >
+                                                            {tag?.name}
+                                                        </ThemedText>
+                                                        <ThemedText
+                                                            style={
+                                                                styles.tagCountText
+                                                            }
+                                                        >
+                                                            ({tag.count})
+                                                        </ThemedText>
+                                                    </View>
+                                                ))}
+                                        </View>
+                                    </>
+                                )
+                            )}
 
                             {/* Photos: skeleton while loading, gallery when ready */}
                             {menu.isLoading ? (
@@ -875,6 +917,13 @@ const createThemedStyles = (
             color: theme.color.textSecondary,
             fontWeight: theme.font.weight.semibold,
             textTransform: 'uppercase',
+            letterSpacing: 0.5,
+        },
+        variationText: {
+            fontSize: theme.font.size.xs + 1,
+            color: theme.color.textSecondary,
+            fontWeight: theme.font.weight.semibold,
+            textTransform: 'capitalize',
             letterSpacing: 0.5,
         },
         tagCountText: {

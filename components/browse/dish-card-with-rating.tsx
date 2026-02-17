@@ -1,13 +1,14 @@
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/contexts/theme-provider';
-import { RestaurantDishWithDetails } from '@/types/restaurant';
+import { GroupedRestaurantDish } from '@/types/restaurant';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
+import { ScoreBadge } from '../score-badge';
 
 interface DishCardWithRatingProps {
-    /** The dish to display (can be DishWithVenue or TrendingDish) */
-    dish: RestaurantDishWithDetails;
+    /** The grouped dish to display (de-duplicated by dish_type_id) */
+    dish: GroupedRestaurantDish;
     onPress: () => void;
     viewMode?: 'vertical' | 'horizontal';
 }
@@ -69,10 +70,8 @@ export function DishCardWithRating({
             <View style={styles.cardContent}>
                 {/* Top Right: Rating Badge + Trend Indicator */}
                 <View style={styles.topRightContainer}>
-                    {dish.total_ratings !== null && dish.total_ratings > 0 && (
-                        <ThemedText style={styles.ratingBadge}>
-                            {dish.total_ratings} ratings
-                        </ThemedText>
+                    {dish.avg_raw_score !== null && dish.avg_raw_score > 0 && (
+                        <ScoreBadge score={dish.avg_raw_score} />
                     )}
                 </View>
 
@@ -85,17 +84,17 @@ export function DishCardWithRating({
                             style={styles.name}
                             numberOfLines={2}
                         >
-                            {dish.dish_types.name}
+                            {dish.type.name}
                         </ThemedText>
                     </View>
 
-                    {/* Review Count & Category */}
+                    {/* Variation info & rating count */}
                     <ThemedText style={styles.subtext} numberOfLines={1}>
-                        {dish.dish_type_variations?.name
-                            ? `${dish.dish_type_variations.name} • `
-                            : ''}
-                        {dish.total_ratings}{' '}
-                        {dish.total_ratings === 1 ? 'rating' : 'ratings'}
+                        {dish.variations.length > 1
+                            ? `${dish.variations.length} variations`
+                            : dish.variations[0]?.name
+                              ? `${dish.variations[0].name}`
+                              : ''}
                     </ThemedText>
                 </View>
             </View>

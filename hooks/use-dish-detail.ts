@@ -77,11 +77,14 @@ export function useDishMenu(
                 .eq('dish_type_id', dishId)
                 .eq('restaurant_id', restaurantId);
 
+            console.log('restaurantDishData', { restaurantDishData });
+
             return {
                 variations:
                     restaurantDishData
-                        ?.map((v: any) => v.is_active && v.variation?.name)
-                        .filter(Boolean) ?? [],
+                        ?.map((v: any) => v.variation)
+                        .filter((v: any) => v !== null)
+                        .map((v: any) => v.name) ?? [],
                 photos:
                     restaurantDishData?.flatMap((v: any) => v.photos.flat()) ??
                     [],

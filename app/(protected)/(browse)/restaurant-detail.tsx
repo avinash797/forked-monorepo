@@ -6,14 +6,12 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
-import { useLocation } from '@/hooks/use-location';
 import { useRestaurantDetail } from '@/hooks/use-restaurant-detail';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import {
-    ActivityIndicator,
     Dimensions,
     Linking,
     StyleSheet,
@@ -22,6 +20,7 @@ import {
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, {
+    Easing,
     Extrapolation,
     interpolate,
     interpolateColor,
@@ -29,6 +28,8 @@ import Animated, {
     useAnimatedScrollHandler,
     useAnimatedStyle,
     useSharedValue,
+    withRepeat,
+    withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -37,6 +38,68 @@ const HERO_HEIGHT = 450;
 const HEADER_HEIGHT = 60;
 
 const AnimatedIconSymbol = Animated.createAnimatedComponent(IconSymbol);
+
+// ── Skeleton placeholder with pulsing animation ─────────────────────────
+function SkeletonBlock({
+    width,
+    height,
+    borderRadius,
+    style,
+}: {
+    width: number | string;
+    height: number;
+    borderRadius?: number;
+    style?: any;
+}) {
+    const opacity = useSharedValue(0.3);
+
+    useEffect(() => {
+        opacity.value = withRepeat(
+            withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+            -1,
+            true
+        );
+    }, []);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        opacity: opacity.value,
+    }));
+
+    return (
+        <Animated.View
+            style={[
+                {
+                    width: width as any,
+                    height,
+                    borderRadius: borderRadius ?? 8,
+                    backgroundColor: 'rgba(150,150,150,0.2)',
+                },
+                animatedStyle,
+                style,
+            ]}
+        />
+    );
+}
+
+// ── Skeleton for a dish card row ────────────────────────────────────────
+function DishCardSkeleton() {
+    return (
+        <View
+            style={{
+                flexDirection: 'row',
+                gap: 12,
+                alignItems: 'center',
+            }}
+        >
+            <SkeletonBlock width={80} height={80} borderRadius={12} />
+            <View style={{ flex: 1, gap: 8 }}>
+                <SkeletonBlock width="70%" height={16} borderRadius={4} />
+                <SkeletonBlock width="45%" height={14} borderRadius={4} />
+                <SkeletonBlock width="30%" height={14} borderRadius={4} />
+            </View>
+        </View>
+    );
+}
 
 export default function RestaurantDetailScreen() {
     const router = useRouter();
@@ -51,10 +114,9 @@ export default function RestaurantDetailScreen() {
     const { data, isLoading, error } = useRestaurantDetail(venueId);
     const { venue, dishes = [] } = data || {};
     const allPhotos = dishes.flatMap((dish) => dish.photos);
-    const { data: locationData } = useLocation();
     const scrollViewRef = useRef<ScrollView>(null);
 
-    const dishTypesServed = new Set(dishes.map((dish) => dish.dish_types.name));
+    const dishTypesServed = new Set(dishes.map((dish) => dish.type.name));
 
     useEffect(() => {
         if (!isLoading && allPhotos.length > 1) {
@@ -193,20 +255,74 @@ export default function RestaurantDetailScreen() {
         }
     };
 
-    // Loading state
+    // Loading state – skeleton UI
     if (isLoading) {
         return (
-            <View
-                style={[
-                    styles.loadingContainer,
-                    { backgroundColor: theme.color.bg },
-                ]}
-            >
-                <ActivityIndicator size="large" />
-                <ThemedText style={styles.loadingText}>
-                    Loading venue...
-                </ThemedText>
-            </View>
+            <ThemedView style={styles.container}>
+                {/* Back button always available */}
+                <View style={[styles.topControls, { marginTop: insets.top }]}>
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        activeOpacity={0.7}
+                    >
+                        <View style={styles.backButton}>
+                            <IconSymbol
+                                name="arrow-back"
+                                size={24}
+                                color={theme.color.textOnImage}
+                            />
+                        </View>
+                    </TouchableOpacity>
+                </View>
+
+                {/* Hero skeleton */}
+                <SkeletonBlock
+                    width="100%"
+                    height={HERO_HEIGHT}
+                    borderRadius={0}
+                />
+
+                {/* Content skeleton */}
+                <View style={[{ display: 'flex', flexDirection: 'column' }]}>
+                    {/* Action buttons skeleton */}
+                    <View style={styles.infoBox}>
+                        <SkeletonBlock
+                            width="100%"
+                            height={44}
+                            borderRadius={12}
+                            style={{ flex: 1 }}
+                        />
+                        <SkeletonBlock
+                            width="100%"
+                            height={44}
+                            borderRadius={12}
+                            style={{ flex: 1 }}
+                        />
+                        <SkeletonBlock
+                            width="100%"
+                            height={44}
+                            borderRadius={12}
+                            style={{ flex: 1 }}
+                        />
+                    </View>
+
+                    {/* Menu section skeleton */}
+                    <View style={styles.dishesSection}>
+                        <SkeletonBlock
+                            width={120}
+                            height={22}
+                            borderRadius={6}
+                            style={{ marginLeft: 16, marginBottom: 16 }}
+                        />
+                        <View style={styles.dishesList}>
+                            <DishCardSkeleton />
+                            <DishCardSkeleton />
+                            <DishCardSkeleton />
+                            <DishCardSkeleton />
+                        </View>
+                    </View>
+                </View>
+            </ThemedView>
         );
     }
 
@@ -419,7 +535,7 @@ export default function RestaurantDetailScreen() {
                             <View style={styles.dishesList}>
                                 {dishes.map((dish) => (
                                     <DishCardWithRating
-                                        key={`${dish.dish_type_id}-${dish.variation_id}`}
+                                        key={dish.dish_type_id}
                                         dish={dish}
                                         onPress={() =>
                                             handleDishPress(dish.dish_type_id)
@@ -568,7 +684,6 @@ const createThemedStyles = (
             minHeight: Dimensions.get('window').height - HERO_HEIGHT,
             paddingTop: theme.space.lg,
             flex: 1,
-            justifyContent: 'space-between',
             alignItems: 'center',
         },
         infoBox: {

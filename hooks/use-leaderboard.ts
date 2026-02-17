@@ -20,7 +20,7 @@ export function useLeaderboard({
     neighborhoodId,
     limit = 10,
     minimumBattlesRequirement = 5,
-    minimumRatingRequirement = 3,
+    minimumRatingRequirement = 2,
 }: LeaderboardParams) {
     return useQuery({
         queryKey: [
