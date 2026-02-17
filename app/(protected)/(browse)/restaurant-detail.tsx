@@ -6,7 +6,6 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
-import { useLocation } from '@/hooks/use-location';
 import { useRestaurantDetail } from '@/hooks/use-restaurant-detail';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -115,10 +114,9 @@ export default function RestaurantDetailScreen() {
     const { data, isLoading, error } = useRestaurantDetail(venueId);
     const { venue, dishes = [] } = data || {};
     const allPhotos = dishes.flatMap((dish) => dish.photos);
-    const { data: locationData } = useLocation();
     const scrollViewRef = useRef<ScrollView>(null);
 
-    const dishTypesServed = new Set(dishes.map((dish) => dish.dish_types.name));
+    const dishTypesServed = new Set(dishes.map((dish) => dish.type.name));
 
     useEffect(() => {
         if (!isLoading && allPhotos.length > 1) {
@@ -537,7 +535,7 @@ export default function RestaurantDetailScreen() {
                             <View style={styles.dishesList}>
                                 {dishes.map((dish) => (
                                     <DishCardWithRating
-                                        key={`${dish.dish_type_id}-${dish.variation_id}`}
+                                        key={dish.dish_type_id}
                                         dish={dish}
                                         onPress={() =>
                                             handleDishPress(dish.dish_type_id)
@@ -686,7 +684,6 @@ const createThemedStyles = (
             minHeight: Dimensions.get('window').height - HERO_HEIGHT,
             paddingTop: theme.space.lg,
             flex: 1,
-            justifyContent: 'space-between',
             alignItems: 'center',
         },
         infoBox: {
