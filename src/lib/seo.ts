@@ -77,6 +77,90 @@ export function buildOrganizationJsonLd() {
   };
 }
 
+export function buildArticleJsonLd({
+  title,
+  description,
+  slug,
+  publishedAt,
+  modifiedAt,
+  authorName,
+  categoryName,
+  imageUrl,
+}: {
+  title: string;
+  description: string;
+  slug: string;
+  publishedAt: string;
+  modifiedAt?: string | null;
+  authorName: string;
+  categoryName: string;
+  imageUrl?: string | null;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: title,
+    description,
+    url: `${SITE_URL}/blog/${slug}`,
+    datePublished: publishedAt,
+    dateModified: modifiedAt ?? publishedAt,
+    author: {
+      "@type": "Person",
+      name: authorName,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/images/fork-logo/fork-gold.png`,
+      },
+    },
+    articleSection: categoryName,
+    ...(imageUrl
+      ? {
+          image: {
+            "@type": "ImageObject",
+            url: imageUrl,
+          },
+        }
+      : {}),
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${SITE_URL}/blog/${slug}`,
+    },
+  };
+}
+
+export function buildBlogListingJsonLd({
+  posts,
+}: {
+  posts: {
+    title: string;
+    slug: string;
+    excerpt?: string | null;
+  }[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Forked Blog",
+    description: "Articles about food, dish rankings, and city guides from Forked.",
+    numberOfItems: posts.length,
+    itemListElement: posts.map((post, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "BlogPosting",
+        headline: post.title,
+        url: `${SITE_URL}/blog/${post.slug}`,
+        ...(post.excerpt ? { description: post.excerpt } : {}),
+      },
+    })),
+  };
+}
+
 export function buildLeaderboardJsonLd({
   city,
   dishType,
