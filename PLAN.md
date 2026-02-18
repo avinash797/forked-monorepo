@@ -166,7 +166,7 @@
 
 ---
 
-## Phase 4: Supporting Content (NOT STARTED)
+## Phase 4: Supporting Content (COMPLETE)
 
 **Branch:** `p4/supporting-content` (create from `development`)
 
@@ -191,6 +191,16 @@
 - [x] Analytics integration (Vercel Analytics + Speed Insights)
 - [x] Mobile responsive audit — added hamburger mobile nav menu
 - [x] Lighthouse audit — contrast fixes in footer and CTA section
+
+---
+
+## Phase 6: Admin CRUD Features (NOT STARTED)
+
+**Branch:** `p6/admin-crud-features` → merged to `development`
+
+Abstract: We want to allow admins to manage the data in the database. Create new dish types, add foreign relations to the cities, mark it city_known_dishe for specific cities, etc. Also allow adding new taste tags, and dish type variations, etc. Cities are being added automatically from Google Places API, so we don't need to add them manually. We can add a button in the city page to add a city to the database if it's not already there.
+
+- [ ] Allow Admins to add/edit/delete necessary rows in the database.
 
 ---
 
