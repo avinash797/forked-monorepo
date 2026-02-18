@@ -7,6 +7,7 @@ This is the **web companion** for the Forked mobile app (Expo/React Native). It 
 Both the mobile app and this web app share the same **Supabase** backend (database, RPC functions, storage).
 
 **Tech Stack:**
+
 - **Next.js 16** (App Router) with TypeScript (strict mode)
 - **Tailwind CSS v4** with CSS custom properties mapped from shared design tokens
 - **Supabase** via `@supabase/ssr` (cookie-based auth for server/client components)
@@ -65,7 +66,7 @@ src/
 │       ├── og/route.tsx           # Dynamic OG image generation (Edge runtime)
 │       └── revalidate/route.ts    # On-demand ISR webhook (POST, bearer token)
 │
-├── middleware.ts                   # Protects /admin/* (auth + admin role check)
+├── proxy.ts                   # Protects /admin/* (auth + admin role check)
 │
 ├── components/
 │   ├── icons/fork-logo.tsx        # Web SVG version of the fork logo
@@ -130,6 +131,7 @@ src/
 **These rules are mandatory — follow them exactly.**
 
 ### Branch Strategy
+
 - `main` = **production**. Only receives merges from `development`.
 - `development` = **integration**. Feature branches merge here when complete.
 - Each priority phase (P0–P9) **must** be developed on its own branch.
@@ -139,9 +141,11 @@ src/
 - **Never** commit work directly to `development` or `main`.
 
 ### Commit Strategy
+
 - Each **task** (a logical unit of work) **must** be its own commit.
 - Commit message format: `P<N>: <imperative summary>` (e.g., `P2: Create blog_posts migration`).
 - If multiple closely-related tasks must be combined, list each in the commit body:
+
   ```
   P2: Set up blog database schema
 
@@ -149,10 +153,12 @@ src/
   - Created blog_categories table
   - Created blog_authors table
   ```
+
 - Every commit **must** leave the project in a buildable state (`npm run build` should pass).
 - Do not bundle unrelated changes into one commit.
 
 ### Merge & Cleanup
+
 - After merging a feature branch to `development`, push `development` to origin.
 - PRs from `development` → `main` are done for production releases.
 - Do **not** delete remote branches (keep them for history).
@@ -160,9 +166,11 @@ src/
 ## Design System
 
 ### Token Source
+
 Design tokens come from the mobile app's `forked/lib/theme/token.default.ts`. They are defined as CSS custom properties in `globals.css` and mapped to Tailwind via `@theme inline`.
 
 ### Key Colors
+
 - **Accent:** `#ee6c2b` (orange)
 - **Dark backgrounds:** `#221610` (bg), `#342219` (surface), `#3d2a1f` (surface2)
 - **Light backgrounds:** `#f8f6f6` (bg), `#ffffff` (surface), `#F3F4F6` (surface2)
@@ -171,10 +179,13 @@ Design tokens come from the mobile app's `forked/lib/theme/token.default.ts`. Th
 - **Text (light mode):** `#221610` (primary), `#4B5563` (secondary), `#687076` (tertiary)
 
 ### Dark Mode
+
 Dark mode uses the `.dark` CSS class strategy. The Navbar, Footer, Hero, Mission, and CTA sections use dark styling directly (hard-coded dark tokens), since the landing page alternates between light and dark sections by design.
 
 ### Using Tokens
+
 Always use Tailwind utility classes that reference token colors:
+
 ```tsx
 // Correct
 <div className="bg-surface text-text-primary border-border" />
@@ -189,15 +200,18 @@ Exception: hard-coded hex values are acceptable in dark-only sections (Navbar, F
 ## Supabase Integration
 
 ### Three Clients
+
 1. **Server client** (`lib/supabase/server.ts`) — for server components and route handlers. Uses `cookies()` from `next/headers`.
 2. **Browser client** (`lib/supabase/client.ts`) — for client components. Cookie-based via `@supabase/ssr`.
 3. **Static client** (`lib/supabase/static.ts`) — for `generateStaticParams` and other build-time contexts. Does NOT use cookies. Returns `null` if env vars aren't configured.
 
 ### Key RPC Functions
+
 - `get_leaderboard(p_city_id, p_dish_type_id, p_limit, p_min_battles, p_min_ratings, p_neighborhood_id)` — returns ranked entries with elo, win_rate, confidence, etc.
 - `get_leaderboard_with_tiebreakers(p_city_id, p_dish_type_id, p_limit)` — same but with stricter tiebreaker ordering.
 
 ### Data Fetching Pattern
+
 Leaderboard and stats data is fetched in **server components** using the server Supabase client. No React Query needed for these — server components call Supabase directly.
 
 ```tsx
@@ -210,27 +224,33 @@ export default async function MyPage() {
 ```
 
 ### Database Slugs
+
 City and dish type pages use slugs from the database for URL routing:
+
 - **Cities:** `new-orleans-louisiana`, `washington-district-of-columbia`
 - **Dish types:** `gumbo`, `po-boy`, `crawfish-touff-e`, `muffuletta`, `jambalaya`
 
 ## SEO
 
 ### Structured Data (JSON-LD)
-| Page | Schema |
-|------|--------|
-| Root layout | `WebSite` + `Organization` |
+
+| Page                             | Schema                                                         |
+| -------------------------------- | -------------------------------------------------------------- |
+| Root layout                      | `WebSite` + `Organization`                                     |
 | `/leaderboard/[city]/[dishType]` | `ItemList` (with `Restaurant` + `AggregateRating`) + `FAQPage` |
 
 ### Metadata
+
 Use `buildMetadata()` from `lib/seo.ts` in `generateMetadata` exports. It handles title, description, OG tags, and Twitter cards.
 
 ### LLM Optimization
+
 - `llms.txt` at `/llms.txt` describes the site for AI crawlers.
 - Dish type leaderboard pages include a direct-answer sentence: "The best [dish] in [city] is at [restaurant]..."
 - FAQ sections with `FAQPage` schema on leaderboard pages.
 
 ### ISR
+
 All leaderboard and landing pages use `export const revalidate = 600` (10 minutes). On-demand revalidation is available via `POST /api/revalidate` with a bearer token.
 
 ## Coding Conventions
