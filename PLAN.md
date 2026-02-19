@@ -240,3 +240,11 @@ These files in `../forked/` inform the web app's implementation:
 **City slugs in DB:** `new-orleans-louisiana`, `washington-district-of-columbia`
 
 **Dish type slugs in DB:** `gumbo`, `po-boy`, `crawfish-touff-e`, `muffuletta`, `jambalaya`
+
+---
+
+## Ad Hoc Tasks
+
+- [x] **Waitlist mode — env-based dynamic rendering** — (Ad hoc: Add `NEXT_PUBLIC_WAITLIST_MODE` flag to hide leaderboards/blog/app CTAs and replace hero + CTA section with an email waitlist form; includes `user_waitlist` Supabase migration and server action)
+- [x] **Fix waitlist form bugs** — (Ad hoc: `database.types.ts` was regenerated with UTF-16 encoding on Windows causing TypeScript compilation failure; fixed by piping through Node to write UTF-8. Footer COMPANY column was accidentally removed and About/How It Works merged into EXPLORE; restored original 3-column structure)
+- [x] **Fix waitlist 403 for authenticated users** — (Ad hoc: RLS policy only allowed `anon` inserts; logged-in users (e.g. admin) got a 403 because their session JWT caused the request to run as `authenticated` role. Added `authenticated` insert policy to migration file and applied it to the live database)

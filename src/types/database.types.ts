@@ -1091,6 +1091,27 @@ export type Database = {
           },
         ]
       }
+      user_waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          source: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          source?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          source?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1315,22 +1336,6 @@ export type Database = {
           p_min_ratings?: number
           p_neighborhood_id?: string
         }
-        Returns: {
-          avg_raw_score: number
-          confidence_score: number
-          featured_photo_url: string
-          global_elo: number
-          neighborhood_name: string
-          rank: number
-          restaurant_id: string
-          restaurant_name: string
-          total_battles: number
-          total_ratings: number
-          win_rate: number
-        }[]
-      }
-      get_leaderboard_with_tiebreakers: {
-        Args: { p_city_id: string; p_dish_type_id: string; p_limit?: number }
         Returns: {
           avg_raw_score: number
           confidence_score: number
