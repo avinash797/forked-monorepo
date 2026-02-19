@@ -51,7 +51,7 @@ export function WaitlistForm({ source }: WaitlistFormProps) {
             <div className="relative flex-1">
               <Mail
                 size={18}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary"
               />
               <input
                 type="email"
@@ -62,13 +62,13 @@ export function WaitlistForm({ source }: WaitlistFormProps) {
                 }}
                 placeholder="Enter your email"
                 required
-                className="w-full bg-white/5 border border-white/10 rounded-l-2xl pl-12 pr-4 py-4 text-white text-sm font-medium placeholder:text-white/30 focus:outline-none focus:border-[#FF4D00]/50 focus:ring-1 focus:ring-[#FF4D00]/30 transition-all"
+                className="w-full bg-surface-2 border border-border rounded-l-2xl pl-12 pr-4 py-4 text-text-primary text-sm font-medium placeholder:text-text-tertiary focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-all"
               />
             </div>
             <button
               type="submit"
               disabled={isPending}
-              className="bg-[#FF4D00] text-white px-6 py-4 rounded-r-2xl font-black text-sm tracking-widest hover:bg-[#FF6A2E] active:scale-95 transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-[0_5px_20px_rgba(255,77,0,0.3)] whitespace-nowrap"
+              className="bg-accent text-accent-on px-6 py-4 rounded-r-2xl font-black text-sm tracking-widest hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-[0_5px_20px_rgba(238,108,43,0.3)] whitespace-nowrap"
             >
               {isPending ? (
                 <span className="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />

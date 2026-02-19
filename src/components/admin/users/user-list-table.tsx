@@ -8,7 +8,7 @@ type UserListTableProps = {
 export function UserListTable({ users }: UserListTableProps) {
   if (users.length === 0) {
     return (
-      <div className="text-center py-12 text-[#9BA1A6]">
+      <div className="text-center py-12 text-text-secondary">
         <p>No users found.</p>
       </div>
     );
@@ -18,26 +18,26 @@ export function UserListTable({ users }: UserListTableProps) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-[rgba(236,237,238,0.08)]">
-            <th className="text-left py-3 px-4 font-medium text-[#9BA1A6]">
+          <tr className="border-b border-border">
+            <th className="text-left py-3 px-4 font-medium text-text-tertiary">
               User
             </th>
-            <th className="text-left py-3 px-4 font-medium text-[#9BA1A6]">
+            <th className="text-left py-3 px-4 font-medium text-text-tertiary">
               Role
             </th>
-            <th className="text-left py-3 px-4 font-medium text-[#9BA1A6]">
+            <th className="text-left py-3 px-4 font-medium text-text-tertiary">
               Ratings
             </th>
-            <th className="text-left py-3 px-4 font-medium text-[#9BA1A6]">
+            <th className="text-left py-3 px-4 font-medium text-text-tertiary">
               Battles
             </th>
-            <th className="text-left py-3 px-4 font-medium text-[#9BA1A6]">
+            <th className="text-left py-3 px-4 font-medium text-text-tertiary">
               Status
             </th>
-            <th className="text-left py-3 px-4 font-medium text-[#9BA1A6]">
+            <th className="text-left py-3 px-4 font-medium text-text-tertiary">
               Joined
             </th>
-            <th className="text-right py-3 px-4 font-medium text-[#9BA1A6]">
+            <th className="text-right py-3 px-4 font-medium text-text-tertiary">
               Actions
             </th>
           </tr>
@@ -46,7 +46,7 @@ export function UserListTable({ users }: UserListTableProps) {
           {users.map((user) => (
             <tr
               key={user.id}
-              className="border-b border-[rgba(236,237,238,0.05)] hover:bg-[#3d2a1f]/50"
+              className="border-b border-border hover:bg-surface-2/50"
             >
               <td className="py-3 px-4">
                 <div className="flex items-center gap-3">
@@ -57,18 +57,18 @@ export function UserListTable({ users }: UserListTableProps) {
                       className="w-8 h-8 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-[#482f23] flex items-center justify-center text-xs text-[#9BA1A6]">
+                    <div className="w-8 h-8 rounded-full bg-surface-2 flex items-center justify-center text-xs text-text-secondary">
                       {(user.display_name || user.username || "?")
                         .charAt(0)
                         .toUpperCase()}
                     </div>
                   )}
                   <div>
-                    <p className="text-[#ECEDEE] font-medium">
+                    <p className="text-text-primary font-medium">
                       {user.display_name || "Unnamed"}
                     </p>
                     {user.username && (
-                      <p className="text-xs text-[#9BA1A6]">
+                      <p className="text-xs text-text-secondary">
                         @{user.username}
                       </p>
                     )}
@@ -79,31 +79,31 @@ export function UserListTable({ users }: UserListTableProps) {
                 <span
                   className={`text-xs font-medium px-2 py-0.5 rounded-pill ${
                     user.role === "admin"
-                      ? "bg-[#ee6c2b]/15 text-[#ee6c2b]"
-                      : "bg-[#482f23] text-[#9BA1A6]"
+                      ? "bg-accent/15 text-accent"
+                      : "bg-surface-2 text-text-secondary"
                   }`}
                 >
                   {user.role}
                 </span>
               </td>
-              <td className="py-3 px-4 text-[#c9a492]">
+              <td className="py-3 px-4 text-text-secondary">
                 {user.total_ratings ?? 0}
               </td>
-              <td className="py-3 px-4 text-[#c9a492]">
+              <td className="py-3 px-4 text-text-secondary">
                 {user.total_battles ?? 0}
               </td>
               <td className="py-3 px-4">
                 {user.is_banned ? (
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-pill bg-[#EF4444]/15 text-[#F87171]">
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-pill bg-danger/15 text-danger">
                     Banned
                   </span>
                 ) : (
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-pill bg-[#34D399]/15 text-[#34D399]">
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-pill bg-success/15 text-success">
                     Active
                   </span>
                 )}
               </td>
-              <td className="py-3 px-4 text-[#9BA1A6]">
+              <td className="py-3 px-4 text-text-secondary">
                 {user.created_at
                   ? new Date(user.created_at).toLocaleDateString()
                   : "-"}
@@ -111,7 +111,7 @@ export function UserListTable({ users }: UserListTableProps) {
               <td className="py-3 px-4 text-right">
                 <Link
                   href={`/admin/users/${user.id}`}
-                  className="text-[#ee6c2b] hover:underline"
+                  className="text-accent hover:underline"
                 >
                   View
                 </Link>

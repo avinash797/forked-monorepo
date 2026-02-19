@@ -55,7 +55,11 @@ export function TasteTagManager({
     });
   }
 
-  function updateEditing(id: string, field: keyof EditingTag, value: string | boolean) {
+  function updateEditing(
+    id: string,
+    field: keyof EditingTag,
+    value: string | boolean,
+  ) {
     setEditing((prev) => {
       const current = prev[id];
       if (!current) return prev;
@@ -99,13 +103,11 @@ export function TasteTagManager({
     setError(null);
 
     const supabase = createClient();
-    const { error: err } = await supabase
-      .from("taste_tags")
-      .insert({
-        dish_type_id: dishTypeId,
-        name: newRow.name.trim(),
-        slug: newRow.slug.trim(),
-      });
+    const { error: err } = await supabase.from("taste_tags").insert({
+      dish_type_id: dishTypeId,
+      name: newRow.name.trim(),
+      slug: newRow.slug.trim(),
+    });
 
     setSavingIds((prev) => {
       const next = new Set(prev);
@@ -139,13 +141,13 @@ export function TasteTagManager({
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-[#c9a492] uppercase tracking-wider">
+        <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wider">
           Taste Tags
         </h3>
         {!addingNew && (
           <button
             onClick={() => setAddingNew(true)}
-            className="flex items-center gap-1.5 text-sm text-[#ee6c2b] hover:text-[#f07d3a] transition-colors"
+            className="flex items-center gap-1.5 text-sm text-accent hover:text-accent/80 transition-colors"
           >
             <Plus className="w-4 h-4" /> Add
           </button>
@@ -153,24 +155,33 @@ export function TasteTagManager({
       </div>
 
       {error && (
-        <div className="mb-3 p-2 bg-red-900/20 border border-red-700 rounded text-red-400 text-xs">
+        <div className="mb-3 p-2 bg-danger/10 border border-danger/30 rounded text-danger text-xs">
           {error}
         </div>
       )}
 
-      <div className="rounded-lg border border-[#4a3728] overflow-hidden">
+      <div className="rounded-lg border border-border overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-[#1a0f08]">
+          <thead className="bg-surface-2">
             <tr>
-              <th className="px-3 py-2 text-left text-xs font-semibold text-[#9BA1A6] uppercase">Name</th>
-              <th className="px-3 py-2 text-left text-xs font-semibold text-[#9BA1A6] uppercase">Slug</th>
-              <th className="px-3 py-2 text-left text-xs font-semibold text-[#9BA1A6] uppercase">Actions</th>
+              <th className="px-3 py-2 text-left text-xs font-semibold text-text-secondary uppercase">
+                Name
+              </th>
+              <th className="px-3 py-2 text-left text-xs font-semibold text-text-secondary uppercase">
+                Slug
+              </th>
+              <th className="px-3 py-2 text-left text-xs font-semibold text-text-secondary uppercase">
+                Actions
+              </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#4a3728]">
+          <tbody className="divide-y divide-border">
             {tags.length === 0 && !addingNew && (
               <tr>
-                <td colSpan={3} className="px-3 py-4 text-center text-[#9BA1A6] text-xs bg-[#342219]">
+                <td
+                  colSpan={3}
+                  className="px-3 py-4 text-center text-text-secondary text-xs bg-surface"
+                >
                   No taste tags yet.
                 </td>
               </tr>
@@ -182,27 +193,34 @@ export function TasteTagManager({
               const isSaving = savingIds.has(tag.id);
 
               return (
-                <tr key={tag.id} className="bg-[#342219] hover:bg-[#3d2a1f] transition-colors">
+                <tr
+                  key={tag.id}
+                  className="bg-surface hover:bg-surface-2 transition-colors"
+                >
                   <td className="px-3 py-2">
                     {isEdit ? (
                       <input
                         value={item.name}
-                        onChange={(e) => updateEditing(tag.id, "name", e.target.value)}
-                        className="w-full px-2 py-1 bg-[#1a0f08] border border-[#4a3728] rounded text-[#ECEDEE] text-sm focus:outline-none focus:border-[#ee6c2b]"
+                        onChange={(e) =>
+                          updateEditing(tag.id, "name", e.target.value)
+                        }
+                        className="w-full px-2 py-1 bg-surface-2 border border-border rounded text-text-primary text-sm focus:outline-none focus:border-accent"
                       />
                     ) : (
-                      <span className="text-[#ECEDEE]">{tag.name}</span>
+                      <span className="text-text-primary">{tag.name}</span>
                     )}
                   </td>
                   <td className="px-3 py-2">
                     {isEdit ? (
                       <input
                         value={item.slug}
-                        onChange={(e) => updateEditing(tag.id, "slug", e.target.value)}
-                        className="w-full px-2 py-1 bg-[#1a0f08] border border-[#4a3728] rounded text-[#ECEDEE] font-mono text-xs focus:outline-none focus:border-[#ee6c2b]"
+                        onChange={(e) =>
+                          updateEditing(tag.id, "slug", e.target.value)
+                        }
+                        className="w-full px-2 py-1 bg-surface-2 border border-border rounded text-text-primary font-mono text-xs focus:outline-none focus:border-accent"
                       />
                     ) : (
-                      <code className="text-xs text-[#9BA1A6] bg-[#1a0f08] px-1.5 py-0.5 rounded">
+                      <code className="text-xs text-text-secondary bg-surface-2 px-1.5 py-0.5 rounded">
                         {tag.slug}
                       </code>
                     )}
@@ -214,14 +232,14 @@ export function TasteTagManager({
                           <button
                             onClick={() => saveEdit(tag.id)}
                             disabled={isSaving}
-                            className="p-1 text-green-400 hover:text-green-300 disabled:opacity-50"
+                            className="p-1 text-success hover:text-success/80 disabled:opacity-50"
                             title="Save"
                           >
                             <Save className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => cancelEdit(tag.id)}
-                            className="p-1 text-[#9BA1A6] hover:text-[#ECEDEE]"
+                            className="p-1 text-text-secondary hover:text-text-primary"
                           >
                             <span className="text-xs">✕</span>
                           </button>
@@ -230,13 +248,13 @@ export function TasteTagManager({
                         <>
                           <button
                             onClick={() => startEdit(tag)}
-                            className="p-1 text-[#9BA1A6] hover:text-[#ee6c2b] text-xs"
+                            className="p-1 text-text-secondary hover:text-accent text-xs"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => setDeleteTarget(tag)}
-                            className="p-1 text-[#9BA1A6] hover:text-red-400"
+                            className="p-1 text-text-secondary hover:text-danger"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -249,7 +267,7 @@ export function TasteTagManager({
             })}
 
             {addingNew && (
-              <tr className="bg-[#3d2a1f]">
+              <tr className="bg-surface-2/50">
                 <td className="px-3 py-2">
                   <input
                     value={newRow.name}
@@ -261,7 +279,7 @@ export function TasteTagManager({
                         slug: prev.autoSlug ? slugify(name) : prev.slug,
                       }));
                     }}
-                    className="w-full px-2 py-1 bg-[#1a0f08] border border-[#4a3728] rounded text-[#ECEDEE] text-sm focus:outline-none focus:border-[#ee6c2b]"
+                    className="w-full px-2 py-1 bg-surface-2 border border-border rounded text-text-primary text-sm focus:outline-none focus:border-accent"
                     placeholder="Tag name"
                     autoFocus
                   />
@@ -276,7 +294,7 @@ export function TasteTagManager({
                         autoSlug: false,
                       }))
                     }
-                    className="w-full px-2 py-1 bg-[#1a0f08] border border-[#4a3728] rounded text-[#ECEDEE] font-mono text-xs focus:outline-none focus:border-[#ee6c2b]"
+                    className="w-full px-2 py-1 bg-surface-2 border border-border rounded text-text-primary font-mono text-xs focus:outline-none focus:border-accent"
                     placeholder="tag-slug"
                   />
                 </td>
@@ -284,14 +302,16 @@ export function TasteTagManager({
                   <div className="flex items-center gap-1">
                     <button
                       onClick={saveNew}
-                      disabled={savingIds.has("new") || !newRow.name || !newRow.slug}
-                      className="p-1 text-green-400 hover:text-green-300 disabled:opacity-50"
+                      disabled={
+                        savingIds.has("new") || !newRow.name || !newRow.slug
+                      }
+                      className="p-1 text-success hover:text-success/80 disabled:opacity-50"
                     >
                       <Save className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setAddingNew(false)}
-                      className="p-1 text-[#9BA1A6] hover:text-[#ECEDEE]"
+                      className="p-1 text-text-secondary hover:text-text-primary"
                     >
                       <span className="text-xs">✕</span>
                     </button>

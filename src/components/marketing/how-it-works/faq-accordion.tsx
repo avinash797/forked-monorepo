@@ -50,10 +50,10 @@ export function FaqAccordion() {
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
         transition={{ duration: 0.6 }}
       >
-        <p className="text-[10px] font-black tracking-[0.3em] uppercase text-[#FF4D00] mb-4">
+        <p className="text-[10px] font-black tracking-[0.3em] uppercase text-accent mb-4">
           FAQ
         </p>
-        <h2 className="font-display italic font-black text-3xl md:text-5xl tracking-tighter">
+        <h2 className="font-display italic font-black text-3xl md:text-5xl tracking-tighter text-text-primary">
           Common Questions
         </h2>
       </motion.div>
@@ -62,28 +62,35 @@ export function FaqAccordion() {
         {faqs.map((faq, i) => (
           <motion.div
             key={i}
-            className="border border-white/10 rounded-xl overflow-hidden"
-            animate={
-              isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
-            }
+            className="border border-border rounded-xl overflow-hidden"
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
           >
             <button
               onClick={() => {
-                if (openIndex !== i) track("faq_open", { question: faq.question });
+                if (openIndex !== i)
+                  track("faq_open", { question: faq.question });
                 setOpenIndex(openIndex === i ? null : i);
               }}
               aria-expanded={openIndex === i}
               aria-controls={`faq-answer-${i}`}
-              className="w-full flex items-center justify-between p-5 text-left hover:bg-white/5 transition-colors"
+              className="w-full flex items-center justify-between p-5 text-left hover:bg-surface-2 transition-colors"
             >
-              <span className="text-sm font-bold text-white pr-4">
+              <span className="text-sm font-bold text-text-primary pr-4">
                 {faq.question}
               </span>
               {openIndex === i ? (
-                <Minus size={16} className="text-[#FF4D00] shrink-0" aria-hidden="true" />
+                <Minus
+                  size={16}
+                  className="text-accent shrink-0"
+                  aria-hidden="true"
+                />
               ) : (
-                <Plus size={16} className="text-white/30 shrink-0" aria-hidden="true" />
+                <Plus
+                  size={16}
+                  className="text-text-tertiary shrink-0"
+                  aria-hidden="true"
+                />
               )}
             </button>
             <AnimatePresence>
@@ -97,7 +104,7 @@ export function FaqAccordion() {
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <p className="px-5 pb-5 text-sm text-white/40 leading-relaxed">
+                  <p className="px-5 pb-5 text-sm text-text-secondary leading-relaxed">
                     {faq.answer}
                   </p>
                 </motion.div>

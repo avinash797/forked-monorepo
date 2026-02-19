@@ -45,55 +45,65 @@ export function CityEditForm({ city }: { city: CityDetail }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="p-2 bg-red-900/20 border border-red-700 rounded text-red-400 text-xs">
+        <div className="p-2 bg-danger/10 border border-danger/30 rounded text-danger text-xs">
           {error}
         </div>
       )}
       {success && (
-        <div className="p-2 bg-green-900/20 border border-green-700 rounded text-green-400 text-xs">
+        <div className="p-2 bg-success/15 border border-success/30 rounded text-success text-xs">
           City updated successfully.
         </div>
       )}
 
       <div>
-        <label className="block text-xs font-medium text-[#9BA1A6] mb-1">Name</label>
+        <label className="block text-xs font-medium text-text-secondary mb-1">
+          Name
+        </label>
         <input
           type="text"
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full px-3 py-2 bg-[#1a0f08] border border-[#4a3728] rounded text-[#ECEDEE] text-sm focus:outline-none focus:border-[#ee6c2b]"
+          className="w-full px-3 py-2 bg-surface-2 border border-border rounded text-text-primary text-sm focus:outline-none focus:border-accent"
         />
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-[#9BA1A6] mb-1">State</label>
+        <label className="block text-xs font-medium text-text-secondary mb-1">
+          State
+        </label>
         <input
           type="text"
           value={state}
           onChange={(e) => setState(e.target.value)}
-          className="w-full px-3 py-2 bg-[#1a0f08] border border-[#4a3728] rounded text-[#ECEDEE] text-sm focus:outline-none focus:border-[#ee6c2b]"
+          className="w-full px-3 py-2 bg-surface-2 border border-border rounded text-text-primary text-sm focus:outline-none focus:border-accent"
           placeholder="e.g. Louisiana"
         />
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-[#9BA1A6] mb-1">Country</label>
+        <label className="block text-xs font-medium text-text-secondary mb-1">
+          Country
+        </label>
         <input
           type="text"
           value={country}
           onChange={(e) => setCountry(e.target.value)}
-          className="w-full px-3 py-2 bg-[#1a0f08] border border-[#4a3728] rounded text-[#ECEDEE] text-sm focus:outline-none focus:border-[#ee6c2b]"
+          className="w-full px-3 py-2 bg-surface-2 border border-border rounded text-text-primary text-sm focus:outline-none focus:border-accent"
           placeholder="e.g. USA"
         />
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-[#9BA1A6] mb-2">Slug</label>
-        <code className="block px-3 py-2 bg-[#1a0f08] border border-[#4a3728] rounded text-[#9BA1A6] text-xs font-mono">
+        <label className="block text-xs font-medium text-text-secondary mb-2">
+          Slug
+        </label>
+        <code className="block px-3 py-2 bg-surface-2 border border-border rounded text-text-secondary text-xs font-mono">
           {city.slug}
         </code>
-        <p className="mt-1 text-xs text-[#9BA1A6]">Slug is read-only (changing it would break URLs).</p>
+        <p className="mt-1 text-xs text-text-secondary">
+          Slug is read-only (changing it would break URLs).
+        </p>
       </div>
 
       <div className="flex items-center justify-between pt-1">
@@ -102,7 +112,7 @@ export function CityEditForm({ city }: { city: CityDetail }) {
             type="button"
             onClick={() => setIsActive(!isActive)}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-              isActive ? "bg-[#ee6c2b]" : "bg-[#4a3728]"
+              isActive ? "bg-accent" : "bg-surface-3"
             }`}
           >
             <span
@@ -111,7 +121,7 @@ export function CityEditForm({ city }: { city: CityDetail }) {
               }`}
             />
           </button>
-          <span className="text-sm text-[#c9a492]">
+          <span className="text-sm text-text-secondary">
             {isActive ? "Active" : "Inactive"}
           </span>
         </div>
@@ -119,7 +129,7 @@ export function CityEditForm({ city }: { city: CityDetail }) {
         <button
           type="submit"
           disabled={saving}
-          className="px-4 py-2 bg-[#ee6c2b] hover:bg-[#f07d3a] text-white text-sm font-medium rounded transition-colors disabled:opacity-50"
+          className="px-4 py-2 bg-accent hover:bg-accent/90 text-white text-sm font-medium rounded transition-colors disabled:opacity-50"
         >
           {saving ? "Saving..." : "Save Changes"}
         </button>

@@ -15,7 +15,7 @@ export const metadata: Metadata = buildMetadata({
 
 export default function AboutPage() {
   return (
-    <div className="bg-[#050505] -mt-24 pt-24">
+    <div className="bg-background -mt-24 pt-24">
       <div className="max-w-6xl mx-auto px-6 py-24 md:py-32 space-y-32">
         <AboutHero />
         <StorySection />
@@ -25,10 +25,10 @@ export default function AboutPage() {
         {/* Download Strip — hidden in waitlist mode */}
         {!IS_WAITLIST_MODE && (
           <section className="text-center space-y-6">
-            <h2 className="font-display italic font-black text-3xl md:text-5xl tracking-tighter text-white">
+            <h2 className="font-display italic font-black text-3xl md:text-5xl tracking-tighter text-primary">
               Get the App
             </h2>
-            <p className="text-white/40 text-sm max-w-md mx-auto">
+            <p className="text-tertiary text-sm max-w-md mx-auto">
               Scan the QR code to download Forked and start rating dishes in
               your city.
             </p>

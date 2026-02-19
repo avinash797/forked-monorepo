@@ -6,7 +6,7 @@ type PhotoReviewCardProps = {
 
 export function PhotoReviewCard({ photo }: PhotoReviewCardProps) {
   return (
-    <div className="bg-[#342219] border border-[rgba(236,237,238,0.08)] rounded-sm overflow-hidden">
+    <div className="bg-surface border border-border rounded-sm overflow-hidden">
       <div className="aspect-square relative">
         <img
           src={photo.photo_url}
@@ -22,21 +22,21 @@ export function PhotoReviewCard({ photo }: PhotoReviewCardProps) {
       </div>
       <div className="p-3">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-[#9BA1A6]">{photo.user_display_name}</span>
+          <span className="text-text-secondary">{photo.user_display_name}</span>
           <span
             className={`font-semibold ${
               photo.raw_score >= 7
-                ? "text-[#34D399]"
+                ? "text-success"
                 : photo.raw_score >= 4
-                ? "text-[#FBBF24]"
-                : "text-[#F87171]"
+                  ? "text-warning"
+                  : "text-danger"
             }`}
           >
             {photo.raw_score}/10
           </span>
         </div>
         {photo.created_at && (
-          <p className="text-xs text-[#9BA1A6] mt-1">
+          <p className="text-xs text-text-secondary mt-1">
             {new Date(photo.created_at).toLocaleDateString()}
           </p>
         )}

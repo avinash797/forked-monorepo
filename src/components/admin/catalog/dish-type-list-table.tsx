@@ -12,7 +12,13 @@ import {
   createColumnHelper,
   type SortingState,
 } from "@tanstack/react-table";
-import { Pencil, Trash2, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import type { DishTypeRow } from "@/lib/admin/catalog-queries";
@@ -38,13 +44,13 @@ export function DishTypeListTable({ dishTypes }: { dishTypes: DishTypeRow[] }) {
     columnHelper.accessor("name", {
       header: "Name",
       cell: (info) => (
-        <span className="font-medium text-[#ECEDEE]">{info.getValue()}</span>
+        <span className="font-medium text-text-primary">{info.getValue()}</span>
       ),
     }),
     columnHelper.accessor("slug", {
       header: "Slug",
       cell: (info) => (
-        <code className="text-xs text-[#9BA1A6] bg-[#1a0f08] px-1.5 py-0.5 rounded">
+        <code className="text-xs text-text-secondary bg-surface-2 px-1.5 py-0.5 rounded">
           {info.getValue()}
         </code>
       ),
@@ -52,19 +58,19 @@ export function DishTypeListTable({ dishTypes }: { dishTypes: DishTypeRow[] }) {
     columnHelper.accessor("launch_order", {
       header: "Order",
       cell: (info) => (
-        <span className="text-[#9BA1A6]">{info.getValue() ?? "—"}</span>
+        <span className="text-text-secondary">{info.getValue() ?? "—"}</span>
       ),
     }),
     columnHelper.accessor("variation_count", {
       header: "Variations",
       cell: (info) => (
-        <span className="text-[#c9a492]">{info.getValue()}</span>
+        <span className="text-text-secondary">{info.getValue()}</span>
       ),
     }),
     columnHelper.accessor("tag_count", {
       header: "Tags",
       cell: (info) => (
-        <span className="text-[#c9a492]">{info.getValue()}</span>
+        <span className="text-text-secondary">{info.getValue()}</span>
       ),
     }),
     columnHelper.accessor("is_active", {
@@ -90,14 +96,14 @@ export function DishTypeListTable({ dishTypes }: { dishTypes: DishTypeRow[] }) {
           <div className="flex items-center gap-2">
             <Link
               href={`/admin/catalog/dish-types/${row.id}`}
-              className="p-1.5 text-[#9BA1A6] hover:text-[#ee6c2b] transition-colors"
+              className="p-1.5 text-text-secondary hover:text-accent transition-colors"
               title="Edit"
             >
               <Pencil className="w-4 h-4" />
             </Link>
             <button
               onClick={() => setDeleteTarget(row)}
-              className="p-1.5 text-[#9BA1A6] hover:text-red-400 transition-colors"
+              className="p-1.5 text-text-secondary hover:text-danger transition-colors"
               title="Delete"
             >
               <Trash2 className="w-4 h-4" />
@@ -141,41 +147,41 @@ export function DishTypeListTable({ dishTypes }: { dishTypes: DishTypeRow[] }) {
           placeholder="Search dish types..."
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
-          className="w-full max-w-xs px-3 py-2 bg-[#1a0f08] border border-[#4a3728] rounded text-[#ECEDEE] placeholder-[#9BA1A6] text-sm focus:outline-none focus:border-[#ee6c2b]"
+          className="w-full max-w-xs px-3 py-2 bg-surface-2 border border-border rounded text-text-primary placeholder:text-text-tertiary text-sm focus:outline-none focus:border-accent"
         />
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-900/20 border border-red-700 rounded text-red-400 text-sm">
+        <div className="mb-4 p-3 bg-danger/10 border border-danger/30 rounded text-danger text-sm">
           {error}
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-lg border border-[#4a3728]">
+      <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-sm">
-          <thead className="bg-[#1a0f08]">
+          <thead className="bg-surface-2">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="px-4 py-3 text-left text-xs font-semibold text-[#9BA1A6] uppercase tracking-wider whitespace-nowrap"
+                    className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider whitespace-nowrap"
                   >
                     {header.isPlaceholder ? null : (
                       <div
                         className={
                           header.column.getCanSort()
-                            ? "flex items-center gap-1 cursor-pointer select-none hover:text-[#ECEDEE] transition-colors"
+                            ? "flex items-center gap-1 cursor-pointer select-none hover:text-text-primary transition-colors"
                             : ""
                         }
                         onClick={header.column.getToggleSortingHandler()}
                       >
                         {flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                         {header.column.getCanSort() && (
-                          <span className="text-[#4a3728]">
+                          <span className="text-text-tertiary">
                             {header.column.getIsSorted() === "asc" ? (
                               <ChevronUp className="w-3 h-3" />
                             ) : header.column.getIsSorted() === "desc" ? (
@@ -192,12 +198,12 @@ export function DishTypeListTable({ dishTypes }: { dishTypes: DishTypeRow[] }) {
               </tr>
             ))}
           </thead>
-          <tbody className="divide-y divide-[#4a3728]">
+          <tbody className="divide-y divide-border">
             {table.getRowModel().rows.length === 0 ? (
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="px-4 py-8 text-center text-[#9BA1A6]"
+                  className="px-4 py-8 text-center text-text-secondary"
                 >
                   No dish types found.
                 </td>
@@ -206,13 +212,13 @@ export function DishTypeListTable({ dishTypes }: { dishTypes: DishTypeRow[] }) {
               table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
-                  className="bg-[#342219] hover:bg-[#3d2a1f] transition-colors"
+                  className="bg-surface hover:bg-surface-2 transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-4 py-3">
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </td>
                   ))}
@@ -224,7 +230,7 @@ export function DishTypeListTable({ dishTypes }: { dishTypes: DishTypeRow[] }) {
       </div>
 
       {isPending && (
-        <p className="mt-2 text-xs text-[#9BA1A6]">Refreshing...</p>
+        <p className="mt-2 text-xs text-text-secondary">Refreshing...</p>
       )}
 
       {deleteTarget && (
@@ -274,8 +280,8 @@ function ActiveToggle({
       disabled={loading}
       className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium transition-colors ${
         current
-          ? "bg-green-900/30 text-green-400 border border-green-700 hover:bg-green-900/50"
-          : "bg-[#1a0f08] text-[#9BA1A6] border border-[#4a3728] hover:bg-[#342219]"
+          ? "bg-success/15 text-success border border-success/30 hover:bg-success/25"
+          : "bg-surface-2 text-text-secondary border border-border hover:bg-surface-3"
       } disabled:opacity-50`}
     >
       {current ? "Active" : "Inactive"}

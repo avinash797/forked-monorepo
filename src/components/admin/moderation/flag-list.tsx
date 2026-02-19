@@ -13,7 +13,10 @@ export function FlagList({ flags }: FlagListProps) {
   const router = useRouter();
   const [processing, setProcessing] = useState<string | null>(null);
 
-  async function handleAction(flagId: string, status: "reviewed" | "dismissed") {
+  async function handleAction(
+    flagId: string,
+    status: "reviewed" | "dismissed",
+  ) {
     setProcessing(flagId);
     const supabase = createClient();
 
@@ -36,7 +39,7 @@ export function FlagList({ flags }: FlagListProps) {
 
   if (flags.length === 0) {
     return (
-      <div className="text-center py-12 text-[#9BA1A6]">
+      <div className="text-center py-12 text-text-secondary">
         <p>No flags to review.</p>
       </div>
     );
@@ -47,32 +50,32 @@ export function FlagList({ flags }: FlagListProps) {
       {flags.map((flag) => (
         <div
           key={flag.id}
-          className="bg-[#342219] border border-[rgba(236,237,238,0.08)] rounded-sm p-4 flex items-start justify-between"
+          className="bg-surface border border-border rounded-sm p-4 flex items-start justify-between"
         >
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-medium text-[#ECEDEE]">
+              <span className="text-sm font-medium text-text-primary">
                 {flag.flag_type}
               </span>
-              <span className="text-xs text-[#9BA1A6]">
+              <span className="text-xs text-text-secondary">
                 {flag.target_type}
               </span>
               <span
                 className={`text-xs font-medium px-2 py-0.5 rounded-pill ${
                   flag.status === "pending"
-                    ? "bg-[#FBBF24]/15 text-[#FBBF24]"
+                    ? "bg-warning/15 text-warning"
                     : flag.status === "reviewed"
-                    ? "bg-[#34D399]/15 text-[#34D399]"
-                    : "bg-[#9BA1A6]/15 text-[#9BA1A6]"
+                      ? "bg-success/15 text-success"
+                      : "bg-surface-2 text-text-secondary"
                 }`}
               >
                 {flag.status}
               </span>
             </div>
             {flag.reason && (
-              <p className="text-sm text-[#c9a492] mb-1">{flag.reason}</p>
+              <p className="text-sm text-text-secondary mb-1">{flag.reason}</p>
             )}
-            <p className="text-xs text-[#9BA1A6]">
+            <p className="text-xs text-text-secondary">
               {new Date(flag.created_at).toLocaleString()}
             </p>
           </div>
@@ -83,7 +86,7 @@ export function FlagList({ flags }: FlagListProps) {
                 type="button"
                 onClick={() => handleAction(flag.id, "reviewed")}
                 disabled={processing === flag.id}
-                className="px-3 py-1.5 text-xs font-medium rounded-sm bg-[#34D399]/15 text-[#34D399] hover:bg-[#34D399]/25 disabled:opacity-45 transition-colors cursor-pointer"
+                className="px-3 py-1.5 text-xs font-medium rounded-sm bg-success/15 text-success hover:bg-success/25 disabled:opacity-45 transition-colors cursor-pointer"
               >
                 Resolve
               </button>
@@ -91,7 +94,7 @@ export function FlagList({ flags }: FlagListProps) {
                 type="button"
                 onClick={() => handleAction(flag.id, "dismissed")}
                 disabled={processing === flag.id}
-                className="px-3 py-1.5 text-xs font-medium rounded-sm bg-[#9BA1A6]/15 text-[#9BA1A6] hover:bg-[#9BA1A6]/25 disabled:opacity-45 transition-colors cursor-pointer"
+                className="px-3 py-1.5 text-xs font-medium rounded-sm bg-surface-2 text-text-secondary hover:bg-surface-2/80 disabled:opacity-45 transition-colors cursor-pointer"
               >
                 Dismiss
               </button>
