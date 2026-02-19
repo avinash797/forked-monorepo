@@ -1,31 +1,23 @@
 "use client";
 
+import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 
 export function ThemeToggle() {
-  const [isDark, setIsDark] = useState(true);
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains("dark"));
-  }, []);
+  // Avoid hydration mismatch — only render after client mount
+  useEffect(() => setMounted(true), []);
 
-  function toggleTheme() {
-    const html = document.documentElement;
-    const newIsDark = !isDark;
-    if (newIsDark) {
-      html.classList.add("dark");
-      localStorage.setItem("forked-theme", "dark");
-    } else {
-      html.classList.remove("dark");
-      localStorage.setItem("forked-theme", "light");
-    }
-    setIsDark(newIsDark);
-  }
+  if (!mounted) return null;
+
+  const isDark = resolvedTheme === "dark";
 
   return (
     <button
-      onClick={toggleTheme}
+      onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       className="flex items-center gap-2 text-white/40 hover:text-white transition-colors text-[10px] font-black tracking-widest uppercase"
     >
