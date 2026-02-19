@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { track } from "@vercel/analytics";
 
 interface Category {
   name: string;
@@ -20,6 +21,7 @@ export function BlogCategoryFilter({
     <div className="flex flex-wrap gap-2">
       <Link
         href="/blog"
+        onClick={() => track("blog_category_filter", { category: "all" })}
         className={`inline-flex items-center px-4 py-2 rounded-pill text-sm font-medium transition-colors ${
           !activeCategory
             ? "bg-accent text-accent-on"
@@ -32,6 +34,7 @@ export function BlogCategoryFilter({
         <Link
           key={cat.slug}
           href={`/blog?category=${cat.slug}`}
+          onClick={() => track("blog_category_filter", { category: cat.slug })}
           className={`inline-flex items-center px-4 py-2 rounded-pill text-sm font-medium transition-colors ${
             activeCategory === cat.slug
               ? "bg-accent text-accent-on"

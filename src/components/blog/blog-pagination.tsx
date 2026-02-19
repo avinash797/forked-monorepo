@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { track } from "@vercel/analytics";
 
 interface BlogPaginationProps {
   currentPage: number;
@@ -38,7 +41,10 @@ export function BlogPagination({
   return (
     <nav aria-label="Blog pagination" className="flex items-center justify-center gap-2 mt-12">
       {currentPage > 1 && (
-        <Link href={buildPageUrl(basePath, currentPage - 1, categorySlug)}>
+        <Link
+          href={buildPageUrl(basePath, currentPage - 1, categorySlug)}
+          onClick={() => track("blog_page_navigate", { direction: "prev", page: currentPage - 1 })}
+        >
           <Button variant="ghost" size="sm">
             Previous
           </Button>
@@ -54,7 +60,10 @@ export function BlogPagination({
             {showEllipsis && (
               <span className="text-text-tertiary px-1">...</span>
             )}
-            <Link href={buildPageUrl(basePath, page, categorySlug)}>
+            <Link
+              href={buildPageUrl(basePath, page, categorySlug)}
+              onClick={() => track("blog_page_navigate", { direction: "page", page })}
+            >
               <Button
                 variant={page === currentPage ? "primary" : "ghost"}
                 size="sm"
@@ -67,7 +76,10 @@ export function BlogPagination({
       })}
 
       {currentPage < totalPages && (
-        <Link href={buildPageUrl(basePath, currentPage + 1, categorySlug)}>
+        <Link
+          href={buildPageUrl(basePath, currentPage + 1, categorySlug)}
+          onClick={() => track("blog_page_navigate", { direction: "next", page: currentPage + 1 })}
+        >
           <Button variant="ghost" size="sm">
             Next
           </Button>

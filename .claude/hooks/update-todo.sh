@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Stop hook: blocks Claude from finishing until TODO.md is updated.
-# On first fire (stop_hook_active=false): exit 2 with instructions.
+# Stop hook: blocks Claude from finishing until PLAN.md is updated.
+# On first fire (stop_hook_active=false): check if PLAN.md was recently modified.
+#   - If yes (modified in last 5 min): exit 0 (already updated this session).
+#   - If no: exit 2 with instructions.
 # On second fire (stop_hook_active=true): exit 0 to allow stop.
 
 set -euo pipefail
@@ -11,6 +13,14 @@ STOP_HOOK_ACTIVE=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.
 
 if [ "$STOP_HOOK_ACTIVE" = "true" ]; then
   exit 0
+fi
+
+# If PLAN.md was modified in the last 5 minutes, it's already been updated this session.
+PLAN_FILE="$CLAUDE_PROJECT_DIR/PLAN.md"
+if [ -f "$PLAN_FILE" ]; then
+  if find "$PLAN_FILE" -mmin -5 | grep -q .; then
+    exit 0
+  fi
 fi
 
 cat >&2 <<'INSTRUCTIONS'

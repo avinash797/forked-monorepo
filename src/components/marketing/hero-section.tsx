@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { track } from "@vercel/analytics";
 import { Smartphone, Flame, Zap } from "lucide-react";
 import { IS_WAITLIST_MODE } from "@/lib/waitlist";
 import { WaitlistForm } from "@/components/marketing/waitlist-form";
@@ -90,6 +91,7 @@ export function HeroSection() {
             <>
               <a
                 href="#download"
+                onClick={() => track("hero_download_cta_click")}
                 className="w-full sm:w-auto bg-[#FF4D00] text-white px-8 py-4 rounded-xl font-black text-sm tracking-widest flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-[0_10px_30px_rgba(255,77,0,0.4)]"
               >
                 <Smartphone size={20} />
@@ -97,6 +99,7 @@ export function HeroSection() {
               </a>
               <Link
                 href="/leaderboard"
+                onClick={() => track("hero_leaderboards_click")}
                 className="w-full sm:w-auto bg-white/5 backdrop-blur-sm border border-white/10 text-white px-8 py-4 rounded-xl font-black text-sm tracking-widest hover:bg-white/10 transition-all text-center"
               >
                 SEE LEADERBOARDS
