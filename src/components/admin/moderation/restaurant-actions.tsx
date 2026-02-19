@@ -65,7 +65,7 @@ export function RestaurantActions({ restaurant }: RestaurantActionsProps) {
           <button
             type="button"
             onClick={() => setAction("verify")}
-            className="px-3 py-1 text-xs font-medium rounded-sm bg-success/15 text-success hover:bg-success/25 transition-colors cursor-pointer"
+            className="px-3 py-1.5 text-xs font-medium rounded-sm bg-success/15 text-success hover:bg-success/25 transition-colors cursor-pointer"
           >
             Verify
           </button>
@@ -74,7 +74,7 @@ export function RestaurantActions({ restaurant }: RestaurantActionsProps) {
           <button
             type="button"
             onClick={() => setAction("close")}
-            className="px-3 py-1 text-xs font-medium rounded-sm bg-danger/15 text-danger hover:bg-danger/25 transition-colors cursor-pointer"
+            className="px-3 py-1.5 text-xs font-medium rounded-sm bg-danger/15 text-danger hover:bg-danger/25 transition-colors cursor-pointer"
           >
             Close
           </button>

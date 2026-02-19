@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { getAdminUserList } from "@/lib/admin/user-queries";
+import { getAdminUserList, getWaitlist } from "@/lib/admin/user-queries";
 import { UserListTable } from "@/components/admin/users/user-list-table";
+import { WaitlistTable } from "@/components/admin/users/waitlist-table";
 
 type SearchParams = Promise<{
   filter?: string;
@@ -18,15 +19,27 @@ export default async function AdminUsersPage({
   const search = params.search ?? "";
   const page = parseInt(params.page ?? "1", 10);
 
-  const { users, total } = await getAdminUserList({
-    filter,
-    search,
-    page,
-    perPage: 25,
-  });
+  const isWaitlist = filter === "waitlisted";
 
+  const userResult = isWaitlist
+    ? null
+    : await getAdminUserList({ filter, search, page, perPage: 25 });
+
+  const waitlistResult = isWaitlist
+    ? await getWaitlist({ search, page, perPage: 25 })
+    : null;
+
+  // For the "Copy All Emails" button we fetch all emails (no pagination) when on waitlist view
+  const allEmailsResult = isWaitlist
+    ? await getWaitlist({ search, perPage: 10000 })
+    : null;
+
+  const total = isWaitlist
+    ? (waitlistResult?.total ?? 0)
+    : (userResult?.total ?? 0);
   const totalPages = Math.ceil(total / 25);
-  const filters = ["all", "active", "banned", "admins"];
+
+  const filters = ["all", "active", "banned", "admins", "waitlisted"];
 
   return (
     <div className="space-y-6">
@@ -54,17 +67,26 @@ export default async function AdminUsersPage({
             type="text"
             name="search"
             defaultValue={search}
-            placeholder="Search users..."
+            placeholder={isWaitlist ? "Search emails..." : "Search users..."}
             className="w-full rounded-sm border border-[rgba(236,237,238,0.12)] bg-surface-2 px-4 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent/40"
           />
           <input type="hidden" name="filter" value={filter} />
         </form>
 
-        <span className="text-sm text-text-secondary">{total} users</span>
+        <span className="text-sm text-text-secondary">
+          {total} {isWaitlist ? "waitlisted" : "users"}
+        </span>
       </div>
 
       <div className="bg-surface border border-border rounded-sm">
-        <UserListTable users={users} />
+        {isWaitlist ? (
+          <WaitlistTable
+            entries={waitlistResult?.entries ?? []}
+            allEmails={(allEmailsResult?.entries ?? []).map((e) => e.email)}
+          />
+        ) : (
+          <UserListTable users={userResult?.users ?? []} />
+        )}
       </div>
 
       {totalPages > 1 && (

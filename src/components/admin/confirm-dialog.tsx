@@ -18,7 +18,7 @@ export function ConfirmDialog({
   onCancel,
 }: ConfirmDialogProps) {
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-overlay flex items-center justify-center z-50">
       <div className="bg-surface border border-border rounded-sm p-6 w-full max-w-sm">
         <h3 className="text-lg font-semibold text-text-primary mb-2">
           {title}
