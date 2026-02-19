@@ -42,22 +42,22 @@ export function BlogPostEditor({
   const [slug, setSlug] = useState(post?.slug ?? "");
   const [autoSlug, setAutoSlug] = useState(!isEditing);
   const [content, setContent] = useState<JSONContent | null>(
-    post?.content as JSONContent | null
+    post?.content as JSONContent | null,
   );
   const [excerpt, setExcerpt] = useState(post?.excerpt ?? "");
   const [authorId, setAuthorId] = useState(post?.author_id ?? "");
   const [categoryId, setCategoryId] = useState(post?.category_id ?? "");
   const [selectedTags, setSelectedTags] = useState<string[]>(
-    post?.blog_post_tags?.map((t) => t.blog_tag_id) ?? []
+    post?.blog_post_tags?.map((t) => t.blog_tag_id) ?? [],
   );
   const [cityId, setCityId] = useState(post?.city_id ?? "");
   const [dishTypeId, setDishTypeId] = useState(post?.dish_type_id ?? "");
   const [featuredImage, setFeaturedImage] = useState(
-    post?.featured_image_url ?? ""
+    post?.featured_image_url ?? "",
   );
   const [seoTitle, setSeoTitle] = useState(post?.seo_title ?? "");
   const [seoDescription, setSeoDescription] = useState(
-    post?.seo_description ?? ""
+    post?.seo_description ?? "",
   );
 
   const [saving, setSaving] = useState(false);
@@ -101,7 +101,7 @@ export function BlogPostEditor({
 
   function toggleTag(tagId: string) {
     setSelectedTags((prev) =>
-      prev.includes(tagId) ? prev.filter((t) => t !== tagId) : [...prev, tagId]
+      prev.includes(tagId) ? prev.filter((t) => t !== tagId) : [...prev, tagId],
     );
   }
 
@@ -131,7 +131,7 @@ export function BlogPostEditor({
       status,
       published_at:
         status === "published"
-          ? post?.published_at ?? new Date().toISOString()
+          ? (post?.published_at ?? new Date().toISOString())
           : null,
     };
 
@@ -170,7 +170,7 @@ export function BlogPostEditor({
         selectedTags.map((tagId) => ({
           blog_post_id: postId,
           blog_tag_id: tagId,
-        }))
+        })),
       );
     }
 
@@ -213,7 +213,7 @@ export function BlogPostEditor({
 
       <div className="space-y-6">
         {error && (
-          <div className="rounded-sm bg-[#2A1813] border border-[#EF4444]/30 px-4 py-3 text-sm text-[#F87171]">
+          <div className="rounded-sm bg-danger/10 border border-danger/30 px-4 py-3 text-sm text-danger">
             {error}
           </div>
         )}
@@ -222,33 +222,33 @@ export function BlogPostEditor({
           {/* Left: Main content */}
           <div className="lg:col-span-2 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[#c9a492] mb-1.5">
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
                 Title
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => handleTitleChange(e.target.value)}
-                className="w-full rounded-sm border border-[rgba(236,237,238,0.12)] bg-[#482f23] px-4 py-2.5 text-[#ECEDEE] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[rgba(238,108,43,0.40)]"
+                className="w-full rounded-sm border border-input-border bg-input-bg px-4 py-2.5 text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-focus-ring"
                 placeholder="Post title"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#c9a492] mb-1.5">
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
                 Slug
               </label>
               <input
                 type="text"
                 value={slug}
                 onChange={(e) => handleSlugChange(e.target.value)}
-                className="w-full rounded-sm border border-[rgba(236,237,238,0.12)] bg-[#482f23] px-4 py-2.5 text-[#ECEDEE] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[rgba(238,108,43,0.40)] font-mono text-sm"
+                className="w-full rounded-sm border border-input-border bg-input-bg px-4 py-2.5 text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-focus-ring font-mono text-sm"
                 placeholder="post-slug"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#c9a492] mb-1.5">
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
                 Content
               </label>
               <TipTapEditor
@@ -259,14 +259,14 @@ export function BlogPostEditor({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#c9a492] mb-1.5">
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
                 Excerpt
               </label>
               <textarea
                 value={excerpt}
                 onChange={(e) => setExcerpt(e.target.value)}
                 rows={3}
-                className="w-full rounded-sm border border-[rgba(236,237,238,0.12)] bg-[#482f23] px-4 py-2.5 text-[#ECEDEE] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[rgba(238,108,43,0.40)] resize-y"
+                className="w-full rounded-sm border border-input-border bg-input-bg px-4 py-2.5 text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-focus-ring resize-y"
                 placeholder="Brief summary for previews..."
               />
             </div>
@@ -276,13 +276,13 @@ export function BlogPostEditor({
           <div className="space-y-4">
             {/* Author */}
             <div>
-              <label className="block text-sm font-medium text-[#c9a492] mb-1.5">
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
                 Author
               </label>
               <select
                 value={authorId}
                 onChange={(e) => setAuthorId(e.target.value)}
-                className="w-full rounded-sm border border-[rgba(236,237,238,0.12)] bg-[#482f23] px-4 py-2.5 text-[#ECEDEE] focus:outline-none focus:ring-2 focus:ring-[rgba(238,108,43,0.40)]"
+                className="w-full rounded-sm border border-input-border bg-input-bg px-4 py-2.5 text-text-primary focus:outline-none focus:ring-2 focus:ring-focus-ring"
               >
                 <option value="">Select author...</option>
                 {authors.map((a) => (
@@ -295,13 +295,13 @@ export function BlogPostEditor({
 
             {/* Category */}
             <div>
-              <label className="block text-sm font-medium text-[#c9a492] mb-1.5">
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
                 Category
               </label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full rounded-sm border border-[rgba(236,237,238,0.12)] bg-[#482f23] px-4 py-2.5 text-[#ECEDEE] focus:outline-none focus:ring-2 focus:ring-[rgba(238,108,43,0.40)]"
+                className="w-full rounded-sm border border-input-border bg-input-bg px-4 py-2.5 text-text-primary focus:outline-none focus:ring-2 focus:ring-focus-ring"
               >
                 <option value="">Select category...</option>
                 {categories.map((c) => (
@@ -314,7 +314,7 @@ export function BlogPostEditor({
 
             {/* Tags */}
             <div>
-              <label className="block text-sm font-medium text-[#c9a492] mb-1.5">
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
                 Tags
               </label>
               <div className="flex flex-wrap gap-2">
@@ -325,28 +325,30 @@ export function BlogPostEditor({
                     onClick={() => toggleTag(tag.id)}
                     className={`px-3 py-1 text-xs rounded-pill transition-colors cursor-pointer ${
                       selectedTags.includes(tag.id)
-                        ? "bg-[#ee6c2b] text-white"
-                        : "bg-[#482f23] text-[#9BA1A6] hover:text-[#ECEDEE]"
+                        ? "bg-accent text-white"
+                        : "bg-surface-2 text-text-secondary hover:text-text-primary"
                     }`}
                   >
                     {tag.name}
                   </button>
                 ))}
                 {tags.length === 0 && (
-                  <p className="text-xs text-[#9BA1A6]">No tags available.</p>
+                  <p className="text-xs text-text-secondary">
+                    No tags available.
+                  </p>
                 )}
               </div>
             </div>
 
             {/* City */}
             <div>
-              <label className="block text-sm font-medium text-[#c9a492] mb-1.5">
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
                 City (optional)
               </label>
               <select
                 value={cityId}
                 onChange={(e) => setCityId(e.target.value)}
-                className="w-full rounded-sm border border-[rgba(236,237,238,0.12)] bg-[#482f23] px-4 py-2.5 text-[#ECEDEE] focus:outline-none focus:ring-2 focus:ring-[rgba(238,108,43,0.40)]"
+                className="w-full rounded-sm border border-input-border bg-input-bg px-4 py-2.5 text-text-primary focus:outline-none focus:ring-2 focus:ring-focus-ring"
               >
                 <option value="">None</option>
                 {cities.map((c) => (
@@ -359,13 +361,13 @@ export function BlogPostEditor({
 
             {/* Dish Type */}
             <div>
-              <label className="block text-sm font-medium text-[#c9a492] mb-1.5">
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
                 Dish Type (optional)
               </label>
               <select
                 value={dishTypeId}
                 onChange={(e) => setDishTypeId(e.target.value)}
-                className="w-full rounded-sm border border-[rgba(236,237,238,0.12)] bg-[#482f23] px-4 py-2.5 text-[#ECEDEE] focus:outline-none focus:ring-2 focus:ring-[rgba(238,108,43,0.40)]"
+                className="w-full rounded-sm border border-input-border bg-input-bg px-4 py-2.5 text-text-primary focus:outline-none focus:ring-2 focus:ring-focus-ring"
               >
                 <option value="">None</option>
                 {dishTypes.map((d) => (
@@ -378,7 +380,7 @@ export function BlogPostEditor({
 
             {/* Featured Image */}
             <div>
-              <label className="block text-sm font-medium text-[#c9a492] mb-1.5">
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
                 Featured Image
               </label>
               {featuredImage ? (
@@ -403,7 +405,7 @@ export function BlogPostEditor({
                     setImageUploadTarget("featured");
                     setShowImageUpload(true);
                   }}
-                  className="w-full rounded-sm border-2 border-dashed border-[rgba(236,237,238,0.12)] py-6 text-sm text-[#9BA1A6] hover:border-[#ee6c2b]/50 transition-colors cursor-pointer"
+                  className="w-full rounded-sm border-2 border-dashed border-input-border py-6 text-sm text-text-secondary hover:border-accent/50 transition-colors cursor-pointer"
                 >
                   Upload image
                 </button>
@@ -412,27 +414,27 @@ export function BlogPostEditor({
 
             {/* SEO Fields */}
             <div>
-              <label className="block text-sm font-medium text-[#c9a492] mb-1.5">
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
                 SEO Title
               </label>
               <input
                 type="text"
                 value={seoTitle}
                 onChange={(e) => setSeoTitle(e.target.value)}
-                className="w-full rounded-sm border border-[rgba(236,237,238,0.12)] bg-[#482f23] px-4 py-2.5 text-[#ECEDEE] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[rgba(238,108,43,0.40)] text-sm"
+                className="w-full rounded-sm border border-input-border bg-input-bg px-4 py-2.5 text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-focus-ring text-sm"
                 placeholder="Override page title for SEO"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#c9a492] mb-1.5">
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
                 SEO Description
               </label>
               <textarea
                 value={seoDescription}
                 onChange={(e) => setSeoDescription(e.target.value)}
                 rows={2}
-                className="w-full rounded-sm border border-[rgba(236,237,238,0.12)] bg-[#482f23] px-4 py-2.5 text-[#ECEDEE] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[rgba(238,108,43,0.40)] resize-y text-sm"
+                className="w-full rounded-sm border border-input-border bg-input-bg px-4 py-2.5 text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-focus-ring resize-y text-sm"
                 placeholder="Meta description for search engines"
               />
             </div>
@@ -440,12 +442,12 @@ export function BlogPostEditor({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3 pt-4 border-t border-[rgba(236,237,238,0.08)]">
+        <div className="flex items-center gap-3 pt-4 border-t border-border">
           <button
             type="button"
             onClick={() => handleSave("draft")}
             disabled={saving}
-            className="px-5 py-2.5 rounded-sm bg-[#482f23] text-[#ECEDEE] font-medium hover:bg-[#3d2a1f] disabled:opacity-45 transition-colors cursor-pointer"
+            className="px-5 py-2.5 rounded-sm bg-surface-2 text-text-primary font-medium hover:bg-surface-3 disabled:opacity-45 transition-colors cursor-pointer"
           >
             {saving ? "Saving..." : "Save Draft"}
           </button>
@@ -453,7 +455,7 @@ export function BlogPostEditor({
             type="button"
             onClick={() => handleSave("published")}
             disabled={saving}
-            className="px-5 py-2.5 rounded-sm bg-[#ee6c2b] text-white font-medium hover:brightness-110 disabled:opacity-45 transition-all cursor-pointer"
+            className="px-5 py-2.5 rounded-sm bg-accent text-white font-medium hover:brightness-110 disabled:opacity-45 transition-all cursor-pointer"
           >
             {saving ? "Publishing..." : "Publish"}
           </button>
@@ -462,7 +464,7 @@ export function BlogPostEditor({
               type="button"
               onClick={handleDelete}
               disabled={saving}
-              className="ml-auto px-5 py-2.5 rounded-sm text-[#F87171] font-medium hover:bg-[#F87171]/10 disabled:opacity-45 transition-colors cursor-pointer"
+              className="ml-auto px-5 py-2.5 rounded-sm text-danger font-medium hover:bg-danger/10 disabled:opacity-45 transition-colors cursor-pointer"
             >
               Delete
             </button>

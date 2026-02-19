@@ -26,41 +26,42 @@ export function ActivityChart({ data }: ActivityChartProps) {
   }));
 
   return (
-    <div className="bg-[#342219] border border-[rgba(236,237,238,0.08)] rounded-sm p-5">
-      <h3 className="text-lg font-semibold text-[#ECEDEE] mb-4">
+    <div className="bg-surface border border-border rounded-sm p-5">
+      <h3 className="text-lg font-semibold text-text-primary mb-4">
         Daily Activity
       </h3>
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={formatted}>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="rgba(236,237,238,0.08)"
-            />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               dataKey="day"
-              stroke="#9BA1A6"
+              stroke="var(--text-secondary)"
               fontSize={12}
               tickLine={false}
             />
-            <YAxis stroke="#9BA1A6" fontSize={12} tickLine={false} />
+            <YAxis
+              stroke="var(--text-secondary)"
+              fontSize={12}
+              tickLine={false}
+            />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#221610",
-                border: "1px solid rgba(236,237,238,0.12)",
+                backgroundColor: "var(--surface)",
+                border: "1px solid var(--border)",
                 borderRadius: "6px",
-                color: "#ECEDEE",
+                color: "var(--text-primary)",
                 fontSize: 13,
               }}
             />
             <Legend
-              wrapperStyle={{ fontSize: 12, color: "#9BA1A6" }}
+              wrapperStyle={{ fontSize: 12, color: "var(--text-secondary)" }}
             />
             <Line
               type="monotone"
               dataKey="new_users"
               name="Users"
-              stroke="#ee6c2b"
+              stroke="var(--accent)"
               strokeWidth={2}
               dot={false}
             />
@@ -68,7 +69,7 @@ export function ActivityChart({ data }: ActivityChartProps) {
               type="monotone"
               dataKey="new_ratings"
               name="Ratings"
-              stroke="#34D399"
+              stroke="var(--success)"
               strokeWidth={2}
               dot={false}
             />
@@ -76,7 +77,7 @@ export function ActivityChart({ data }: ActivityChartProps) {
               type="monotone"
               dataKey="new_battles"
               name="Battles"
-              stroke="#FBBF24"
+              stroke="var(--warning)"
               strokeWidth={2}
               dot={false}
             />

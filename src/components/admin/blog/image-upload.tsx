@@ -64,15 +64,15 @@ export function ImageUpload({ onUpload, onClose }: ImageUploadProps) {
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-[#342219] border border-[rgba(236,237,238,0.08)] rounded-sm p-6 w-full max-w-md">
+      <div className="bg-surface border border-border rounded-sm p-6 w-full max-w-md">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-[#ECEDEE]">
+          <h3 className="text-lg font-semibold text-text-primary">
             Upload Image
           </h3>
           <button
             type="button"
             onClick={onClose}
-            className="text-[#9BA1A6] hover:text-[#ECEDEE] transition-colors cursor-pointer"
+            className="text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
           >
             <svg
               className="w-5 h-5"
@@ -100,18 +100,18 @@ export function ImageUpload({ onUpload, onClose }: ImageUploadProps) {
           onClick={() => fileInputRef.current?.click()}
           className={`border-2 border-dashed rounded-sm p-8 text-center cursor-pointer transition-colors ${
             dragOver
-              ? "border-[#ee6c2b] bg-[#ee6c2b]/10"
-              : "border-[rgba(236,237,238,0.12)] hover:border-[#ee6c2b]/50"
+              ? "border-accent bg-accent/10"
+              : "border-border hover:border-accent/50"
           }`}
         >
           {uploading ? (
-            <p className="text-sm text-[#9BA1A6]">Uploading...</p>
+            <p className="text-sm text-text-secondary">Uploading...</p>
           ) : (
             <>
-              <p className="text-sm text-[#ECEDEE] mb-1">
+              <p className="text-sm text-text-primary mb-1">
                 Drop an image here or click to select
               </p>
-              <p className="text-xs text-[#9BA1A6]">
+              <p className="text-xs text-text-secondary">
                 JPEG, PNG, WebP, GIF (max 5MB)
               </p>
             </>
@@ -126,9 +126,7 @@ export function ImageUpload({ onUpload, onClose }: ImageUploadProps) {
           className="hidden"
         />
 
-        {error && (
-          <p className="mt-3 text-sm text-[#F87171]">{error}</p>
-        )}
+        {error && <p className="mt-3 text-sm text-danger">{error}</p>}
       </div>
     </div>
   );

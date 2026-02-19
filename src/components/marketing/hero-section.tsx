@@ -16,15 +16,15 @@ export function HeroSection() {
   const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
 
   return (
-    <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden px-6 bg-[#050505]">
+    <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden px-6 bg-bg">
       {/* Background Glow */}
       <motion.div
         style={{ y: y1 }}
-        className="absolute top-20 -left-20 w-[600px] h-[600px] bg-[#FF4D00]/5 rounded-full blur-[120px]"
+        className="absolute top-20 -left-20 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[120px]"
       />
       <motion.div
         style={{ y: y2 }}
-        className="absolute bottom-20 -right-20 w-[400px] h-[400px] bg-[#FF4D00]/10 rounded-full blur-[100px]"
+        className="absolute bottom-20 -right-20 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[100px]"
       />
 
       <motion.div
@@ -36,16 +36,16 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 mb-8 text-[10px] uppercase font-bold tracking-[0.2em]"
+          className="inline-flex items-center gap-2 bg-surface-2 border border-border rounded-full px-4 py-1.5 mb-8 text-[10px] uppercase font-bold tracking-[0.2em]"
         >
           {IS_WAITLIST_MODE ? (
             <>
-              <Zap size={12} className="text-[#FF4D00]" />
+              <Zap size={12} className="text-accent" />
               Coming Soon
             </>
           ) : (
             <>
-              <Flame size={12} className="text-[#FF4D00]" />
+              <Flame size={12} className="text-accent" />
               Available Now on iOS &amp; Android
             </>
           )}
@@ -59,16 +59,16 @@ export function HeroSection() {
           transition={{ delay: 0.2, duration: 0.8 }}
         >
           Ditch the <br />
-          <span className="text-[#FF4D00] drop-shadow-[0_0_20px_rgba(255,77,0,0.3)]">
+          <span className="text-accent drop-shadow-[0_0_20px_rgba(var(--color-accent),0.3)]">
             Vibe.
           </span>{" "}
           <br />
-          Rate the <span className="underline decoration-white/20">Dish.</span>
+          Rate the <span className="underline decoration-border">Dish.</span>
         </motion.h1>
 
         {/* Subheadline */}
         <motion.p
-          className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed font-light"
+          className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto mb-10 leading-relaxed font-light"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 1 }}
@@ -92,7 +92,7 @@ export function HeroSection() {
               <a
                 href="#download"
                 onClick={() => track("hero_download_cta_click")}
-                className="w-full sm:w-auto bg-[#FF4D00] text-white px-8 py-4 rounded-xl font-black text-sm tracking-widest flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-[0_10px_30px_rgba(255,77,0,0.4)]"
+                className="w-full sm:w-auto bg-accent text-accent-on px-8 py-4 rounded-xl font-black text-sm tracking-widest flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-accent/40"
               >
                 <Smartphone size={20} />
                 DOWNLOAD APP
@@ -100,7 +100,7 @@ export function HeroSection() {
               <Link
                 href="/leaderboard"
                 onClick={() => track("hero_leaderboards_click")}
-                className="w-full sm:w-auto bg-white/5 backdrop-blur-sm border border-white/10 text-white px-8 py-4 rounded-xl font-black text-sm tracking-widest hover:bg-white/10 transition-all text-center"
+                className="w-full sm:w-auto bg-surface-2 backdrop-blur-sm border border-border text-text-primary px-8 py-4 rounded-xl font-black text-sm tracking-widest hover:bg-surface transition-all text-center"
               >
                 SEE LEADERBOARDS
               </Link>
@@ -143,12 +143,12 @@ export function HeroSection() {
       <motion.div
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/20 flex flex-col items-center gap-2"
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-text-tertiary flex flex-col items-center gap-2"
       >
         <span className="text-[10px] font-bold tracking-widest uppercase">
           Scroll to uncover
         </span>
-        <div className="w-px h-12 bg-gradient-to-b from-white/20 to-transparent" />
+        <div className="w-px h-12 bg-gradient-to-b from-text-tertiary to-transparent" />
       </motion.div>
     </section>
   );

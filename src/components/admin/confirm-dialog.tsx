@@ -18,15 +18,17 @@ export function ConfirmDialog({
   onCancel,
 }: ConfirmDialogProps) {
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-[#342219] border border-[rgba(236,237,238,0.08)] rounded-sm p-6 w-full max-w-sm">
-        <h3 className="text-lg font-semibold text-[#ECEDEE] mb-2">{title}</h3>
-        <p className="text-sm text-[#9BA1A6] mb-6">{message}</p>
+    <div className="fixed inset-0 bg-overlay flex items-center justify-center z-50">
+      <div className="bg-surface border border-border rounded-sm p-6 w-full max-w-sm">
+        <h3 className="text-lg font-semibold text-text-primary mb-2">
+          {title}
+        </h3>
+        <p className="text-sm text-text-secondary mb-6">{message}</p>
         <div className="flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 rounded-sm text-sm text-[#9BA1A6] hover:bg-[#482f23] transition-colors cursor-pointer"
+            className="px-4 py-2 rounded-sm text-sm text-text-secondary hover:bg-surface-2 transition-colors cursor-pointer"
           >
             Cancel
           </button>
@@ -35,8 +37,8 @@ export function ConfirmDialog({
             onClick={onConfirm}
             className={`px-4 py-2 rounded-sm text-sm font-medium transition-all cursor-pointer ${
               confirmVariant === "danger"
-                ? "bg-[#EF4444] text-white hover:bg-[#DC2626]"
-                : "bg-[#ee6c2b] text-white hover:brightness-110"
+                ? "bg-danger text-white hover:bg-danger/90"
+                : "bg-accent text-white hover:bg-accent/90"
             }`}
           >
             {confirmLabel}

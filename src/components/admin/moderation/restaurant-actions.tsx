@@ -51,7 +51,9 @@ export function RestaurantActions({ restaurant }: RestaurantActionsProps) {
               ? `Mark "${restaurant.name}" as verified?`
               : `Mark "${restaurant.name}" as permanently closed?`
           }
-          confirmLabel={loading ? "Processing..." : action === "verify" ? "Verify" : "Close"}
+          confirmLabel={
+            loading ? "Processing..." : action === "verify" ? "Verify" : "Close"
+          }
           confirmVariant={action === "close" ? "danger" : "primary"}
           onConfirm={execute}
           onCancel={() => setAction(null)}
@@ -63,7 +65,7 @@ export function RestaurantActions({ restaurant }: RestaurantActionsProps) {
           <button
             type="button"
             onClick={() => setAction("verify")}
-            className="px-3 py-1 text-xs font-medium rounded-sm bg-[#34D399]/15 text-[#34D399] hover:bg-[#34D399]/25 transition-colors cursor-pointer"
+            className="px-3 py-1.5 text-xs font-medium rounded-sm bg-success/15 text-success hover:bg-success/25 transition-colors cursor-pointer"
           >
             Verify
           </button>
@@ -72,7 +74,7 @@ export function RestaurantActions({ restaurant }: RestaurantActionsProps) {
           <button
             type="button"
             onClick={() => setAction("close")}
-            className="px-3 py-1 text-xs font-medium rounded-sm bg-[#EF4444]/15 text-[#F87171] hover:bg-[#EF4444]/25 transition-colors cursor-pointer"
+            className="px-3 py-1.5 text-xs font-medium rounded-sm bg-danger/15 text-danger hover:bg-danger/25 transition-colors cursor-pointer"
           >
             Close
           </button>

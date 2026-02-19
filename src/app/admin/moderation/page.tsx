@@ -25,17 +25,17 @@ export default async function ModerationPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[#ECEDEE]">Moderation</h1>
+        <h1 className="text-2xl font-bold text-text-primary">Moderation</h1>
         <div className="flex gap-3">
           <Link
             href="/admin/moderation/photos"
-            className="px-4 py-2 rounded-sm text-sm font-medium bg-[#482f23] text-[#ECEDEE] hover:bg-[#3d2a1f] transition-colors"
+            className="px-4 py-2 rounded-sm text-sm font-medium bg-surface-2 text-text-primary hover:bg-surface-3 transition-colors"
           >
             Photo Review
           </Link>
           <Link
             href="/admin/moderation/restaurants"
-            className="px-4 py-2 rounded-sm text-sm font-medium bg-[#482f23] text-[#ECEDEE] hover:bg-[#3d2a1f] transition-colors"
+            className="px-4 py-2 rounded-sm text-sm font-medium bg-surface-2 text-text-primary hover:bg-surface-3 transition-colors"
           >
             Restaurants
           </Link>
@@ -55,8 +55,8 @@ export default async function ModerationPage({
             href={`/admin/moderation?status=${s}`}
             className={`px-3 py-1.5 text-sm rounded-sm transition-colors ${
               status === s
-                ? "bg-[#ee6c2b] text-white"
-                : "text-[#9BA1A6] hover:bg-[#342219] hover:text-[#ECEDEE]"
+                ? "bg-accent text-white"
+                : "text-text-secondary hover:bg-surface hover:text-text-primary"
             }`}
           >
             {s.charAt(0).toUpperCase() + s.slice(1)}

@@ -7,7 +7,7 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 const variantStyles: Record<string, string> = {
   surface: "bg-surface border border-border",
   surface2: "bg-surface-2 border border-border",
-  dark: "bg-[#342219] border border-[rgba(236,237,238,0.10)]",
+  dark: "bg-surface border border-border", // Harmonized with other cards
 };
 
 export function Card({

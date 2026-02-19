@@ -111,7 +111,12 @@ export function UserModerationPanel({
 
   const actionConfigs: Record<
     ActionType,
-    { title: string; message: string; label: string; variant: "danger" | "primary" }
+    {
+      title: string;
+      message: string;
+      label: string;
+      variant: "danger" | "primary";
+    }
   > = {
     ban: {
       title: "Ban User",
@@ -151,7 +156,9 @@ export function UserModerationPanel({
         <ConfirmDialog
           title={actionConfigs[pendingAction].title}
           message={actionConfigs[pendingAction].message}
-          confirmLabel={loading ? "Processing..." : actionConfigs[pendingAction].label}
+          confirmLabel={
+            loading ? "Processing..." : actionConfigs[pendingAction].label
+          }
           confirmVariant={actionConfigs[pendingAction].variant}
           onConfirm={executeAction}
           onCancel={() => {
@@ -161,19 +168,19 @@ export function UserModerationPanel({
         />
       )}
 
-      <div className="bg-[#342219] border border-[rgba(236,237,238,0.08)] rounded-sm p-5">
-        <h3 className="text-lg font-semibold text-[#ECEDEE] mb-4">
+      <div className="bg-surface border border-border rounded-sm p-5">
+        <h3 className="text-lg font-semibold text-text-primary mb-4">
           Moderation Actions
         </h3>
 
         {error && (
-          <div className="rounded-sm bg-[#2A1813] border border-[#EF4444]/30 px-4 py-3 text-sm text-[#F87171] mb-4">
+          <div className="rounded-sm bg-danger/10 border border-danger/30 px-4 py-3 text-sm text-danger mb-4">
             {error}
           </div>
         )}
 
         {isSelf && (
-          <p className="text-sm text-[#9BA1A6] mb-4">
+          <p className="text-sm text-text-secondary mb-4">
             You cannot moderate your own account.
           </p>
         )}
@@ -185,7 +192,7 @@ export function UserModerationPanel({
                 type="button"
                 onClick={() => setPendingAction("warn")}
                 disabled={isSelf}
-                className="px-4 py-2 rounded-sm text-sm font-medium bg-[#FBBF24]/15 text-[#FBBF24] hover:bg-[#FBBF24]/25 disabled:opacity-45 transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-sm text-sm font-medium bg-warning/15 text-warning hover:bg-warning/25 disabled:opacity-45 transition-colors cursor-pointer"
               >
                 Warn
               </button>
@@ -193,7 +200,7 @@ export function UserModerationPanel({
                 type="button"
                 onClick={() => setPendingAction("ban")}
                 disabled={isSelf}
-                className="px-4 py-2 rounded-sm text-sm font-medium bg-[#EF4444]/15 text-[#F87171] hover:bg-[#EF4444]/25 disabled:opacity-45 transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-sm text-sm font-medium bg-danger/15 text-danger hover:bg-danger/25 disabled:opacity-45 transition-colors cursor-pointer"
               >
                 Ban
               </button>
@@ -203,7 +210,7 @@ export function UserModerationPanel({
               type="button"
               onClick={() => setPendingAction("unban")}
               disabled={isSelf}
-              className="px-4 py-2 rounded-sm text-sm font-medium bg-[#34D399]/15 text-[#34D399] hover:bg-[#34D399]/25 disabled:opacity-45 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-sm text-sm font-medium bg-success/15 text-success hover:bg-success/25 disabled:opacity-45 transition-colors cursor-pointer"
             >
               Unban
             </button>
@@ -214,7 +221,7 @@ export function UserModerationPanel({
               type="button"
               onClick={() => setPendingAction("make_admin")}
               disabled={isSelf}
-              className="px-4 py-2 rounded-sm text-sm font-medium bg-[#ee6c2b]/15 text-[#ee6c2b] hover:bg-[#ee6c2b]/25 disabled:opacity-45 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-sm text-sm font-medium bg-accent/15 text-accent hover:bg-accent/25 disabled:opacity-45 transition-colors cursor-pointer"
             >
               Make Admin
             </button>
@@ -223,7 +230,7 @@ export function UserModerationPanel({
               type="button"
               onClick={() => setPendingAction("remove_admin")}
               disabled={isSelf}
-              className="px-4 py-2 rounded-sm text-sm font-medium bg-[#EF4444]/15 text-[#F87171] hover:bg-[#EF4444]/25 disabled:opacity-45 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-sm text-sm font-medium bg-danger/15 text-danger hover:bg-danger/25 disabled:opacity-45 transition-colors cursor-pointer"
             >
               Remove Admin
             </button>
@@ -232,14 +239,14 @@ export function UserModerationPanel({
 
         {pendingAction === "ban" && (
           <div className="mt-4">
-            <label className="block text-sm font-medium text-[#c9a492] mb-1.5">
+            <label className="block text-sm font-medium text-text-secondary mb-1.5">
               Ban Reason (optional)
             </label>
             <input
               type="text"
               value={banReason}
               onChange={(e) => setBanReason(e.target.value)}
-              className="w-full rounded-sm border border-[rgba(236,237,238,0.12)] bg-[#482f23] px-4 py-2.5 text-[#ECEDEE] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[rgba(238,108,43,0.40)]"
+              className="w-full rounded-sm border border-border bg-surface-2 px-4 py-2.5 text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent/40"
               placeholder="Reason for banning..."
             />
           </div>

@@ -7,7 +7,6 @@ import { EloBattleSection } from "@/components/marketing/elo-battle-section";
 import { LeaderboardPreview } from "@/components/marketing/leaderboard-preview";
 import { MissionSection } from "@/components/marketing/mission-section";
 import { CtaSection } from "@/components/marketing/cta-section";
-import { IS_WAITLIST_MODE } from "@/lib/waitlist";
 
 export const revalidate = 600; // ISR: revalidate every 10 minutes
 
@@ -20,7 +19,7 @@ export default function Home() {
         <VisionSection />
         <HowItWorksSection />
         <EloBattleSection />
-        {!IS_WAITLIST_MODE && <LeaderboardPreview />}
+        <LeaderboardPreview />
         <MissionSection />
         <CtaSection />
       </main>

@@ -88,7 +88,7 @@ export function EditorToolbar({ editor, onImageUpload }: EditorToolbarProps) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1 p-2 border-b border-[rgba(236,237,238,0.08)] bg-[#2a1a11]">
+    <div className="flex flex-wrap items-center gap-1 p-2 border-b border-border bg-surface-2">
       {buttons.map((btn) => (
         <button
           key={btn.label}
@@ -97,15 +97,15 @@ export function EditorToolbar({ editor, onImageUpload }: EditorToolbarProps) {
           title={btn.label}
           className={`px-2.5 py-1.5 text-xs font-medium rounded transition-colors cursor-pointer ${
             btn.isActive
-              ? "bg-[#ee6c2b] text-white"
-              : "text-[#9BA1A6] hover:bg-[#342219] hover:text-[#ECEDEE]"
+              ? "bg-accent text-white"
+              : "text-text-secondary hover:bg-surface-3 hover:text-text-primary"
           }`}
         >
           {btn.icon}
         </button>
       ))}
 
-      <div className="w-px h-5 bg-[rgba(236,237,238,0.08)] mx-1" />
+      <div className="w-px h-5 bg-border mx-1" />
 
       <button
         type="button"
@@ -113,8 +113,8 @@ export function EditorToolbar({ editor, onImageUpload }: EditorToolbarProps) {
         title="Add Link"
         className={`px-2.5 py-1.5 text-xs font-medium rounded transition-colors cursor-pointer ${
           editor.isActive("link")
-            ? "bg-[#ee6c2b] text-white"
-            : "text-[#9BA1A6] hover:bg-[#342219] hover:text-[#ECEDEE]"
+            ? "bg-accent text-white"
+            : "text-text-secondary hover:bg-surface-3 hover:text-text-primary"
         }`}
       >
         Link
@@ -125,7 +125,7 @@ export function EditorToolbar({ editor, onImageUpload }: EditorToolbarProps) {
           type="button"
           onClick={() => editor.chain().focus().unsetLink().run()}
           title="Remove Link"
-          className="px-2.5 py-1.5 text-xs font-medium rounded text-[#F87171] hover:bg-[#342219] transition-colors cursor-pointer"
+          className="px-2.5 py-1.5 text-xs font-medium rounded text-danger hover:bg-surface-3 transition-colors cursor-pointer"
         >
           Unlink
         </button>
@@ -135,7 +135,7 @@ export function EditorToolbar({ editor, onImageUpload }: EditorToolbarProps) {
         type="button"
         onClick={onImageUpload}
         title="Insert Image"
-        className="px-2.5 py-1.5 text-xs font-medium rounded text-[#9BA1A6] hover:bg-[#342219] hover:text-[#ECEDEE] transition-colors cursor-pointer"
+        className="px-2.5 py-1.5 text-xs font-medium rounded text-text-secondary hover:bg-surface-3 hover:text-text-primary transition-colors cursor-pointer"
       >
         Img
       </button>

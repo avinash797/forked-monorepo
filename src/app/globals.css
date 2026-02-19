@@ -1,51 +1,61 @@
 @import "tailwindcss";
 
-:root {
+/* ==============================
+   Light Mode (default)
+   ============================== */
+
+:root,
+.light {
   /* Brand */
-  --accent: #FF4D00;
+  --accent: #ee6c2b;
   --accent-on: #FFFFFF;
   --accent-soft: #FEE8DF;
 
   /* Backgrounds */
-  --bg: #050505;
-  --surface: #0a0a0a;
-  --surface-2: #111111;
-  --overlay: rgba(0, 0, 0, 0.60);
+  --bg: #f8f6f6;
+  --surface: #ffffff;
+  --surface-2: #F3F4F6;
+  --overlay: rgba(0, 0, 0, 0.45);
 
   /* Text */
-  --text-primary: #ECEDEE;
-  --text-secondary: rgba(255, 255, 255, 0.50);
-  --text-tertiary: rgba(255, 255, 255, 0.30);
+  --text-primary: #221610;
+  --text-secondary: #4B5563;
+  --text-tertiary: #687076;
   --text-on-image: #FFFFFF;
 
   /* Borders */
-  --border: rgba(255, 255, 255, 0.10);
-  --divider: rgba(255, 255, 255, 0.05);
+  --border: rgba(34, 22, 16, 0.10);
+  --divider: rgba(34, 22, 16, 0.08);
 
   /* Inputs */
-  --input-bg: rgba(255, 255, 255, 0.05);
-  --input-border: rgba(255, 255, 255, 0.10);
-  --placeholder: rgba(255, 255, 255, 0.30);
+  --input-bg: #ffffff;
+  --input-border: #E5E7EB;
+  --placeholder: #9CA3AF;
 
   /* States */
-  --success: #34D399;
-  --warning: #FBBF24;
-  --danger: #F87171;
-  --info: #60A5FA;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --info: #3B82F6;
 
   /* Focus */
-  --focus-ring: rgba(255, 77, 0, 0.40);
-  --selection: rgba(255, 77, 0, 0.18);
+  --focus-ring: rgba(238, 107, 43, 0.28);
+  --selection: rgba(238, 107, 43, 0.14);
 
   /* Medals */
-  --gold: #FBBF24;
-  --silver: #D1D5DB;
-  --bronze: #CD7F32;
+  --gold: #F59E0B;
+  --silver: #9CA3AF;
+  --bronze: #B45309;
 
   /* Badge */
-  --badge-bg: rgba(255, 255, 255, 0.05);
-  --badge-text: #ECEDEE;
+  --badge-bg: #ffffff;
+  --badge-text: #221610;
 }
+
+
+/* ==============================
+   Dark Mode
+   ============================== */
 
 .dark {
   /* Brand */
@@ -154,8 +164,8 @@ body {
 }
 
 ::selection {
-  background: rgba(255, 77, 0, 0.3);
-  color: white;
+  background: var(--selection);
+  color: var(--text-primary);
 }
 
 /* Custom Scrollbar */
@@ -164,14 +174,14 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #050505;
+  background: var(--bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--text-tertiary);
 }

@@ -10,14 +10,13 @@ export function AboutHero() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <p className="text-[10px] font-black tracking-[0.3em] uppercase text-[#FF4D00] mb-4">
+        <p className="text-[10px] font-black tracking-[0.3em] uppercase text-accent mb-4">
           ABOUT FORKED
         </p>
-        <h1 className="font-display italic font-black text-4xl md:text-7xl tracking-tighter text-white">
-          We Rate Dishes,{" "}
-          <span className="text-[#FF4D00]">Not Restaurants.</span>
+        <h1 className="font-display italic font-black text-4xl md:text-7xl tracking-tighter text-text-primary">
+          We Rate Dishes, <span className="text-accent">Not Restaurants.</span>
         </h1>
-        <p className="text-white/40 mt-6 max-w-lg mx-auto text-sm leading-relaxed">
+        <p className="text-text-secondary mt-6 max-w-lg mx-auto text-sm leading-relaxed">
           Forked is the Elo-powered dish ranking engine built for people who
           care about what&apos;s on the plate — not the ambiance, not the
           service, not the hype.

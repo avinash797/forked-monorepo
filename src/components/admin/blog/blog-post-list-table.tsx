@@ -8,12 +8,9 @@ type BlogPostListTableProps = {
 export function BlogPostListTable({ posts }: BlogPostListTableProps) {
   if (posts.length === 0) {
     return (
-      <div className="text-center py-12 text-[#9BA1A6]">
+      <div className="text-center py-12 text-text-secondary">
         <p className="text-lg mb-2">No posts found.</p>
-        <Link
-          href="/admin/blog/new"
-          className="text-[#ee6c2b] hover:underline"
-        >
+        <Link href="/admin/blog/new" className="text-accent hover:underline">
           Create your first post
         </Link>
       </div>
@@ -24,23 +21,23 @@ export function BlogPostListTable({ posts }: BlogPostListTableProps) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-[rgba(236,237,238,0.08)]">
-            <th className="text-left py-3 px-4 font-medium text-[#9BA1A6]">
+          <tr className="border-b border-border">
+            <th className="text-left py-3 px-4 font-medium text-text-secondary">
               Title
             </th>
-            <th className="text-left py-3 px-4 font-medium text-[#9BA1A6]">
+            <th className="text-left py-3 px-4 font-medium text-text-secondary">
               Author
             </th>
-            <th className="text-left py-3 px-4 font-medium text-[#9BA1A6]">
+            <th className="text-left py-3 px-4 font-medium text-text-secondary">
               Category
             </th>
-            <th className="text-left py-3 px-4 font-medium text-[#9BA1A6]">
+            <th className="text-left py-3 px-4 font-medium text-text-secondary">
               Status
             </th>
-            <th className="text-left py-3 px-4 font-medium text-[#9BA1A6]">
+            <th className="text-left py-3 px-4 font-medium text-text-secondary">
               Date
             </th>
-            <th className="text-right py-3 px-4 font-medium text-[#9BA1A6]">
+            <th className="text-right py-3 px-4 font-medium text-text-secondary">
               Actions
             </th>
           </tr>
@@ -49,29 +46,31 @@ export function BlogPostListTable({ posts }: BlogPostListTableProps) {
           {posts.map((post) => (
             <tr
               key={post.id}
-              className="border-b border-[rgba(236,237,238,0.05)] hover:bg-[#3d2a1f]/50"
+              className="border-b border-divider hover:bg-surface-2"
             >
               <td className="py-3 px-4">
-                <span className="text-[#ECEDEE] font-medium">{post.title}</span>
+                <span className="text-text-primary font-medium">
+                  {post.title}
+                </span>
               </td>
-              <td className="py-3 px-4 text-[#c9a492]">
+              <td className="py-3 px-4 text-text-secondary">
                 {post.blog_authors?.name ?? "-"}
               </td>
-              <td className="py-3 px-4 text-[#c9a492]">
+              <td className="py-3 px-4 text-text-secondary">
                 {post.blog_categories?.name ?? "-"}
               </td>
               <td className="py-3 px-4">
                 <span
                   className={`text-xs font-medium px-2 py-0.5 rounded-pill ${
                     post.status === "published"
-                      ? "bg-[#34D399]/15 text-[#34D399]"
-                      : "bg-[#FBBF24]/15 text-[#FBBF24]"
+                      ? "bg-success/15 text-success"
+                      : "bg-warning/15 text-warning"
                   }`}
                 >
                   {post.status}
                 </span>
               </td>
-              <td className="py-3 px-4 text-[#9BA1A6]">
+              <td className="py-3 px-4 text-text-secondary">
                 {post.created_at
                   ? new Date(post.created_at).toLocaleDateString()
                   : "-"}
@@ -79,7 +78,7 @@ export function BlogPostListTable({ posts }: BlogPostListTableProps) {
               <td className="py-3 px-4 text-right">
                 <Link
                   href={`/admin/blog/${post.id}/edit`}
-                  className="text-[#ee6c2b] hover:underline"
+                  className="text-accent hover:underline"
                 >
                   Edit
                 </Link>

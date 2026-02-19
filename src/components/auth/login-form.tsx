@@ -71,21 +71,21 @@ export function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#221610]">
+    <div className="min-h-screen flex items-center justify-center bg-bg">
       <div className="w-full max-w-md px-8">
         <div className="flex flex-col items-center mb-8">
-          <ForkLogo size={48} color="#FBBF24" />
-          <h1 className="mt-4 text-2xl font-bold text-[#ECEDEE]">
+          <ForkLogo size={48} color="#ee6c2b" />
+          <h1 className="mt-4 text-2xl font-bold text-text-primary">
             Forked Admin
           </h1>
-          <p className="mt-2 text-sm text-[#9BA1A6]">
+          <p className="mt-2 text-sm text-text-secondary">
             Sign in to access the dashboard
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="rounded-sm bg-[#2A1813] border border-[#EF4444]/30 px-4 py-3 text-sm text-[#F87171]">
+            <div className="rounded-sm bg-danger/10 border border-danger/30 px-4 py-3 text-sm text-danger">
               {error}
             </div>
           )}
@@ -93,7 +93,7 @@ export function LoginForm() {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-[#c9a492] mb-1.5"
+              className="block text-sm font-medium text-text-secondary mb-1.5"
             >
               Email
             </label>
@@ -103,7 +103,7 @@ export function LoginForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-sm border border-[rgba(236,237,238,0.12)] bg-[#482f23] px-4 py-2.5 text-[#ECEDEE] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[rgba(238,108,43,0.40)]"
+              className="w-full rounded-sm border border-border bg-surface px-4 py-2.5 text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent/40"
               placeholder="admin@forked.app"
             />
           </div>
@@ -111,7 +111,7 @@ export function LoginForm() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-[#c9a492] mb-1.5"
+              className="block text-sm font-medium text-text-secondary mb-1.5"
             >
               Password
             </label>
@@ -121,7 +121,7 @@ export function LoginForm() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-sm border border-[rgba(236,237,238,0.12)] bg-[#482f23] px-4 py-2.5 text-[#ECEDEE] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[rgba(238,108,43,0.40)]"
+              className="w-full rounded-sm border border-border bg-surface px-4 py-2.5 text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent/40"
               placeholder="Enter your password"
             />
           </div>
@@ -129,7 +129,7 @@ export function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-sm bg-[#ee6c2b] px-4 py-2.5 font-semibold text-white hover:brightness-110 active:brightness-90 disabled:opacity-45 disabled:cursor-not-allowed transition-all cursor-pointer"
+            className="w-full rounded-sm bg-accent px-4 py-2.5 font-semibold text-accent-on hover:brightness-110 active:brightness-90 disabled:opacity-45 disabled:cursor-not-allowed transition-all cursor-pointer"
           >
             {loading ? "Signing in..." : "Sign in"}
           </button>

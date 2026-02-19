@@ -154,6 +154,48 @@ export async function getUserRatings(
   });
 }
 
+export type WaitlistEntry = {
+  id: string;
+  email: string;
+  source: string | null;
+  created_at: string;
+};
+
+export type WaitlistFilters = {
+  search?: string;
+  page?: number;
+  perPage?: number;
+};
+
+export async function getWaitlist(filters: WaitlistFilters = {}) {
+  const { search, page = 1, perPage = 25 } = filters;
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("user_waitlist")
+    .select("id, email, source, created_at", { count: "exact" })
+    .order("created_at", { ascending: false });
+
+  if (search) {
+    query = query.ilike("email", `%${search}%`);
+  }
+
+  const from = (page - 1) * perPage;
+  const to = from + perPage - 1;
+  query = query.range(from, to);
+
+  const { data, count, error } = await query;
+
+  if (error) {
+    return { entries: [] as WaitlistEntry[], total: 0 };
+  }
+
+  return {
+    entries: (data ?? []) as WaitlistEntry[],
+    total: count ?? 0,
+  };
+}
+
 export type AdminAction = {
   id: string;
   action_type: string;

@@ -39,10 +39,10 @@ export function TeamSection() {
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
         transition={{ duration: 0.6 }}
       >
-        <p className="text-[10px] font-black tracking-[0.3em] uppercase text-[#FF4D00] mb-4">
+        <p className="text-[10px] font-black tracking-[0.3em] uppercase text-accent mb-4">
           THE TEAM
         </p>
-        <h2 className="font-display italic font-black text-3xl md:text-5xl tracking-tighter">
+        <h2 className="font-display italic font-black text-3xl md:text-5xl tracking-tighter text-text-primary">
           The People Behind the Fork
         </h2>
       </motion.div>
@@ -51,20 +51,20 @@ export function TeamSection() {
         {team.map((member, i) => (
           <motion.div
             key={member.role}
-            className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 hover:border-white/20 transition-all"
-            animate={
-              isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }
-            }
+            className="bg-surface border border-border rounded-2xl p-6 text-center hover:bg-surface-2 transition-all"
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ delay: 0.2 + i * 0.15, duration: 0.6 }}
           >
-            <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4">
-              <User size={32} className="text-white/20" />
+            <div className="w-20 h-20 rounded-full bg-surface-2 border border-border flex items-center justify-center mx-auto mb-4">
+              <User size={32} className="text-text-tertiary" />
             </div>
-            <h3 className="text-base font-black text-white">{member.name}</h3>
-            <p className="text-xs font-bold text-[#FF4D00] uppercase tracking-wider mt-1">
+            <h3 className="text-base font-black text-text-primary">
+              {member.name}
+            </h3>
+            <p className="text-xs font-bold text-accent uppercase tracking-wider mt-1">
               {member.role}
             </p>
-            <p className="text-sm text-white/40 leading-relaxed mt-3">
+            <p className="text-sm text-text-secondary leading-relaxed mt-3">
               {member.bio}
             </p>
           </motion.div>
