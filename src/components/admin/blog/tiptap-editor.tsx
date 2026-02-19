@@ -26,7 +26,7 @@ export function TipTapEditor({
       Image.configure({ inline: false }),
       Link.configure({
         openOnClick: false,
-        HTMLAttributes: { class: "text-[#ee6c2b] underline" },
+        HTMLAttributes: { class: "text-accent underline" },
       }),
       Underline,
       Placeholder.configure({
@@ -40,13 +40,13 @@ export function TipTapEditor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-invert max-w-none min-h-[400px] px-4 py-3 focus:outline-none text-[#ECEDEE]",
+          "prose prose-invert max-w-none min-h-[400px] px-4 py-3 focus:outline-none text-text-primary",
       },
     },
   });
 
   return (
-    <div className="border border-[rgba(236,237,238,0.08)] rounded-sm overflow-hidden bg-[#342219]">
+    <div className="border border-border rounded-sm overflow-hidden bg-surface-2">
       <EditorToolbar editor={editor} onImageUpload={onImageUploadRequest} />
       <EditorContent editor={editor} />
     </div>

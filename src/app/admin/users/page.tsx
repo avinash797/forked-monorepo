@@ -30,7 +30,7 @@ export default async function AdminUsersPage({
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-[#ECEDEE]">Users</h1>
+      <h1 className="text-2xl font-bold text-text-primary">Users</h1>
 
       <div className="flex items-center gap-4">
         <div className="flex gap-1">
@@ -40,8 +40,8 @@ export default async function AdminUsersPage({
               href={`/admin/users?filter=${f}${search ? `&search=${search}` : ""}`}
               className={`px-3 py-1.5 text-sm rounded-sm transition-colors ${
                 filter === f
-                  ? "bg-[#ee6c2b] text-white"
-                  : "text-[#9BA1A6] hover:bg-[#342219] hover:text-[#ECEDEE]"
+                  ? "bg-accent text-white"
+                  : "text-text-secondary hover:bg-surface hover:text-text-primary"
               }`}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -55,15 +55,15 @@ export default async function AdminUsersPage({
             name="search"
             defaultValue={search}
             placeholder="Search users..."
-            className="w-full rounded-sm border border-[rgba(236,237,238,0.12)] bg-[#482f23] px-4 py-2 text-sm text-[#ECEDEE] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[rgba(238,108,43,0.40)]"
+            className="w-full rounded-sm border border-[rgba(236,237,238,0.12)] bg-surface-2 px-4 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent/40"
           />
           <input type="hidden" name="filter" value={filter} />
         </form>
 
-        <span className="text-sm text-[#9BA1A6]">{total} users</span>
+        <span className="text-sm text-text-secondary">{total} users</span>
       </div>
 
-      <div className="bg-[#342219] border border-[rgba(236,237,238,0.08)] rounded-sm">
+      <div className="bg-surface border border-border rounded-sm">
         <UserListTable users={users} />
       </div>
 
@@ -75,8 +75,8 @@ export default async function AdminUsersPage({
               href={`/admin/users?filter=${filter}${search ? `&search=${search}` : ""}&page=${p}`}
               className={`px-3 py-1.5 text-sm rounded-sm ${
                 page === p
-                  ? "bg-[#ee6c2b] text-white"
-                  : "text-[#9BA1A6] hover:bg-[#342219]"
+                  ? "bg-accent text-white"
+                  : "text-text-secondary hover:bg-surface"
               }`}
             >
               {p}

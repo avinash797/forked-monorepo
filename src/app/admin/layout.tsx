@@ -10,7 +10,7 @@ export default async function AdminLayout({
   const admin = await requireAdmin();
 
   return (
-    <div className="min-h-screen bg-[#1a0f09]">
+    <div className="min-h-screen bg-bg">
       <AdminSidebar />
       <div className="ml-64">
         <AdminHeader admin={admin} />

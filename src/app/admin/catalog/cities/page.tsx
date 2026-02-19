@@ -10,8 +10,8 @@ export default async function CitiesPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#ECEDEE]">Cities</h1>
-        <p className="text-sm text-[#9BA1A6] mt-1">
+        <h1 className="text-2xl font-bold text-text-primary">Cities</h1>
+        <p className="text-sm text-text-secondary mt-1">
           {cities.length} total {cities.length === 1 ? "city" : "cities"}
         </p>
       </div>
@@ -19,12 +19,13 @@ export default async function CitiesPage() {
       <CityListTable cities={cities} />
 
       <div className="mt-8">
-        <div className="bg-[#342219] border border-[#4a3728] rounded-lg p-6">
-          <h2 className="text-sm font-semibold text-[#c9a492] uppercase tracking-wider mb-4">
+        <div className="bg-surface border border-border rounded-lg p-6">
+          <h2 className="text-sm font-semibold text-accent uppercase tracking-wider mb-4">
             Add City Manually
           </h2>
-          <p className="text-xs text-[#9BA1A6] mb-4">
-            Cities normally enter via the mobile app&apos;s Google Places API flow. Use this form for admin-manual additions.
+          <p className="text-xs text-text-secondary mb-4">
+            Cities normally enter via the mobile app&apos;s Google Places API
+            flow. Use this form for admin-manual additions.
           </p>
           <AddCityForm />
         </div>

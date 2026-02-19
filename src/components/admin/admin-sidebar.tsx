@@ -4,11 +4,13 @@ import { AdminNavLinks } from "./admin-nav-links";
 
 export function AdminSidebar() {
   return (
-    <aside className="fixed left-0 top-0 bottom-0 w-64 bg-[#221610] border-r border-[rgba(236,237,238,0.08)] flex flex-col z-40">
-      <div className="px-6 py-5 border-b border-[rgba(236,237,238,0.08)]">
+    <aside className="fixed left-0 top-0 bottom-0 w-64 bg-surface border-r border-border flex flex-col z-40">
+      <div className="px-6 py-5 border-b border-border">
         <Link href="/admin" className="flex items-center gap-3">
-          <ForkLogo size={32} color="#FBBF24" />
-          <span className="text-lg font-bold text-[#ECEDEE]">Forked Admin</span>
+          <ForkLogo size={32} color="var(--gold)" />
+          <span className="text-lg font-bold text-text-primary">
+            Forked Admin
+          </span>
         </Link>
       </div>
 
@@ -16,10 +18,10 @@ export function AdminSidebar() {
         <AdminNavLinks />
       </nav>
 
-      <div className="px-4 py-3 border-t border-[rgba(236,237,238,0.08)]">
+      <div className="px-4 py-3 border-t border-border">
         <Link
           href="/"
-          className="flex items-center gap-2 text-sm text-[#9BA1A6] hover:text-[#ECEDEE] transition-colors"
+          className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
         >
           <svg
             className="w-4 h-4"

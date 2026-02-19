@@ -12,14 +12,15 @@ export default async function DishTypesPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#ECEDEE]">Dish Types</h1>
-          <p className="text-sm text-[#9BA1A6] mt-1">
-            {dishTypes.length} total dish {dishTypes.length === 1 ? "type" : "types"}
+          <h1 className="text-2xl font-bold text-text-primary">Dish Types</h1>
+          <p className="text-sm text-text-secondary mt-1">
+            {dishTypes.length} total dish{" "}
+            {dishTypes.length === 1 ? "type" : "types"}
           </p>
         </div>
         <Link
           href="/admin/catalog/dish-types/new"
-          className="flex items-center gap-2 px-4 py-2 bg-[#ee6c2b] hover:bg-[#f07d3a] text-white font-medium rounded transition-colors text-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent/90 text-white font-medium rounded transition-colors text-sm"
         >
           <Plus className="w-4 h-4" /> New Dish Type
         </Link>

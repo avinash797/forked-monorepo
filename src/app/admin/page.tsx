@@ -14,7 +14,7 @@ export default async function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-[#ECEDEE]">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-text-primary">Dashboard</h1>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard title="Total Users" value={stats.totalUsers} />
@@ -28,12 +28,12 @@ export default async function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Ratings */}
-        <div className="bg-[#342219] border border-[rgba(236,237,238,0.08)] rounded-sm p-5">
-          <h2 className="text-lg font-semibold text-[#ECEDEE] mb-4">
+        <div className="bg-surface border border-border rounded-sm p-5">
+          <h2 className="text-lg font-semibold text-text-primary mb-4">
             Recent Ratings
           </h2>
           {recentRatings.length === 0 ? (
-            <p className="text-sm text-[#9BA1A6]">No ratings yet.</p>
+            <p className="text-sm text-text-secondary">No ratings yet.</p>
           ) : (
             <ul className="space-y-3">
               {recentRatings.map((r) => (
@@ -42,23 +42,23 @@ export default async function AdminDashboard() {
                   className="flex items-center justify-between text-sm"
                 >
                   <div>
-                    <span className="text-[#ECEDEE] font-medium">
+                    <span className="text-text-primary font-medium">
                       {r.restaurant_name}
                     </span>
-                    <span className="text-[#9BA1A6] mx-1.5">&middot;</span>
-                    <span className="text-[#c9a492]">{r.dish_type_name}</span>
+                    <span className="text-text-secondary mx-1.5">&middot;</span>
+                    <span className="text-accent">{r.dish_type_name}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-[#9BA1A6] text-xs">
+                    <span className="text-text-secondary text-xs">
                       {r.user_display_name}
                     </span>
                     <span
                       className={`font-semibold ${
                         r.raw_score >= 7
-                          ? "text-[#34D399]"
+                          ? "text-success"
                           : r.raw_score >= 4
-                          ? "text-[#FBBF24]"
-                          : "text-[#F87171]"
+                            ? "text-warning"
+                            : "text-danger"
                       }`}
                     >
                       {r.raw_score}
@@ -71,12 +71,12 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Recent Blog Posts */}
-        <div className="bg-[#342219] border border-[rgba(236,237,238,0.08)] rounded-sm p-5">
-          <h2 className="text-lg font-semibold text-[#ECEDEE] mb-4">
+        <div className="bg-surface border border-border rounded-sm p-5">
+          <h2 className="text-lg font-semibold text-text-primary mb-4">
             Recent Blog Posts
           </h2>
           {recentPosts.length === 0 ? (
-            <p className="text-sm text-[#9BA1A6]">No blog posts yet.</p>
+            <p className="text-sm text-text-secondary">No blog posts yet.</p>
           ) : (
             <ul className="space-y-3">
               {recentPosts.map((p) => (
@@ -85,17 +85,17 @@ export default async function AdminDashboard() {
                   className="flex items-center justify-between text-sm"
                 >
                   <div>
-                    <span className="text-[#ECEDEE] font-medium">
+                    <span className="text-text-primary font-medium">
                       {p.title}
                     </span>
-                    <span className="text-[#9BA1A6] mx-1.5">&middot;</span>
-                    <span className="text-[#c9a492]">{p.author_name}</span>
+                    <span className="text-text-secondary mx-1.5">&middot;</span>
+                    <span className="text-accent">{p.author_name}</span>
                   </div>
                   <span
                     className={`text-xs font-medium px-2 py-0.5 rounded-pill ${
                       p.status === "published"
-                        ? "bg-[#34D399]/15 text-[#34D399]"
-                        : "bg-[#FBBF24]/15 text-[#FBBF24]"
+                        ? "bg-success/15 text-success"
+                        : "bg-warning/15 text-warning"
                     }`}
                   >
                     {p.status}

@@ -29,8 +29,8 @@ export function DateRangeSelector() {
           onClick={() => handleSelect(p.days)}
           className={`px-3 py-1.5 text-sm rounded-sm transition-colors cursor-pointer ${
             currentDays === p.days
-              ? "bg-[#ee6c2b] text-white"
-              : "text-[#9BA1A6] hover:bg-[#342219] hover:text-[#ECEDEE]"
+              ? "bg-accent text-white"
+              : "text-text-secondary hover:bg-surface-2 hover:text-text-primary"
           }`}
         >
           {p.label}
