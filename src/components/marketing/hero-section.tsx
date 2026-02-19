@@ -3,7 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Smartphone, Flame } from "lucide-react";
+import { Smartphone, Flame, Zap } from "lucide-react";
+import { IS_WAITLIST_MODE } from "@/lib/waitlist";
+import { WaitlistForm } from "@/components/marketing/waitlist-form";
 
 export function HeroSection() {
   const { scrollYProgress } = useScroll();
@@ -35,8 +37,17 @@ export function HeroSection() {
           transition={{ duration: 0.6 }}
           className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 mb-8 text-[10px] uppercase font-bold tracking-[0.2em]"
         >
-          <Flame size={12} className="text-[#FF4D00]" />
-          Available Now on iOS &amp; Android
+          {IS_WAITLIST_MODE ? (
+            <>
+              <Zap size={12} className="text-[#FF4D00]" />
+              Coming Soon
+            </>
+          ) : (
+            <>
+              <Flame size={12} className="text-[#FF4D00]" />
+              Available Now on iOS &amp; Android
+            </>
+          )}
         </motion.div>
 
         {/* Headline */}
@@ -51,8 +62,7 @@ export function HeroSection() {
             Vibe.
           </span>{" "}
           <br />
-          Rate the{" "}
-          <span className="underline decoration-white/20">Dish.</span>
+          Rate the <span className="underline decoration-white/20">Dish.</span>
         </motion.h1>
 
         {/* Subheadline */}
@@ -67,31 +77,40 @@ export function HeroSection() {
           averages. No fake reviews. Just data-driven dominance.
         </motion.p>
 
-        {/* CTAs */}
+        {/* CTAs or Waitlist Form */}
         <motion.div
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6 }}
         >
-          <a
-            href="#download"
-            className="w-full sm:w-auto bg-[#FF4D00] text-white px-8 py-4 rounded-xl font-black text-sm tracking-widest flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-[0_10px_30px_rgba(255,77,0,0.4)]"
-          >
-            <Smartphone size={20} />
-            DOWNLOAD APP
-          </a>
-          <Link
-            href="/leaderboard"
-            className="w-full sm:w-auto bg-white/5 backdrop-blur-sm border border-white/10 text-white px-8 py-4 rounded-xl font-black text-sm tracking-widest hover:bg-white/10 transition-all text-center"
-          >
-            SEE LEADERBOARDS
-          </Link>
+          {IS_WAITLIST_MODE ? (
+            <WaitlistForm source="hero" />
+          ) : (
+            <>
+              <a
+                href="#download"
+                className="w-full sm:w-auto bg-[#FF4D00] text-white px-8 py-4 rounded-xl font-black text-sm tracking-widest flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-[0_10px_30px_rgba(255,77,0,0.4)]"
+              >
+                <Smartphone size={20} />
+                DOWNLOAD APP
+              </a>
+              <Link
+                href="/leaderboard"
+                className="w-full sm:w-auto bg-white/5 backdrop-blur-sm border border-white/10 text-white px-8 py-4 rounded-xl font-black text-sm tracking-widest hover:bg-white/10 transition-all text-center"
+              >
+                SEE LEADERBOARDS
+              </Link>
+            </>
+          )}
         </motion.div>
       </motion.div>
 
       {/* Floating Food Images (Parallax) */}
-      <motion.div style={{ y: y1 }} className="absolute -left-20 md:left-20 top-1/4 z-0 opacity-50 md:opacity-100">
+      <motion.div
+        style={{ y: y1 }}
+        className="absolute -left-20 md:left-20 top-1/4 z-0 opacity-50 md:opacity-100"
+      >
         <Image
           src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=400"
           alt="Burger dish"
@@ -102,7 +121,10 @@ export function HeroSection() {
           sizes="(max-width: 768px) 128px, 192px"
         />
       </motion.div>
-      <motion.div style={{ y: y2 }} className="absolute -right-20 md:right-40 bottom-1/4 z-0 opacity-50 md:opacity-100">
+      <motion.div
+        style={{ y: y2 }}
+        className="absolute -right-20 md:right-40 bottom-1/4 z-0 opacity-50 md:opacity-100"
+      >
         <Image
           src="https://images.unsplash.com/photo-1551782450-a2132b4ba21d?auto=format&fit=crop&q=80&w=400"
           alt="Sandwich dish"

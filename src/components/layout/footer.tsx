@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { IS_WAITLIST_MODE } from "@/lib/waitlist";
 
 export function Footer() {
   return (
@@ -18,39 +19,62 @@ export function Footer() {
             </span>
           </Link>
           <p className="text-white/50 text-xs font-medium max-w-xs uppercase tracking-widest leading-loose">
-            The dish-level ranking engine for the next generation of food lovers.
-            Built for data. Built for taste.
+            The dish-level ranking engine for the next generation of food
+            lovers. Built for data. Built for taste.
           </p>
         </div>
 
         <div className="flex gap-12 text-xs font-black tracking-widest text-white/40 uppercase">
-          <div className="space-y-4">
-            <p className="text-white/30">EXPLORE</p>
-            <Link href="/leaderboard" className="block hover:text-white transition-colors">
-              Leaderboards
-            </Link>
-            <Link href="/blog" className="block hover:text-white transition-colors">
-              Blog
-            </Link>
-            <Link href="#download" className="block hover:text-white transition-colors">
-              Download
-            </Link>
-          </div>
+          {!IS_WAITLIST_MODE && (
+            <div className="space-y-4">
+              <p className="text-white/30">EXPLORE</p>
+              <Link
+                href="/leaderboard"
+                className="block hover:text-white transition-colors"
+              >
+                Leaderboards
+              </Link>
+              <Link
+                href="/blog"
+                className="block hover:text-white transition-colors"
+              >
+                Blog
+              </Link>
+              <Link
+                href="#download"
+                className="block hover:text-white transition-colors"
+              >
+                Download
+              </Link>
+            </div>
+          )}
           <div className="space-y-4">
             <p className="text-white/30">COMPANY</p>
-            <Link href="/about" className="block hover:text-white transition-colors">
+            <Link
+              href="/about"
+              className="block hover:text-white transition-colors"
+            >
               About
             </Link>
-            <Link href="/how-it-works" className="block hover:text-white transition-colors">
+            <Link
+              href="/how-it-works"
+              className="block hover:text-white transition-colors"
+            >
               How It Works
             </Link>
           </div>
           <div className="space-y-4">
             <p className="text-white/30">LEGAL</p>
-            <Link href="/privacy" className="block hover:text-white transition-colors">
+            <Link
+              href="/privacy"
+              className="block hover:text-white transition-colors"
+            >
               Privacy
             </Link>
-            <Link href="/terms" className="block hover:text-white transition-colors">
+            <Link
+              href="/terms"
+              className="block hover:text-white transition-colors"
+            >
               Terms
             </Link>
           </div>
