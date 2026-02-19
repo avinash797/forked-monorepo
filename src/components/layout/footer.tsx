@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { IS_WAITLIST_MODE } from "@/lib/waitlist";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function Footer() {
   return (
@@ -81,10 +82,11 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 text-center md:text-left">
+      <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
         <p className="text-white/30 text-[10px] font-bold tracking-[0.5em] uppercase">
           Made with love in New Orleans
         </p>
+        <ThemeToggle />
       </div>
     </footer>
   );

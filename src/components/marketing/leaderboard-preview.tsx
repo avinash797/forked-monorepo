@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { IS_WAITLIST_MODE } from "@/lib/waitlist";
 import { ArrowRight, MapPin } from "lucide-react";
 
 interface LeaderboardEntry {
@@ -12,6 +13,59 @@ interface LeaderboardEntry {
   total_ratings: number;
   featured_photo_url: string;
 }
+
+const MOCK_ENTRIES: LeaderboardEntry[] = [
+  {
+    rank: 1,
+    restaurant_name: "Parkway Bakery & Tavern",
+    neighborhood_name: "Mid-City",
+    global_elo: 1842,
+    confidence_score: 0.94,
+    avg_raw_score: 9.1,
+    total_ratings: 312,
+    featured_photo_url: "",
+  },
+  {
+    rank: 2,
+    restaurant_name: "Domilise's Po-Boy & Bar",
+    neighborhood_name: "Uptown",
+    global_elo: 1809,
+    confidence_score: 0.91,
+    avg_raw_score: 8.8,
+    total_ratings: 274,
+    featured_photo_url: "",
+  },
+  {
+    rank: 3,
+    restaurant_name: "Mahony's Po-Boy Shop",
+    neighborhood_name: "Magazine Street",
+    global_elo: 1776,
+    confidence_score: 0.88,
+    avg_raw_score: 8.6,
+    total_ratings: 198,
+    featured_photo_url: "",
+  },
+  {
+    rank: 4,
+    restaurant_name: "Guy's Po-Boys",
+    neighborhood_name: "Uptown",
+    global_elo: 1744,
+    confidence_score: 0.85,
+    avg_raw_score: 8.3,
+    total_ratings: 167,
+    featured_photo_url: "",
+  },
+  {
+    rank: 5,
+    restaurant_name: "R&O's Restaurant",
+    neighborhood_name: "Bucktown",
+    global_elo: 1718,
+    confidence_score: 0.82,
+    avg_raw_score: 8.1,
+    total_ratings: 143,
+    featured_photo_url: "",
+  },
+];
 
 async function getLeaderboardPreview(): Promise<LeaderboardEntry[]> {
   try {
@@ -48,7 +102,9 @@ async function getLeaderboardPreview(): Promise<LeaderboardEntry[]> {
 }
 
 export async function LeaderboardPreview() {
-  const entries = await getLeaderboardPreview();
+  const entries = IS_WAITLIST_MODE
+    ? MOCK_ENTRIES
+    : await getLeaderboardPreview();
 
   return (
     <section id="leaderboard" className="py-24 md:py-32 px-6 bg-[#050505]">
@@ -60,13 +116,13 @@ export async function LeaderboardPreview() {
               The <span className="text-[#FF4D00]">Champions</span> Wall
             </h2>
             <p className="text-white/40 text-sm max-w-md">
-              Live rankings from New Orleans. Best Po'boys, ranked by real dish
-              battles.
+              Live rankings from New Orleans. Best Po&apos;boys, ranked by real
+              dish battles.
             </p>
           </div>
           <div className="flex gap-2">
             <span className="bg-[#FF4D00] border border-[#FF4D00] px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-white shadow-[0_5px_15px_rgba(255,77,0,0.3)]">
-              PO'BOY
+              PO&apos;BOY
             </span>
             <span className="bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-white/60">
               GUMBO
