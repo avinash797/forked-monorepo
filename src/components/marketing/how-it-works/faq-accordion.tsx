@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { Plus, Minus } from "lucide-react";
+import { track } from "@vercel/analytics";
 
 interface FaqItem {
   question: string;
@@ -68,7 +69,10 @@ export function FaqAccordion() {
             transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
           >
             <button
-              onClick={() => setOpenIndex(openIndex === i ? null : i)}
+              onClick={() => {
+                if (openIndex !== i) track("faq_open", { question: faq.question });
+                setOpenIndex(openIndex === i ? null : i);
+              }}
               aria-expanded={openIndex === i}
               aria-controls={`faq-answer-${i}`}
               className="w-full flex items-center justify-between p-5 text-left hover:bg-white/5 transition-colors"

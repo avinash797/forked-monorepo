@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { ForkLogo } from "@/components/icons/fork-logo";
+import { track } from "@vercel/analytics";
 
 export function LoginForm() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export function LoginForm() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    track("admin_login_attempt");
 
     const supabase = createClient();
     const { error: authError } = await supabase.auth.signInWithPassword({
@@ -32,6 +34,7 @@ export function LoginForm() {
     });
 
     if (authError) {
+      track("admin_login_failed", { reason: "auth_error" });
       setError(authError.message);
       setLoading(false);
       return;
@@ -42,6 +45,7 @@ export function LoginForm() {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
+      track("admin_login_failed", { reason: "auth_error" });
       setError("Authentication failed.");
       setLoading(false);
       return;
@@ -54,12 +58,14 @@ export function LoginForm() {
       .single();
 
     if (!profile || profile.role !== "admin") {
+      track("admin_login_failed", { reason: "not_admin" });
       await supabase.auth.signOut();
       setError("Access denied. Admin privileges required.");
       setLoading(false);
       return;
     }
 
+    track("admin_login_success");
     router.push(redirectTo);
     router.refresh();
   }

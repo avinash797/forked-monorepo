@@ -240,3 +240,10 @@ These files in `../forked/` inform the web app's implementation:
 **City slugs in DB:** `new-orleans-louisiana`, `washington-district-of-columbia`
 
 **Dish type slugs in DB:** `gumbo`, `po-boy`, `crawfish-touff-e`, `muffuletta`, `jambalaya`
+
+---
+
+## Ad Hoc Tasks
+
+- [x] **Add Vercel Analytics custom event tracking** — (Ad hoc: `@vercel/analytics` was already installed with page-view tracking via `<Analytics />`, but no custom events were wired up. Added `track()` calls across 8 client components: `hero_download_cta_click`, `hero_leaderboards_click`, `nav_link_click`, `nav_cta_click`, `nav_mobile_menu`, `elo_battle_vote`, `elo_battle_reset`, `faq_open`, `leaderboard_dish_tab`, `blog_category_filter`, `blog_page_navigate`, `admin_login_attempt/success/failed`. Also converted `dish-type-tabs` and `blog-pagination` from server to client components to enable onClick tracking.)
+- [x] **Fix stop hook infinite loop** — (Ad hoc: the `update-todo.sh` stop hook was firing on every response, creating an infinite loop. Added a `-mmin -5` check so the hook exits 0 immediately if PLAN.md was modified in the last 5 minutes.)

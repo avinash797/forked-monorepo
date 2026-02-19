@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Trophy } from "lucide-react";
+import { track } from "@vercel/analytics";
 
 export function EloBattleSection() {
   const [scores, setScores] = useState({ left: 1450, right: 1442 });
@@ -11,6 +12,10 @@ export function EloBattleSection() {
 
   const handleVote = (side: "left" | "right") => {
     if (voted) return;
+    track("elo_battle_vote", {
+      side,
+      dish: side === "left" ? "Smash Burger" : "Truffle Brioche",
+    });
     setVoted(side);
     setTimeout(() => {
       setScores((prev) => ({
@@ -21,6 +26,7 @@ export function EloBattleSection() {
   };
 
   const resetBattle = () => {
+    track("elo_battle_reset");
     setVoted(null);
     setScores({ left: 1450, right: 1442 });
   };
