@@ -15,10 +15,10 @@ export function MissionSection() {
   const isInView = useInView(ref, { once: false, amount: 0.3 });
 
   return (
-    <section ref={ref} className="py-24 md:py-32 px-6 bg-[#0a0a0a]">
+    <section ref={ref} className="py-24 md:py-32 px-6 bg-surface">
       <div className="max-w-4xl mx-auto">
         <motion.p
-          className="text-[10px] font-black tracking-[0.3em] uppercase text-[#FF4D00] text-center mb-12"
+          className="text-[10px] font-black tracking-[0.3em] uppercase text-accent text-center mb-12"
           animate={isInView ? { opacity: 1 } : { opacity: 0 }}
           transition={{ duration: 0.6 }}
         >
@@ -29,12 +29,8 @@ export function MissionSection() {
           {statements.map((statement, i) => (
             <motion.p
               key={i}
-              className="font-display italic font-black text-2xl sm:text-3xl md:text-5xl text-white text-center leading-tight tracking-tight"
-              animate={
-                isInView
-                  ? { opacity: 1, y: 0 }
-                  : { opacity: 0, y: 20 }
-              }
+              className="font-display italic font-black text-2xl sm:text-3xl md:text-5xl text-text-primary text-center leading-tight tracking-tight"
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.2 + i * 0.15, duration: 0.6 }}
             >
               {statement}

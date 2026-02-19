@@ -4,7 +4,8 @@
    Light Mode (default)
    ============================== */
 
-:root {
+:root,
+.light {
   /* Brand */
   --accent: #ee6c2b;
   --accent-on: #FFFFFF;
@@ -50,6 +51,7 @@
   --badge-bg: #ffffff;
   --badge-text: #221610;
 }
+
 
 /* ==============================
    Dark Mode

@@ -43,7 +43,7 @@ export function Navbar() {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-6 py-4 min-h-16 flex items-center justify-between ${
         isScrolled || isMobileOpen
-          ? "bg-black/80 backdrop-blur-md border-b border-white/10"
+          ? "bg-bg/80 backdrop-blur-md border-b border-border"
           : "bg-transparent"
       }`}
     >
@@ -54,19 +54,19 @@ export function Navbar() {
           width={28}
           height={28}
         />
-        <span className="text-xl font-extrabold tracking-tighter uppercase italic text-white">
+        <span className="text-xl font-extrabold tracking-tighter uppercase italic text-text-primary">
           Forked
         </span>
       </Link>
 
       {/* Desktop nav links */}
-      <div className="hidden md:flex items-center gap-8 text-sm font-medium tracking-tight text-white/60">
+      <div className="hidden md:flex items-center gap-8 text-sm font-medium tracking-tight text-text-secondary">
         {navLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}
             onClick={() => track("nav_link_click", { label: link.label })}
-            className="hover:text-white transition-colors"
+            className="hover:text-text-primary transition-colors"
           >
             {link.label}
           </Link>
@@ -78,7 +78,7 @@ export function Navbar() {
           <Link
             href="#download"
             onClick={() => track("nav_cta_click", { location: "desktop" })}
-            className="hidden sm:inline-flex bg-white text-black px-5 py-2 rounded-full text-xs font-bold hover:bg-[#FF4D00] hover:text-white transition-all active:scale-95"
+            className="hidden sm:inline-flex bg-text-primary text-bg px-5 py-2 rounded-full text-xs font-bold hover:bg-accent hover:text-accent-on transition-all active:scale-95"
           >
             GET THE APP
           </Link>
@@ -92,7 +92,7 @@ export function Navbar() {
             });
             setIsMobileOpen(!isMobileOpen);
           }}
-          className="md:hidden text-white p-1 cursor-pointer"
+          className="md:hidden text-text-primary p-1 cursor-pointer"
           aria-label={
             isMobileOpen ? "Close navigation menu" : "Open navigation menu"
           }
@@ -104,7 +104,7 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {isMobileOpen && (
-        <div className="absolute top-full left-0 right-0 bg-black/95 backdrop-blur-md border-b border-white/10 md:hidden">
+        <div className="absolute top-full left-0 right-0 bg-bg/95 backdrop-blur-md border-b border-border md:hidden">
           <div className="flex flex-col px-6 py-4 gap-1">
             {navLinks.map((link) => (
               <Link
@@ -114,7 +114,7 @@ export function Navbar() {
                   track("nav_link_click", { label: link.label });
                   setIsMobileOpen(false);
                 }}
-                className="text-white/70 hover:text-white text-base font-medium py-3 border-b border-white/5 transition-colors"
+                className="text-text-secondary hover:text-text-primary text-base font-medium py-3 border-b border-border transition-colors"
               >
                 {link.label}
               </Link>
@@ -127,7 +127,7 @@ export function Navbar() {
                   track("nav_cta_click", { location: "mobile" });
                   setIsMobileOpen(false);
                 }}
-                className="mt-3 bg-[#FF4D00] text-white px-6 py-3 rounded-xl text-sm font-bold tracking-widest text-center hover:scale-105 active:scale-95 transition-all"
+                className="mt-3 bg-accent text-accent-on px-6 py-3 rounded-xl text-sm font-bold tracking-widest text-center hover:scale-105 active:scale-95 transition-all"
               >
                 GET THE APP
               </Link>

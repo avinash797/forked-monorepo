@@ -78,11 +78,7 @@ async function getLeaderboardPreview(): Promise<LeaderboardEntry[]> {
         .select("id")
         .eq("slug", "new-orleans-louisiana")
         .single(),
-      supabase
-        .from("dish_types")
-        .select("id")
-        .eq("slug", "po-boy")
-        .single(),
+      supabase.from("dish_types").select("id").eq("slug", "po-boy").single(),
     ]);
 
     if (!city || !dishType) return [];
@@ -107,27 +103,27 @@ export async function LeaderboardPreview() {
     : await getLeaderboardPreview();
 
   return (
-    <section id="leaderboard" className="py-24 md:py-32 px-6 bg-[#050505]">
+    <section id="leaderboard" className="py-24 md:py-32 px-6 bg-bg">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-16 gap-6">
           <div>
             <h2 className="font-display italic font-black text-4xl md:text-6xl uppercase leading-none mb-4 tracking-tighter">
-              The <span className="text-[#FF4D00]">Champions</span> Wall
+              The <span className="text-accent">Champions</span> Wall
             </h2>
-            <p className="text-white/40 text-sm max-w-md">
+            <p className="text-text-secondary text-sm max-w-md">
               Live rankings from New Orleans. Best Po&apos;boys, ranked by real
               dish battles.
             </p>
           </div>
           <div className="flex gap-2">
-            <span className="bg-[#FF4D00] border border-[#FF4D00] px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-white shadow-[0_5px_15px_rgba(255,77,0,0.3)]">
+            <span className="bg-accent border border-accent px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-accent-on shadow-[0_5px_15px_rgba(var(--color-accent),0.3)]">
               PO&apos;BOY
             </span>
-            <span className="bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-white/60">
+            <span className="bg-surface-2 border border-border px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-text-secondary">
               GUMBO
             </span>
-            <span className="bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-white/60">
+            <span className="bg-surface-2 border border-border px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-text-secondary">
               JAMBALAYA
             </span>
           </div>
@@ -139,21 +135,21 @@ export async function LeaderboardPreview() {
             {entries.map((entry) => (
               <div
                 key={`${entry.restaurant_name}-${entry.rank}`}
-                className="group flex items-center justify-between p-4 md:p-6 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 hover:border-white/20 transition-all "
+                className="group flex items-center justify-between p-4 md:p-6 bg-surface-2 border border-border rounded-2xl hover:bg-surface hover:border-text-tertiary transition-all "
               >
                 <div className="flex items-center gap-6">
                   <span
                     className={`text-2xl font-black italic ${
-                      entry.rank === 1 ? "text-[#FF4D00]" : "text-white/20"
+                      entry.rank === 1 ? "text-accent" : "text-text-tertiary"
                     }`}
                   >
                     #{entry.rank}
                   </span>
                   <div>
-                    <h4 className="text-lg font-black tracking-tight uppercase group-hover:text-[#FF4D00] transition-colors">
+                    <h4 className="text-lg font-black tracking-tight uppercase group-hover:text-accent transition-colors">
                       {entry.restaurant_name}
                     </h4>
-                    <div className="flex items-center gap-2 text-white/40 text-xs font-bold uppercase tracking-widest">
+                    <div className="flex items-center gap-2 text-text-secondary text-xs font-bold uppercase tracking-widest">
                       <MapPin size={10} />
                       {entry.neighborhood_name}
                     </div>
@@ -165,7 +161,7 @@ export async function LeaderboardPreview() {
                     <span className="text-xl font-mono font-bold">
                       {Math.round(entry.global_elo)}
                     </span>
-                    <p className="text-[8px] text-white/20 uppercase font-black tracking-widest">
+                    <p className="text-[8px] text-text-tertiary uppercase font-black tracking-widest">
                       ELO
                     </p>
                   </div>
@@ -173,7 +169,7 @@ export async function LeaderboardPreview() {
                     <span className="text-xl font-mono font-bold">
                       {entry.avg_raw_score?.toFixed(1) ?? "—"}
                     </span>
-                    <p className="text-[8px] text-white/20 uppercase font-black tracking-widest">
+                    <p className="text-[8px] text-text-tertiary uppercase font-black tracking-widest">
                       SCORE
                     </p>
                   </div>
@@ -182,27 +178,27 @@ export async function LeaderboardPreview() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 bg-white/5 border border-white/10 rounded-2xl">
-            <p className="text-white/40">
+          <div className="text-center py-16 bg-surface-2 border border-border rounded-2xl">
+            <p className="text-text-secondary">
               Leaderboard data coming soon. Be the first to rate!
             </p>
           </div>
         )}
 
         {/* Bottom CTA */}
-        <div className="mt-12 bg-gradient-to-r from-[#FF4D00]/10 to-transparent p-8 md:p-12 rounded-3xl border border-[#FF4D00]/20 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
+        <div className="mt-12 bg-gradient-to-r from-accent/10 to-transparent p-8 md:p-12 rounded-3xl border border-accent/20 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
           <div>
             <h3 className="font-display font-black italic text-2xl md:text-3xl mb-2">
               Think You&apos;re a Connoisseur?
             </h3>
-            <p className="text-white/60 text-sm font-light">
+            <p className="text-text-secondary text-sm font-light">
               Explore the full leaderboards and see who dominates every dish
               type.
             </p>
           </div>
           <Link
             href="/leaderboard/new-orleans-louisiana/gumbo"
-            className="bg-white text-black px-10 py-5 rounded-2xl font-black tracking-[0.2em] text-xs hover:bg-[#FF4D00] hover:text-white transition-all shrink-0"
+            className="bg-text-primary text-bg px-10 py-5 rounded-2xl font-black tracking-[0.2em] text-xs hover:bg-accent hover:text-accent-on transition-all shrink-0"
           >
             FULL LEADERBOARD
           </Link>
