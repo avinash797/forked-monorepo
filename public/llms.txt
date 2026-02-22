@@ -46,5 +46,5 @@ All leaderboard pages include JSON-LD structured data:
 - ItemList schema on the blog listing page
 
 ## Contact
-Website: https://getforked.app
+Website: https://forkedapp.com
 Made in New Orleans, Louisiana

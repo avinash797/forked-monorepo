@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 
 const statements = [
-  "Make food decision fatigue obsolete.",
+  "Never wonder where to eat again.",
   "Drop the curtains from fancy restaurants.",
   "Spotlight hole-in-the-wall gems.",
   "Push chefs to compete and perfect their craft.",

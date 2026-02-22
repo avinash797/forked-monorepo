@@ -45,8 +45,8 @@ export default function PrivacyPage() {
         </h2>
         <p>
           Your public profile, dish ratings, and uploaded photos are visible to
-          other Forked users and on public leaderboard pages. We do not sell your
-          personal information to third parties. We may share anonymized,
+          other Forked users and on public leaderboard pages. We do not sell
+          your personal information to third parties. We may share anonymized,
           aggregated data with partners for research purposes. We will disclose
           information if required by law or to protect the safety of our users.
         </p>
@@ -72,7 +72,7 @@ export default function PrivacyPage() {
         <p>
           You have the right to access, correct, or delete your personal data at
           any time. You can export your rating history from within the app. To
-          request data deletion, contact us at privacy@getforked.app. California
+          request data deletion, contact us at privacy@forkedapp.com. California
           residents have additional rights under the CCPA, and EU residents have
           rights under GDPR, including the right to data portability and the
           right to object to processing.
@@ -99,8 +99,8 @@ export default function PrivacyPage() {
         <p>
           Forked is not intended for children under 13 years of age. We do not
           knowingly collect personal information from children under 13. If we
-          become aware that we have collected data from a child under 13, we will
-          take steps to delete that information promptly.
+          become aware that we have collected data from a child under 13, we
+          will take steps to delete that information promptly.
         </p>
       </section>
 
@@ -122,7 +122,7 @@ export default function PrivacyPage() {
         </h2>
         <p>
           If you have questions about this Privacy Policy or your data, contact
-          us at privacy@getforked.app or write to us at Forked Inc., New
+          us at privacy@forkedapp.com or write to us at Forked Inc., New
           Orleans, LA.
         </p>
       </section>

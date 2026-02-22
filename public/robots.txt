@@ -4,4 +4,4 @@ Disallow: /admin/
 Disallow: /auth/
 Disallow: /api/
 
-Sitemap: https://getforked.app/sitemap.xml
+Sitemap: https://forkedapp.com/sitemap.xml

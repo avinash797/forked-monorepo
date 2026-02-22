@@ -1,22 +1,22 @@
 import type { Metadata } from "next";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://getforked.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://forkedapp.com";
 const SITE_NAME = "Forked";
 const SITE_DESCRIPTION =
   "Not restaurant ratings. Dish ratings. Find the best specific dish in your city, powered by real people and Elo-ranked battles.";
 
 export function buildMetadata(
-  overrides: Partial<Metadata> & { canonicalPath?: string } = {}
+  overrides: Partial<Metadata> & { canonicalPath?: string } = {},
 ): Metadata {
   const { canonicalPath, ...metadataOverrides } = overrides;
 
   return {
-    title: metadataOverrides.title || `${SITE_NAME} — Find the Best Dish in Your City`,
+    title:
+      metadataOverrides.title ||
+      `${SITE_NAME} — Find the Best Dish in Your City`,
     description: metadataOverrides.description || SITE_DESCRIPTION,
     metadataBase: new URL(SITE_URL),
-    ...(canonicalPath
-      ? { alternates: { canonical: canonicalPath } }
-      : {}),
+    ...(canonicalPath ? { alternates: { canonical: canonicalPath } } : {}),
     openGraph: {
       type: "website",
       siteName: SITE_NAME,
@@ -153,7 +153,8 @@ export function buildBlogListingJsonLd({
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Forked Blog",
-    description: "Articles about food, dish rankings, and city guides from Forked.",
+    description:
+      "Articles about food, dish rankings, and city guides from Forked.",
     numberOfItems: posts.length,
     itemListElement: posts.map((post, index) => ({
       "@type": "ListItem",

@@ -27,37 +27,45 @@ export function CtaSection() {
             <WaitlistForm source="cta" />
           </div>
         ) : (
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 flex-wrap">
-            <a
-              href="#"
-              className="bg-surface-2 border border-border p-6 rounded-3xl backdrop-blur-xl w-64 group hover:bg-accent hover:border-accent transition-all cursor-pointer text-center"
-            >
-              <Smartphone
-                size={32}
-                className="mx-auto mb-4 group-hover:scale-110 transition-transform"
-              />
-              <p className="text-[10px] font-black tracking-widest mb-1 text-text-tertiary group-hover:text-accent-on">
-                DOWNLOAD ON THE
-              </p>
-              <h4 className="text-lg font-black uppercase">App Store</h4>
-            </a>
-            <a
-              href="#"
-              className="bg-surface-2 border border-border p-6 rounded-3xl backdrop-blur-xl w-64 group hover:bg-accent hover:border-accent transition-all cursor-pointer text-center"
-            >
-              <Smartphone
-                size={32}
-                className="mx-auto mb-4 group-hover:scale-110 transition-transform"
-              />
-              <p className="text-[10px] font-black tracking-widest mb-1 text-text-tertiary group-hover:text-accent-on">
-                GET IT ON
-              </p>
-              <h4 className="text-lg font-black uppercase">Google Play</h4>
-            </a>
-            <div className="bg-surface-2 border border-border p-6 rounded-3xl backdrop-blur-xl w-64 flex flex-col items-center justify-center">
-              <QRCodeDownload />
+          <>
+            <p className="text-text-secondary text-lg max-w-2xl mx-auto">
+              Download Forked today and start pushing the best dishes to the top
+              of the leaderboard.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 flex-wrap">
+              <a
+                href="#"
+                className="bg-surface-2 border border-border p-6 rounded-3xl backdrop-blur-xl w-64 group hover:bg-accent hover:border-accent transition-all cursor-pointer text-center"
+              >
+                <Smartphone
+                  size={32}
+                  className="mx-auto mb-4 group-hover:scale-110 transition-transform"
+                />
+                <p className="text-[10px] font-black tracking-widest mb-1 text-text-tertiary group-hover:text-accent-on">
+                  DOWNLOAD
+                </p>
+                <h4 className="text-lg font-black uppercase">Get it for iOS</h4>
+              </a>
+              <a
+                href="#"
+                className="bg-surface-2 border border-border p-6 rounded-3xl backdrop-blur-xl w-64 group hover:bg-accent hover:border-accent transition-all cursor-pointer text-center"
+              >
+                <Smartphone
+                  size={32}
+                  className="mx-auto mb-4 group-hover:scale-110 transition-transform"
+                />
+                <p className="text-[10px] font-black tracking-widest mb-1 text-text-tertiary group-hover:text-accent-on">
+                  DOWNLOAD
+                </p>
+                <h4 className="text-lg font-black uppercase">
+                  Get it for Android
+                </h4>
+              </a>
+              <div className="bg-surface-2 border border-border p-6 rounded-3xl backdrop-blur-xl w-64 flex flex-col items-center justify-center">
+                <QRCodeDownload />
+              </div>
             </div>
-          </div>
+          </>
         )}
       </motion.div>
     </section>

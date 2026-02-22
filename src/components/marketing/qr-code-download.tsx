@@ -7,7 +7,7 @@ export function QRCodeDownload() {
     <div className="flex flex-col items-center gap-4">
       <div className="bg-white rounded-2xl p-4">
         <QRCodeSVG
-          value="https://getforked.app/#download"
+          value="https://forkedapp.com/#download"
           size={160}
           bgColor="#ffffff"
           fgColor="#221610"

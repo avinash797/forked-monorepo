@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { IS_WAITLIST_MODE } from "@/lib/waitlist";
-import { ArrowRight, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 interface LeaderboardEntry {
   rank: number;
@@ -112,8 +112,7 @@ export async function LeaderboardPreview() {
               The <span className="text-accent">Champions</span> Wall
             </h2>
             <p className="text-text-secondary text-sm max-w-md">
-              Live rankings from New Orleans. Best Po&apos;boys, ranked by real
-              dish battles.
+              View the live rankings for the best dishes in your city.
             </p>
           </div>
           <div className="flex gap-2">
@@ -186,23 +185,25 @@ export async function LeaderboardPreview() {
         )}
 
         {/* Bottom CTA */}
-        <div className="mt-12 bg-gradient-to-r from-accent/10 to-transparent p-8 md:p-12 rounded-3xl border border-accent/20 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
-          <div>
-            <h3 className="font-display font-black italic text-2xl md:text-3xl mb-2">
-              Think You&apos;re a Connoisseur?
-            </h3>
-            <p className="text-text-secondary text-sm font-light">
-              Explore the full leaderboards and see who dominates every dish
-              type.
-            </p>
+        {!IS_WAITLIST_MODE && (
+          <div className="mt-12 bg-gradient-to-r from-accent/10 to-transparent p-8 md:p-12 rounded-3xl border border-accent/20 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
+            <div>
+              <h3 className="font-display font-black italic text-2xl md:text-3xl mb-2">
+                Think You&apos;re a Connoisseur?
+              </h3>
+              <p className="text-text-secondary text-sm font-light">
+                Explore the full leaderboards and see who dominates every dish
+                type.
+              </p>
+            </div>
+            <Link
+              href="/leaderboard/new-orleans-louisiana/gumbo"
+              className="bg-text-primary text-bg px-10 py-5 rounded-2xl font-black tracking-[0.2em] text-xs hover:bg-accent hover:text-accent-on transition-all shrink-0"
+            >
+              FULL LEADERBOARD
+            </Link>
           </div>
-          <Link
-            href="/leaderboard/new-orleans-louisiana/gumbo"
-            className="bg-text-primary text-bg px-10 py-5 rounded-2xl font-black tracking-[0.2em] text-xs hover:bg-accent hover:text-accent-on transition-all shrink-0"
-          >
-            FULL LEADERBOARD
-          </Link>
-        </div>
+        )}
       </div>
     </section>
   );

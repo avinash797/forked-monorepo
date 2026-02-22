@@ -10,10 +10,7 @@ export const metadata: Metadata = buildMetadata({
 
 export default function TermsPage() {
   return (
-    <LegalPageLayout
-      title="Terms of Service"
-      effectiveDate="February 17, 2026"
-    >
+    <LegalPageLayout title="Terms of Service" effectiveDate="February 17, 2026">
       <section>
         <h2 className="text-lg font-bold text-text-primary mb-3">
           1. Acceptance of Terms
@@ -85,8 +82,8 @@ export default function TermsPage() {
           Forked&apos;s Elo-based rankings reflect aggregated user preferences
           and are not editorial endorsements. Rankings are algorithmic and
           change in real-time based on battle outcomes. Forked does not
-          guarantee the accuracy of any ranking, and a dish&apos;s position on
-          a leaderboard does not constitute a food safety recommendation.
+          guarantee the accuracy of any ranking, and a dish&apos;s position on a
+          leaderboard does not constitute a food safety recommendation.
         </p>
       </section>
 
@@ -121,12 +118,11 @@ export default function TermsPage() {
           9. Disclaimers
         </h2>
         <p>
-          The Service is provided &quot;as is&quot; and &quot;as
-          available&quot; without warranties of any kind. We do not warrant
-          that the Service will be uninterrupted, error-free, or that
-          leaderboard data will be completely accurate. We are not responsible
-          for the quality, safety, or legality of any food establishment
-          appearing on our platform.
+          The Service is provided &quot;as is&quot; and &quot;as available&quot;
+          without warranties of any kind. We do not warrant that the Service
+          will be uninterrupted, error-free, or that leaderboard data will be
+          completely accurate. We are not responsible for the quality, safety,
+          or legality of any food establishment appearing on our platform.
         </p>
       </section>
 
@@ -161,10 +157,9 @@ export default function TermsPage() {
         </h2>
         <p>
           We reserve the right to modify these Terms at any time. Material
-          changes will be communicated via in-app notification or email at
-          least 14 days before taking effect. Your continued use of the
-          Service after changes become effective constitutes acceptance of the
-          revised Terms.
+          changes will be communicated via in-app notification or email at least
+          14 days before taking effect. Your continued use of the Service after
+          changes become effective constitutes acceptance of the revised Terms.
         </p>
       </section>
 
@@ -174,7 +169,7 @@ export default function TermsPage() {
         </h2>
         <p>
           For questions about these Terms of Service, contact us at
-          legal@getforked.app or write to Forked Inc., New Orleans, LA.
+          legal@forkedapp.com or write to Forked Inc., New Orleans, LA.
         </p>
       </section>
     </LegalPageLayout>

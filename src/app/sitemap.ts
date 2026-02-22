@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://getforked.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://forkedapp.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { createStaticClient } = await import("@/lib/supabase/static");

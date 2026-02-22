@@ -62,7 +62,12 @@ export function StorySection() {
           <p>
             Forked started with a simple argument: where&apos;s the best gumbo
             in New Orleans? Not the best restaurant — the best{" "}
-            <span className="text-text-primary font-bold">gumbo</span>. We
+            <span className="text-text-primary font-bold">gumbo</span>.
+          </p>
+          <p>
+            During the research, we found vastly different opinions on the
+            matter. Different food critics, different restaurant owners, and
+            different customers all had different opinions on the matter. We
             realized that no platform answered this question well.
           </p>
           <p>
