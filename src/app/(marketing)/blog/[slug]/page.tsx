@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = post.seo_title || `${post.title} — Forked Blog`;
   const description = post.seo_description || post.excerpt || "";
 
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://getforked.app";
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://forkedapp.com";
 
   return buildMetadata({
     title,
@@ -72,9 +72,7 @@ export default async function BlogPostPage({ params }: Props) {
   const tags =
     post.blog_post_tags
       ?.map((pt) => pt.blog_tags)
-      .filter(
-        (t): t is { name: string; slug: string } => t !== null
-      ) ?? [];
+      .filter((t): t is { name: string; slug: string } => t !== null) ?? [];
 
   const jsonLd = buildArticleJsonLd({
     title: post.title,
@@ -96,7 +94,10 @@ export default async function BlogPostPage({ params }: Props) {
 
       {/* Breadcrumb */}
       <nav className="text-sm text-text-tertiary mb-6">
-        <Link href="/blog" className="hover:text-text-primary transition-colors">
+        <Link
+          href="/blog"
+          className="hover:text-text-primary transition-colors"
+        >
           Blog
         </Link>
         <span className="mx-2">/</span>
@@ -153,7 +154,10 @@ export default async function BlogPostPage({ params }: Props) {
             {post.blog_authors?.name ?? "Forked Team"}
           </p>
           {formattedDate && (
-            <time dateTime={post.published_at!} className="text-text-tertiary text-xs">
+            <time
+              dateTime={post.published_at!}
+              className="text-text-tertiary text-xs"
+            >
               {formattedDate}
             </time>
           )}

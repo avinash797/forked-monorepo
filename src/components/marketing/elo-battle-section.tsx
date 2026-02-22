@@ -37,13 +37,15 @@ export function EloBattleSection() {
       className="py-16 md:py-32 px-6 relative overflow-hidden bg-bg snap-start snap-always"
     >
       <div className="max-w-4xl mx-auto text-center mb-10 md:mb-20">
-        <h2 className="font-display italic font-black text-3xl md:text-7xl mb-4 md:mb-6 tracking-tighter">
-          The Battle For <span className="text-accent">The Best.</span>
+        <h2 className="font-display italic font-black text-3xl md:text-5xl lg:text-7xl mb-4 md:mb-6 tracking-tighter">
+          Forget 5 Stars. <br className="hidden md:block" /> Welcome to the{" "}
+          <span className="text-accent">Arena.</span>
         </h2>
         <p className="text-text-secondary text-lg font-light max-w-2xl mx-auto">
-          Forget 5-point averages. Forked uses an ELO competitive rating system.
-          Every rating is a clash. Every score is earned. This is the
-          leaderboard for the real world.
+          Five-star rating systems are rigged. Forked uses a competitive Elo
+          rating system—just like chess or competitive gaming. Every rating is a
+          head-to-head battle. If a challenger beats the champion, it steals its
+          points. The cream rises to the top.
         </p>
       </div>
 

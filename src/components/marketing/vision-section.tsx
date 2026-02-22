@@ -8,22 +8,22 @@ import { Target, ShieldCheck, Zap, Trophy } from "lucide-react";
 const features = [
   {
     icon: Target,
-    label: "Dish Precision",
+    label: "Rank the Food, Not the Vibe",
     desc: "Rank specific items, not facades.",
   },
   {
     icon: ShieldCheck,
-    label: "ELO Verified",
+    label: "Battle-Tested Rankings",
     desc: "No bot-spam or fake averages.",
   },
   {
     icon: Zap,
-    label: "Zero Friction",
+    label: "Rate in Seconds",
     desc: "Rate in 2 seconds. Eat in 2 minutes.",
   },
   {
     icon: Trophy,
-    label: "The Champ",
+    label: "Defend Your Favorites",
     desc: "Defend your favorite dish's crown.",
   },
 ];
@@ -56,11 +56,10 @@ export function VisionSection() {
             transition={{ delay: 0.3, duration: 1 }}
           >
             <p>
-              Just because a steakhouse is rated 4.8 doesn&apos;t mean their
-              burger isn&apos;t an afterthought. And that quiet
-              hole-in-the-wall? It might be serving the city&apos;s #1
-              Carbonara, but you&apos;d never find it on a &ldquo;Top
-              Rated&rdquo; list obscured by vibes and valet parking.
+              A 4.8-star steakhouse might serve a completely average burger.
+              Meanwhile, the city&apos;s best Carbonara is hiding at a
+              hole-in-the-wall with 3 stars because the waiter was rude once.
+              We&apos;re fixing that. We rank the food, not the valet parking.
             </p>
             <p className="border-l-2 border-accent pl-6 italic text-text-primary/80">
               &ldquo;We&apos;re dropping the curtain on mediocre icons. We value

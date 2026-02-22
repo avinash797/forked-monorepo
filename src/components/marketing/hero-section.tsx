@@ -73,9 +73,9 @@ export function HeroSection() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 1 }}
         >
-          Forked is the real-time ranking engine for food obsessives. We strip
-          away the fancy curtains to find the city&apos;s absolute champions. No
-          averages. No fake reviews. Just data-driven dominance.
+          Stop settling for 4.8-star restaurants with average food. Forked uses
+          head-to-head battles to find the exact best burger, pasta, and taco in
+          your city—verified by real photos, not fake reviews.
         </motion.p>
 
         {/* CTAs or Waitlist Form */}
@@ -95,14 +95,14 @@ export function HeroSection() {
                 className="w-full sm:w-auto bg-accent text-accent-on px-8 py-4 rounded-xl font-black text-sm tracking-widest flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-accent/40"
               >
                 <Smartphone size={20} />
-                DOWNLOAD APP
+                GET THE FREE APP
               </a>
               <Link
                 href="/leaderboard"
                 onClick={() => track("hero_leaderboards_click")}
                 className="w-full sm:w-auto bg-surface-2 backdrop-blur-sm border border-border text-text-primary px-8 py-4 rounded-xl font-black text-sm tracking-widest hover:bg-surface transition-all text-center"
               >
-                SEE LEADERBOARDS
+                EXPLORE LEADERBOARDS
               </Link>
             </>
           )}

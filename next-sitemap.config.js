@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://getforked.app",
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://forkedapp.com",
   generateRobotsTxt: true,
   robotsTxtOptions: {
     policies: [

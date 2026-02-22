@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Inter, Bodoni_Moda } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { buildMetadata, buildWebsiteJsonLd, buildOrganizationJsonLd } from "@/lib/seo";
+import {
+  buildMetadata,
+  buildWebsiteJsonLd,
+  buildOrganizationJsonLd,
+} from "@/lib/seo";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import "./globals.css";
 
@@ -11,7 +15,7 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const playfair = Playfair_Display({
+const bodoni_moda = Bodoni_Moda({
   variable: "--font-display",
   subsets: ["latin"],
   weight: ["400", "700", "800", "900"],
@@ -42,10 +46,8 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.variable} ${playfair.variable} antialiased`}>
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+      <body className={`${inter.variable} ${bodoni_moda.variable} antialiased`}>
+        <ThemeProvider>{children}</ThemeProvider>
         <Analytics />
         <SpeedInsights />
       </body>
