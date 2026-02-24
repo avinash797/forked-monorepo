@@ -26,8 +26,8 @@ export interface BestEverDish {
     restaurant_name: string;
     city_name: string;
     photo_url: string;
-    raw_score: number;
-    personal_elo: number;
+    derived_score: number;
+    sentiment: 'liked' | 'okay' | 'disliked';
     rated_at: string;
 }
 
@@ -301,10 +301,10 @@ export function useUserLeaderboardPosition(
             // Get user's best rating for this dish type
             const { data: userRatings, error } = await supabase
                 .from('personal_ratings')
-                .select('id, personal_elo, restaurant_id')
+                .select('id, derived_score, restaurant_id')
                 .eq('user_id', userId)
                 .eq('dish_type_id', dishTypeId)
-                .order('personal_elo', { ascending: false })
+                .order('derived_score', { ascending: false })
                 .limit(1);
 
             if (error) throw error;
@@ -317,7 +317,6 @@ export function useUserLeaderboardPosition(
                     p_city_id: cityId,
                     p_dish_type_id: dishTypeId,
                     p_limit: 100,
-                    p_min_battles: 0, // Lower thresholds for personal ranking
                     p_min_ratings: 0,
                 }
             );

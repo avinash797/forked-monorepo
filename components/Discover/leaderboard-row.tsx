@@ -6,22 +6,18 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-// Type matching the get_leaderboard_with_tiebreakers RPC return
+// Type matching the get_leaderboard RPC return (also used for personal rankings)
 export interface LeaderboardEntry {
     rank: number;
     restaurant_id: string;
     restaurant_name: string;
     neighborhood_name?: string;
     city_name?: string;
-    global_elo?: number;
-    personal_elo?: number;
-    avg_raw_score?: number;
-    raw_score?: number;
-    confidence_score?: number;
-    total_battles?: number;
-    battles_total?: number;
+    bayesian_score?: number;
+    confidence_tier?: string;
+    raw_weighted_avg?: number;
+    derived_score?: number;
     total_ratings?: number;
-    win_rate?: number;
     featured_photo_url?: string | null;
     photo_url?: string;
 }
@@ -39,9 +35,15 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
     const medal = getMedal(item.rank);
     const styles = createThemedStyles(theme, medal);
 
-    // Confidence flames based on confidence_score (0-100)
-    const confidenceLevel = item.confidence_score
-        ? Math.min(5, Math.max(1, Math.ceil(item.confidence_score / 20)))
+    // Confidence flames based on confidence_tier
+    const tierFlames: Record<string, number> = {
+        low: 1,
+        medium: 2,
+        high: 4,
+        very_high: 5,
+    };
+    const confidenceLevel = item.confidence_tier
+        ? (tierFlames[item.confidence_tier] ?? 0)
         : 0;
     const flames = Array(confidenceLevel).fill('🔥').join('');
 
@@ -112,16 +114,15 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
                     </ThemedText>
                     <View style={styles.confidenceRow}>
                         <ThemedText style={styles.flames}>{flames}</ThemedText>
-                        <ThemedText style={styles.battleCount}>
-                            {item.battles_total ?? item.total_battles ?? 0}{' '}
-                            battles
+                        <ThemedText style={styles.ratingCount}>
+                            {item.total_ratings ?? 0} ratings
                         </ThemedText>
                     </View>
                 </View>
 
                 {/* Score Badge */}
                 <ScoreBadge
-                    score={item.avg_raw_score ?? item.raw_score ?? 0}
+                    score={item.bayesian_score ?? item.derived_score ?? item.raw_weighted_avg ?? 0}
                     style={styles.scoreBadge}
                 />
             </View>
@@ -257,7 +258,7 @@ const createThemedStyles = (
             fontSize: 12,
             letterSpacing: 1,
         },
-        battleCount: {
+        ratingCount: {
             fontSize: theme.font.size.xs,
             color: theme.color.textTertiary,
         },

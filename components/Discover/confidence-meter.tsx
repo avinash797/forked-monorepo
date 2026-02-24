@@ -4,35 +4,33 @@ import { useTheme } from '@/contexts/theme-provider';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
 interface ConfidenceMeterProps {
-    confidenceScore: number;
-    totalBattles?: number;
+    confidenceTier: string;
+    totalRatings?: number;
     style?: StyleProp<ViewStyle>;
     variant?: 'compact' | 'full';
 }
 
 /**
- * ConfidenceMeter - Visual indicator showing confidence level based on confidence_score
+ * ConfidenceMeter - Visual indicator showing confidence level based on confidence_tier
  *
  * Helps users quickly assess if a dish's ranking is trustworthy:
- * - High confidence: score ≥ 0.8 (🔥 Verified Champion)
- * - Medium confidence: score 0.5-0.79 (✓ Established)
- * - Low confidence: score 0.3-0.49 (⚠️ Emerging)
- * - Very low: score < 0.3 (🆕 New Entry)
- *
- * Used in: HeroCard, Rising Star cards, Leaderboard rows
+ * - very_high: 🔥 Verified Champion
+ * - high: ✓ Established
+ * - medium: ⚠️ Emerging
+ * - low: 🆕 New Entry
  */
 export function ConfidenceMeter({
-    confidenceScore,
-    totalBattles = 0,
+    confidenceTier,
+    totalRatings = 0,
     style,
     variant = 'full',
 }: ConfidenceMeterProps) {
     const { theme } = useTheme();
 
-    const getConfidenceConfig = (score: number) => {
-        if (score >= 0.8) {
+    const getConfidenceConfig = (tier: string) => {
+        if (tier === 'very_high') {
             return {
-                level: 'high' as const,
+                level: 'very_high' as const,
                 label: 'Verified',
                 icon: 'flame-outline' as const,
                 color: theme.color.success,
@@ -42,9 +40,9 @@ export function ConfidenceMeter({
                         : 'rgba(16, 185, 129, 0.1)',
             };
         }
-        if (score >= 0.5) {
+        if (tier === 'high') {
             return {
-                level: 'medium' as const,
+                level: 'high' as const,
                 label: 'Established',
                 icon: 'checkmark-circle-outline' as const,
                 color: theme.color.info,
@@ -54,9 +52,9 @@ export function ConfidenceMeter({
                         : 'rgba(37, 99, 235, 0.1)',
             };
         }
-        if (score >= 0.3) {
+        if (tier === 'medium') {
             return {
-                level: 'low' as const,
+                level: 'medium' as const,
                 label: 'Emerging',
                 icon: 'trending-up-outline' as const,
                 color: theme.color.warning,
@@ -67,7 +65,7 @@ export function ConfidenceMeter({
             };
         }
         return {
-            level: 'very-low' as const,
+            level: 'low' as const,
             label: 'New',
             icon: 'sparkles-outline' as const,
             color: theme.color.textSecondary,
@@ -78,7 +76,7 @@ export function ConfidenceMeter({
         };
     };
 
-    const config = getConfidenceConfig(confidenceScore);
+    const config = getConfidenceConfig(confidenceTier);
 
     const localStyles = StyleSheet.create({
         container: {
@@ -124,9 +122,9 @@ export function ConfidenceMeter({
                     {config.label}
                 </ThemedText>
             )}
-            {totalBattles > 0 && (
+            {totalRatings > 0 && (
                 <ThemedText style={localStyles.battles}>
-                    {totalBattles} {variant === 'full' ? 'battles' : ''}
+                    {totalRatings} {variant === 'full' ? 'ratings' : ''}
                 </ThemedText>
             )}
         </View>

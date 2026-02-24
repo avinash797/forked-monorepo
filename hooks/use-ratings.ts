@@ -4,32 +4,54 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 type PersonalRating = Database['public']['Tables']['personal_ratings']['Row'];
 
-// Type for the post_rating_and_get_duel RPC response
+export type Sentiment = 'liked' | 'okay' | 'disliked';
+
+export interface BattleOpponent {
+    rating_id: string;
+    restaurant_name: string;
+    photo_url: string;
+    derived_score: number | null;
+}
+
 export interface CreateRatingResponse {
     rating_id: string;
-    has_duel: boolean;
-    duel_data: {
-        comparison_id: string;
-        opponent_rating_id: string;
-        opponent_name: string;
-        opponent_photo: string;
-        opponent_score: number;
-    } | null;
+    has_battle: boolean;
+    // Present when has_battle = true
+    battle_id?: string;
+    step?: number;
+    max_steps?: number;
+    skips_remaining?: number;
+    opponent?: BattleOpponent;
+}
+
+export interface ProcessBattleResponse {
+    done: boolean;
+    // Present when done = true
+    rank_position?: number;
+    derived_score?: number;
+    // Present when done = false
+    next_battle_id?: string;
+    step?: number;
+    max_steps?: number;
+    skips_remaining?: number;
+    opponent?: BattleOpponent;
 }
 
 export interface CreateRatingInput {
     restaurant_id: string;
     dish_type_id: string;
-    raw_score: number; // 1-10 scale
+    sentiment: Sentiment;
     photo_url?: string;
+    photo_storage_path?: string;
     variation_id?: string;
     notes?: string;
+    location_verified?: boolean;
     taste_tag_ids?: string[];
 }
 
 /**
- * Create a new rating using the post_rating_and_get_duel RPC
- * Handles Elo initialization, credibility update, and duel matching in one transaction
+ * Create a new rating using the create_rating RPC.
+ * Returns battle data when an insertion-sort battle sequence needs to start.
  */
 export function useCreateRating() {
     const queryClient = useQueryClient();
@@ -38,69 +60,32 @@ export function useCreateRating() {
         mutationFn: async (
             input: CreateRatingInput
         ): Promise<CreateRatingResponse> => {
-            const { data, error } = await supabase.rpc(
-                'post_rating_and_get_duel',
-                {
-                    p_restaurant_id: input.restaurant_id,
-                    p_dish_type_id: input.dish_type_id,
-                    p_raw_score: input.raw_score,
-                    p_photo_url: input.photo_url ?? null,
-                    p_variation_id: input.variation_id,
-                    p_notes: input.notes,
-                    p_taste_tag_ids: input.taste_tag_ids,
-                } as any
-            );
+            const { data, error } = await supabase.rpc('create_rating', {
+                p_restaurant_id:      input.restaurant_id,
+                p_dish_type_id:       input.dish_type_id,
+                p_sentiment:          input.sentiment,
+                p_photo_url:          input.photo_url ?? null,
+                p_photo_storage_path: input.photo_storage_path ?? null,
+                p_variation_id:       input.variation_id ?? null,
+                p_notes:              input.notes ?? null,
+                p_location_verified:  input.location_verified ?? false,
+                p_taste_tag_ids:      input.taste_tag_ids ?? null,
+            } as any);
 
             if (error) throw error;
             return data as unknown as CreateRatingResponse;
         },
         onSuccess: (data, variables) => {
-            // Invalidate relevant queries
-            queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
-            queryClient.invalidateQueries({ queryKey: ['topDish'] });
-            queryClient.invalidateQueries({ queryKey: ['userStats'] });
-            queryClient.invalidateQueries({ queryKey: ['myBestEver'] });
+            // Only invalidate leaderboard when no battle is needed (score is final)
+            if (!data.has_battle) {
+                queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+                queryClient.invalidateQueries({ queryKey: ['topDish'] });
+                queryClient.invalidateQueries({ queryKey: ['userStats'] });
+                queryClient.invalidateQueries({ queryKey: ['myBestEver'] });
+            }
             queryClient.invalidateQueries({
                 queryKey: ['myDishRankings', variables.dish_type_id],
             });
-        },
-    });
-}
-
-/**
- * Update an existing rating
- */
-export function useUpdateRating() {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: async (input: {
-            rating_id: string;
-            new_raw_score: number;
-            new_photo_url?: string;
-            new_notes?: string;
-            taste_tag_ids?: string[];
-        }) => {
-            const { data, error } = await supabase.rpc(
-                'update_existing_rating',
-                {
-                    p_rating_id: input.rating_id,
-                    p_new_raw_score: input.new_raw_score,
-                    p_new_photo_url: input.new_photo_url,
-                    p_new_notes: input.new_notes,
-                    p_taste_tag_ids: input.taste_tag_ids,
-                }
-            );
-
-            if (error) throw error;
-            return data;
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
-            queryClient.invalidateQueries({ queryKey: ['topDish'] });
-            queryClient.invalidateQueries({ queryKey: ['userStats'] });
-            queryClient.invalidateQueries({ queryKey: ['myBestEver'] });
-            queryClient.invalidateQueries({ queryKey: ['myDishRankings'] });
         },
     });
 }
@@ -184,29 +169,6 @@ export function useMyRatings(dishTypeId?: string) {
 }
 
 /**
- * Check rate limit before submitting a rating
- */
-export function useCheckRateLimit() {
-    return useQuery({
-        queryKey: ['rateLimit'],
-        queryFn: async () => {
-            const { data, error } = await supabase.rpc('check_rate_limit');
-
-            if (error) throw error;
-            return (
-                data?.[0] ?? {
-                    can_rate: true,
-                    is_rate_limited: false,
-                    ratings_last_hour: 0,
-                    max_allowed: 10,
-                }
-            );
-        },
-        staleTime: 1000 * 60, // 1 minute
-    });
-}
-
-/**
  * Get taste tags for a dish type
  */
 export function useTasteTags(dishTypeId: string | null) {
@@ -216,7 +178,6 @@ export function useTasteTags(dishTypeId: string | null) {
             let query = supabase.from('taste_tags').select('*');
 
             if (dishTypeId) {
-                // Get tags specific to dish type OR universal tags (null dish_type_id)
                 query = query.or(
                     `dish_type_id.eq.${dishTypeId},dish_type_id.is.null`
                 );
@@ -228,6 +189,6 @@ export function useTasteTags(dishTypeId: string | null) {
             return data ?? [];
         },
         enabled: true,
-        staleTime: 1000 * 60 * 60, // 1 hour - tags rarely change
+        staleTime: 1000 * 60 * 60, // 1 hour
     });
 }

@@ -1,141 +1,80 @@
 import { supabase } from '@/lib/supabase';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ProcessBattleResponse } from './use-ratings';
 
-// Type for pending comparison from get_pending_comparisons RPC
-export interface PendingComparison {
-    dish_type_id: string;
-    dish_type_name: string;
-    rating_a_id: string;
-    rating_a_photo: string;
-    rating_a_raw_score: number;
-    rating_a_restaurant: string;
-    rating_b_id: string;
-    rating_b_photo: string;
-    rating_b_raw_score: number;
-    rating_b_restaurant: string;
-}
-
-export interface SubmitComparisonInput {
-    comparison_id: string;
+export interface ProcessBattleInput {
+    battle_id: string;
     winner_rating_id: string;
     dish_type_id: string; // Used for cache invalidation only
 }
 
-/**
- * Get pending comparisons for the current user
- * These are pairs of dishes that need to be compared in This vs That
- */
-export function usePendingComparisons(limit: number = 5) {
-    return useQuery({
-        queryKey: ['pendingComparisons', limit],
-        queryFn: async () => {
-            const { data, error } = await supabase.rpc(
-                'get_pending_comparisons',
-                {
-                    p_limit: limit,
-                }
-            );
-
-            if (error) throw error;
-            return (data ?? []) as PendingComparison[];
-        },
-        staleTime: 1000 * 30, // 30 seconds - comparisons can change frequently
-    });
-}
-
-/**
- * Submit a duel created by post_rating_and_get_duel
- * Uses the new submit_comparison RPC which takes a pre-created comparison_id
- */
-export function useSubmitComparison() {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: async (input: SubmitComparisonInput): Promise<void> => {
-            const { error } = await supabase.rpc('submit_comparison', {
-                p_comparison_id: input.comparison_id,
-                p_winner_rating_id: input.winner_rating_id,
-            });
-
-            if (error) throw error;
-        },
-        onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['pendingComparisons'] });
-            queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
-            queryClient.invalidateQueries({ queryKey: ['topDish'] });
-            queryClient.invalidateQueries({ queryKey: ['userStats'] });
-            queryClient.invalidateQueries({
-                queryKey: ['myDishRankings', variables.dish_type_id],
-            });
-            queryClient.invalidateQueries({ queryKey: ['myBestEver'] });
-        },
-    });
-}
-
-export interface ProcessComparisonInput {
-    dish_type_id: string;
-    rating_a_id: string;
-    rating_b_id: string;
-    winner_id?: string;
-    skipped?: boolean;
+export interface SkipBattleInput {
+    battle_id: string;
     skip_reason?: string;
+    dish_type_id: string; // Used for cache invalidation only
 }
 
 /**
- * Process a pending comparison (standalone This vs That)
- * Uses the original process_comparison RPC for comparisons not created by post_rating_and_get_duel
+ * Process a battle step in the binary insertion sort sequence.
+ * Returns done=true with final rank/score, or done=false with the next battle.
+ * Only invalidates leaderboard/stats when the sequence is complete.
  */
-export function useProcessComparison() {
+export function useProcessBattle() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (input: ProcessComparisonInput) => {
-            const { data, error } = await supabase.rpc('process_comparison', {
-                p_dish_type_id: input.dish_type_id,
-                p_rating_a_id: input.rating_a_id,
-                p_rating_b_id: input.rating_b_id,
-                p_winner_id: input.winner_id,
-                p_skipped: input.skipped ?? false,
-                p_skip_reason: input.skip_reason,
-            });
+        mutationFn: async (input: ProcessBattleInput): Promise<ProcessBattleResponse> => {
+            const { data, error } = await supabase.rpc('process_battle', {
+                p_battle_id: input.battle_id,
+                p_winner_rating_id: input.winner_rating_id,
+            } as any);
 
             if (error) throw error;
-            return data;
+            return data as unknown as ProcessBattleResponse;
         },
-        onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['pendingComparisons'] });
-            queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
-            queryClient.invalidateQueries({ queryKey: ['topDish'] });
-            queryClient.invalidateQueries({ queryKey: ['userStats'] });
+        onSuccess: (data, variables) => {
             queryClient.invalidateQueries({
                 queryKey: ['myDishRankings', variables.dish_type_id],
             });
-            queryClient.invalidateQueries({ queryKey: ['myBestEver'] });
+            if (data.done) {
+                queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+                queryClient.invalidateQueries({ queryKey: ['topDish'] });
+                queryClient.invalidateQueries({ queryKey: ['userStats'] });
+                queryClient.invalidateQueries({ queryKey: ['myBestEver'] });
+            }
         },
     });
 }
 
 /**
- * Check user's skip rate for comparisons
- * Warns if they're skipping too many
+ * Skip a battle step in the binary insertion sort sequence.
+ * Advances to the next opponent or forces completion if skips are exhausted.
+ * Returns same shape as useProcessBattle.
  */
-export function useCheckSkipRate() {
-    return useQuery({
-        queryKey: ['skipRate'],
-        queryFn: async () => {
-            const { data, error } = await supabase.rpc('check_user_skip_rate');
+export function useSkipBattle() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (input: SkipBattleInput): Promise<ProcessBattleResponse> => {
+            const { data, error } = await supabase.rpc('skip_battle', {
+                p_battle_id: input.battle_id,
+                p_skip_reason: input.skip_reason ?? null,
+            } as any);
 
             if (error) throw error;
-            return (
-                data?.[0] ?? {
-                    skip_rate: 0,
-                    skipped_count: 0,
-                    total_comparisons: 0,
-                    should_warn: false,
-                }
-            );
+            return data as unknown as ProcessBattleResponse;
         },
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        onSuccess: (data, variables) => {
+            queryClient.invalidateQueries({
+                queryKey: ['myDishRankings', variables.dish_type_id],
+            });
+            if (data.done) {
+                queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+                queryClient.invalidateQueries({ queryKey: ['topDish'] });
+                queryClient.invalidateQueries({ queryKey: ['userStats'] });
+                queryClient.invalidateQueries({ queryKey: ['myBestEver'] });
+            }
+        },
     });
 }
 
@@ -152,12 +91,12 @@ export function useComparisonHistory(limit: number = 20) {
                     `
                     *,
                     dish_type:dish_types(id, name, emoji),
-                    rating_a:personal_ratings!comparisons_rating_a_id_fkey(
+                    new_rating:personal_ratings!comparisons_new_rating_id_fkey(
                         id,
                         photo_url,
                         restaurant:restaurants(name)
                     ),
-                    rating_b:personal_ratings!comparisons_rating_b_id_fkey(
+                    opponent_rating:personal_ratings!comparisons_opponent_rating_id_fkey(
                         id,
                         photo_url,
                         restaurant:restaurants(name)
@@ -183,3 +122,42 @@ export const SKIP_REASONS = [
 ] as const;
 
 export type SkipReason = (typeof SKIP_REASONS)[number]['value'];
+
+// ---------------------------------------------------------------------------
+// Deprecated — kept for backwards compatibility, no longer called
+// ---------------------------------------------------------------------------
+
+/** @deprecated Use useProcessBattle instead */
+export function useSubmitComparison() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (_input: { comparison_id: string; winner_rating_id: string; dish_type_id: string }): Promise<void> => {
+            throw new Error('submit_comparison has been removed. Use process_battle via useProcessBattle.');
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+        },
+    });
+}
+
+/** @deprecated Use useProcessBattle instead */
+export function useProcessComparison() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (_input: unknown) => {
+            throw new Error('process_comparison has been removed. Use process_battle via useProcessBattle.');
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+        },
+    });
+}
+
+/** @deprecated get_pending_comparisons has been removed */
+export function usePendingComparisons(_limit: number = 5) {
+    return useQuery({
+        queryKey: ['pendingComparisons', _limit],
+        queryFn: async () => [] as never[],
+        staleTime: Infinity,
+    });
+}

@@ -2,7 +2,6 @@ import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { usePendingComparisons } from '@/hooks/use-comparisons';
-import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
@@ -63,16 +62,7 @@ export function PendingComparisonsCTA() {
     const count = comparisons?.length ?? 0;
 
     const handlePress = () => {
-        const firstComparison = comparisons?.[0];
-        if (firstComparison) {
-            router.push({
-                pathname: '/(protected)/(rating)/compare',
-                params: {
-                    ratingAId: firstComparison.rating_a_id,
-                    ratingBId: firstComparison.rating_b_id,
-                },
-            });
-        }
+        // Battles are now triggered only from the rating flow; standalone pending battles no longer exist.
     };
 
     const pulseStyle = useAnimatedStyle(() => ({
@@ -87,9 +77,7 @@ export function PendingComparisonsCTA() {
         return null;
     }
 
-    const firstComparison = comparisons?.[0];
-    const hasPhotos =
-        firstComparison?.rating_a_photo || firstComparison?.rating_b_photo;
+    const hasPhotos = false;
 
     return (
         <Animated.View
@@ -137,52 +125,22 @@ export function PendingComparisonsCTA() {
                             </ThemedText>
                             <ThemedText style={styles.subtitle}>
                                 {count === 1
-                                    ? `Vote the better ${firstComparison?.dish_type_name || 'dish'}`
+                                    ? 'Vote the better dish'
                                     : `${count} dish battles waiting for your vote`}
                             </ThemedText>
                         </View>
 
-                        {/* Right: Photo Preview Stack */}
-                        {hasPhotos ? (
-                            <View style={styles.previewStack}>
-                                <View style={styles.imageFrame}>
-                                    <Image
-                                        source={{
-                                            uri: firstComparison?.rating_a_photo,
-                                        }}
-                                        style={styles.image}
-                                        contentFit="cover"
-                                        transition={300}
-                                    />
-                                </View>
-                                <View style={styles.vsCircle}>
-                                    <ThemedText style={styles.vsText}>
-                                        VS
-                                    </ThemedText>
-                                </View>
-                                <View style={styles.imageFrame}>
-                                    <Image
-                                        source={{
-                                            uri: firstComparison?.rating_b_photo,
-                                        }}
-                                        style={styles.image}
-                                        contentFit="cover"
-                                        transition={300}
-                                    />
-                                </View>
-                            </View>
-                        ) : (
-                            <View style={styles.actionBadge}>
-                                <ThemedText style={styles.actionText}>
-                                    VOTE
-                                </ThemedText>
-                                <IconSymbol
-                                    name="chevron-forward"
-                                    size={14}
-                                    color="#FFFFFF"
-                                />
-                            </View>
-                        )}
+                        {/* Right: Action Badge */}
+                        <View style={styles.actionBadge}>
+                            <ThemedText style={styles.actionText}>
+                                VOTE
+                            </ThemedText>
+                            <IconSymbol
+                                name="chevron-forward"
+                                size={14}
+                                color="#FFFFFF"
+                            />
+                        </View>
                     </View>
                 </LinearGradient>
             </AnimatedPressable>

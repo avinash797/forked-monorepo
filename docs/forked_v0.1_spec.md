@@ -7,7 +7,7 @@
 
 | Original Idea | Expert Push | Final Decision |
 |---------------|-------------|----------------|
-| 1-10 rating slider | "This vs That" Elo battles | **ADOPT** — Elo is objectively better. Kills rating inflation, feels like a game, generates cleaner data |
+| Numeric score input | Three-bucket sentiment + binary insertion sort battles | **ADOPT + IMPROVE** — Users pick Liked / Okay / Didn't Like, then battle within that zone. Kills rating inflation AND score compression. Scores always mean what they say: 7.0+ is always liked, 4.0–6.9 is always okay, below 4.0 is always disliked. |
 | Photo encouraged | Photo **mandatory** | **ADOPT** — No photo, no proof. This is our verification layer for v0.1 |
 | Categories as browsing | Categories as **hard limit** (5 dishes only at launch) | **ADOPT** — Scarcity creates focus. We own 5 dishes deeply before expanding |
 | Leaderboard by city | Leaderboard by city **AND neighborhood** | **ADOPT** — "Best Gumbo in Tremé" is more useful than "Best Gumbo in New Orleans" |
@@ -35,7 +35,7 @@ EAT → SNAP → COMPARE → RANK
 1. **Eat** a dish
 2. **Snap** a photo (mandatory)
 3. **Compare** it against another dish you've had (This vs That)
-4. **Rank** updates automatically via Elo
+4. **Rank** updates automatically via bucket-anchored score derivation
 5. **Benefit** later when deciding what to eat
 
 This is the Data Flywheel. Everything serves it.
@@ -52,8 +52,10 @@ Dish
 ├── restaurant_id
 ├── city + neighborhood
 ├── photo_url (REQUIRED)
-├── elo_score (global, city, neighborhood)
-├── confidence_score (based on # of battles won)
+├── sentiment (liked / okay / disliked)
+├── derived_score (7.0–10.0 if liked, 4.0–6.9 if okay, 1.0–3.9 if disliked)
+├── community_score (Bayesian-smoothed, photo-weighted aggregate)
+├── confidence_tier (low / medium / high / very_high)
 ├── taste_tags[] (optional: "Dark roux", "Spicy", "Crispy")
 └── created_at, user_id
 ```
@@ -66,48 +68,80 @@ Dish
 
 ---
 
-## The "This vs That" Engine (Elo Rating)
+## The Rating Engine (Three-Tier System)
 
-**Why Elo > Star Ratings:**
-- 5-star systems are broken (everything clusters at 4.2-4.7)
-- Elo is relative: "Is this gumbo better than THAT gumbo?"
-- Removes subjectivity ("What does a 7 even mean?")
-- Feels like a game (engagement)
-- Generates cleaner ranking data
+**Why Three Buckets + Battles > Numeric Ratings:**
+- Numeric scales are broken ("What does a 7 even mean?")
+- Pure positional systems compress power users — Beli users with 1,000+ ratings see their top 275 all score 9.0+
+- Sentiment buckets anchor scores permanently: a liked dish is always 7.0–10.0, full stop
+- Battles happen within a zone only — at most 6–7 taps to fully rank a new dish
+- Feels like a game. Generates cleaner data. Scores users can actually trust.
 
 **The Flow:**
-1. User submits new dish with photo
-2. System shows split screen: "Which Gumbo wins?"
-   - Left: Your new photo
-   - Right: A highly-rated gumbo you've had before (or random if first)
-3. User taps winner
-4. Optional: Quick tag tap ("Seafood-heavy", "Rich", "Smoky") — skippable
-5. Elo scores update immediately
+1. User selects restaurant → selects dish type
+2. User picks sentiment: **"Liked it!"** / **"It was okay"** / **"Didn't like it"**
+3. User adds photo (mandatory) + optional taste tags + optional notes
+4. User submits → system runs binary insertion sort battles *within that sentiment zone only*
+   - "Which Gumbo wins?" — same bucket, same dish type
+5. User taps winner (max 6–7 battles even with a large list), can skip with limited skips
+6. Score derived automatically from rank position within bucket
 
-**Elo Algorithm (Simplified):**
-```python
-K = 32  # sensitivity factor
-expected_a = 1 / (1 + 10^((elo_b - elo_a) / 400))
-new_elo_a = elo_a + K * (result - expected_a)
-# result = 1 if A wins, 0 if B wins
+**Score Ranges (Hard Boundaries):**
+
+| Sentiment | Score Floor | Score Ceiling |
+|---|---|---|
+| Liked it | 7.0 | 10.0 |
+| It was okay | 4.0 | 6.9 |
+| Didn't like it | 1.0 | 3.9 |
+
+A liked dish can never score below 7.0, no matter how many other liked dishes exist above it.
+
+**Score Derivation:**
+```
+score = ceiling − (rank_in_bucket − 1) / (bucket_size − 1) × (ceiling − floor)
+```
+Example: 8th-favorite liked dish out of 15 liked dishes → `10.0 − (7/14) × 3.0 = 8.5`
+
+**Max Battles Per Rating (within sentiment zone):**
+
+| Items in Zone | Max Battles |
+|---|---|
+| 1–2 | 1 |
+| 3–4 | 2 |
+| 5–8 | 3 |
+| 9–16 | 4 |
+| 17–32 | 5 |
+| 33–64 | 6 |
+| 65–128 | 7 |
+
+**Community Score (Bayesian-Smoothed):**
+```
+bayesian = (Σwᵢsᵢ + C·m) / (Σwᵢ + C)
+wᵢ = 1.0 (all v0.1 ratings require photos; 0.5 reserved for future no-photo ratings)
+C  = 5 (prior strength, flat for v0.1; future: neighborhood=3, city=5, state=8)
+m  = global mean for that dish type in same city
 ```
 
-**Confidence Score:**
-```
-confidence = log(total_battles) * win_rate
-min_battles = 5 to appear on leaderboard
-```
+**Confidence Tiers:**
+
+| Weighted Rating Count | Tier | Display |
+|---|---|---|
+| < C | Low | "Few ratings" |
+| C to 2C | Medium | "Some ratings" |
+| 2C to 5C | High | "Well rated" |
+| > 5C | Very High | "Crowd favorite" |
 
 ---
 
 ## Verification Layer (v0.1 = Friction, Not Bureaucracy)
 
-| Check | Implementation |
-|-------|----------------|
-| Photo required | No photo = no submission |
-| Location check | EXIF data or GPS API confirms proximity to restaurant |
-| Time window | Must post within 4 hours of being at venue |
-| Community flagging | Soft flags (3+ flags = human review) |
+| Check | Implementation | Status |
+|-------|----------------|--------|
+| Photo required | No photo = no submission | **Enforced** — `photo_url NOT NULL` in DB, UI blocks submit without photo |
+| Location check | GPS API confirms proximity to restaurant | **Partial** — GPS captured, `location_verified` stored, distance not yet enforced |
+| EXIF extraction | Photo EXIF location/timestamp extracted | **Schema ready** — `exif_location` + `exif_timestamp` columns exist, extraction not yet wired |
+| Time window | Must post within 4 hours of being at venue | **Not yet enforced** — planned for post-launch hardening |
+| Community flagging | Soft flags (3+ flags = human review) | **Schema ready** — `content_flags` table exists, no UI yet |
 
 **What's NOT in v0.1:**
 - ❌ Receipt uploads
@@ -132,71 +166,88 @@ min_battles = 5 to appear on leaderboard
 
 ---
 
-## The 5 Screens (Revised)
+## The Screens
 
-### Screen 1: Home — "What Should I Eat Right Now?"
+### Tab 1: Home / Discover — "What Should I Eat Right Now?"
 
 **Purpose:** Kill decision fatigue in 3 seconds.
 
 **UI:**
 - Location badge at top ("📍 French Quarter")
 - Dish selector pills: `Gumbo` `Po'boy` `Fried Chicken` `Muffuletta` `Étouffée`
-- **Hero card** (one result, not a list):
+- **Hero card** (one result per dish type — photo-dominant with gradient overlay):
   ```
   #1 GUMBO NEAR YOU
   ━━━━━━━━━━━━━━━━━
   Dooky Chase
   Tremé · 0.4 mi
-  
+
   🔥🔥🔥🔥🔥 Confidence
-  
+
   [Photo]
-  
-  [Show #2 and #3]  [Get Directions]
   ```
-- Floating camera button (FAB) bottom right
+- **Rising star card** (high-scored, low-battle-count discovery for selected type)
+- **Recent battle ticker** (live community activity feed, refreshes every 30s)
+- **Pending comparisons CTA** (if user has unfinished battle sequences)
+- Floating camera button (center tab FAB) to start rating flow
 
 **This screen alone should make the app worth keeping.**
 
 ---
 
-### Screen 2: Dish Leaderboard
+### Tab 2: Community Leaderboard
 
 **Purpose:** Establish authority. Settle arguments.
 
 **UI:**
 - Header: "Best Gumbo in New Orleans"
-- Toggle: `City` | `Near Me (2mi)` | `Tremé`
-- Ranked list 1-10:
+- Dish type pills (toggleable)
+- Location toggle: `City` | `Near Me (2mi)` | `Neighborhood`
+- Ranked list 1-10 (ordered by `bayesian_score DESC`):
   ```
   👑 #1  Dooky Chase
         Tremé · 🔥🔥🔥🔥🔥
-        [Photo thumbnail]
-  
+        [Photo thumbnail]  [Score Badge]
+
      #2  Willie Mae's
         7th Ward · 🔥🔥🔥🔥
-        [Photo thumbnail]
-  
+        [Photo thumbnail]  [Score Badge]
+
      #3  Cochon
         Warehouse · 🔥🔥🔥🔥
-        [Photo thumbnail]
+        [Photo thumbnail]  [Score Badge]
   ```
 - Each row tappable → Dish Detail
+- Score badge color-coded: green (7.0+), yellow (4.0–6.9), red (<4.0)
 
 ---
 
-### Screen 3: Dish Detail
+### Tab 3 (Center FAB): Rate a Dish
+
+**Purpose:** Entry point into the EAT → SNAP → COMPARE → RANK loop.
+
+Center tab button (FAB-style) that launches the rating flow as a modal stack:
+1. **Photo capture** → camera or gallery (mandatory)
+2. **Restaurant search** → GPS-sorted, with "add new" option
+3. **Dish type selection** → controlled vocabulary only
+4. **Rating screen** → sentiment picker + photo preview + optional taste tags + optional notes
+5. **This vs That battles** → if sentiment zone has existing items (conditional)
+
+---
+
+### Browse: Dish Detail
 
 **Purpose:** Build trust before someone makes a trip.
 
 **UI:**
-- Hero photo (full width)
+- Hero photo (full width) with parallax scrolling
 - Dish name + Restaurant name
-- Ranking badge: "#1 Gumbo in New Orleans"
-- Confidence meter (visual)
+- Ranking badge: "#X Gumbo in New Orleans"
+- Confidence meter (visual tier display)
 - Taste tags (crowd-sourced): `Dark roux` `Seafood-heavy` `Rich`
-- Map snippet with directions CTA
-- **"Compare This Dish"** button (feeds Elo engine)
+- Map card with directions CTA
+- Photo gallery from all community ratings
+- **"Rate This Dish"** button (enters rating + battle flow)
 
 **What's NOT here:**
 - ❌ Comments
@@ -205,31 +256,60 @@ min_battles = 5 to appear on leaderboard
 
 ---
 
-### Screen 4: This vs That (The Elo Engine)
+### Browse: Restaurant Detail
+
+**Purpose:** See all rated dishes at a restaurant.
+
+**UI:**
+- Hero image with parallax scrolling
+- Animated sticky header
+- Restaurant info (name, address, neighborhood)
+- All rated dish types at this restaurant with scores
+- Tappable → navigates to dish detail
+
+---
+
+### Rating Flow: This vs That (The Battle Engine)
 
 **Purpose:** The data engine. Make it feel like a game.
 
 **UI:**
-- Full-screen split
-- Top half: Photo A (your new dish or random)
-- Bottom half: Photo B (comparison dish)
-- Center prompt: **"Which Gumbo wins?"**
+- Full-screen split (vertical cards)
+- Top card: Photo A (your new dish) with "NEW" badge
+- Bottom card: Photo B (opponent from your same sentiment zone)
+- Center VS circle divider
+- Header prompt: **"Which [Dish Type] wins?"**
+- Step progress: "Step 1 of 4"
 - Tap either photo to vote
-- After vote:
-  - Quick tag options (optional, skippable): `Spicy` `Smoky` `Crispy` `Rich`
-  - "Thanks! Rankings updated." → dismiss
+- Skip button with remaining count (limited skips per sequence = `floor(max_battles / 3)`)
+- Skip reason modal (bottom sheet): "Can't remember", "Too different", "Haven't tried recently", etc.
+- At most 6–7 taps to fully rank a new dish — battles stay within the sentiment zone
+- On completion: rankings updated, navigate back to home
 
 **This screen should feel like Tinder for food.**
 
 ---
 
-### Screen 5: Profile — "Your Taste History"
+### Tab 4: Personal Rankings
+
+**Purpose:** See your own ranked list per dish type.
+
+**UI:**
+- Title: "Your Best [Dish Type]"
+- Dish type pills (filtered to types you've rated)
+- Ranked list ordered by `rank_position ASC` with `derived_score` shown
+- Each row tappable → Dish Detail
+- Empty state with CTA to rate a dish
+
+---
+
+### Tab 5: Profile — "Your Taste History"
 
 **Purpose:** Personal reward. Make users care about contributing.
 
 **UI:**
 - Avatar + username + home city
-- **"Best Ever" Cards** (auto-generated):
+- **"Best Ever" Cards** (auto-generated, horizontal scrolling):
   ```
   ┌─────────────────────────┐
   │ 👑 MY #1 GUMBO EVER     │
@@ -241,8 +321,8 @@ min_battles = 5 to appear on leaderboard
   └─────────────────────────┘
   ```
 - Stats row: `47 dishes` · `3 cities` · `127 battles`
-- Badges: "Gumbo Authority" (10+ gumbo comparisons)
-- Map view toggle: pins of what you've eaten where
+- Badges: "Gumbo Authority" (10+ gumbo comparisons), milestone badges
+- Activity history and reviews tabs
 
 ---
 
@@ -340,7 +420,7 @@ Total: 200 dishes minimum
 | Comparisons logged | 2,000+ |
 | App downloads | 1,500+ |
 | DAU | 200+ |
-| Leaderboard confidence | Top 3 in each category have 50+ battles |
+| Leaderboard confidence | Top 3 in each category reach `very_high` tier (25+ weighted ratings) |
 | Press/blog mentions | 3+ local |
 | Organic shares | 100+ share cards generated |
 
@@ -392,7 +472,7 @@ If you nail v0.1 exactly as above, Forked won't just disrupt Beli—it'll make v
 The experts confirmed what you already intuited: **dish-level data is the unlock.** 
 
 But they sharpened the weapon:
-- Elo > star ratings (kills subjectivity)
+- Sentiment buckets + binary insertion sort > numeric scales (kills subjectivity AND score compression)
 - 5 dishes > all dishes (focus wins)
 - Friction = verification (no receipts needed)
 - Hole-in-the-wall energy > influencer polish

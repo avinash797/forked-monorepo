@@ -4,6 +4,23 @@ import { create } from 'zustand';
 
 type Restaurant = Database['public']['Tables']['restaurants']['Row'];
 
+export type Sentiment = 'liked' | 'okay' | 'disliked';
+
+export interface BattleOpponent {
+    rating_id: string;
+    restaurant_name: string;
+    photo_url: string;
+    derived_score: number | null;
+}
+
+export interface BattleState {
+    battleId: string;
+    maxSteps: number;
+    currentStep: number;
+    skipsRemaining: number;
+    opponent: BattleOpponent;
+}
+
 export interface NewCityInfo {
     cityId: string;
     cityName: string;
@@ -28,9 +45,11 @@ interface RatingState {
     selectedVariationId: string | null;
     setSelectedVariationId: (variationId: string | null) => void;
 
-    // Rating and review state
-    rating: number;
-    setRating: (rating: number) => void;
+    // Sentiment (replaces numeric rating)
+    sentiment: Sentiment | null;
+    setSentiment: (sentiment: Sentiment | null) => void;
+
+    // Review text
     reviewText: string;
     setReviewText: (text: string) => void;
 
@@ -41,6 +60,11 @@ interface RatingState {
     // Location state
     location: any | null;
     setLocation: (location: any | null) => void;
+
+    // Battle state (active binary insertion sort sequence)
+    battleState: BattleState | null;
+    setBattleState: (state: BattleState | null) => void;
+    clearBattleState: () => void;
 
     // New city info (set when user triggers city creation, used by onboarding screen)
     newCityInfo: NewCityInfo | null;
@@ -56,23 +80,24 @@ export const useRatingStore = create<RatingState>((set) => ({
     selectedRestaurant: null,
     selectedDishType: null,
     selectedVariationId: null,
-    rating: 0,
+    sentiment: null,
     reviewText: '',
     selectedTags: [],
     location: null,
+    battleState: null,
     newCityInfo: null,
 
     // Actions
     setPhotoUri: (uri) => set({ photoUri: uri }),
-    setSelectedRestaurant: (restaurant) =>
-        set({ selectedRestaurant: restaurant }),
+    setSelectedRestaurant: (restaurant) => set({ selectedRestaurant: restaurant }),
     setSelectedDishType: (dishType) => set({ selectedDishType: dishType }),
-    setSelectedVariationId: (variationId) =>
-        set({ selectedVariationId: variationId }),
-    setRating: (rating) => set({ rating }),
+    setSelectedVariationId: (variationId) => set({ selectedVariationId: variationId }),
+    setSentiment: (sentiment) => set({ sentiment }),
     setReviewText: (text) => set({ reviewText: text }),
     setSelectedTags: (tags) => set({ selectedTags: tags }),
     setLocation: (location) => set({ location }),
+    setBattleState: (battleState) => set({ battleState }),
+    clearBattleState: () => set({ battleState: null }),
     setNewCityInfo: (info) => set({ newCityInfo: info }),
 
     // Reset function
@@ -82,10 +107,11 @@ export const useRatingStore = create<RatingState>((set) => ({
             selectedRestaurant: null,
             selectedDishType: null,
             selectedVariationId: null,
-            rating: 0,
+            sentiment: null,
             reviewText: '',
             selectedTags: [],
             location: null,
+            battleState: null,
             newCityInfo: null,
         }),
 }));

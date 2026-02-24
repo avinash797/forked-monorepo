@@ -10,11 +10,9 @@ export interface TopDishData {
     restaurant_id: string;
     restaurant_name: string;
     neighborhood_name: string | null;
-    global_elo: number;
-    total_battles: number;
-    win_rate: number;
-    confidence_score: number;
-    avg_raw_score: number;
+    bayesian_score: number;
+    confidence_tier: string;
+    raw_weighted_avg: number;
     total_ratings: number;
     featured_photo_url: string | null;
 }
@@ -32,11 +30,10 @@ export interface RisingStarData {
     city_id: string;
     neighborhood_id: string | null;
     neighborhood_name: string | null;
-    avg_raw_score: number;
+    bayesian_score: number;
+    confidence_tier: string;
+    raw_weighted_avg: number;
     total_ratings: number;
-    total_battles: number;
-    global_elo: number;
-    confidence_score: number;
     featured_photo_url: string | null;
 }
 
@@ -120,14 +117,14 @@ export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
                     // 2. Fetch heroes using RPC (excludes user-rated restaurants)
                     supabase.rpc('get_discover_heroes', {
                         ...rpcLocationParams,
-                        p_min_battles: 5,
+                        p_min_ratings: 5,
                     }),
 
                     // 3. Fetch rising stars using RPC (excludes user-rated restaurants)
                     supabase.rpc('get_discover_rising_stars', {
                         ...rpcLocationParams,
                         p_min_score: 7.5,
-                        p_max_battles: 10,
+                        p_max_ratings: 10,
                         p_min_ratings: 2,
                     }),
                 ]);
@@ -149,11 +146,9 @@ export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
                         restaurant_id: hero.restaurant_id,
                         restaurant_name: hero.restaurant_name || 'Unknown',
                         neighborhood_name: hero.neighborhood_name || null,
-                        global_elo: hero.global_elo || 1500,
-                        total_battles: hero.total_battles || 0,
-                        win_rate: 0,
-                        confidence_score: hero.confidence_score || 0,
-                        avg_raw_score: hero.avg_raw_score || 0,
+                        bayesian_score: hero.bayesian_score || 5.0,
+                        confidence_tier: hero.confidence_tier || 'low',
+                        raw_weighted_avg: hero.raw_weighted_avg || 0,
                         total_ratings: hero.total_ratings || 0,
                         featured_photo_url: hero.featured_photo_url,
                     };
@@ -174,11 +169,10 @@ export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
                         city_id: star.city_id,
                         neighborhood_id: star.neighborhood_id,
                         neighborhood_name: star.neighborhood_name || null,
-                        avg_raw_score: star.avg_raw_score || 0,
+                        bayesian_score: star.bayesian_score || 5.0,
+                        confidence_tier: star.confidence_tier || 'low',
+                        raw_weighted_avg: star.raw_weighted_avg || 0,
                         total_ratings: star.total_ratings || 0,
-                        total_battles: star.total_battles || 0,
-                        global_elo: star.global_elo || 1500,
-                        confidence_score: star.confidence_score || 0,
                         featured_photo_url: star.featured_photo_url,
                     };
                 }

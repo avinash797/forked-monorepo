@@ -279,7 +279,7 @@ export default function DishDetailScreen() {
             if (ratingsData?.userRatingData) {
                 Alert.alert(
                     'Update Your Rating',
-                    `You previously rated this ${coreData.dish_type.name} ${ratingsData.userRatingData.raw_score}. Has it changed since then?`,
+                    `You previously rated this ${coreData.dish_type.name} as ${ratingsData.userRatingData.sentiment}. Has your opinion changed?`,
                     [
                         {
                             text: 'No',
@@ -429,9 +429,9 @@ export default function DishDetailScreen() {
                             at {venue?.name}
                         </ThemedText>
                     </View>
-                    {coreData.avg_raw_score !== null && (
+                    {coreData.bayesian_score !== null && (
                         <ScoreBadge
-                            score={coreData.avg_raw_score}
+                            score={coreData.bayesian_score}
                             style={styles.headerRating}
                         />
                     )}
@@ -513,10 +513,10 @@ export default function DishDetailScreen() {
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.ratingContainer}>
-                                {coreData.avg_raw_score !== null &&
+                                {coreData.bayesian_score !== null &&
                                     coreData.total_ratings! > 0 && (
                                         <ScoreBadge
-                                            score={coreData.avg_raw_score}
+                                            score={coreData.bayesian_score}
                                             style={styles.ratingBadge}
                                         />
                                     )}
@@ -536,32 +536,16 @@ export default function DishDetailScreen() {
                                 <View style={styles.statDivider} />
                                 <View style={styles.statItem}>
                                     <ThemedText style={styles.statValue}>
-                                        {coreData.total_battles || 0}
+                                        {(coreData as any).bayesian_score?.toFixed(1) ?? '—'}
                                     </ThemedText>
                                     <ThemedText style={styles.statLabel}>
-                                        Battles
+                                        Score
                                     </ThemedText>
                                 </View>
                                 <View style={styles.statDivider} />
                                 <View style={styles.statItem}>
                                     <ThemedText style={styles.statValue}>
-                                        {(
-                                            (coreData.win_rate || 0) * 100
-                                        ).toFixed(0)}
-                                        %
-                                    </ThemedText>
-                                    <ThemedText style={styles.statLabel}>
-                                        Win Rate
-                                    </ThemedText>
-                                </View>
-                                <View style={styles.statDivider} />
-                                <View style={styles.statItem}>
-                                    <ThemedText style={styles.statValue}>
-                                        {(
-                                            (coreData.confidence_score || 0) *
-                                            100
-                                        ).toFixed(0)}
-                                        %
+                                        {((coreData as any).confidence_tier ?? 'low').replace('_', ' ')}
                                     </ThemedText>
                                     <ThemedText style={styles.statLabel}>
                                         Confidence

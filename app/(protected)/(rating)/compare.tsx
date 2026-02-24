@@ -2,14 +2,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
-import {
-    PendingComparison,
-    SKIP_REASONS,
-    usePendingComparisons,
-    useProcessComparison,
-    useSubmitComparison,
-} from '@/hooks/use-comparisons';
-import { trackEvent } from '@/lib/amplitude';
+import { SKIP_REASONS, useProcessBattle, useSkipBattle } from '@/hooks/use-comparisons';
 import { useRatingStore } from '@/stores';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,7 +10,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
-    Dimensions,
     Pressable,
     StyleSheet,
     View,
@@ -32,8 +24,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const { width, height } = Dimensions.get('window');
-
 export default function CompareScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
@@ -43,190 +33,116 @@ export default function CompareScreen() {
         [theme, insets]
     );
 
-    // Get params if coming from rating flow (post_rating_and_get_duel response)
+    // Static params — set once from rating.tsx, don't change between battles
     const params = useLocalSearchParams<{
-        comparisonId?: string;
-        newRatingId?: string;
-        yourPhoto?: string;
-        yourRestaurant?: string;
-        opponentRatingId?: string;
-        opponentName?: string;
-        opponentPhoto?: string;
-        opponentScore?: string;
-        dishTypeId?: string;
+        ratingId: string;
+        yourPhoto: string;
+        yourRestaurant: string;
+        dishTypeName: string;
+        dishTypeId: string;
     }>();
-
-    const isFromRatingFlow = !!params.comparisonId;
 
     const [showSkipModal, setShowSkipModal] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
-    const { resetRating } = useRatingStore();
 
-    // Build duel comparison from params (rating flow)
-    const duelComparison: PendingComparison | null = isFromRatingFlow
-        ? {
-              dish_type_id: params.dishTypeId!,
-              dish_type_name: '',
-              rating_a_id: params.newRatingId!,
-              rating_a_photo: params.yourPhoto!,
-              rating_a_raw_score: 0,
-              rating_a_restaurant: params.yourRestaurant!,
-              rating_b_id: params.opponentRatingId!,
-              rating_b_photo: params.opponentPhoto!,
-              rating_b_raw_score: Number(params.opponentScore ?? 0),
-              rating_b_restaurant: params.opponentName!,
-          }
-        : null;
+    const { battleState, setBattleState, clearBattleState, resetRating } =
+        useRatingStore();
 
-    // Standalone: get pending comparisons
-    const {
-        data: pendingComparisons,
-        isSuccess: isSuccessPending,
-        refetch: refetchPending,
-    } = usePendingComparisons(isFromRatingFlow ? 0 : 1);
+    const { mutateAsync: processBattle } = useProcessBattle();
+    const { mutateAsync: skipBattle } = useSkipBattle();
 
-    // Determine which comparison to show
-    const comparison: PendingComparison | null =
-        duelComparison || pendingComparisons?.[0] || null;
-
-    // Route back to tabs if no comparisons are left
+    // If battleState is gone (cleared externally), navigate away
     useEffect(() => {
-        if (isProcessing || isFromRatingFlow) return;
-
-        if (isSuccessPending && !comparison) {
+        if (!battleState) {
             router.replace('/(protected)/(tabs)');
         }
-    }, [comparison, isSuccessPending, isProcessing, isFromRatingFlow, router]);
-
-    // Rating flow: submit_comparison (pre-created comparison record)
-    const { mutateAsync: submitComparison } = useSubmitComparison();
-    // Standalone: process_comparison (creates + resolves comparison)
-    const { mutateAsync: processComparison } = useProcessComparison();
+    }, [battleState, router]);
 
     const handleVote = useCallback(
         async (winnerId: string) => {
-            if (!comparison || isProcessing) return;
+            if (isProcessing || !battleState) return;
 
             setIsProcessing(true);
             try {
-                if (isFromRatingFlow) {
-                    await submitComparison({
-                        comparison_id: params.comparisonId!,
-                        winner_rating_id: winnerId,
-                        dish_type_id: comparison.dish_type_id,
-                    });
-                } else {
-                    await processComparison({
-                        dish_type_id: comparison.dish_type_id,
-                        rating_a_id: comparison.rating_a_id,
-                        rating_b_id: comparison.rating_b_id,
-                        winner_id: winnerId,
-                    });
-                }
-
-                trackEvent('comparison_completed', {
-                    dish_type_id: comparison.dish_type_id,
-                    winner_id: winnerId,
+                const result = await processBattle({
+                    battle_id: battleState.battleId,
+                    winner_rating_id: winnerId,
+                    dish_type_id: params.dishTypeId,
                 });
 
-                if (isFromRatingFlow) {
+                if (result.done) {
+                    clearBattleState();
                     resetRating();
                     router.dismissAll();
                     router.replace('/(protected)/(tabs)');
                 } else {
-                    refetchPending();
+                    setBattleState({
+                        battleId: result.next_battle_id!,
+                        maxSteps: result.max_steps ?? battleState.maxSteps,
+                        currentStep: result.step ?? battleState.currentStep + 1,
+                        skipsRemaining: result.skips_remaining ?? 0,
+                        opponent: result.opponent!,
+                    });
                 }
             } catch (error) {
-                console.error('Error processing comparison:', error);
+                console.error('Error processing battle:', error);
             } finally {
                 setIsProcessing(false);
             }
         },
-        [
-            comparison,
-            submitComparison,
-            processComparison,
-            isFromRatingFlow,
-            params.comparisonId,
-            router,
-            refetchPending,
-            isProcessing,
-            resetRating,
-        ]
+        [battleState, isProcessing, processBattle, params.dishTypeId, setBattleState, clearBattleState, resetRating, router]
     );
 
     const handleSkip = useCallback(
         async (reason: string) => {
-            if (!comparison || isProcessing) return;
+            if (isProcessing || !battleState) return;
 
             setIsProcessing(true);
             setShowSkipModal(false);
 
-            trackEvent('comparison_skipped', {
-                dish_type_id: comparison.dish_type_id,
-                skip_reason: reason,
-            });
+            try {
+                const result = await skipBattle({
+                    battle_id: battleState.battleId,
+                    skip_reason: reason,
+                    dish_type_id: params.dishTypeId,
+                });
 
-            if (isFromRatingFlow) {
-                // Duel skip: just navigate away (comparison stays unresolved)
-                resetRating();
-                router.dismissAll();
-                router.replace('/(protected)/(tabs)');
-                setIsProcessing(false);
-            } else {
-                try {
-                    await processComparison({
-                        dish_type_id: comparison.dish_type_id,
-                        rating_a_id: comparison.rating_a_id,
-                        rating_b_id: comparison.rating_b_id,
-                        skipped: true,
-                        skip_reason: reason,
+                if (result.done) {
+                    clearBattleState();
+                    resetRating();
+                    router.dismissAll();
+                    router.replace('/(protected)/(tabs)');
+                } else {
+                    setBattleState({
+                        battleId: result.next_battle_id!,
+                        maxSteps: result.max_steps ?? battleState.maxSteps,
+                        currentStep: result.step ?? battleState.currentStep + 1,
+                        skipsRemaining: result.skips_remaining ?? 0,
+                        opponent: result.opponent!,
                     });
-                    refetchPending();
-                } catch (error) {
-                    console.error('Error skipping comparison:', error);
-                } finally {
-                    setIsProcessing(false);
                 }
+            } catch (error) {
+                console.error('Error skipping battle:', error);
+            } finally {
+                setIsProcessing(false);
             }
         },
-        [
-            comparison,
-            processComparison,
-            isFromRatingFlow,
-            router,
-            refetchPending,
-            isProcessing,
-            resetRating,
-        ]
+        [battleState, isProcessing, skipBattle, params.dishTypeId, setBattleState, clearBattleState, resetRating, router]
     );
 
     const handleClose = () => {
-        if (isFromRatingFlow) {
-            resetRating();
-            router.dismissAll();
-            router.replace('/(protected)/(tabs)');
-        } else {
-            router.back();
-        }
+        clearBattleState();
+        resetRating();
+        router.dismissAll();
+        router.replace('/(protected)/(tabs)');
     };
 
-    // Loading state
-    if (!comparison) {
-        return (
-            <ThemedView style={styles.container}>
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator
-                        size="large"
-                        color={theme.color.accent}
-                    />
-                    <ThemedText style={styles.loadingText}>
-                        Finding dishes to compare...
-                    </ThemedText>
-                </View>
-            </ThemedView>
-        );
+    if (!battleState) {
+        return null;
     }
+
+    const { maxSteps, currentStep, skipsRemaining, opponent } = battleState;
+    const canSkip = skipsRemaining > 0;
 
     return (
         <ThemedView style={styles.container}>
@@ -242,28 +158,45 @@ export default function CompareScreen() {
                         color={theme.color.textPrimary}
                     />
                 </Pressable>
-                <ThemedText style={styles.headerTitle}>This vs That</ThemedText>
+
+                <View style={styles.headerCenter}>
+                    <ThemedText style={styles.headerTitle}>
+                        Which {params.dishTypeName} wins?
+                    </ThemedText>
+                    <ThemedText style={styles.stepIndicator}>
+                        Step {currentStep} of {maxSteps}
+                    </ThemedText>
+                </View>
+
                 <Pressable
-                    style={styles.skipButton}
-                    onPress={() => setShowSkipModal(true)}
+                    style={[
+                        styles.skipButton,
+                        !canSkip && styles.skipButtonDisabled,
+                    ]}
+                    onPress={() => canSkip && setShowSkipModal(true)}
+                    disabled={!canSkip || isProcessing}
                 >
-                    <ThemedText style={styles.skipText}>Skip</ThemedText>
+                    <ThemedText
+                        style={[
+                            styles.skipText,
+                            !canSkip && styles.skipTextDisabled,
+                        ]}
+                    >
+                        Skip
+                    </ThemedText>
+                    {canSkip && (
+                        <View style={styles.skipBadge}>
+                            <ThemedText style={styles.skipBadgeText}>
+                                {skipsRemaining}
+                            </ThemedText>
+                        </View>
+                    )}
                 </Pressable>
             </Animated.View>
 
-            {/* Dish Type Badge */}
-            {/* <Animated.View
-                entering={FadeIn.delay(200).duration(400)}
-                style={styles.dishTypeBadge}
-            >
-                <ThemedText style={styles.dishTypeText}>
-                    Which {comparison.dish_type_name} wins?
-                </ThemedText>
-            </Animated.View> */}
-
             {/* Comparison Cards */}
             <View style={styles.cardsContainer}>
-                {/* Card A */}
+                {/* Your new dish */}
                 <Animated.View
                     entering={SlideInLeft.delay(300).duration(500)}
                     style={styles.cardWrapper}
@@ -273,11 +206,11 @@ export default function CompareScreen() {
                             styles.card,
                             pressed && styles.cardPressed,
                         ]}
-                        onPress={() => handleVote(comparison.rating_a_id)}
+                        onPress={() => handleVote(params.ratingId)}
                         disabled={isProcessing}
                     >
                         <Image
-                            source={{ uri: comparison.rating_a_photo }}
+                            source={{ uri: params.yourPhoto }}
                             style={styles.cardImage}
                             contentFit="cover"
                             transition={200}
@@ -288,8 +221,13 @@ export default function CompareScreen() {
                         />
                         <View style={styles.cardContent}>
                             <ThemedText style={styles.restaurantName}>
-                                {comparison.rating_a_restaurant}
+                                {params.yourRestaurant}
                             </ThemedText>
+                            <View style={styles.newBadgeContainer}>
+                                <ThemedText style={styles.newBadgeText}>
+                                    NEW
+                                </ThemedText>
+                            </View>
                         </View>
                     </Pressable>
                 </Animated.View>
@@ -304,7 +242,7 @@ export default function CompareScreen() {
                     </View>
                 </Animated.View>
 
-                {/* Card B */}
+                {/* Opponent */}
                 <Animated.View
                     entering={SlideInRight.delay(300).duration(500)}
                     style={styles.cardWrapper}
@@ -314,11 +252,11 @@ export default function CompareScreen() {
                             styles.card,
                             pressed && styles.cardPressed,
                         ]}
-                        onPress={() => handleVote(comparison.rating_b_id)}
+                        onPress={() => handleVote(opponent.rating_id)}
                         disabled={isProcessing}
                     >
                         <Image
-                            source={{ uri: comparison.rating_b_photo }}
+                            source={{ uri: opponent.photo_url }}
                             style={styles.cardImage}
                             contentFit="cover"
                             transition={200}
@@ -329,7 +267,7 @@ export default function CompareScreen() {
                         />
                         <View style={styles.cardContent}>
                             <ThemedText style={styles.restaurantName}>
-                                {comparison.rating_b_restaurant}
+                                {opponent.restaurant_name}
                             </ThemedText>
                         </View>
                     </Pressable>
@@ -368,6 +306,10 @@ export default function CompareScreen() {
                         <ThemedText style={styles.modalTitle}>
                             Why are you skipping?
                         </ThemedText>
+                        <ThemedText style={styles.skipsRemainingText}>
+                            {skipsRemaining} skip
+                            {skipsRemaining !== 1 ? 's' : ''} remaining
+                        </ThemedText>
                         {SKIP_REASONS.map((reason) => (
                             <Pressable
                                 key={reason.value}
@@ -403,16 +345,6 @@ const createThemedStyles = (
             flex: 1,
             backgroundColor: theme.color.bg,
         },
-        loadingContainer: {
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: theme.space.md,
-        },
-        loadingText: {
-            fontSize: theme.font.size.md,
-            color: theme.color.textSecondary,
-        },
         header: {
             flexDirection: 'row',
             alignItems: 'center',
@@ -423,29 +355,52 @@ const createThemedStyles = (
         },
         closeButton: {
             padding: theme.space.xs,
+            width: 44,
+        },
+        headerCenter: {
+            flex: 1,
+            alignItems: 'center',
+            gap: 2,
         },
         headerTitle: {
-            fontSize: theme.font.size.lg,
+            fontSize: theme.font.size.md,
             fontWeight: '700',
             color: theme.color.textPrimary,
+            textAlign: 'center',
+        },
+        stepIndicator: {
+            fontSize: theme.font.size.sm,
+            color: theme.color.textSecondary,
         },
         skipButton: {
             padding: theme.space.xs,
+            width: 44,
+            alignItems: 'flex-end',
+            flexDirection: 'row',
+            gap: 4,
+            justifyContent: 'flex-end',
+        },
+        skipButtonDisabled: {
+            opacity: 0.3,
         },
         skipText: {
             fontSize: theme.font.size.md,
             color: theme.color.textSecondary,
         },
-        dishTypeBadge: {
-            alignSelf: 'center',
-            paddingHorizontal: theme.space.lg,
-            paddingVertical: theme.space.sm,
-            backgroundColor: theme.color.accent,
-            borderRadius: theme.radius.pill,
-            marginVertical: theme.space.md,
+        skipTextDisabled: {
+            color: theme.color.textSecondary,
         },
-        dishTypeText: {
-            fontSize: theme.font.size.md,
+        skipBadge: {
+            backgroundColor: theme.color.accent,
+            borderRadius: 10,
+            minWidth: 18,
+            height: 18,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingHorizontal: 4,
+        },
+        skipBadgeText: {
+            fontSize: 11,
             fontWeight: '700',
             color: theme.color.accentOn,
         },
@@ -484,14 +439,30 @@ const createThemedStyles = (
             left: 0,
             right: 0,
             padding: theme.space.md,
+            flexDirection: 'row',
+            alignItems: 'flex-end',
+            justifyContent: 'space-between',
         },
         restaurantName: {
             fontSize: theme.font.size.xl,
             fontWeight: '700',
             color: '#fff',
+            flex: 1,
             textShadowColor: 'rgba(0,0,0,0.5)',
             textShadowOffset: { width: 0, height: 1 },
             textShadowRadius: 4,
+        },
+        newBadgeContainer: {
+            backgroundColor: theme.color.accent,
+            borderRadius: theme.radius.sm,
+            paddingHorizontal: 8,
+            paddingVertical: 4,
+        },
+        newBadgeText: {
+            fontSize: 11,
+            fontWeight: '800',
+            color: theme.color.accentOn,
+            letterSpacing: 0.5,
         },
         vsDivider: {
             position: 'absolute',
@@ -550,8 +521,14 @@ const createThemedStyles = (
             fontSize: theme.font.size.lg,
             fontWeight: '700',
             color: theme.color.textPrimary,
-            marginBottom: theme.space.md,
+            marginBottom: theme.space.xs,
             textAlign: 'center',
+        },
+        skipsRemainingText: {
+            fontSize: theme.font.size.sm,
+            color: theme.color.textSecondary,
+            textAlign: 'center',
+            marginBottom: theme.space.md,
         },
         modalOption: {
             paddingVertical: theme.space.md,

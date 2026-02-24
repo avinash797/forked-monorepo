@@ -44,7 +44,7 @@ function groupDishesByType(
             const { variation: _variation, ...rest } = dish;
             groupMap.set(dish.dish_type_id, {
                 ...rest,
-                avg_raw_score: null,
+                bayesian_score: null,
                 variations: [
                     variationEntry as GroupedRestaurantDish['variations'][number],
                 ],
@@ -113,10 +113,10 @@ export function useRestaurantDetail(restaurantId: string | null) {
             const dishes = groupDishesByType(rawDishes).map((dish) => {
                 const rating = ratingsData.find(
                     (rating) => rating.dish_type_id === dish.dish_type_id
-                )?.avg_raw_score;
+                )?.bayesian_score;
                 return {
                     ...dish,
-                    avg_raw_score: rating,
+                    bayesian_score: rating,
                 };
             }) as GroupedRestaurantDish[];
 
