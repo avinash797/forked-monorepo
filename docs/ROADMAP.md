@@ -4,11 +4,7 @@
 
 ## The Pivot
 
-We've pivoted from the original multi-phase roadmap to a focused **MVP v0.1** targeting New Orleans. This document now reflects the new direction.
-
-For the full specification, see `new-goals/forked_v0.1_spec.md`.
-
----
+## We've pivoted from the original multi-phase roadmap to a focused **MVP v0.1** targeting New Orleans. This document now reflects the new direction.
 
 ## The Mantra
 
@@ -20,13 +16,13 @@ If a feature doesn't serve that, it's out.
 
 ## What Changed
 
-| Original Approach | New v0.1 Approach |
-|-------------------|-------------------|
-| 0-10 rating slider | **Hybrid Elo-based "This vs That" + 0-10 raw score** |
-| Photo encouraged | **Photo MANDATORY** |
-| Any dish type | **5 dish types only** |
-| City-level leaderboards | **City + Neighborhood leaderboards** |
-| Complex features | **Ruthless simplicity** |
+| Original Approach       | New v0.1 Approach                                    |
+| ----------------------- | ---------------------------------------------------- |
+| 0-10 rating slider      | **Hybrid Elo-based "This vs That" + 0-10 raw score** |
+| Photo encouraged        | **Photo MANDATORY**                                  |
+| Any dish type           | **5 dish types only**                                |
+| City-level leaderboards | **City + Neighborhood leaderboards**                 |
+| Complex features        | **Ruthless simplicity**                              |
 
 ---
 
@@ -44,43 +40,6 @@ EAT -> SNAP -> COMPARE -> RANK
 
 ---
 
-## Current Status: 85% Complete
-
-### Backend (Database & RPC) - 100% Complete
-
-- Database schema with Elo system (14 tables, all with RLS)
-- 20+ RPC functions including post_rating_and_get_duel, submit_comparison, find_nearby_restaurants
-- PostGIS geolocation for nearby restaurant discovery
-- Credibility-weighted global scoring system
-- Seed data for New Orleans
-- RLS policies, triggers, and auto-populated restaurant_dishes
-
-### Frontend - 85% Complete
-
-- All hooks complete (ratings, comparisons, restaurants, address search, user stats)
-- Core screens implemented (Home, Leaderboard, Dish Detail, This vs That, Profile, Venue Search, Rating)
-- Venue search with hybrid Google Places + local DB
-- Rating flow with duel trigger integration
-- Remaining: RankBadge component, map/directions CTAs, "Show #2 and #3" on Home
-
----
-
-## Launch Dishes (NOLA Only)
-
-**Hard limit: 5 dish types at launch.**
-
-| Dish | Emoji | Why |
-|------|-------|-----|
-| Gumbo | `#` | The iconic NOLA dish. Fierce local opinions. |
-| Po'boy | `#` | High frequency, clear "best" debates |
-| Fried Chicken | `#` | Willie Mae's territory. Emotional. |
-| Muffuletta | `#` | Central Grocery vs everyone else |
-| Crawfish Etouffee | `#` | Seasonal, passionate fanbase |
-
-**Expansion rule:** Add 2 new dish types only after 500+ comparisons in existing categories.
-
----
-
 ## The 5 Screens
 
 ### Screen 1: Home - "What Should I Eat Right Now?"
@@ -88,9 +47,7 @@ EAT -> SNAP -> COMPARE -> RANK
 **Purpose:** Kill decision fatigue in 3 seconds.
 
 - Location badge at top
-- Dish selector pills (5 types)
-- Hero card showing #1 dish for selected type
-- Floating camera button (FAB)
+- Hero card showing dish recommendations that the user might like and has not tried yet
 
 **This screen alone should make the app worth keeping.**
 
@@ -99,8 +56,8 @@ EAT -> SNAP -> COMPARE -> RANK
 **Purpose:** Establish authority. Settle arguments.
 
 - Header: "Best [Dish] in New Orleans"
-- Toggle: City | Near Me | Neighborhood
-- Ranked list 1-10 with confidence meters
+- Toggle: Dish types
+- Ranked list 1-n with confidence meters
 
 ### Screen 3: Dish Detail
 
@@ -134,61 +91,19 @@ EAT -> SNAP -> COMPARE -> RANK
 
 ---
 
-## Implementation Phases
-
-### Phase 1: Data Layer - Complete
-
-- [x] Update `location.store.ts` for DB cities + currentLocation
-- [x] Create `use-restaurants.ts` hook (search, nearby via PostGIS, create)
-- [x] Create `use-ratings.ts` hook (post_rating_and_get_duel, taste tags, rate limiting)
-- [x] Create `use-comparisons.ts` hook (submit, process, pending, skip tracking)
-- [x] Create `use-user-stats.ts` hook (stats, best ever, badges)
-- [x] Create `use-address-search.ts` hook (Google Places Autocomplete)
-- [x] Create `use-debounce.ts` utility hook
-
-### Phase 2: Core Screens - 85% Complete
-
-- [x] Build Home screen with hero card, dish pills, location badge, FAB
-- [x] Build Leaderboard with city/near me/neighborhood toggle
-- [x] Build Dish Detail screen with hero photo, confidence meter, taste tags
-- [x] Build This vs That screen with animated duel flow, skip reasons
-- [x] Update Profile with stats row, best-ever cards, badges
-- [x] Build Venue Search with hybrid Google Places + local DB
-- [x] Build Rating screen with 0-10 input, photo, GPS, duel trigger
-- [ ] Add ranking badge, map/directions to Dish Detail
-- [ ] Add "Show #2 and #3" and Get Directions to Home
-
-### Phase 3: Rating Flow - Complete
-
-- [x] Update to use new schema (restaurants, dish_types, post_rating_and_get_duel)
-- [x] Enforce mandatory photo
-- [x] Handle comparison trigger (navigate to This vs That if duel found)
-- [x] Add taste tags selection
-- [x] GPS verification with distance calculation
-
-### Phase 4: Polish & Launch (Current)
-
-- [ ] Build RankBadge component
-- [ ] Add map/directions CTAs
-- [ ] End-to-end testing of all flows
-- [ ] Seed initial data with Founding Forks
-- [ ] Beta launch to NOLA locals
-
----
-
 ## What's NOT in v0.1
 
-| Feature | Why It's Cut |
-|---------|--------------|
-| Social feed | Noise, not utility |
-| Following users | Not needed for core loop |
-| Comments | Toxic + low signal |
-| Restaurant discovery | We discover DISHES |
-| AI taste profiles | Data first, AI later |
-| Bookmarks/lists | Rankings replace lists |
-| Reservations/menus | We're not OpenTable |
-| Owner portals | We care about eaters, not owners (yet) |
-| Global leaderboards | Too abstract early |
+| Feature              | Why It's Cut                           |
+| -------------------- | -------------------------------------- |
+| Social feed          | Noise, not utility                     |
+| Following users      | Not needed for core loop               |
+| Comments             | Toxic + low signal                     |
+| Restaurant discovery | We discover DISHES                     |
+| AI taste profiles    | Data first, AI later                   |
+| Bookmarks/lists      | Rankings replace lists                 |
+| Reservations/menus   | We're not OpenTable                    |
+| Owner portals        | We care about eaters, not owners (yet) |
+| Global leaderboards  | Too abstract early                     |
 
 ---
 
@@ -228,27 +143,27 @@ EAT -> SNAP -> COMPARE -> RANK
 
 ## Success Metrics (30 Days Post-Launch)
 
-| Metric | Target |
-|--------|--------|
-| Dishes rated | 500+ |
-| Comparisons logged | 2,000+ |
-| App downloads | 1,500+ |
-| DAU | 200+ |
+| Metric                 | Target                              |
+| ---------------------- | ----------------------------------- |
+| Dishes rated           | 500+                                |
+| Comparisons logged     | 2,000+                              |
+| App downloads          | 1,500+                              |
+| DAU                    | 200+                                |
 | Leaderboard confidence | Top 3 per category have 50+ battles |
-| Press mentions | 3+ local |
-| Organic shares | 100+ share cards |
+| Press mentions         | 3+ local                            |
+| Organic shares         | 100+ share cards                    |
 
 ---
 
 ## Future Roadmap (Post v0.1)
 
-| Version | Key Additions |
-|---------|---------------|
-| v0.1 | Core loop, 5 dishes, NOLA only |
-| v0.2 | Expand to 10 dishes, add Houston/Austin, Founding Fork badges visible |
-| v0.3 | AI taste profiles, personalized rankings |
-| v0.4 | Social layer (follow experts), "Dish Expert" verification |
-| v1.0 | National rollout, restaurant owner dashboards, API |
+| Version | Key Additions                                                         |
+| ------- | --------------------------------------------------------------------- |
+| v0.1    | Core loop, 5 dishes, NOLA only                                        |
+| v0.2    | Expand to 10 dishes, add Houston/Austin, Founding Fork badges visible |
+| v0.3    | AI taste profiles, personalized rankings                              |
+| v0.4    | Social layer (follow experts), "Dish Expert" verification             |
+| v1.0    | National rollout, restaurant owner dashboards, API                    |
 
 ---
 
@@ -257,6 +172,7 @@ EAT -> SNAP -> COMPARE -> RANK
 > Your real moat is not AI. Your moat is **dish-level truth + friction that filters liars.**
 
 AI becomes lethal AFTER:
+
 - 100k comparisons
 - 10k verified dishes
 - Clear taste vectors from tags

@@ -1,5 +1,79 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
+CREATE TABLE public.admin_actions (
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    admin_id uuid NOT NULL,
+    action_type text NOT NULL,
+    target_type text NOT NULL,
+    target_id uuid NOT NULL,
+    details jsonb,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT admin_actions_pkey PRIMARY KEY (id),
+    CONSTRAINT admin_actions_admin_id_fkey FOREIGN KEY (admin_id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.blog_authors (
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    name text NOT NULL,
+    slug text NOT NULL UNIQUE,
+    bio text,
+    avatar_url text,
+    twitter_handle text,
+    instagram_handle text,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT blog_authors_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.blog_categories (
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    name text NOT NULL,
+    slug text NOT NULL UNIQUE,
+    description text,
+    display_order integer DEFAULT 0,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT blog_categories_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.blog_post_tags (
+    blog_post_id uuid NOT NULL,
+    blog_tag_id uuid NOT NULL,
+    CONSTRAINT blog_post_tags_pkey PRIMARY KEY (blog_post_id, blog_tag_id),
+    CONSTRAINT blog_post_tags_blog_post_id_fkey FOREIGN KEY (blog_post_id) REFERENCES public.blog_posts(id),
+    CONSTRAINT blog_post_tags_blog_tag_id_fkey FOREIGN KEY (blog_tag_id) REFERENCES public.blog_tags(id)
+);
+CREATE TABLE public.blog_posts (
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    title text NOT NULL,
+    slug text NOT NULL UNIQUE,
+    excerpt text,
+    content jsonb,
+    featured_image_url text,
+    status text NOT NULL DEFAULT 'draft'::text CHECK (
+        status = ANY (
+            ARRAY ['draft'::text, 'published'::text, 'archived'::text]
+        )
+    ),
+    author_id uuid NOT NULL,
+    category_id uuid NOT NULL,
+    city_id uuid,
+    dish_type_id uuid,
+    seo_title text,
+    seo_description text,
+    published_at timestamp with time zone,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT blog_posts_pkey PRIMARY KEY (id),
+    CONSTRAINT blog_posts_author_id_fkey FOREIGN KEY (author_id) REFERENCES public.blog_authors(id),
+    CONSTRAINT blog_posts_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.blog_categories(id),
+    CONSTRAINT blog_posts_city_id_fkey FOREIGN KEY (city_id) REFERENCES public.cities(id),
+    CONSTRAINT blog_posts_dish_type_id_fkey FOREIGN KEY (dish_type_id) REFERENCES public.dish_types(id)
+);
+CREATE TABLE public.blog_tags (
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    name text NOT NULL UNIQUE,
+    slug text NOT NULL UNIQUE,
+    created_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT blog_tags_pkey PRIMARY KEY (id)
+);
 CREATE TABLE public.cities (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     name text NOT NULL,
@@ -47,6 +121,25 @@ CREATE TABLE public.comparisons (
     CONSTRAINT comparisons_rating_b_id_fkey FOREIGN KEY (rating_b_id) REFERENCES public.personal_ratings(id),
     CONSTRAINT comparisons_winner_rating_id_fkey FOREIGN KEY (winner_rating_id) REFERENCES public.personal_ratings(id)
 );
+CREATE TABLE public.content_flags (
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    flag_type text NOT NULL,
+    target_type text NOT NULL,
+    target_id uuid NOT NULL,
+    reason text,
+    status text NOT NULL DEFAULT 'pending'::text CHECK (
+        status = ANY (
+            ARRAY ['pending'::text, 'reviewed'::text, 'dismissed'::text]
+        )
+    ),
+    reporter_id uuid,
+    reviewed_by uuid,
+    reviewed_at timestamp with time zone,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT content_flags_pkey PRIMARY KEY (id),
+    CONSTRAINT content_flags_reporter_id_fkey FOREIGN KEY (reporter_id) REFERENCES auth.users(id),
+    CONSTRAINT content_flags_reviewed_by_fkey FOREIGN KEY (reviewed_by) REFERENCES auth.users(id)
+);
 CREATE TABLE public.dish_type_variations (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     dish_type_id uuid NOT NULL,
@@ -86,6 +179,9 @@ CREATE TABLE public.global_dish_scores (
     featured_rating_id uuid,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
+    weighted_elo_sum numeric NOT NULL DEFAULT 0,
+    weighted_raw_sum numeric NOT NULL DEFAULT 0,
+    total_weight numeric NOT NULL DEFAULT 0,
     CONSTRAINT global_dish_scores_pkey PRIMARY KEY (id),
     CONSTRAINT global_dish_scores_restaurant_id_fkey FOREIGN KEY (restaurant_id) REFERENCES public.restaurants(id),
     CONSTRAINT global_dish_scores_dish_type_id_fkey FOREIGN KEY (dish_type_id) REFERENCES public.dish_types(id),
@@ -177,6 +273,12 @@ CREATE TABLE public.profiles (
     push_enabled boolean DEFAULT true,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
+    role text NOT NULL DEFAULT 'user'::text CHECK (role = ANY (ARRAY ['user'::text, 'admin'::text])),
+    is_banned boolean NOT NULL DEFAULT false,
+    banned_at timestamp with time zone,
+    ban_reason text,
+    warned_at timestamp with time zone,
+    warn_count integer NOT NULL DEFAULT 0,
     CONSTRAINT profiles_pkey PRIMARY KEY (id),
     CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id),
     CONSTRAINT profiles_home_city_id_fkey FOREIGN KEY (home_city_id) REFERENCES public.cities(id)
@@ -230,4 +332,11 @@ CREATE TABLE public.taste_tags (
     created_at timestamp with time zone DEFAULT now(),
     CONSTRAINT taste_tags_pkey PRIMARY KEY (id),
     CONSTRAINT taste_tags_dish_type_id_fkey FOREIGN KEY (dish_type_id) REFERENCES public.dish_types(id)
+);
+CREATE TABLE public.user_waitlist (
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    email text NOT NULL UNIQUE,
+    source text,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT user_waitlist_pkey PRIMARY KEY (id)
 );
