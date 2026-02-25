@@ -99,27 +99,24 @@ CREATE TABLE public.comparisons (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     user_id uuid NOT NULL,
     dish_type_id uuid NOT NULL,
-    rating_a_id uuid NOT NULL,
-    rating_b_id uuid NOT NULL,
-    winner_rating_id uuid,
-    skipped boolean DEFAULT false,
-    skip_reason text CHECK (
-        skip_reason = ANY (
-            ARRAY ['not_tried'::text, 'cant_remember'::text, 'other'::text]
+    skip_reason text,
+    created_at timestamp with time zone DEFAULT now(),
+    new_rating_id uuid,
+    opponent_rating_id uuid,
+    result text CHECK (
+        result = ANY (
+            ARRAY ['new_wins'::text, 'opponent_wins'::text, 'skipped'::text]
         )
     ),
-    rating_a_elo_before numeric,
-    rating_a_elo_after numeric,
-    rating_b_elo_before numeric,
-    rating_b_elo_after numeric,
-    created_at timestamp with time zone DEFAULT now(),
+    step_number integer NOT NULL DEFAULT 1,
+    low_bound integer NOT NULL DEFAULT 0,
+    high_bound integer NOT NULL DEFAULT 0,
     CONSTRAINT comparisons_pkey PRIMARY KEY (id),
     CONSTRAINT comparisons_user_profile_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id),
     CONSTRAINT comparisons_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
     CONSTRAINT comparisons_dish_type_id_fkey FOREIGN KEY (dish_type_id) REFERENCES public.dish_types(id),
-    CONSTRAINT comparisons_rating_a_id_fkey FOREIGN KEY (rating_a_id) REFERENCES public.personal_ratings(id),
-    CONSTRAINT comparisons_rating_b_id_fkey FOREIGN KEY (rating_b_id) REFERENCES public.personal_ratings(id),
-    CONSTRAINT comparisons_winner_rating_id_fkey FOREIGN KEY (winner_rating_id) REFERENCES public.personal_ratings(id)
+    CONSTRAINT comparisons_new_rating_id_fkey FOREIGN KEY (new_rating_id) REFERENCES public.personal_ratings(id),
+    CONSTRAINT comparisons_opponent_rating_id_fkey FOREIGN KEY (opponent_rating_id) REFERENCES public.personal_ratings(id)
 );
 CREATE TABLE public.content_flags (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -168,20 +165,20 @@ CREATE TABLE public.global_dish_scores (
     dish_type_id uuid NOT NULL,
     city_id uuid NOT NULL,
     neighborhood_id uuid,
-    avg_raw_score numeric,
+    raw_weighted_avg numeric,
     total_ratings integer DEFAULT 0,
-    global_elo numeric DEFAULT 1500.00,
-    total_battles integer DEFAULT 0,
-    battles_won integer DEFAULT 0,
-    win_rate numeric DEFAULT 0.0000,
-    confidence_score numeric DEFAULT 0.000,
     featured_photo_url text,
     featured_rating_id uuid,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
-    weighted_elo_sum numeric NOT NULL DEFAULT 0,
-    weighted_raw_sum numeric NOT NULL DEFAULT 0,
-    total_weight numeric NOT NULL DEFAULT 0,
+    weighted_score_sum numeric NOT NULL DEFAULT 0,
+    weighted_rating_count numeric NOT NULL DEFAULT 0,
+    bayesian_score numeric,
+    confidence_tier text DEFAULT 'low'::text CHECK (
+        confidence_tier = ANY (
+            ARRAY ['low'::text, 'medium'::text, 'high'::text, 'very_high'::text]
+        )
+    ),
     CONSTRAINT global_dish_scores_pkey PRIMARY KEY (id),
     CONSTRAINT global_dish_scores_restaurant_id_fkey FOREIGN KEY (restaurant_id) REFERENCES public.restaurants(id),
     CONSTRAINT global_dish_scores_dish_type_id_fkey FOREIGN KEY (dish_type_id) REFERENCES public.dish_types(id),
@@ -238,14 +235,6 @@ CREATE TABLE public.personal_ratings (
     dish_type_id uuid NOT NULL,
     photo_url text NOT NULL,
     photo_storage_path text,
-    raw_score numeric NOT NULL CHECK (
-        raw_score >= 1::numeric
-        AND raw_score <= 10::numeric
-    ),
-    personal_elo numeric DEFAULT 1500.00,
-    battles_won integer DEFAULT 0,
-    battles_lost integer DEFAULT 0,
-    battles_total integer DEFAULT 0,
     notes text,
     location_verified boolean DEFAULT false,
     exif_location USER - DEFINED,
@@ -253,6 +242,13 @@ CREATE TABLE public.personal_ratings (
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
     variation_id uuid,
+    sentiment text NOT NULL DEFAULT 'liked'::text CHECK (
+        sentiment = ANY (
+            ARRAY ['liked'::text, 'okay'::text, 'disliked'::text]
+        )
+    ),
+    derived_score numeric,
+    rank_position integer,
     CONSTRAINT personal_ratings_pkey PRIMARY KEY (id),
     CONSTRAINT personal_ratings_variation_id_fkey FOREIGN KEY (variation_id) REFERENCES public.dish_type_variations(id),
     CONSTRAINT personal_ratings_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
