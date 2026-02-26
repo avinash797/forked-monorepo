@@ -65,8 +65,6 @@ BEGIN
     END LOOP;
 END;
 $$;
-
-
 -- ============================================
 -- compute_community_score
 -- Recomputes the Bayesian community score for a restaurant/dish_type pair.
@@ -146,15 +144,12 @@ BEGIN
       AND dish_type_id  = p_dish_type_id;
 END;
 $$;
-
-
 -- ============================================
 -- create_rating
 -- Main entry point.  Replaces post_rating_and_get_duel.
 -- Returns JSONB: { rating_id, has_battle } or { rating_id, has_battle, battle_id, step, max_steps, skips_remaining, opponent }
 -- ============================================
 DROP FUNCTION IF EXISTS public.create_rating(UUID, UUID, TEXT, TEXT, TEXT, UUID, TEXT, BOOLEAN, UUID[]);
-
 CREATE OR REPLACE FUNCTION public.create_rating(
     p_restaurant_id       UUID,
     p_dish_type_id        UUID,
@@ -398,8 +393,6 @@ BEGIN
     END IF;
 END;
 $$;
-
-
 -- ============================================
 -- process_battle
 -- Processes a vote in the binary insertion sort sequence.
@@ -407,7 +400,6 @@ $$;
 --      or { done: false, next_battle_id, step, max_steps, skips_remaining, opponent }
 -- ============================================
 DROP FUNCTION IF EXISTS public.process_battle(UUID, UUID);
-
 CREATE OR REPLACE FUNCTION public.process_battle(
     p_battle_id        UUID,
     p_winner_rating_id UUID
@@ -576,8 +568,6 @@ BEGIN
     END IF;
 END;
 $$;
-
-
 -- ============================================
 -- skip_battle
 -- Skips the current battle step, creates next step with a different opponent.
@@ -585,7 +575,6 @@ $$;
 -- Returns same shape as process_battle.
 -- ============================================
 DROP FUNCTION IF EXISTS public.skip_battle(UUID, TEXT);
-
 CREATE OR REPLACE FUNCTION public.skip_battle(
     p_battle_id   UUID,
     p_skip_reason TEXT DEFAULT NULL
@@ -729,8 +718,6 @@ BEGIN
     );
 END;
 $$;
-
-
 -- ============================================
 -- get_leaderboard
 -- Updated: removes p_min_battles, returns bayesian_score + confidence_tier.
@@ -738,7 +725,6 @@ $$;
 -- ============================================
 DROP FUNCTION IF EXISTS public.get_leaderboard(UUID, UUID, UUID, INTEGER, INTEGER, INTEGER);
 DROP FUNCTION IF EXISTS public.get_leaderboard(UUID, UUID, UUID, INTEGER);
-
 CREATE OR REPLACE FUNCTION public.get_leaderboard(
     p_city_id           UUID,
     p_dish_type_id      UUID,
@@ -789,7 +775,6 @@ BEGIN
     LIMIT p_limit;
 END;
 $$;
-
 -- Aliases for backward compatibility
 CREATE OR REPLACE FUNCTION public.get_leaderboard_with_tiebreakers(
     p_city_id UUID, p_dish_type_id UUID, p_neighborhood_id UUID DEFAULT NULL, p_limit INTEGER DEFAULT 10
@@ -799,15 +784,12 @@ CREATE OR REPLACE FUNCTION public.get_leaderboard_with_tiebreakers(
 LANGUAGE SQL SECURITY DEFINER SET search_path = public AS $$
     SELECT * FROM public.get_leaderboard(p_city_id, p_dish_type_id, p_neighborhood_id, p_limit);
 $$;
-
-
 -- ============================================
 -- get_nearby_leaderboard
 -- Updated: removes global_elo / total_battles, adds bayesian_score / confidence_tier.
 -- ============================================
 DROP FUNCTION IF EXISTS public.get_nearby_leaderboard(DOUBLE PRECISION, DOUBLE PRECISION, INTEGER, UUID, INTEGER);
 DROP FUNCTION IF EXISTS public.get_nearby_leaderboard(numeric, numeric, integer, uuid, integer);
-
 CREATE OR REPLACE FUNCTION public.get_nearby_leaderboard(
     p_latitude     DOUBLE PRECISION,
     p_longitude    DOUBLE PRECISION,
@@ -856,15 +838,12 @@ BEGIN
     LIMIT p_limit;
 END;
 $$;
-
-
 -- ============================================
 -- get_my_best_ever
 -- Updated: returns derived_score + sentiment, removes raw_score / personal_elo.
 -- Must DROP first (return type changes).
 -- ============================================
 DROP FUNCTION IF EXISTS public.get_my_best_ever(UUID);
-
 CREATE OR REPLACE FUNCTION public.get_my_best_ever(
     p_user_id UUID DEFAULT NULL
 ) RETURNS TABLE (
@@ -910,15 +889,12 @@ BEGIN
     ORDER BY pr.dish_type_id, pr.derived_score DESC NULLS LAST;
 END;
 $$;
-
-
 -- ============================================
 -- get_my_dish_rankings
 -- Updated: orders by rank_position, returns sentiment + derived_score.
 -- Must DROP first (return type changes).
 -- ============================================
 DROP FUNCTION IF EXISTS public.get_my_dish_rankings(UUID, UUID);
-
 CREATE OR REPLACE FUNCTION public.get_my_dish_rankings(
     p_dish_type_id UUID,
     p_user_id      UUID DEFAULT NULL
@@ -962,8 +938,6 @@ BEGIN
     ORDER BY pr.rank_position ASC NULLS LAST;
 END;
 $$;
-
-
 -- ============================================
 -- get_user_stats
 -- Fix: skip_rate now uses result = 'skipped' (comparisons.skipped column removed).
@@ -1020,14 +994,11 @@ BEGIN
     RETURN v_result;
 END;
 $$;
-
-
 -- ============================================
 -- get_discover_heroes
 -- Updated: p_min_battles → p_min_ratings; returns bayesian_score + confidence_tier.
 -- ============================================
 DROP FUNCTION IF EXISTS public.get_discover_heroes(TEXT, DOUBLE PRECISION, DOUBLE PRECISION, INTEGER, INTEGER);
-
 CREATE OR REPLACE FUNCTION public.get_discover_heroes(
     p_city_name     TEXT             DEFAULT NULL,
     p_user_lat      DOUBLE PRECISION DEFAULT NULL,
@@ -1095,14 +1066,11 @@ BEGIN
     ORDER BY gds.bayesian_score DESC NULLS LAST;
 END;
 $$;
-
-
 -- ============================================
 -- get_discover_rising_stars
 -- Updated: p_max_battles → p_max_ratings; returns bayesian_score + confidence_tier.
 -- ============================================
 DROP FUNCTION IF EXISTS public.get_discover_rising_stars(TEXT, DOUBLE PRECISION, DOUBLE PRECISION, INTEGER, NUMERIC, INTEGER, INTEGER);
-
 CREATE OR REPLACE FUNCTION public.get_discover_rising_stars(
     p_city_name     TEXT             DEFAULT NULL,
     p_user_lat      DOUBLE PRECISION DEFAULT NULL,

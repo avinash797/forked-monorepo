@@ -26,8 +26,6 @@ ALTER TABLE public.global_dish_scores
     ADD COLUMN IF NOT EXISTS weighted_elo_sum DECIMAL(16, 4) NOT NULL DEFAULT 0,
     ADD COLUMN IF NOT EXISTS weighted_raw_sum DECIMAL(14, 4) NOT NULL DEFAULT 0,
     ADD COLUMN IF NOT EXISTS total_weight     DECIMAL(12, 4) NOT NULL DEFAULT 0;
-
-
 -- -----------------------------------------------------------------------------
 -- 2. Backfill running totals from existing data  (one-time full scan)
 --    After this runs it will never be needed again — all future writes are
@@ -51,22 +49,17 @@ FROM (
 ) agg
 WHERE gds.restaurant_id = agg.restaurant_id
   AND gds.dish_type_id  = agg.dish_type_id;
-
 -- Sync the derived scalar columns from the now-correct running totals
 UPDATE public.global_dish_scores
 SET
     global_elo    = ROUND(weighted_elo_sum / NULLIF(total_weight, 0), 2),
     avg_raw_score = ROUND(weighted_raw_sum / NULLIF(total_weight, 0), 1)
 WHERE total_weight > 0;
-
-
 -- -----------------------------------------------------------------------------
 -- 3. Drop the old single-argument update_global_dish_score so the new
 --    four-argument version does not silently coexist with it.
 -- -----------------------------------------------------------------------------
 DROP FUNCTION IF EXISTS public.update_global_dish_score(uuid);
-
-
 -- -----------------------------------------------------------------------------
 -- 4. Incremental update_global_dish_score  —  O(1), no aggregation scan
 --
@@ -128,8 +121,6 @@ BEGIN
       AND dish_type_id  = v_dish_type_id;
 END;
 $$;
-
-
 -- -----------------------------------------------------------------------------
 -- 5. Update submit_comparison to pass old/new elos to the incremental function
 --    Elo math is unchanged — only the global score update call changes.
@@ -212,8 +203,6 @@ BEGIN
     );
 END;
 $$;
-
-
 -- -----------------------------------------------------------------------------
 -- 6. Update post_rating_and_get_duel to seed running totals on new rating
 --    When the first rating for a dish arrives the running totals are

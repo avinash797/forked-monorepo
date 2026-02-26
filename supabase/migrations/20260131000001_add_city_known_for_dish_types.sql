@@ -9,17 +9,13 @@ CREATE TABLE public.city_known_dishes (
     created_at timestamp with time zone DEFAULT now(),
     PRIMARY KEY (city_id, dish_type_id)
 );
-
 COMMENT ON TABLE public.city_known_dishes
   IS 'Junction table linking cities to dish types they are famous for';
-
 -- Index for reverse lookups (e.g., "which cities are known for pizza?")
 CREATE INDEX idx_city_known_dishes_dish_type
   ON public.city_known_dishes (dish_type_id);
-
 -- Enable RLS
 ALTER TABLE public.city_known_dishes ENABLE ROW LEVEL SECURITY;
-
 -- Public read access
 CREATE POLICY "City known dishes are publicly readable"
   ON public.city_known_dishes

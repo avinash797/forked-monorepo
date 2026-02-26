@@ -47,7 +47,6 @@ ORDER BY pr.dish_type_id,
     pr.raw_score DESC;
 END;
 $$;
-
 -- ============================================
 -- 2. get_my_dish_rankings: raw_score INTEGER → NUMERIC (return type change → must DROP)
 -- ============================================
@@ -95,7 +94,6 @@ ORDER BY pr.personal_elo DESC,
     pr.raw_score DESC;
 END;
 $$;
-
 -- ============================================
 -- 3. get_pending_comparisons: rating_a/b_raw_score INTEGER → NUMERIC (return type change → must DROP)
 -- ============================================
@@ -154,7 +152,6 @@ ORDER BY pr1.dish_type_id,
 LIMIT p_limit;
 END;
 $$;
-
 -- ============================================
 -- 4. should_trigger_comparison: p_new_raw_score INTEGER → NUMERIC (param type change → DROP old signature)
 -- ============================================
@@ -178,7 +175,6 @@ SET search_path = public AS $$ BEGIN RETURN EXISTS (
     );
 END;
 $$;
-
 -- ============================================
 -- 5. get_comparison_candidate: p_new_raw_score INTEGER → NUMERIC (param type change → DROP old signature)
 -- ============================================
@@ -205,7 +201,6 @@ LIMIT 1;
 RETURN candidate_id;
 END;
 $$;
-
 -- ============================================
 -- 6. create_rating: p_raw_score INTEGER → NUMERIC (param type change → DROP old signature)
 -- ============================================
@@ -330,7 +325,6 @@ RETURN jsonb_build_object(
 );
 END;
 $$;
-
 -- ============================================
 -- 7. update_existing_rating: p_new_raw_score INTEGER → NUMERIC (param type change → DROP old signature)
 -- ============================================

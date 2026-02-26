@@ -63,5 +63,4 @@ BEGIN
     LIMIT p_limit;
 END;
 $$;
-
 COMMENT ON FUNCTION public.find_nearby_restaurants IS 'Find restaurants within a radius (meters) of a lat/long point, ordered by distance';

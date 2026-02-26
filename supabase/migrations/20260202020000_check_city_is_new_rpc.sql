@@ -12,5 +12,4 @@ LANGUAGE sql STABLE SECURITY DEFINER AS $$
     FROM public.cities c
     WHERE c.id = p_city_id;
 $$;
-
 COMMENT ON FUNCTION public.check_city_is_new(uuid) IS 'Checks if a city is inactive (newly created) and returns city details for client-side enrichment flow';

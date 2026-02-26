@@ -5,14 +5,10 @@ DROP FUNCTION IF EXISTS public.validate_comparison(UUID, UUID);
 DROP FUNCTION IF EXISTS public.should_trigger_comparison(UUID, UUID, NUMERIC, UUID);
 DROP FUNCTION IF EXISTS public.recalculate_global_scores(UUID, UUID);
 DROP FUNCTION IF EXISTS public.get_comparison_candidate(UUID, UUID, UUID, NUMERIC);
-
 DROP FUNCTION IF EXISTS public.clamp_elo(NUMERIC);
 DROP FUNCTION IF EXISTS public.get_k_factor(INTEGER);
-
 DROP FUNCTION IF EXISTS public.get_nearby_leaderboard(DOUBLE PRECISION, DOUBLE PRECISION, INTEGER, UUID, INTEGER);
 DROP FUNCTION IF EXISTS public.get_nearby_leaderboard(uuid, double precision, double precision, integer, integer);
-
 DROP FUNCTION IF EXISTS public.create_rating(UUID, UUID, NUMERIC, TEXT, TEXT, TEXT, BOOLEAN, UUID[]);
 DROP FUNCTION IF EXISTS public.check_user_skip_rate(UUID);
 DROP FUNCTION IF EXISTS public.check_rate_limit(UUID);
-

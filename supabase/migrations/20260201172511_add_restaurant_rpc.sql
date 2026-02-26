@@ -14,7 +14,6 @@ CREATE OR REPLACE FUNCTION public.slugify(v_text text) RETURNS text AS $$ BEGIN 
     );
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
-
 -- Create the upsert RPC function
 CREATE OR REPLACE FUNCTION public.upsert_restaurant_from_google(
         p_google_place_id text,

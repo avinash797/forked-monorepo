@@ -87,7 +87,6 @@ BEGIN
     ORDER BY gds.confidence_score DESC;
 END;
 $$;
-
 -- ============================================
 -- DISCOVER RISING STARS (fix search_path)
 -- ============================================
@@ -179,7 +178,6 @@ BEGIN
     ORDER BY gds.avg_raw_score DESC;
 END;
 $$;
-
 -- Update comments
 COMMENT ON FUNCTION public.get_discover_heroes IS 'Returns hero dishes for discover page, excluding restaurants user has already rated. Supports city name or proximity-based location filtering.';
 COMMENT ON FUNCTION public.get_discover_rising_stars IS 'Returns rising star dishes for discover page, excluding restaurants user has already rated. Supports city name or proximity-based location filtering.';
