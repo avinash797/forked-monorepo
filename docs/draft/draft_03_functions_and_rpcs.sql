@@ -200,125 +200,8 @@ END;
 $$;
 
 -- ============================================================
--- CORE: recalculate_derived_scores
--- Recomputes derived_score for all ratings in each sentiment zone
--- using bucket-anchored interpolation.
--- Score = ceiling − ((rank−1)/(n−1)) × (ceiling−floor); single item = midpoint
--- ============================================================
-CREATE OR REPLACE FUNCTION public.recalculate_derived_scores(
-    p_user_id      UUID,
-    p_dish_type_id UUID
-) RETURNS VOID
-LANGUAGE plpgsql SECURITY DEFINER
-SET search_path = public AS $$
-DECLARE
-    v_sentiments TEXT[]    := ARRAY['liked', 'okay', 'disliked'];
-    v_floors     NUMERIC[] := ARRAY[7.0,     4.0,    1.0];
-    v_ceilings   NUMERIC[] := ARRAY[10.0,    6.9,    3.9];
-    i INT;
-BEGIN
-    FOR i IN 1..3 LOOP
-        UPDATE public.personal_ratings pr
-        SET derived_score = ROUND(
-            CASE
-                WHEN zone.n = 1
-                    THEN (v_ceilings[i] + v_floors[i]) / 2.0
-                ELSE
-                    v_ceilings[i]
-                    - ((zone.zone_rank - 1)::NUMERIC / (zone.n - 1)::NUMERIC)
-                    * (v_ceilings[i] - v_floors[i])
-            END, 2)
-        FROM (
-            SELECT
-                id,
-                ROW_NUMBER() OVER (ORDER BY rank_position ASC) AS zone_rank,
-                COUNT(*)     OVER ()                           AS n
-            FROM public.personal_ratings
-            WHERE user_id      = p_user_id
-              AND dish_type_id = p_dish_type_id
-              AND sentiment    = v_sentiments[i]
-              AND rank_position IS NOT NULL
-        ) zone
-        WHERE pr.id = zone.id;
-    END LOOP;
-END;
-$$;
-
--- ============================================================
--- CORE: compute_community_score
--- Bayesian-smoothed leaderboard score for a restaurant/dish pair.
--- Formula: bayesian = (Σsᵢ + C·m) / (n + C), C=5, m=city mean for dish
--- ============================================================
-CREATE OR REPLACE FUNCTION public.compute_community_score(
-    p_restaurant_id UUID,
-    p_dish_type_id  UUID
-) RETURNS VOID
-LANGUAGE plpgsql SECURITY DEFINER
-SET search_path = public AS $$
-DECLARE
-    C                      CONSTANT NUMERIC := 5;
-    v_total_ratings        INTEGER;
-    v_weighted_score_sum   NUMERIC;
-    v_weighted_rating_cnt  NUMERIC;
-    v_raw_weighted_avg     NUMERIC;
-    v_global_mean          NUMERIC;
-    v_bayesian_score       NUMERIC;
-    v_confidence_tier      TEXT;
-BEGIN
-    SELECT COUNT(*), SUM(derived_score), SUM(1.0)
-    INTO v_total_ratings, v_weighted_score_sum, v_weighted_rating_cnt
-    FROM public.personal_ratings
-    WHERE restaurant_id = p_restaurant_id
-      AND dish_type_id  = p_dish_type_id
-      AND derived_score IS NOT NULL;
-
-    IF COALESCE(v_total_ratings, 0) = 0 THEN RETURN; END IF;
-
-    v_raw_weighted_avg := v_weighted_score_sum / NULLIF(v_weighted_rating_cnt, 0);
-
-    -- City mean for same dish type (excluding this restaurant)
-    SELECT COALESCE(AVG(gds2.raw_weighted_avg), 5.0)
-    INTO v_global_mean
-    FROM public.global_dish_scores gds1
-    JOIN public.global_dish_scores gds2
-      ON gds2.city_id       = gds1.city_id
-     AND gds2.dish_type_id  = p_dish_type_id
-     AND gds2.restaurant_id != p_restaurant_id
-    WHERE gds1.restaurant_id = p_restaurant_id
-      AND gds1.dish_type_id  = p_dish_type_id;
-
-    IF v_global_mean IS NULL THEN v_global_mean := 5.0; END IF;
-
-    v_bayesian_score := ROUND(
-        (v_weighted_score_sum + C * v_global_mean) / (v_weighted_rating_cnt + C),
-        2
-    );
-
-    v_confidence_tier := CASE
-        WHEN v_weighted_rating_cnt >= 25 THEN 'very_high'
-        WHEN v_weighted_rating_cnt >= 10 THEN 'high'
-        WHEN v_weighted_rating_cnt >= C  THEN 'medium'
-        ELSE                                  'low'
-    END;
-
-    UPDATE public.global_dish_scores
-    SET raw_weighted_avg      = v_raw_weighted_avg,
-        weighted_score_sum    = v_weighted_score_sum,
-        weighted_rating_count = v_weighted_rating_cnt,
-        total_ratings         = v_total_ratings,
-        bayesian_score        = v_bayesian_score,
-        confidence_tier       = v_confidence_tier,
-        updated_at            = now()
-    WHERE restaurant_id = p_restaurant_id
-      AND dish_type_id  = p_dish_type_id;
-END;
-$$;
-
--- ============================================================
 -- CORE: create_rating
--- Entry point: INSERT/UPDATE a rating + start binary insertion sort if needed.
--- Returns { rating_id, has_battle } or { rating_id, has_battle, battle_id,
---          step, max_steps, skips_remaining, opponent }
+-- Creates the rating record, sets up the battle session, and returns the first opponent.
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.create_rating(
     p_restaurant_id       UUID,
@@ -328,426 +211,588 @@ CREATE OR REPLACE FUNCTION public.create_rating(
     p_photo_storage_path  TEXT    DEFAULT NULL,
     p_variation_id        UUID    DEFAULT NULL,
     p_notes               TEXT    DEFAULT NULL,
-    p_location_verified   BOOLEAN DEFAULT FALSE,
     p_taste_tag_ids       UUID[]  DEFAULT NULL
-) RETURNS JSONB
-LANGUAGE plpgsql SECURITY DEFINER
-SET search_path = public AS $$
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 DECLARE
-    v_user_id              UUID := auth.uid();
-    v_new_rating_id        UUID;
-    v_is_new_insert        BOOLEAN;
-    v_city_id              UUID;
-    v_neighborhood_id      UUID;
-    v_zone_size            INTEGER;
-    v_count_liked          INTEGER;
-    v_count_okay           INTEGER;
-    v_insert_position      INTEGER;
-    v_floor                NUMERIC;
-    v_ceiling              NUMERIC;
-    v_zone_start           INTEGER;
-    v_mid                  INTEGER;
-    v_opponent_id          UUID;
-    v_opponent_restaurant  TEXT;
-    v_opponent_photo       TEXT;
-    v_opponent_score       NUMERIC;
-    v_battle_id            UUID;
-    v_max_battles          INTEGER;
-    v_max_skips            INTEGER;
+    v_user_id         UUID := auth.uid();
+    v_rating_id       UUID;
+    v_initial_elo     NUMERIC;
+    v_zone_min        NUMERIC;
+    v_zone_max        NUMERIC;
+    v_is_re_rating    BOOLEAN := false;
+    v_candidates      UUID[];
+    v_candidate_count INTEGER;
+    v_battle_id       UUID;
+    v_first_opponent  JSONB := NULL;
+    v_mid_idx         INTEGER;
+    v_opponent_rating RECORD;
 BEGIN
-    IF v_user_id IS NULL THEN RAISE EXCEPTION 'Authentication required'; END IF;
-    IF p_sentiment NOT IN ('liked','okay','disliked') THEN
+    -- -------------------------------------------------------
+    -- 1. Resolve initial Elo from sentiment
+    -- -------------------------------------------------------
+    SELECT value INTO v_initial_elo FROM app_constants
+        WHERE key = 'ELO_INITIAL_' || UPPER(
+            CASE p_sentiment
+                WHEN 'liked' THEN 'LIKED'
+                WHEN 'okay' THEN 'OKAY'
+                WHEN 'disliked' THEN 'DISLIKED'
+            END
+        );
+
+    IF v_initial_elo IS NULL THEN
         RAISE EXCEPTION 'Invalid sentiment: %', p_sentiment;
     END IF;
 
-    SELECT city_id, neighborhood_id INTO v_city_id, v_neighborhood_id
-    FROM public.restaurants WHERE id = p_restaurant_id;
+    -- -------------------------------------------------------
+    -- 2. Resolve search zone boundaries
+    -- -------------------------------------------------------
+    CASE p_sentiment
+        WHEN 'liked' THEN
+            SELECT value INTO v_zone_min FROM app_constants WHERE key = 'ZONE_LIKED_MIN';
+            SELECT value INTO v_zone_max FROM app_constants WHERE key = 'ELO_MAX';
+        WHEN 'okay' THEN
+            SELECT value INTO v_zone_min FROM app_constants WHERE key = 'ZONE_OKAY_MIN';
+            SELECT value INTO v_zone_max FROM app_constants WHERE key = 'ZONE_OKAY_MAX';
+        WHEN 'disliked' THEN
+            SELECT value INTO v_zone_min FROM app_constants WHERE key = 'ELO_MIN';
+            SELECT value INTO v_zone_max FROM app_constants WHERE key = 'ZONE_DISLIKED_MAX';
+    END CASE;
 
-    SELECT id INTO v_new_rating_id
-    FROM public.personal_ratings
-    WHERE user_id = v_user_id AND restaurant_id = p_restaurant_id AND dish_type_id = p_dish_type_id;
+    -- -------------------------------------------------------
+    -- 3. Upsert the personal rating
+    -- -------------------------------------------------------
+    SELECT id INTO v_rating_id
+        FROM personal_ratings
+        WHERE user_id = v_user_id
+          AND restaurant_id = p_restaurant_id
+          AND dish_type_id = p_dish_type_id;
 
-    v_is_new_insert := (v_new_rating_id IS NULL);
+    IF v_rating_id IS NOT NULL THEN
+        -- Re-rating: reset Elo and comparison count
+        v_is_re_rating := true;
 
-    INSERT INTO public.personal_ratings (
-        user_id, restaurant_id, dish_type_id, variation_id,
-        photo_url, photo_storage_path, sentiment, notes,
-        location_verified, rank_position, derived_score
-    )
-    VALUES (
-        v_user_id, p_restaurant_id, p_dish_type_id, p_variation_id,
-        p_photo_url, p_photo_storage_path, p_sentiment, p_notes,
-        COALESCE(p_location_verified, false), NULL, NULL
-    )
-    ON CONFLICT (user_id, restaurant_id, dish_type_id) DO UPDATE
-    SET sentiment          = EXCLUDED.sentiment,
-        photo_url          = EXCLUDED.photo_url,
-        photo_storage_path = EXCLUDED.photo_storage_path,
-        variation_id       = EXCLUDED.variation_id,
-        notes              = EXCLUDED.notes,
-        location_verified  = EXCLUDED.location_verified,
-        rank_position      = NULL,
-        derived_score      = NULL,
-        updated_at         = now()
-    RETURNING id INTO v_new_rating_id;
+        -- Abandon any active battle for this rating
+        UPDATE battle_sessions
+            SET status = 'abandoned', updated_at = now()
+            WHERE rating_id = v_rating_id AND status = 'active';
 
+        UPDATE personal_ratings SET
+            sentiment = p_sentiment,
+            elo_score = v_initial_elo,
+            comparison_count = 0,
+            battle_status = 'pending',
+            photo_url = p_photo_url,
+            photo_storage_path = COALESCE(p_photo_storage_path, photo_storage_path),
+            variation_id = p_variation_id,
+            notes = p_notes,
+            updated_at = now()
+        WHERE id = v_rating_id;
+
+        -- Replace tags
+        DELETE FROM personal_rating_tags WHERE rating_id = v_rating_id;
+    ELSE
+        INSERT INTO personal_ratings (
+            user_id, restaurant_id, dish_type_id,
+            sentiment, elo_score, comparison_count, battle_status,
+            photo_url, photo_storage_path, variation_id, notes
+        ) VALUES (
+            v_user_id, p_restaurant_id, p_dish_type_id,
+            p_sentiment, v_initial_elo, 0, 'pending',
+            p_photo_url, p_photo_storage_path, p_variation_id, p_notes
+        )
+        RETURNING id INTO v_rating_id;
+    END IF;
+
+    -- -------------------------------------------------------
+    -- 4. Insert taste tags
+    -- -------------------------------------------------------
     IF p_taste_tag_ids IS NOT NULL AND array_length(p_taste_tag_ids, 1) > 0 THEN
-        DELETE FROM public.personal_rating_tags WHERE rating_id = v_new_rating_id;
-        INSERT INTO public.personal_rating_tags (rating_id, tag_id)
-        SELECT v_new_rating_id, unnest(p_taste_tag_ids) ON CONFLICT DO NOTHING;
+        INSERT INTO personal_rating_tags (rating_id, tag_id)
+        SELECT v_rating_id, unnest(p_taste_tag_ids)
+        ON CONFLICT DO NOTHING;
     END IF;
 
-    IF v_is_new_insert THEN
-        UPDATE public.profiles SET total_ratings = total_ratings + 1 WHERE id = v_user_id;
-    END IF;
+    -- -------------------------------------------------------
+    -- 5. Build candidate list for binary search
+    --    (other ratings in same dish type within the Elo zone)
+    -- -------------------------------------------------------
+    SELECT ARRAY_AGG(id ORDER BY elo_score DESC)
+    INTO v_candidates
+    FROM personal_ratings
+    WHERE user_id = v_user_id
+      AND dish_type_id = p_dish_type_id
+      AND id != v_rating_id
+      AND battle_status = 'completed'
+      AND elo_score >= v_zone_min
+      AND elo_score <= v_zone_max;
 
-    INSERT INTO public.global_dish_scores (restaurant_id, dish_type_id, city_id, neighborhood_id, total_ratings)
-    VALUES (p_restaurant_id, p_dish_type_id, v_city_id, v_neighborhood_id, 0)
-    ON CONFLICT (restaurant_id, dish_type_id) DO NOTHING;
+    v_candidates := COALESCE(v_candidates, '{}');
+    v_candidate_count := COALESCE(array_length(v_candidates, 1), 0);
 
-    SELECT COUNT(*) INTO v_zone_size
-    FROM public.personal_ratings
-    WHERE user_id = v_user_id AND dish_type_id = p_dish_type_id
-      AND sentiment = p_sentiment AND rank_position IS NOT NULL AND id != v_new_rating_id;
+    -- -------------------------------------------------------
+    -- 6. If no candidates, battle is instantly complete
+    -- -------------------------------------------------------
+    IF v_candidate_count = 0 THEN
+        UPDATE personal_ratings
+            SET battle_status = 'completed'
+            WHERE id = v_rating_id;
 
-    IF v_zone_size = 0 THEN
-        -- No existing zone items: place immediately at midpoint
-        SELECT COUNT(*) INTO v_count_liked
-        FROM public.personal_ratings
-        WHERE user_id = v_user_id AND dish_type_id = p_dish_type_id
-          AND sentiment = 'liked' AND rank_position IS NOT NULL AND id != v_new_rating_id;
-
-        SELECT COUNT(*) INTO v_count_okay
-        FROM public.personal_ratings
-        WHERE user_id = v_user_id AND dish_type_id = p_dish_type_id
-          AND sentiment = 'okay' AND rank_position IS NOT NULL AND id != v_new_rating_id;
-
-        v_insert_position := CASE p_sentiment
-            WHEN 'liked'    THEN 1
-            WHEN 'okay'     THEN v_count_liked + 1
-            ELSE                 v_count_liked + v_count_okay + 1
-        END;
-
-        UPDATE public.personal_ratings
-        SET rank_position = rank_position + 1
-        WHERE user_id = v_user_id AND dish_type_id = p_dish_type_id
-          AND rank_position >= v_insert_position AND id != v_new_rating_id AND rank_position IS NOT NULL;
-
-        CASE p_sentiment
-            WHEN 'liked'    THEN v_floor := 7.0; v_ceiling := 10.0;
-            WHEN 'okay'     THEN v_floor := 4.0; v_ceiling := 6.9;
-            ELSE                 v_floor := 1.0; v_ceiling := 3.9;
-        END CASE;
-
-        UPDATE public.personal_ratings
-        SET rank_position = v_insert_position,
-            derived_score = ROUND((v_ceiling + v_floor) / 2.0, 2)
-        WHERE id = v_new_rating_id;
-
-        PERFORM public.recalculate_derived_scores(v_user_id, p_dish_type_id);
-        PERFORM public.compute_community_score(p_restaurant_id, p_dish_type_id);
-
-        RETURN jsonb_build_object('rating_id', v_new_rating_id, 'has_battle', false);
-
-    ELSE
-        -- Zone has items: start binary insertion sort
-        v_max_battles := floor(log(2, v_zone_size::NUMERIC))::INTEGER + 1;
-        v_max_skips   := GREATEST(1, floor(v_max_battles::NUMERIC / 3))::INTEGER;
-
-        SELECT MIN(rank_position) INTO v_zone_start
-        FROM public.personal_ratings
-        WHERE user_id = v_user_id AND dish_type_id = p_dish_type_id
-          AND sentiment = p_sentiment AND rank_position IS NOT NULL AND id != v_new_rating_id;
-
-        v_mid := floor((v_zone_size - 1)::NUMERIC / 2)::INTEGER;
-
-        SELECT pr.id, r.name, pr.photo_url, pr.derived_score
-        INTO v_opponent_id, v_opponent_restaurant, v_opponent_photo, v_opponent_score
-        FROM public.personal_ratings pr
-        JOIN public.restaurants r ON r.id = pr.restaurant_id
-        WHERE pr.user_id = v_user_id AND pr.dish_type_id = p_dish_type_id
-          AND pr.rank_position = v_zone_start + v_mid AND pr.id != v_new_rating_id;
-
-        IF v_opponent_id IS NULL THEN
-            RAISE WARNING 'create_rating: opponent not found at rank %. Placing without battle.', v_zone_start + v_mid;
-
-            SELECT MIN(rank_position) INTO v_insert_position
-            FROM public.personal_ratings
-            WHERE user_id = v_user_id AND dish_type_id = p_dish_type_id
-              AND sentiment = p_sentiment AND rank_position IS NOT NULL AND id != v_new_rating_id;
-
-            UPDATE public.personal_ratings
-            SET rank_position = COALESCE(v_insert_position, 1),
-                derived_score = CASE p_sentiment WHEN 'liked' THEN 8.5 WHEN 'okay' THEN 5.5 ELSE 2.5 END
-            WHERE id = v_new_rating_id;
-
-            PERFORM public.recalculate_derived_scores(v_user_id, p_dish_type_id);
-            PERFORM public.compute_community_score(p_restaurant_id, p_dish_type_id);
-            RETURN jsonb_build_object('rating_id', v_new_rating_id, 'has_battle', false);
-        END IF;
-
-        INSERT INTO public.comparisons (user_id, dish_type_id, new_rating_id, opponent_rating_id, low_bound, high_bound, step_number)
-        VALUES (v_user_id, p_dish_type_id, v_new_rating_id, v_opponent_id, 0, v_zone_size - 1, 1)
-        RETURNING id INTO v_battle_id;
+        -- Update profile stats
+        PERFORM _update_profile_stats(v_user_id);
+        -- Update leaderboard
+        PERFORM _update_global_dish_score(p_restaurant_id, p_dish_type_id);
 
         RETURN jsonb_build_object(
-            'rating_id',       v_new_rating_id,
-            'has_battle',      true,
-            'battle_id',       v_battle_id,
-            'step',            1,
-            'max_steps',       v_max_battles,
-            'skips_remaining', v_max_skips,
-            'opponent', jsonb_build_object(
-                'rating_id',       v_opponent_id,
-                'restaurant_name', v_opponent_restaurant,
-                'photo_url',       v_opponent_photo,
-                'derived_score',   v_opponent_score
-            )
+            'rating_id', v_rating_id,
+            'battle_id', NULL,
+            'opponent', NULL,
+            'battle_complete', true,
+            'is_re_rating', v_is_re_rating,
+            'elo_score', v_initial_elo,
+            'derived_score', ROUND(((v_initial_elo - 1000) / 1000.0) * 10.0, 1)
         );
     END IF;
-END;
-$$;
 
--- ============================================================
--- CORE: process_battle
--- Processes a vote in the binary insertion sort sequence.
--- Returns { done: true, rank_position, derived_score }
---      or { done: false, next_battle_id, step, max_steps, skips_remaining, opponent }
--- ============================================================
-CREATE OR REPLACE FUNCTION public.process_battle(
-    p_battle_id        UUID,
-    p_winner_rating_id UUID
-) RETURNS JSONB
-LANGUAGE plpgsql SECURITY DEFINER
-SET search_path = public AS $$
-DECLARE
-    v_user_id          UUID := auth.uid();
-    v_battle           record;
-    v_new_rating       record;
-    v_mid              INTEGER;
-    v_new_low          INTEGER;
-    v_new_high         INTEGER;
-    v_zone_start       INTEGER;
-    v_insert_rank      INTEGER;
-    v_zone_size        INTEGER;
-    v_max_battles      INTEGER;
-    v_max_skips        INTEGER;
-    v_existing_skips   INTEGER;
-    v_skips_remaining  INTEGER;
-    v_next_rank        INTEGER;
-    v_next_id          UUID;
-    v_next_restaurant  TEXT;
-    v_next_photo       TEXT;
-    v_next_score       NUMERIC;
-    v_next_battle_id   UUID;
-    v_final_score      NUMERIC;
-BEGIN
-    SELECT * INTO v_battle FROM public.comparisons WHERE id = p_battle_id;
-    IF NOT FOUND THEN RAISE EXCEPTION 'Battle not found: %', p_battle_id; END IF;
-    IF v_battle.user_id != v_user_id THEN RAISE EXCEPTION 'Not authorized'; END IF;
-    IF v_battle.result  IS NOT NULL  THEN RAISE EXCEPTION 'Battle already resolved'; END IF;
-    IF p_winner_rating_id != v_battle.new_rating_id
-   AND p_winner_rating_id != v_battle.opponent_rating_id THEN
-        RAISE EXCEPTION 'Invalid winner_rating_id';
-    END IF;
+    -- -------------------------------------------------------
+    -- 7. Create battle session
+    -- -------------------------------------------------------
+    UPDATE personal_ratings
+        SET battle_status = 'in_progress'
+        WHERE id = v_rating_id;
 
-    SELECT * INTO v_new_rating FROM public.personal_ratings WHERE id = v_battle.new_rating_id;
+    INSERT INTO battle_sessions (
+        user_id, rating_id, dish_type_id,
+        candidate_ids, low_idx, high_idx, current_step
+    ) VALUES (
+        v_user_id, v_rating_id, p_dish_type_id,
+        v_candidates, 0, v_candidate_count - 1, 1
+    )
+    RETURNING id INTO v_battle_id;
 
-    v_mid := floor((v_battle.low_bound + v_battle.high_bound)::NUMERIC / 2)::INTEGER;
+    -- -------------------------------------------------------
+    -- 8. Return first opponent (midpoint)
+    -- -------------------------------------------------------
+    v_mid_idx := (0 + (v_candidate_count - 1)) / 2;
 
-    IF p_winner_rating_id = v_battle.new_rating_id THEN
-        v_new_low  := v_battle.low_bound;
-        v_new_high := v_mid;
-        UPDATE public.comparisons SET result = 'new_wins' WHERE id = p_battle_id;
-    ELSE
-        v_new_low  := v_mid + 1;
-        v_new_high := v_battle.high_bound;
-        UPDATE public.comparisons SET result = 'opponent_wins' WHERE id = p_battle_id;
-    END IF;
+    SELECT id, restaurant_id, elo_score,
+           ROUND(((LEAST(GREATEST(elo_score, 1000), 2000) - 1000) / 1000.0) * 10.0, 1) AS display_score
+    INTO v_opponent_rating
+    FROM personal_ratings
+    WHERE id = v_candidates[v_mid_idx + 1]; -- 1-indexed array access
 
-    UPDATE public.profiles SET total_battles = total_battles + 1 WHERE id = v_user_id;
-
-    IF v_new_low >= v_new_high THEN
-        -- Converged: insert at final position
-        SELECT MIN(rank_position) INTO v_zone_start
-        FROM public.personal_ratings
-        WHERE user_id = v_user_id AND dish_type_id = v_battle.dish_type_id
-          AND sentiment = v_new_rating.sentiment AND rank_position IS NOT NULL AND id != v_battle.new_rating_id;
-
-        v_insert_rank := v_zone_start + v_new_low;
-
-        UPDATE public.personal_ratings
-        SET rank_position = rank_position + 1
-        WHERE user_id = v_user_id AND dish_type_id = v_battle.dish_type_id
-          AND rank_position >= v_insert_rank AND id != v_battle.new_rating_id AND rank_position IS NOT NULL;
-
-        UPDATE public.personal_ratings SET rank_position = v_insert_rank WHERE id = v_battle.new_rating_id;
-
-        PERFORM public.recalculate_derived_scores(v_user_id, v_battle.dish_type_id);
-        PERFORM public.compute_community_score(v_new_rating.restaurant_id, v_battle.dish_type_id);
-
-        SELECT derived_score INTO v_final_score FROM public.personal_ratings WHERE id = v_battle.new_rating_id;
-
-        RETURN jsonb_build_object('done', true, 'rank_position', v_insert_rank, 'derived_score', v_final_score);
-
-    ELSE
-        -- Continue: find next opponent
-        SELECT MIN(rank_position) INTO v_zone_start
-        FROM public.personal_ratings
-        WHERE user_id = v_user_id AND dish_type_id = v_battle.dish_type_id
-          AND sentiment = v_new_rating.sentiment AND rank_position IS NOT NULL AND id != v_battle.new_rating_id;
-
-        v_next_rank := v_zone_start + floor((v_new_low + v_new_high)::NUMERIC / 2)::INTEGER;
-
-        SELECT pr.id, r.name, pr.photo_url, pr.derived_score
-        INTO v_next_id, v_next_restaurant, v_next_photo, v_next_score
-        FROM public.personal_ratings pr
-        JOIN public.restaurants r ON r.id = pr.restaurant_id
-        WHERE pr.user_id = v_user_id AND pr.dish_type_id = v_battle.dish_type_id
-          AND pr.rank_position = v_next_rank AND pr.id != v_battle.new_rating_id;
-
-        SELECT COUNT(*) INTO v_zone_size
-        FROM public.personal_ratings
-        WHERE user_id = v_user_id AND dish_type_id = v_battle.dish_type_id
-          AND sentiment = v_new_rating.sentiment AND rank_position IS NOT NULL AND id != v_battle.new_rating_id;
-
-        v_max_battles := floor(log(2, GREATEST(v_zone_size, 2)::NUMERIC))::INTEGER + 1;
-        v_max_skips   := GREATEST(1, floor(v_max_battles::NUMERIC / 3))::INTEGER;
-
-        SELECT COUNT(*) INTO v_existing_skips
-        FROM public.comparisons WHERE new_rating_id = v_battle.new_rating_id AND result = 'skipped';
-
-        v_skips_remaining := v_max_skips - v_existing_skips;
-
-        INSERT INTO public.comparisons (user_id, dish_type_id, new_rating_id, opponent_rating_id, low_bound, high_bound, step_number)
-        VALUES (v_user_id, v_battle.dish_type_id, v_battle.new_rating_id, v_next_id, v_new_low, v_new_high, v_battle.step_number + 1)
-        RETURNING id INTO v_next_battle_id;
-
-        RETURN jsonb_build_object(
-            'done', false,
-            'next_battle_id',  v_next_battle_id,
-            'step',            v_battle.step_number + 1,
-            'max_steps',       v_max_battles,
-            'skips_remaining', v_skips_remaining,
-            'opponent', jsonb_build_object(
-                'rating_id',       v_next_id,
-                'restaurant_name', v_next_restaurant,
-                'photo_url',       v_next_photo,
-                'derived_score',   v_next_score
-            )
-        );
-    END IF;
-END;
-$$;
-
--- ============================================================
--- CORE: skip_battle
--- ============================================================
-CREATE OR REPLACE FUNCTION public.skip_battle(
-    p_battle_id   UUID,
-    p_skip_reason TEXT DEFAULT NULL
-) RETURNS JSONB
-LANGUAGE plpgsql SECURITY DEFINER
-SET search_path = public AS $$
-DECLARE
-    v_user_id          UUID := auth.uid();
-    v_battle           record;
-    v_new_rating       record;
-    v_zone_size        INTEGER;
-    v_max_battles      INTEGER;
-    v_max_skips        INTEGER;
-    v_existing_skips   INTEGER;
-    v_zone_start       INTEGER;
-    v_insert_rank      INTEGER;
-    v_final_score      NUMERIC;
-    v_mid              INTEGER;
-    v_alt_mid          INTEGER;
-    v_next_rank        INTEGER;
-    v_next_id          UUID;
-    v_next_restaurant  TEXT;
-    v_next_photo       TEXT;
-    v_next_score       NUMERIC;
-    v_next_battle_id   UUID;
-BEGIN
-    SELECT * INTO v_battle FROM public.comparisons WHERE id = p_battle_id;
-    IF NOT FOUND THEN RAISE EXCEPTION 'Battle not found: %', p_battle_id; END IF;
-    IF v_battle.user_id != v_user_id THEN RAISE EXCEPTION 'Not authorized'; END IF;
-    IF v_battle.result  IS NOT NULL  THEN RAISE EXCEPTION 'Battle already resolved'; END IF;
-
-    SELECT * INTO v_new_rating FROM public.personal_ratings WHERE id = v_battle.new_rating_id;
-
-    SELECT COUNT(*) INTO v_zone_size
-    FROM public.personal_ratings
-    WHERE user_id = v_user_id AND dish_type_id = v_battle.dish_type_id
-      AND sentiment = v_new_rating.sentiment AND rank_position IS NOT NULL AND id != v_battle.new_rating_id;
-
-    v_max_battles := floor(log(2, GREATEST(v_zone_size, 2)::NUMERIC))::INTEGER + 1;
-    v_max_skips   := GREATEST(1, floor(v_max_battles::NUMERIC / 3))::INTEGER;
-
-    SELECT COUNT(*) INTO v_existing_skips
-    FROM public.comparisons WHERE new_rating_id = v_battle.new_rating_id AND result = 'skipped';
-
-    IF v_existing_skips >= v_max_skips THEN RAISE EXCEPTION 'No skips remaining for this battle sequence'; END IF;
-
-    UPDATE public.comparisons SET result = 'skipped', skip_reason = p_skip_reason WHERE id = p_battle_id;
-
-    SELECT MIN(rank_position) INTO v_zone_start
-    FROM public.personal_ratings
-    WHERE user_id = v_user_id AND dish_type_id = v_battle.dish_type_id
-      AND sentiment = v_new_rating.sentiment AND rank_position IS NOT NULL AND id != v_battle.new_rating_id;
-
-    IF v_battle.low_bound >= v_battle.high_bound THEN
-        -- Single-item range: force completion
-        v_insert_rank := v_zone_start + v_battle.low_bound;
-
-        UPDATE public.personal_ratings
-        SET rank_position = rank_position + 1
-        WHERE user_id = v_user_id AND dish_type_id = v_battle.dish_type_id
-          AND rank_position >= v_insert_rank AND id != v_battle.new_rating_id AND rank_position IS NOT NULL;
-
-        UPDATE public.personal_ratings SET rank_position = v_insert_rank WHERE id = v_battle.new_rating_id;
-
-        PERFORM public.recalculate_derived_scores(v_user_id, v_battle.dish_type_id);
-        PERFORM public.compute_community_score(v_new_rating.restaurant_id, v_battle.dish_type_id);
-
-        SELECT derived_score INTO v_final_score FROM public.personal_ratings WHERE id = v_battle.new_rating_id;
-
-        RETURN jsonb_build_object('done', true, 'rank_position', v_insert_rank, 'derived_score', v_final_score);
-    END IF;
-
-    -- Multi-item range: try a different opponent (mid ± 1)
-    v_mid := floor((v_battle.low_bound + v_battle.high_bound)::NUMERIC / 2)::INTEGER;
-    v_alt_mid := CASE
-        WHEN v_mid + 1 <= v_battle.high_bound THEN v_mid + 1
-        ELSE v_mid - 1
-    END;
-
-    v_next_rank := v_zone_start + v_alt_mid;
-
-    SELECT pr.id, r.name, pr.photo_url, pr.derived_score
-    INTO v_next_id, v_next_restaurant, v_next_photo, v_next_score
-    FROM public.personal_ratings pr
-    JOIN public.restaurants r ON r.id = pr.restaurant_id
-    WHERE pr.user_id = v_user_id AND pr.dish_type_id = v_battle.dish_type_id
-      AND pr.rank_position = v_next_rank AND pr.id != v_battle.new_rating_id;
-
-    INSERT INTO public.comparisons (user_id, dish_type_id, new_rating_id, opponent_rating_id, low_bound, high_bound, step_number)
-    VALUES (v_user_id, v_battle.dish_type_id, v_battle.new_rating_id, v_next_id, v_battle.low_bound, v_battle.high_bound, v_battle.step_number + 1)
-    RETURNING id INTO v_next_battle_id;
+    SELECT jsonb_build_object(
+        'rating_id', v_opponent_rating.id,
+        'restaurant_id', v_opponent_rating.restaurant_id,
+        'restaurant_name', r.name,
+        'elo_score', v_opponent_rating.elo_score,
+        'derived_score', v_opponent_rating.display_score,
+        'photo_url', pr.photo_url
+    ) INTO v_first_opponent
+    FROM restaurants r
+    JOIN personal_ratings pr ON pr.id = v_opponent_rating.id
+    WHERE r.id = v_opponent_rating.restaurant_id;
 
     RETURN jsonb_build_object(
-        'done', false,
-        'next_battle_id',  v_next_battle_id,
-        'step',            v_battle.step_number + 1,
-        'max_steps',       v_max_battles,
-        'skips_remaining', v_max_skips - v_existing_skips - 1,
-        'opponent', jsonb_build_object(
-            'rating_id',       v_next_id,
-            'restaurant_name', v_next_restaurant,
-            'photo_url',       v_next_photo,
-            'derived_score',   v_next_score
-        )
+        'rating_id', v_rating_id,
+        'battle_id', v_battle_id,
+        'opponent', v_first_opponent,
+        'opponent_index', v_mid_idx,
+        'battle_complete', false,
+        'is_re_rating', v_is_re_rating,
+        'total_candidates', v_candidate_count,
+        'elo_score', v_initial_elo
     );
+END;
+$$;
+
+-- ============================================================
+-- CORE: submit_comparison 
+-- Process One Battle Step.
+-- Applies Elo update, records the comparison, advances binary search, returns next opponent or signals completion.
+-- ============================================================
+CREATE OR REPLACE FUNCTION public.submit_comparison(
+    p_battle_id    UUID,
+    p_result       TEXT   -- 'new_wins', 'opponent_wins', 'skipped'
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_user_id           UUID := auth.uid();
+    v_session           RECORD;
+    v_new_rating        RECORD;
+    v_opponent_id       UUID;
+    v_opponent_rating   RECORD;
+    -- Elo calculation vars
+    v_k_max             NUMERIC;
+    v_k_decay           NUMERIC;
+    v_elo_min           NUMERIC;
+    v_elo_max           NUMERIC;
+    v_k_new             NUMERIC;
+    v_k_opp             NUMERIC;
+    v_expected_new      NUMERIC;
+    v_expected_opp      NUMERIC;
+    v_new_elo_before    NUMERIC;
+    v_opp_elo_before    NUMERIC;
+    v_new_elo_after     NUMERIC;
+    v_opp_elo_after     NUMERIC;
+    v_score_new         NUMERIC;
+    v_score_opp         NUMERIC;
+    -- Binary search vars
+    v_mid_idx           INTEGER;
+    v_next_opponent     JSONB := NULL;
+    v_battle_complete   BOOLEAN := false;
+    v_next_opp_record   RECORD;
+BEGIN
+    -- -------------------------------------------------------
+    -- 1. Load battle session (verify ownership)
+    -- -------------------------------------------------------
+    SELECT * INTO v_session
+    FROM battle_sessions
+    WHERE id = p_battle_id
+      AND user_id = v_user_id
+      AND status = 'active';
+
+    IF v_session IS NULL THEN
+        RAISE EXCEPTION 'No active battle session found';
+    END IF;
+
+    -- -------------------------------------------------------
+    -- 2. Load the new rating and current opponent
+    -- -------------------------------------------------------
+    SELECT id, elo_score, comparison_count
+    INTO v_new_rating
+    FROM personal_ratings WHERE id = v_session.rating_id;
+
+    v_mid_idx := (v_session.low_idx + v_session.high_idx) / 2;
+    v_opponent_id := v_session.candidate_ids[v_mid_idx + 1]; -- 1-indexed
+
+    SELECT id, elo_score, comparison_count
+    INTO v_opponent_rating
+    FROM personal_ratings WHERE id = v_opponent_id;
+
+    -- -------------------------------------------------------
+    -- 3. Load constants
+    -- -------------------------------------------------------
+    SELECT value INTO v_k_max FROM app_constants WHERE key = 'K_MAX';
+    SELECT value INTO v_k_decay FROM app_constants WHERE key = 'K_DECAY';
+    SELECT value INTO v_elo_min FROM app_constants WHERE key = 'ELO_MIN';
+    SELECT value INTO v_elo_max FROM app_constants WHERE key = 'ELO_MAX';
+
+    -- Snapshot before
+    v_new_elo_before := v_new_rating.elo_score;
+    v_opp_elo_before := v_opponent_rating.elo_score;
+
+    -- -------------------------------------------------------
+    -- 4. Apply Elo update (skip if 'skipped')
+    -- -------------------------------------------------------
+    IF p_result IN ('new_wins', 'opponent_wins') THEN
+        -- Dynamic K-factors
+        v_k_new := v_k_max / (1 + v_k_decay * v_new_rating.comparison_count);
+        v_k_opp := v_k_max / (1 + v_k_decay * v_opponent_rating.comparison_count);
+
+        -- Expected outcomes
+        v_expected_new := 1.0 / (1.0 + power(10.0, (v_opp_elo_before - v_new_elo_before) / 400.0));
+        v_expected_opp := 1.0 - v_expected_new;
+
+        -- Actual scores
+        IF p_result = 'new_wins' THEN
+            v_score_new := 1.0;
+            v_score_opp := 0.0;
+        ELSE
+            v_score_new := 0.0;
+            v_score_opp := 1.0;
+        END IF;
+
+        -- Compute new Elo (clamped)
+        v_new_elo_after := LEAST(GREATEST(
+            v_new_elo_before + v_k_new * (v_score_new - v_expected_new),
+            v_elo_min), v_elo_max);
+        v_opp_elo_after := LEAST(GREATEST(
+            v_opp_elo_before + v_k_opp * (v_score_opp - v_expected_opp),
+            v_elo_min), v_elo_max);
+
+        -- Update ratings
+        UPDATE personal_ratings SET
+            elo_score = v_new_elo_after,
+            comparison_count = comparison_count + 1
+        WHERE id = v_new_rating.id;
+
+        UPDATE personal_ratings SET
+            elo_score = v_opp_elo_after,
+            comparison_count = comparison_count + 1
+        WHERE id = v_opponent_rating.id;
+    ELSE
+        -- Skipped: no Elo change
+        v_new_elo_after := v_new_elo_before;
+        v_opp_elo_after := v_opp_elo_before;
+        v_k_new := 0;
+        v_k_opp := 0;
+    END IF;
+
+    -- -------------------------------------------------------
+    -- 5. Record comparison
+    -- -------------------------------------------------------
+    INSERT INTO comparisons (
+        user_id, dish_type_id,
+        new_rating_id, opponent_rating_id,
+        result, step_number,
+        new_elo_before, new_elo_after,
+        opponent_elo_before, opponent_elo_after,
+        k_factor_new, k_factor_opponent
+    ) VALUES (
+        v_user_id, v_session.dish_type_id,
+        v_new_rating.id, v_opponent_id,
+        p_result, v_session.current_step,
+        v_new_elo_before, v_new_elo_after,
+        v_opp_elo_before, v_opp_elo_after,
+        v_k_new, v_k_opp
+    );
+
+    -- -------------------------------------------------------
+    -- 6. Advance binary search or complete
+    -- -------------------------------------------------------
+    IF p_result = 'skipped' THEN
+        -- Skip ends the battle immediately
+        v_battle_complete := true;
+    ELSIF p_result = 'new_wins' THEN
+        -- New dish is better → search upper half (lower indices = higher Elo)
+        UPDATE battle_sessions SET
+            high_idx = v_mid_idx - 1,
+            current_step = current_step + 1,
+            updated_at = now()
+        WHERE id = p_battle_id;
+        -- Refresh session
+        SELECT * INTO v_session FROM battle_sessions WHERE id = p_battle_id;
+    ELSE
+        -- Opponent wins → search lower half
+        UPDATE battle_sessions SET
+            low_idx = v_mid_idx + 1,
+            current_step = current_step + 1,
+            updated_at = now()
+        WHERE id = p_battle_id;
+        SELECT * INTO v_session FROM battle_sessions WHERE id = p_battle_id;
+    END IF;
+
+    -- Check if search is exhausted
+    IF v_session.low_idx > v_session.high_idx THEN
+        v_battle_complete := true;
+    END IF;
+
+    -- -------------------------------------------------------
+    -- 7. If complete: finalize. Otherwise: return next opponent.
+    -- -------------------------------------------------------
+    IF v_battle_complete THEN
+        -- Mark battle and rating as completed
+        UPDATE battle_sessions
+            SET status = 'completed', updated_at = now()
+            WHERE id = p_battle_id;
+
+        UPDATE personal_ratings
+            SET battle_status = 'completed'
+            WHERE id = v_new_rating.id;
+
+        -- Update profile stats (total_ratings, credibility)
+        PERFORM _update_profile_stats(v_user_id);
+
+        -- Update global leaderboard for the affected restaurant+dish
+        PERFORM _update_global_dish_score(
+            (SELECT restaurant_id FROM personal_ratings WHERE id = v_new_rating.id),
+            v_session.dish_type_id
+        );
+
+        RETURN jsonb_build_object(
+            'battle_complete', true,
+            'rating_id', v_new_rating.id,
+            'final_elo', v_new_elo_after,
+            'final_derived_score', ROUND(((LEAST(GREATEST(v_new_elo_after, v_elo_min), v_elo_max) - 1000) / 1000.0) * 10.0, 1),
+            'comparisons_made', v_session.current_step
+        );
+    ELSE
+        -- Return next opponent
+        v_mid_idx := (v_session.low_idx + v_session.high_idx) / 2;
+        v_opponent_id := v_session.candidate_ids[v_mid_idx + 1];
+
+        SELECT pr.id, pr.restaurant_id, pr.elo_score, pr.photo_url,
+               ROUND(((LEAST(GREATEST(pr.elo_score, 1000), 2000) - 1000) / 1000.0) * 10.0, 1) AS display_score,
+               r.name AS restaurant_name
+        INTO v_next_opp_record
+        FROM personal_ratings pr
+        JOIN restaurants r ON r.id = pr.restaurant_id
+        WHERE pr.id = v_opponent_id;
+
+        RETURN jsonb_build_object(
+            'battle_complete', false,
+            'rating_id', v_new_rating.id,
+            'current_elo', v_new_elo_after,
+            'opponent', jsonb_build_object(
+                'rating_id', v_next_opp_record.id,
+                'restaurant_id', v_next_opp_record.restaurant_id,
+                'restaurant_name', v_next_opp_record.restaurant_name,
+                'elo_score', v_next_opp_record.elo_score,
+                'derived_score', v_next_opp_record.display_score,
+                'photo_url', v_next_opp_record.photo_url
+            ),
+            'opponent_index', v_mid_idx,
+            'step', v_session.current_step,
+            'remaining_range', v_session.high_idx - v_session.low_idx + 1
+        );
+    END IF;
+END;
+$$;
+-- ============================================================
+-- CORE: _update_profile_stats 
+-- Internal Helper.
+-- Updates the user's profile stats and credibility score.
+-- ============================================================
+CREATE OR REPLACE FUNCTION public._update_profile_stats(p_user_id UUID)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_total_ratings  INTEGER;
+    v_total_battles  INTEGER;
+    v_cred_scale     NUMERIC;
+    v_credibility    NUMERIC;
+BEGIN
+    SELECT value INTO v_cred_scale FROM app_constants WHERE key = 'CREDIBILITY_SCALE';
+
+    SELECT
+        COUNT(*) FILTER (WHERE battle_status = 'completed'),
+        COALESCE(SUM(comparison_count), 0)
+    INTO v_total_ratings, v_total_battles
+    FROM personal_ratings
+    WHERE user_id = p_user_id;
+
+    -- Credibility: log(1 + total_ratings) / log(1 + SCALE), capped at 1.0
+    v_credibility := LEAST(
+        LOG(1 + v_total_ratings) / LOG(1 + v_cred_scale),
+        1.0
+    );
+
+    UPDATE profiles SET
+        total_ratings = v_total_ratings,
+        total_battles = v_total_battles,
+        credibility_score = ROUND(v_credibility, 2),
+        updated_at = now()
+    WHERE id = p_user_id;
+END;
+$$;
+
+-- ============================================================
+-- CORE: _update_global_dish_score 
+-- Internal Helper.
+-- Recalculates the Bayesian leaderboard score for a given restaurant+dish_type.
+-- ============================================================
+CREATE OR REPLACE FUNCTION public._update_global_dish_score(
+    p_restaurant_id UUID,
+    p_dish_type_id  UUID
+)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_city_id              UUID;
+    v_neighborhood_id      UUID;
+    v_bayesian_c           NUMERIC;
+    v_global_mean          NUMERIC;
+    v_weighted_sum         NUMERIC;
+    v_weighted_count       NUMERIC;
+    v_total_ratings        INTEGER;
+    v_bayesian_score       NUMERIC;
+    v_raw_avg              NUMERIC;
+    v_confidence           TEXT;
+    v_featured_photo_url   TEXT;
+    v_featured_rating_id   UUID;
+BEGIN
+    -- Get restaurant geography
+    SELECT city_id, neighborhood_id
+    INTO v_city_id, v_neighborhood_id
+    FROM restaurants WHERE id = p_restaurant_id;
+
+    -- Load Bayesian constant
+    SELECT value INTO v_bayesian_c FROM app_constants WHERE key = 'BAYESIAN_C';
+
+    -- Calculate city-level global mean for this dish type
+    SELECT COALESCE(AVG(pr.derived_score), 5.0)
+    INTO v_global_mean
+    FROM personal_ratings pr
+    JOIN restaurants r ON r.id = pr.restaurant_id
+    WHERE pr.dish_type_id = p_dish_type_id
+      AND pr.battle_status = 'completed'
+      AND r.city_id = v_city_id;
+
+    -- Calculate weighted scores for this restaurant+dish
+    SELECT
+        COALESCE(SUM(pr.derived_score * p.credibility_score), 0),
+        COALESCE(SUM(p.credibility_score), 0),
+        COUNT(*),
+        COALESCE(AVG(pr.derived_score), 0)
+    INTO v_weighted_sum, v_weighted_count, v_total_ratings, v_raw_avg
+    FROM personal_ratings pr
+    JOIN profiles p ON p.id = pr.user_id
+    WHERE pr.restaurant_id = p_restaurant_id
+      AND pr.dish_type_id = p_dish_type_id
+      AND pr.battle_status = 'completed';
+
+    -- Bayesian average
+    v_bayesian_score := (v_bayesian_c * v_global_mean + v_weighted_sum)
+                      / (v_bayesian_c + v_weighted_count);
+
+    -- Confidence tier
+    v_confidence := CASE
+        WHEN v_weighted_count < 2  THEN 'low'
+        WHEN v_weighted_count < 5  THEN 'medium'
+        WHEN v_weighted_count < 15 THEN 'high'
+        ELSE 'very_high'
+    END;
+
+    -- Featured photo: pick highest-rated user's photo
+    SELECT pr.photo_url, pr.id
+    INTO v_featured_photo_url, v_featured_rating_id
+    FROM personal_ratings pr
+    WHERE pr.restaurant_id = p_restaurant_id
+      AND pr.dish_type_id = p_dish_type_id
+      AND pr.battle_status = 'completed'
+      AND pr.photo_url IS NOT NULL
+    ORDER BY pr.elo_score DESC
+    LIMIT 1;
+
+    -- Upsert global score
+    INSERT INTO global_dish_scores (
+        restaurant_id, dish_type_id, city_id, neighborhood_id,
+        raw_weighted_avg, weighted_score_sum, weighted_rating_count,
+        total_ratings, bayesian_score, confidence_tier,
+        featured_photo_url, featured_rating_id,
+        updated_at
+    ) VALUES (
+        p_restaurant_id, p_dish_type_id, v_city_id, v_neighborhood_id,
+        v_raw_avg, v_weighted_sum, v_weighted_count,
+        v_total_ratings, ROUND(v_bayesian_score, 2), v_confidence,
+        v_featured_photo_url, v_featured_rating_id,
+        now()
+    )
+    ON CONFLICT (restaurant_id, dish_type_id) DO UPDATE SET
+        raw_weighted_avg     = EXCLUDED.raw_weighted_avg,
+        weighted_score_sum   = EXCLUDED.weighted_score_sum,
+        weighted_rating_count = EXCLUDED.weighted_rating_count,
+        total_ratings        = EXCLUDED.total_ratings,
+        bayesian_score       = EXCLUDED.bayesian_score,
+        confidence_tier      = EXCLUDED.confidence_tier,
+        featured_photo_url   = EXCLUDED.featured_photo_url,
+        featured_rating_id   = EXCLUDED.featured_rating_id,
+        updated_at           = now();
 END;
 $$;
 
@@ -755,49 +800,48 @@ $$;
 -- LEADERBOARD: get_leaderboard
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.get_leaderboard(
-    p_city_id         UUID,
-    p_dish_type_id    UUID,
-    p_neighborhood_id UUID    DEFAULT NULL,
-    p_limit           INTEGER DEFAULT 10,
-    p_min_ratings     INTEGER DEFAULT 2
-) RETURNS TABLE (
-    rank               BIGINT,
-    restaurant_id      UUID,
-    restaurant_name    TEXT,
-    neighborhood_name  TEXT,
-    bayesian_score     NUMERIC,
-    confidence_tier    TEXT,
-    raw_weighted_avg   NUMERIC,
-    total_ratings      INTEGER,
-    featured_photo_url TEXT
+    p_dish_type_id     UUID,
+    p_city_id          UUID,
+    p_neighborhood_id  UUID    DEFAULT NULL,
+    p_limit            INTEGER DEFAULT 25,
+    p_offset           INTEGER DEFAULT 0
 )
-LANGUAGE plpgsql SECURITY DEFINER
-SET search_path = public AS $$
+RETURNS JSONB
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_results JSONB;
 BEGIN
-    RETURN QUERY
-    SELECT
-        ROW_NUMBER() OVER (
-            ORDER BY gds.bayesian_score DESC, gds.raw_weighted_avg DESC,
-                     gds.total_ratings DESC, gds.created_at ASC
-        )::BIGINT AS rank,
-        gds.restaurant_id,
-        r.name          AS restaurant_name,
-        n.name          AS neighborhood_name,
-        gds.bayesian_score,
-        gds.confidence_tier,
-        gds.raw_weighted_avg,
-        gds.total_ratings,
-        gds.featured_photo_url
-    FROM public.global_dish_scores gds
-    JOIN public.restaurants   r ON r.id = gds.restaurant_id
-    LEFT JOIN public.neighborhoods n ON n.id = gds.neighborhood_id
-    WHERE gds.city_id      = p_city_id
-      AND gds.dish_type_id = p_dish_type_id
-      AND (p_neighborhood_id IS NULL OR gds.neighborhood_id = p_neighborhood_id)
-      AND gds.total_ratings >= p_min_ratings
-      AND r.is_closed = false
-    ORDER BY gds.bayesian_score DESC, gds.raw_weighted_avg DESC, gds.total_ratings DESC
-    LIMIT p_limit;
+    SELECT jsonb_agg(row_data ORDER BY rank_num)
+    INTO v_results
+    FROM (
+        SELECT
+            jsonb_build_object(
+                'rank', ROW_NUMBER() OVER (ORDER BY gds.bayesian_score DESC),
+                'restaurant_id', r.id,
+                'restaurant_name', r.name,
+                'address', r.address,
+                'bayesian_score', ROUND(gds.bayesian_score, 1),
+                'total_ratings', gds.total_ratings,
+                'confidence_tier', gds.confidence_tier,
+                'featured_photo_url', gds.featured_photo_url
+            ) AS row_data,
+            ROW_NUMBER() OVER (ORDER BY gds.bayesian_score DESC) AS rank_num
+        FROM global_dish_scores gds
+        JOIN restaurants r ON r.id = gds.restaurant_id
+        WHERE gds.dish_type_id = p_dish_type_id
+          AND gds.city_id = p_city_id
+          AND (p_neighborhood_id IS NULL OR gds.neighborhood_id = p_neighborhood_id)
+          AND gds.total_ratings > 0
+        ORDER BY gds.bayesian_score DESC
+        LIMIT p_limit
+        OFFSET p_offset
+    ) ranked;
+
+    RETURN COALESCE(v_results, '[]'::jsonb);
 END;
 $$;
 
@@ -913,49 +957,53 @@ END;
 $$;
 
 -- ============================================================
--- PERSONAL: get_my_dish_rankings
+-- PERSONAL: get_personal_rankings
 -- Returns all of a user's ratings for a dish type, ordered by rank.
 -- ============================================================
-CREATE OR REPLACE FUNCTION public.get_my_dish_rankings(
+CREATE OR REPLACE FUNCTION public.get_personal_rankings(
     p_dish_type_id UUID,
-    p_user_id      UUID DEFAULT NULL
-) RETURNS TABLE (
-    rank            BIGINT,
-    rating_id       UUID,
-    restaurant_id   UUID,
-    restaurant_name TEXT,
-    city_name       TEXT,
-    sentiment       TEXT,
-    derived_score   NUMERIC,
-    rank_position   INTEGER,
-    photo_url       TEXT,
-    rated_at        TIMESTAMPTZ
+    p_limit        INTEGER DEFAULT 50,
+    p_offset       INTEGER DEFAULT 0
 )
-LANGUAGE plpgsql SECURITY DEFINER
-SET search_path = public AS $$
+RETURNS JSONB
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
 DECLARE
-    v_user_id UUID;
+    v_user_id UUID := auth.uid();
+    v_results JSONB;
 BEGIN
-    v_user_id := COALESCE(p_user_id, auth.uid());
-    IF v_user_id IS NULL THEN RAISE EXCEPTION 'User ID required'; END IF;
+    SELECT jsonb_agg(row_data ORDER BY rank_num)
+    INTO v_results
+    FROM (
+        SELECT
+            jsonb_build_object(
+                'rank', ROW_NUMBER() OVER (ORDER BY pr.elo_score DESC),
+                'rating_id', pr.id,
+                'restaurant_id', r.id,
+                'restaurant_name', r.name,
+                'elo_score', pr.elo_score,
+                'derived_score', pr.derived_score,
+                'sentiment', pr.sentiment,
+                'photo_url', pr.photo_url,
+                'comparison_count', pr.comparison_count,
+                'notes', pr.notes,
+                'rated_at', pr.updated_at
+            ) AS row_data,
+            ROW_NUMBER() OVER (ORDER BY pr.elo_score DESC) AS rank_num
+        FROM personal_ratings pr
+        JOIN restaurants r ON r.id = pr.restaurant_id
+        WHERE pr.user_id = v_user_id
+          AND pr.dish_type_id = p_dish_type_id
+          AND pr.battle_status = 'completed'
+        ORDER BY pr.elo_score DESC
+        LIMIT p_limit
+        OFFSET p_offset
+    ) ranked;
 
-    RETURN QUERY
-    SELECT
-        ROW_NUMBER() OVER (ORDER BY pr.rank_position ASC NULLS LAST)::BIGINT AS rank,
-        pr.id           AS rating_id,
-        pr.restaurant_id,
-        r.name          AS restaurant_name,
-        c.name          AS city_name,
-        pr.sentiment,
-        pr.derived_score,
-        pr.rank_position,
-        pr.photo_url,
-        pr.created_at   AS rated_at
-    FROM public.personal_ratings pr
-    JOIN public.restaurants r  ON r.id  = pr.restaurant_id
-    LEFT JOIN public.cities c  ON c.id  = r.city_id
-    WHERE pr.user_id = v_user_id AND pr.dish_type_id = p_dish_type_id
-    ORDER BY pr.rank_position ASC NULLS LAST;
+    RETURN COALESCE(v_results, '[]'::jsonb);
 END;
 $$;
 
