@@ -5,18 +5,18 @@ import { ProcessBattleResponse } from './use-ratings';
 export interface ProcessBattleInput {
     battle_id: string;
     winner_rating_id: string;
+    new_rating_id: string;
     dish_type_id: string; // Used for cache invalidation only
 }
 
 export interface SkipBattleInput {
     battle_id: string;
-    skip_reason?: string;
     dish_type_id: string; // Used for cache invalidation only
 }
 
 /**
  * Process a battle step in the binary insertion sort sequence.
- * Returns done=true with final rank/score, or done=false with the next battle.
+ * Calls submit_comparison with p_result = 'new_wins' or 'opponent_wins'.
  * Only invalidates leaderboard/stats when the sequence is complete.
  */
 export function useProcessBattle() {
@@ -24,10 +24,14 @@ export function useProcessBattle() {
 
     return useMutation({
         mutationFn: async (input: ProcessBattleInput): Promise<ProcessBattleResponse> => {
-            const { data, error } = await supabase.rpc('process_battle', {
+            const p_result = input.winner_rating_id === input.new_rating_id
+                ? 'new_wins'
+                : 'opponent_wins';
+
+            const { data, error } = await supabase.rpc('submit_comparison', {
                 p_battle_id: input.battle_id,
-                p_winner_rating_id: input.winner_rating_id,
-            } as any);
+                p_result,
+            });
 
             if (error) throw error;
             return data as unknown as ProcessBattleResponse;
@@ -36,7 +40,7 @@ export function useProcessBattle() {
             queryClient.invalidateQueries({
                 queryKey: ['myDishRankings', variables.dish_type_id],
             });
-            if (data.done) {
+            if (data.battle_complete) {
                 queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
                 queryClient.invalidateQueries({ queryKey: ['topDish'] });
                 queryClient.invalidateQueries({ queryKey: ['userStats'] });
@@ -47,33 +51,31 @@ export function useProcessBattle() {
 }
 
 /**
- * Skip a battle step in the binary insertion sort sequence.
- * Advances to the next opponent or forces completion if skips are exhausted.
- * Returns same shape as useProcessBattle.
+ * Skip a battle step. Calls submit_comparison with p_result = 'skipped'.
+ * Skip ends the battle immediately — there is no concept of remaining skips.
  */
 export function useSkipBattle() {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: async (input: SkipBattleInput): Promise<ProcessBattleResponse> => {
-            const { data, error } = await supabase.rpc('skip_battle', {
+            const { data, error } = await supabase.rpc('submit_comparison', {
                 p_battle_id: input.battle_id,
-                p_skip_reason: input.skip_reason ?? null,
-            } as any);
+                p_result: 'skipped',
+            });
 
             if (error) throw error;
             return data as unknown as ProcessBattleResponse;
         },
-        onSuccess: (data, variables) => {
+        onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({
                 queryKey: ['myDishRankings', variables.dish_type_id],
             });
-            if (data.done) {
-                queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
-                queryClient.invalidateQueries({ queryKey: ['topDish'] });
-                queryClient.invalidateQueries({ queryKey: ['userStats'] });
-                queryClient.invalidateQueries({ queryKey: ['myBestEver'] });
-            }
+            // Skip always ends the battle, so always invalidate
+            queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+            queryClient.invalidateQueries({ queryKey: ['topDish'] });
+            queryClient.invalidateQueries({ queryKey: ['userStats'] });
+            queryClient.invalidateQueries({ queryKey: ['myBestEver'] });
         },
     });
 }
@@ -109,55 +111,5 @@ export function useComparisonHistory(limit: number = 20) {
             if (error) throw error;
             return data ?? [];
         },
-    });
-}
-
-// Skip reason options for the UI
-export const SKIP_REASONS = [
-    { value: 'cant_remember', label: "Can't remember one of them" },
-    { value: 'too_different', label: 'Too different to compare' },
-    { value: 'havent_tried', label: "Haven't tried one recently" },
-    { value: 'same_restaurant', label: 'Same restaurant, unfair' },
-    { value: 'other', label: 'Other' },
-] as const;
-
-export type SkipReason = (typeof SKIP_REASONS)[number]['value'];
-
-// ---------------------------------------------------------------------------
-// Deprecated — kept for backwards compatibility, no longer called
-// ---------------------------------------------------------------------------
-
-/** @deprecated Use useProcessBattle instead */
-export function useSubmitComparison() {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: async (_input: { comparison_id: string; winner_rating_id: string; dish_type_id: string }): Promise<void> => {
-            throw new Error('submit_comparison has been removed. Use process_battle via useProcessBattle.');
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
-        },
-    });
-}
-
-/** @deprecated Use useProcessBattle instead */
-export function useProcessComparison() {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: async (_input: unknown) => {
-            throw new Error('process_comparison has been removed. Use process_battle via useProcessBattle.');
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
-        },
-    });
-}
-
-/** @deprecated get_pending_comparisons has been removed */
-export function usePendingComparisons(_limit: number = 5) {
-    return useQuery({
-        queryKey: ['pendingComparisons', _limit],
-        queryFn: async () => [] as never[],
-        staleTime: Infinity,
     });
 }

@@ -28,6 +28,8 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.personal_ratings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.personal_rating_tags ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.comparisons ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.battle_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.app_constants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.global_dish_scores ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.leaderboard_snapshots ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.city_known_dishes ENABLE ROW LEVEL SECURITY;
@@ -97,24 +99,28 @@ CREATE POLICY "Users can update their own profile" ON public.profiles FOR
 UPDATE TO authenticated USING (auth.uid() = id) WITH CHECK (
         auth.uid() = id
         AND (
-            -- Non-admin users cannot escalate their own role
+            -- Non-admin users cannot escalate their own role or moderation fields
             role = (
                 SELECT role
                 FROM public.profiles
                 WHERE id = auth.uid()
-            ) is_banned = (
+            )
+            AND is_banned = (
                 SELECT is_banned
                 FROM public.profiles
                 WHERE id = auth.uid()
-            ) banned_at = (
+            )
+            AND banned_at IS NOT DISTINCT FROM (
                 SELECT banned_at
                 FROM public.profiles
                 WHERE id = auth.uid()
-            ) ban_reason = (
+            )
+            AND ban_reason IS NOT DISTINCT FROM (
                 SELECT ban_reason
                 FROM public.profiles
                 WHERE id = auth.uid()
-            ) warn_count = (
+            )
+            AND warn_count = (
                 SELECT warn_count
                 FROM public.profiles
                 WHERE id = auth.uid()
@@ -164,6 +170,22 @@ CREATE POLICY "Users can read their own comparisons" ON public.comparisons FOR
 SELECT TO authenticated USING (auth.uid() = user_id);
 CREATE POLICY "Users can create comparisons" ON public.comparisons FOR
 INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+-- ============================================================
+-- BATTLE SESSIONS
+-- ============================================================
+CREATE POLICY "Users can read their own battle sessions" ON public.battle_sessions FOR
+SELECT TO authenticated USING (auth.uid() = user_id);
+CREATE POLICY "Users can create battle sessions" ON public.battle_sessions FOR
+INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own battle sessions" ON public.battle_sessions FOR
+UPDATE TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+-- ============================================================
+-- APP CONSTANTS
+-- ============================================================
+CREATE POLICY "App constants are publicly readable" ON public.app_constants FOR
+SELECT TO authenticated,
+    anon USING (true);
+CREATE POLICY "Admins can manage app constants" ON public.app_constants FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 -- ============================================================
 -- GLOBAL DISH SCORES
 -- ============================================================

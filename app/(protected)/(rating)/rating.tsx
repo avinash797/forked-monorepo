@@ -118,26 +118,23 @@ export default function RatingScreen() {
                 taste_tag_ids: selectedTags,
             });
 
-            if (result.has_battle && result.battle_id && result.opponent) {
+            if (!result.battle_complete && result.battle_id && result.opponent) {
+                const totalCandidates = result.total_candidates ?? 1;
+                const maxSteps = Math.floor(Math.log2(totalCandidates)) + 1;
                 setBattleState({
                     battleId: result.battle_id,
-                    maxSteps: result.max_steps ?? 1,
-                    currentStep: result.step ?? 1,
-                    skipsRemaining: result.skips_remaining ?? 0,
+                    ratingId: result.rating_id,
+                    maxSteps,
+                    currentStep: 1,
                     opponent: result.opponent,
                 });
                 router.push({
                     pathname: '/(protected)/(rating)/compare',
                     params: {
-                        ratingId: result.rating_id,
-                        battleId: result.battle_id,
                         yourPhoto: uploadedUrl ?? '',
                         yourRestaurant: selectedRestaurant.name,
                         dishTypeName: selectedDishType.name,
                         dishTypeId: selectedDishType.id,
-                        maxSteps: String(result.max_steps ?? 1),
-                        step: String(result.step ?? 1),
-                        skipsRemaining: String(result.skips_remaining ?? 0),
                     },
                 });
             } else {

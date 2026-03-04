@@ -127,8 +127,8 @@ CREATE TABLE public.profiles (
         bio TEXT,
         -- Denormalized stats
         total_ratings INTEGER DEFAULT 0,
-        total_battles INTEGER DEFAULT 0,
-        credibility_score DECIMAL(3, 2) DEFAULT 1.00,
+        total_comparisons INTEGER DEFAULT 0,
+        credibility_score DECIMAL(3, 2) DEFAULT 0.00,
         -- Notifications
         expo_push_token TEXT,
         push_enabled BOOLEAN DEFAULT true,
@@ -328,7 +328,14 @@ INSERT INTO public.app_constants (key, value, description) VALUES
     ('ZONE_LIKED_MIN',       1600,  'Lower Elo bound for "liked" search zone'),
     ('ZONE_OKAY_MIN',        1200,  'Lower Elo bound for "okay" search zone'),
     ('ZONE_OKAY_MAX',        1800,  'Upper Elo bound for "okay" search zone'),
-    ('ZONE_DISLIKED_MAX',    1400,  'Upper Elo bound for "disliked" search zone');
+    ('ZONE_DISLIKED_MAX',    1400,  'Upper Elo bound for "disliked" search zone'),
+    -- Per-sentiment Elo clamp boundaries (enforced after each comparison)
+    ('ELO_CLAMP_LIKED_MIN',    1700,  'Score floor for "liked" sentiment (display 7.0)'),
+    ('ELO_CLAMP_LIKED_MAX',    2000,  'Score ceiling for "liked" sentiment (display 10.0)'),
+    ('ELO_CLAMP_OKAY_MIN',     1400,  'Score floor for "okay" sentiment (display 4.0)'),
+    ('ELO_CLAMP_OKAY_MAX',     1690,  'Score ceiling for "okay" sentiment (display 6.9)'),
+    ('ELO_CLAMP_DISLIKED_MIN', 1100,  'Score floor for "disliked" sentiment (display 1.0)'),
+    ('ELO_CLAMP_DISLIKED_MAX', 1390,  'Score ceiling for "disliked" sentiment (display 3.9)');
 -- ============================================================
 -- LEADERBOARD SNAPSHOTS (Historical ranking records)
 -- ============================================================
@@ -341,14 +348,10 @@ CREATE TABLE public.leaderboard_snapshots (
     city_id UUID NOT NULL REFERENCES public.cities(id),
     neighborhood_id UUID REFERENCES public.neighborhoods(id),
     rank_position INTEGER NOT NULL,
-    global_elo NUMERIC NOT NULL,
-    -- kept for snapshot history; represents bayesian_score at time of capture
-    avg_raw_score NUMERIC,
+    bayesian_score NUMERIC NOT NULL,
+    raw_weighted_avg NUMERIC,
     total_ratings INTEGER DEFAULT 0,
-    total_battles INTEGER DEFAULT 0,
-    battles_won INTEGER DEFAULT 0,
-    win_rate NUMERIC,
-    confidence_score NUMERIC,
+    confidence_tier TEXT,
     created_at TIMESTAMPTZ DEFAULT now(),
     UNIQUE (snapshot_date, global_dish_score_id)
 );

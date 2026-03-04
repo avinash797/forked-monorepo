@@ -317,15 +317,14 @@ export function useUserLeaderboardPosition(
                     p_city_id: cityId,
                     p_dish_type_id: dishTypeId,
                     p_limit: 100,
-                    p_min_ratings: 0,
                 }
             );
 
             if (!leaderboard) return null;
 
-            const position = leaderboard.findIndex(
-                (entry: { restaurant_id: string }) =>
-                    entry.restaurant_id === userRatings[0].restaurant_id
+            const entries = leaderboard as unknown as { restaurant_id: string }[];
+            const position = entries.findIndex(
+                (entry) => entry.restaurant_id === userRatings[0].restaurant_id
             );
 
             return position >= 0 ? position + 1 : null;

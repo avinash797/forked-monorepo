@@ -8,33 +8,38 @@ export type Sentiment = 'liked' | 'okay' | 'disliked';
 
 export interface BattleOpponent {
     rating_id: string;
+    restaurant_id: string;
     restaurant_name: string;
     photo_url: string;
     derived_score: number | null;
+    elo_score: number | null;
 }
 
 export interface CreateRatingResponse {
     rating_id: string;
-    has_battle: boolean;
-    // Present when has_battle = true
+    battle_complete: boolean;
     battle_id?: string;
-    step?: number;
-    max_steps?: number;
-    skips_remaining?: number;
     opponent?: BattleOpponent;
+    opponent_index?: number;
+    is_re_rating?: boolean;
+    total_candidates?: number;
+    elo_score?: number;
+    derived_score?: number;
 }
 
 export interface ProcessBattleResponse {
-    done: boolean;
-    // Present when done = true
-    rank_position?: number;
-    derived_score?: number;
-    // Present when done = false
-    next_battle_id?: string;
-    step?: number;
-    max_steps?: number;
-    skips_remaining?: number;
+    battle_complete: boolean;
+    rating_id: string;
+    // Present when battle_complete = true
+    final_elo?: number;
+    final_derived_score?: number;
+    comparisons_made?: number;
+    // Present when battle_complete = false
+    current_elo?: number;
     opponent?: BattleOpponent;
+    opponent_index?: number;
+    step?: number;
+    remaining_range?: number;
 }
 
 export interface CreateRatingInput {
@@ -45,7 +50,6 @@ export interface CreateRatingInput {
     photo_storage_path?: string;
     variation_id?: string;
     notes?: string;
-    location_verified?: boolean;
     taste_tag_ids?: string[];
 }
 
@@ -64,20 +68,19 @@ export function useCreateRating() {
                 p_restaurant_id:      input.restaurant_id,
                 p_dish_type_id:       input.dish_type_id,
                 p_sentiment:          input.sentiment,
-                p_photo_url:          input.photo_url ?? null,
-                p_photo_storage_path: input.photo_storage_path ?? null,
-                p_variation_id:       input.variation_id ?? null,
-                p_notes:              input.notes ?? null,
-                p_location_verified:  input.location_verified ?? false,
-                p_taste_tag_ids:      input.taste_tag_ids ?? null,
-            } as any);
+                p_photo_url:          input.photo_url ?? '',
+                p_photo_storage_path: input.photo_storage_path ?? undefined,
+                p_variation_id:       input.variation_id ?? undefined,
+                p_notes:              input.notes ?? undefined,
+                p_taste_tag_ids:      input.taste_tag_ids ?? undefined,
+            });
 
             if (error) throw error;
             return data as unknown as CreateRatingResponse;
         },
         onSuccess: (data, variables) => {
             // Only invalidate leaderboard when no battle is needed (score is final)
-            if (!data.has_battle) {
+            if (data.battle_complete) {
                 queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
                 queryClient.invalidateQueries({ queryKey: ['topDish'] });
                 queryClient.invalidateQueries({ queryKey: ['userStats'] });
@@ -99,7 +102,7 @@ export function useMyDishRankings(dishTypeId?: string) {
         queryFn: async () => {
             if (!dishTypeId) return [];
 
-            const { data, error } = await supabase.rpc('get_my_dish_rankings', {
+            const { data, error } = await supabase.rpc('get_personal_rankings', {
                 p_dish_type_id: dishTypeId,
             });
 

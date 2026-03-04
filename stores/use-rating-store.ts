@@ -8,16 +8,18 @@ export type Sentiment = 'liked' | 'okay' | 'disliked';
 
 export interface BattleOpponent {
     rating_id: string;
+    restaurant_id: string;
     restaurant_name: string;
     photo_url: string;
     derived_score: number | null;
+    elo_score: number | null;
 }
 
 export interface BattleState {
     battleId: string;
+    ratingId: string;
     maxSteps: number;
     currentStep: number;
-    skipsRemaining: number;
     opponent: BattleOpponent;
 }
 

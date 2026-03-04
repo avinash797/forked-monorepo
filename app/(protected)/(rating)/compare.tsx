@@ -2,7 +2,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
-import { SKIP_REASONS, useProcessBattle, useSkipBattle } from '@/hooks/use-comparisons';
+import { useProcessBattle, useSkipBattle } from '@/hooks/use-comparisons';
 import { useRatingStore } from '@/stores';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,7 +17,6 @@ import {
 import Animated, {
     FadeIn,
     FadeInDown,
-    FadeInUp,
     FadeOut,
     SlideInLeft,
     SlideInRight,
@@ -35,14 +34,12 @@ export default function CompareScreen() {
 
     // Static params — set once from rating.tsx, don't change between battles
     const params = useLocalSearchParams<{
-        ratingId: string;
         yourPhoto: string;
         yourRestaurant: string;
         dishTypeName: string;
         dishTypeId: string;
     }>();
 
-    const [showSkipModal, setShowSkipModal] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
 
     const { battleState, setBattleState, clearBattleState, resetRating } =
@@ -67,20 +64,21 @@ export default function CompareScreen() {
                 const result = await processBattle({
                     battle_id: battleState.battleId,
                     winner_rating_id: winnerId,
+                    new_rating_id: battleState.ratingId,
                     dish_type_id: params.dishTypeId,
                 });
 
-                if (result.done) {
+                if (result.battle_complete) {
                     clearBattleState();
                     resetRating();
                     router.dismissAll();
                     router.replace('/(protected)/(tabs)');
                 } else {
                     setBattleState({
-                        battleId: result.next_battle_id!,
-                        maxSteps: result.max_steps ?? battleState.maxSteps,
+                        battleId: battleState.battleId,
+                        ratingId: battleState.ratingId,
+                        maxSteps: battleState.maxSteps,
                         currentStep: result.step ?? battleState.currentStep + 1,
-                        skipsRemaining: result.skips_remaining ?? 0,
                         opponent: result.opponent!,
                     });
                 }
@@ -94,40 +92,29 @@ export default function CompareScreen() {
     );
 
     const handleSkip = useCallback(
-        async (reason: string) => {
+        async () => {
             if (isProcessing || !battleState) return;
 
             setIsProcessing(true);
-            setShowSkipModal(false);
 
             try {
-                const result = await skipBattle({
+                await skipBattle({
                     battle_id: battleState.battleId,
-                    skip_reason: reason,
                     dish_type_id: params.dishTypeId,
                 });
 
-                if (result.done) {
-                    clearBattleState();
-                    resetRating();
-                    router.dismissAll();
-                    router.replace('/(protected)/(tabs)');
-                } else {
-                    setBattleState({
-                        battleId: result.next_battle_id!,
-                        maxSteps: result.max_steps ?? battleState.maxSteps,
-                        currentStep: result.step ?? battleState.currentStep + 1,
-                        skipsRemaining: result.skips_remaining ?? 0,
-                        opponent: result.opponent!,
-                    });
-                }
+                // Skip always ends the battle immediately
+                clearBattleState();
+                resetRating();
+                router.dismissAll();
+                router.replace('/(protected)/(tabs)');
             } catch (error) {
                 console.error('Error skipping battle:', error);
             } finally {
                 setIsProcessing(false);
             }
         },
-        [battleState, isProcessing, skipBattle, params.dishTypeId, setBattleState, clearBattleState, resetRating, router]
+        [battleState, isProcessing, skipBattle, params.dishTypeId, clearBattleState, resetRating, router]
     );
 
     const handleClose = () => {
@@ -141,8 +128,7 @@ export default function CompareScreen() {
         return null;
     }
 
-    const { maxSteps, currentStep, skipsRemaining, opponent } = battleState;
-    const canSkip = skipsRemaining > 0;
+    const { maxSteps, currentStep, opponent, ratingId } = battleState;
 
     return (
         <ThemedView style={styles.container}>
@@ -169,28 +155,13 @@ export default function CompareScreen() {
                 </View>
 
                 <Pressable
-                    style={[
-                        styles.skipButton,
-                        !canSkip && styles.skipButtonDisabled,
-                    ]}
-                    onPress={() => canSkip && setShowSkipModal(true)}
-                    disabled={!canSkip || isProcessing}
+                    style={styles.skipButton}
+                    onPress={() => handleSkip()}
+                    disabled={isProcessing}
                 >
-                    <ThemedText
-                        style={[
-                            styles.skipText,
-                            !canSkip && styles.skipTextDisabled,
-                        ]}
-                    >
+                    <ThemedText style={styles.skipText}>
                         Skip
                     </ThemedText>
-                    {canSkip && (
-                        <View style={styles.skipBadge}>
-                            <ThemedText style={styles.skipBadgeText}>
-                                {skipsRemaining}
-                            </ThemedText>
-                        </View>
-                    )}
                 </Pressable>
             </Animated.View>
 
@@ -206,7 +177,7 @@ export default function CompareScreen() {
                             styles.card,
                             pressed && styles.cardPressed,
                         ]}
-                        onPress={() => handleVote(params.ratingId)}
+                        onPress={() => handleVote(ratingId)}
                         disabled={isProcessing}
                     >
                         <Image
@@ -288,50 +259,6 @@ export default function CompareScreen() {
                 </Animated.View>
             )}
 
-            {/* Skip Modal */}
-            {showSkipModal && (
-                <Animated.View
-                    entering={FadeIn.duration(200)}
-                    exiting={FadeOut.duration(200)}
-                    style={styles.modalOverlay}
-                >
-                    <Pressable
-                        style={styles.modalBackdrop}
-                        onPress={() => setShowSkipModal(false)}
-                    />
-                    <Animated.View
-                        entering={FadeInUp.duration(300)}
-                        style={styles.modalContent}
-                    >
-                        <ThemedText style={styles.modalTitle}>
-                            Why are you skipping?
-                        </ThemedText>
-                        <ThemedText style={styles.skipsRemainingText}>
-                            {skipsRemaining} skip
-                            {skipsRemaining !== 1 ? 's' : ''} remaining
-                        </ThemedText>
-                        {SKIP_REASONS.map((reason) => (
-                            <Pressable
-                                key={reason.value}
-                                style={styles.modalOption}
-                                onPress={() => handleSkip(reason.value)}
-                            >
-                                <ThemedText style={styles.modalOptionText}>
-                                    {reason.label}
-                                </ThemedText>
-                            </Pressable>
-                        ))}
-                        <Pressable
-                            style={styles.modalCancel}
-                            onPress={() => setShowSkipModal(false)}
-                        >
-                            <ThemedText style={styles.modalCancelText}>
-                                Cancel
-                            </ThemedText>
-                        </Pressable>
-                    </Animated.View>
-                </Animated.View>
-            )}
         </ThemedView>
     );
 }
@@ -380,29 +307,9 @@ const createThemedStyles = (
             gap: 4,
             justifyContent: 'flex-end',
         },
-        skipButtonDisabled: {
-            opacity: 0.3,
-        },
         skipText: {
             fontSize: theme.font.size.md,
             color: theme.color.textSecondary,
-        },
-        skipTextDisabled: {
-            color: theme.color.textSecondary,
-        },
-        skipBadge: {
-            backgroundColor: theme.color.accent,
-            borderRadius: 10,
-            minWidth: 18,
-            height: 18,
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingHorizontal: 4,
-        },
-        skipBadgeText: {
-            fontSize: 11,
-            fontWeight: '700',
-            color: theme.color.accentOn,
         },
         cardsContainer: {
             flex: 1,
@@ -500,53 +407,5 @@ const createThemedStyles = (
             fontSize: theme.font.size.lg,
             fontWeight: '600',
             color: '#fff',
-        },
-        modalOverlay: {
-            ...StyleSheet.absoluteFillObject,
-            justifyContent: 'flex-end',
-        },
-        modalBackdrop: {
-            ...StyleSheet.absoluteFillObject,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-        },
-        modalContent: {
-            backgroundColor: theme.color.surface,
-            borderTopLeftRadius: theme.radius.xl,
-            borderTopRightRadius: theme.radius.xl,
-            paddingTop: theme.space.lg,
-            paddingBottom: insets.bottom + theme.space.lg,
-            paddingHorizontal: theme.space.lg,
-        },
-        modalTitle: {
-            fontSize: theme.font.size.lg,
-            fontWeight: '700',
-            color: theme.color.textPrimary,
-            marginBottom: theme.space.xs,
-            textAlign: 'center',
-        },
-        skipsRemainingText: {
-            fontSize: theme.font.size.sm,
-            color: theme.color.textSecondary,
-            textAlign: 'center',
-            marginBottom: theme.space.md,
-        },
-        modalOption: {
-            paddingVertical: theme.space.md,
-            borderBottomWidth: 1,
-            borderBottomColor: theme.color.border,
-        },
-        modalOptionText: {
-            fontSize: theme.font.size.md,
-            color: theme.color.textPrimary,
-        },
-        modalCancel: {
-            paddingVertical: theme.space.md,
-            marginTop: theme.space.sm,
-        },
-        modalCancelText: {
-            fontSize: theme.font.size.md,
-            fontWeight: '600',
-            color: theme.color.textSecondary,
-            textAlign: 'center',
         },
     });
