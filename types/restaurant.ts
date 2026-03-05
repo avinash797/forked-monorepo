@@ -16,7 +16,7 @@ export type GroupedRestaurantDish = Omit<
     RestaurantDishWithDetails,
     'variation'
 > & {
-    avg_raw_score: number | null;
+    bayesian_score: number | null;
     variations: (DishTypeVariation & {
         /** The restaurant_dish row ID for this variation */
         restaurant_dish_id: string;

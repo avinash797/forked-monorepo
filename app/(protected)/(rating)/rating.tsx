@@ -1,6 +1,5 @@
-import { ForkLogo } from '@/components/fork-logo';
 import { PhotoPicker } from '@/components/rating/photo-picker';
-import { RatingInput } from '@/components/rating/rating-input';
+import { SentimentPicker } from '@/components/rating/sentiment-picker';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-text-input';
@@ -22,14 +21,15 @@ export default function RatingScreen() {
         selectedRestaurant,
         selectedDishType,
         selectedVariationId,
-        rating,
+        sentiment,
         reviewText,
         photoUri,
         selectedTags,
-        setRating,
+        setSentiment,
         setReviewText,
         setPhotoUri,
         setSelectedTags,
+        setBattleState,
         resetRating,
     } = useRatingStore();
 
@@ -43,7 +43,6 @@ export default function RatingScreen() {
         isLoading: isUploading,
     } = usePhotoUpload();
 
-    // Get taste tags for the selected dish type
     const { data: tasteTags } = useTasteTags(selectedDishType?.id || null);
 
     const toggleTag = useCallback(
@@ -80,8 +79,8 @@ export default function RatingScreen() {
     };
 
     const handleSubmit = async () => {
-        if (rating === 0) {
-            Alert.alert('Rating Required', 'Please select a rating (1-10)');
+        if (!sentiment) {
+            Alert.alert('Rating Required', 'Please select how the dish was');
             return;
         }
 
@@ -93,7 +92,6 @@ export default function RatingScreen() {
         let uploadedUrl: string | undefined;
         let uploadedStoragePath: string | undefined;
 
-        // Upload photo if one was selected
         if (photoUri) {
             const uploaded = await uploadPhoto(photoUri, 'dish', user.id);
 
@@ -112,26 +110,30 @@ export default function RatingScreen() {
             const result = await createRating({
                 restaurant_id: selectedRestaurant.id,
                 dish_type_id: selectedDishType.id,
-                raw_score: rating,
+                sentiment,
                 photo_url: uploadedUrl,
+                photo_storage_path: uploadedStoragePath,
                 variation_id: selectedVariationId ?? undefined,
                 notes: reviewText.trim() || undefined,
                 taste_tag_ids: selectedTags,
             });
 
-            // If a duel was found, navigate to compare screen
-            if (result.has_duel && result.duel_data) {
+            if (!result.battle_complete && result.battle_id && result.opponent) {
+                const totalCandidates = result.total_candidates ?? 1;
+                const maxSteps = Math.floor(Math.log2(totalCandidates)) + 1;
+                setBattleState({
+                    battleId: result.battle_id,
+                    ratingId: result.rating_id,
+                    maxSteps,
+                    currentStep: 1,
+                    opponent: result.opponent,
+                });
                 router.push({
                     pathname: '/(protected)/(rating)/compare',
                     params: {
-                        comparisonId: result.duel_data.comparison_id,
-                        newRatingId: result.rating_id,
                         yourPhoto: uploadedUrl ?? '',
                         yourRestaurant: selectedRestaurant.name,
-                        opponentRatingId: result.duel_data.opponent_rating_id,
-                        opponentName: result.duel_data.opponent_name,
-                        opponentPhoto: result.duel_data.opponent_photo,
-                        opponentScore: String(result.duel_data.opponent_score),
+                        dishTypeName: selectedDishType.name,
                         dishTypeId: selectedDishType.id,
                     },
                 });
@@ -146,9 +148,7 @@ export default function RatingScreen() {
             }
             Alert.alert(
                 'Error',
-                error.message?.includes('duplicate')
-                    ? 'You have already rated this dish at this restaurant'
-                    : 'Failed to submit rating. Please try again.',
+                'Failed to submit rating. Please try again.',
                 [
                     {
                         text: 'OK',
@@ -163,7 +163,7 @@ export default function RatingScreen() {
         }
     };
 
-    const canSubmit = rating > 0 && !isSubmitting && !isUploading;
+    const canSubmit = sentiment !== null && !isSubmitting && !isUploading;
 
     return (
         <ScrollView style={styles.container}>
@@ -185,35 +185,22 @@ export default function RatingScreen() {
                     at {selectedRestaurant.name}
                 </ThemedText>
 
-                {/* Rating Section */}
+                {/* Sentiment Section */}
                 <ThemedView style={styles.section}>
                     <ThemedText type="defaultSemiBold" style={styles.label}>
-                        Your Rating (1-10){' '}
+                        How was it?{' '}
                         <ThemedText lightColor="#ee6c2b" darkColor="#ff8c50">
                             *
                         </ThemedText>
                     </ThemedText>
-                    <View style={styles.ratingContainer}>
-                        <RatingInput
-                            value={rating}
-                            onChange={setRating}
-                            step={1}
-                            thumbComponent={
-                                <ForkLogo
-                                    color={
-                                        rating > 7
-                                            ? theme.color.gold
-                                            : rating > 3
-                                              ? theme.color.silver
-                                              : theme.color.bronze
-                                    }
-                                />
-                            }
-                        />
-                    </View>
+                    <SentimentPicker
+                        value={sentiment}
+                        onChange={setSentiment}
+                        disabled={isSubmitting}
+                    />
                 </ThemedView>
 
-                {/* Photo Section - Optional */}
+                {/* Photo Section */}
                 <ThemedView style={styles.section}>
                     <PhotoPicker
                         photos={photoUri ? [photoUri] : []}
@@ -289,16 +276,6 @@ export default function RatingScreen() {
                 >
                     {isUploading ? 'Uploading Photo...' : 'Submit Rating'}
                 </ThemedButton>
-
-                {/* {!gpsStatus.isVerified && gpsStatus.hasPermission && (
-                    <ThemedText
-                        style={styles.warningText}
-                        lightColor="#666"
-                        darkColor="#999"
-                    >
-                        Your rating will be submitted without GPS verification.
-                    </ThemedText>
-                )} */}
             </ThemedView>
         </ScrollView>
     );
@@ -331,9 +308,6 @@ const styles = StyleSheet.create({
     section: {
         marginBottom: 24,
     },
-    ratingContainer: {
-        paddingHorizontal: 16,
-    },
     label: {
         marginBottom: 12,
     },
@@ -362,10 +336,5 @@ const styles = StyleSheet.create({
     submitButton: {
         marginTop: 8,
         marginBottom: 16,
-    },
-    warningText: {
-        fontSize: 13,
-        textAlign: 'center',
-        marginBottom: 32,
     },
 });

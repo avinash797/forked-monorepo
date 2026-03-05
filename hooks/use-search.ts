@@ -69,14 +69,12 @@ export function useSearch(query: string) {
 
             const [dishTypesResult, restaurantsResult, restaurantDishesResult] =
                 await Promise.all([
-                    // @ts-expect-error - RPC not in generated types yet, remove after type regeneration
                     supabase.rpc('search_dish_types', {
                         search_term: debouncedQuery,
                     }),
                     supabase.rpc('search_restaurants', {
                         search_term: debouncedQuery,
                     }),
-                    // @ts-expect-error - RPC not in generated types yet, remove after type regeneration
                     supabase.rpc('search_restaurant_dishes', {
                         search_term: debouncedQuery,
                     }),
@@ -88,13 +86,10 @@ export function useSearch(query: string) {
                 throw restaurantDishesResult.error;
 
             return {
-                dishTypes: (dishTypesResult.data ??
-                    []) as unknown as DishType[],
-                restaurants: (restaurantsResult.data ??
-                    []) as unknown as Restaurant[],
+                dishTypes: (dishTypesResult.data ?? []) as DishType[],
+                restaurants: (restaurantsResult.data ?? []) as Restaurant[],
                 restaurantDishes: dedupeByRestaurant(
-                    (restaurantDishesResult.data ??
-                        []) as unknown as RestaurantDishSearchResult[]
+                    (restaurantDishesResult.data ?? []) as RestaurantDishSearchResult[]
                 ),
             };
         },

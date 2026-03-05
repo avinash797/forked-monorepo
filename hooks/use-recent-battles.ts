@@ -40,6 +40,7 @@ export function useRecentBattles(
                     `
                     id,
                     created_at,
+                    result,
                     user:profiles!comparisons_user_profile_fkey (
                         display_name
                     ),
@@ -47,20 +48,17 @@ export function useRecentBattles(
                         name,
                         emoji
                     ),
-                    winner:winner_rating_id (
-                        restaurant:restaurants(name)
-                    ),
-                    rating_a:personal_ratings!comparisons_rating_a_id_fkey(
+                    new_rating:personal_ratings!comparisons_new_rating_id_fkey(
                         id,
                         restaurant:restaurants(name)
                     ),
-                    rating_b:personal_ratings!comparisons_rating_b_id_fkey(
+                    opponent_rating:personal_ratings!comparisons_opponent_rating_id_fkey(
                         id,
                         restaurant:restaurants(name)
                     )
                 `
                 )
-                .not('winner_rating_id', 'is', null) // Only show actual battles, not skips
+                .in('result', ['new_wins', 'opponent_wins']) // Only show decided battles
                 .order('created_at', { ascending: false })
                 .limit(limit);
 
@@ -70,19 +68,18 @@ export function useRecentBattles(
 
             // Transform data to RecentBattleItem format
             const battles: RecentBattleItem[] = (data || [])
-                .filter((item) => item.user && item.dish_type && item.winner) // Filter out incomplete data
+                .filter((item) => item.user && item.dish_type) // Filter out incomplete data
                 .map((item) => {
-                    const winnerRestaurant =
-                        (item.winner as any)?.restaurant?.name || 'Unknown';
+                    const newRating = (item as any).new_rating;
+                    const opponentRating = (item as any).opponent_rating;
 
-                    // Determine loser restaurant
-                    const ratingA = item.rating_a as any;
-                    const ratingB = item.rating_b as any;
-                    const loserRestaurant =
-                        (item.winner as any)?.restaurant?.name ===
-                        ratingA?.restaurant?.name
-                            ? ratingB?.restaurant?.name || 'Unknown'
-                            : ratingA?.restaurant?.name || 'Unknown';
+                    // result = 'new_wins' → new_rating is winner, else opponent_rating is winner
+                    const winnerRestaurant = item.result === 'new_wins'
+                        ? newRating?.restaurant?.name || 'Unknown'
+                        : opponentRating?.restaurant?.name || 'Unknown';
+                    const loserRestaurant = item.result === 'new_wins'
+                        ? opponentRating?.restaurant?.name || 'Unknown'
+                        : newRating?.restaurant?.name || 'Unknown';
 
                     return {
                         id: item.id,

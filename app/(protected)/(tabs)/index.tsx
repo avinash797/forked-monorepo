@@ -1,7 +1,6 @@
 import { LocationBottomSheet } from '@/components/browse/location-bottom-sheet';
 import { LocationHeader } from '@/components/browse/location-header';
 import HeroCard, { HeroCardSkeleton } from '@/components/Discover/hero-card';
-import { PendingComparisonsCTA } from '@/components/Discover/pending-comparisons-cta';
 import { RecentBattleTicker } from '@/components/Discover/recent-battle-ticker';
 import RisingStarCard, {
     RisingStarCardSkeleton,
@@ -101,9 +100,6 @@ export default function HomeScreen() {
                             craving?
                         </ThemedText>
                     </View>
-
-                    {/* Pending Comparisons CTA */}
-                    <PendingComparisonsCTA />
 
                     {/* Hero Section - Popular among Users */}
                     <View style={styles.heroSection}>

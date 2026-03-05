@@ -2,52 +2,107 @@
 -- Seed Blog Data
 -- Inserts initial authors, categories, tags, and sample posts.
 -- ============================================================
-
 -- =====================
 -- 1. Author
 -- =====================
 INSERT INTO public.blog_authors (id, name, slug, bio)
 VALUES (
-  'a1000000-0000-0000-0000-000000000001',
-  'Forked Team',
-  'forked-team',
-  'The team behind Forked — on a mission to find the best dish in every city.'
-);
-
+    'a1000000-0000-0000-0000-000000000001',
+    'Forked Team',
+    'forked-team',
+    'The team behind Forked — on a mission to find the best dish in every city.'
+  );
 -- =====================
 -- 2. Categories
 -- =====================
 INSERT INTO public.blog_categories (id, name, slug, description, display_order)
-VALUES
-  ('c1000000-0000-0000-0000-000000000001', 'City Guides', 'city-guides', 'Deep dives into the best dishes across cities on Forked.', 1),
-  ('c1000000-0000-0000-0000-000000000002', 'Dish Deep Dives', 'dish-deep-dives', 'Exploring the history, craft, and rankings of iconic dishes.', 2),
-  ('c1000000-0000-0000-0000-000000000003', 'News & Updates', 'news-updates', 'Product updates, new cities, and community news from Forked.', 3);
-
+VALUES (
+    'c1000000-0000-0000-0000-000000000001',
+    'City Guides',
+    'city-guides',
+    'Deep dives into the best dishes across cities on Forked.',
+    1
+  ),
+  (
+    'c1000000-0000-0000-0000-000000000002',
+    'Dish Deep Dives',
+    'dish-deep-dives',
+    'Exploring the history, craft, and rankings of iconic dishes.',
+    2
+  ),
+  (
+    'c1000000-0000-0000-0000-000000000003',
+    'News & Updates',
+    'news-updates',
+    'Product updates, new cities, and community news from Forked.',
+    3
+  );
 -- =====================
 -- 3. Tags
 -- =====================
 INSERT INTO public.blog_tags (id, name, slug)
-VALUES
-  ('d1000000-0000-0000-0000-000000000001', 'New Orleans', 'new-orleans'),
-  ('d1000000-0000-0000-0000-000000000002', 'Gumbo', 'gumbo'),
-  ('d1000000-0000-0000-0000-000000000003', 'Rankings', 'rankings');
-
+VALUES (
+    'd1000000-0000-0000-0000-000000000001',
+    'New Orleans',
+    'new-orleans'
+  ),
+  (
+    'd1000000-0000-0000-0000-000000000002',
+    'Gumbo',
+    'gumbo'
+  ),
+  (
+    'd1000000-0000-0000-0000-000000000003',
+    'Rankings',
+    'rankings'
+  );
 -- =====================
 -- 4. Blog Posts
 -- =====================
-
+INSERT INTO public.cities (
+    id,
+    name,
+    state,
+    country,
+    slug,
+    coordinates,
+    is_active,
+    created_at,
+    updated_at
+  )
+VALUES (
+    '2a8188fa-e530-4cc1-b775-e97bf07dd3fa',
+    'New Orleans',
+    'Louisiana',
+    'US',
+    'new-orleans-louisiana',
+    '0101000020E610000070F37CBCC68556C0E56A1ACA3FF93D40',
+    'true',
+    '2026-02-07 03:52:27.596481+00',
+    '2026-02-07 03:52:36.513087+00'
+  );
 -- Post 1: City-specific post WITH city_id and dish_type_id (for leaderboard enrichment)
 INSERT INTO public.blog_posts (
-  id, title, slug, excerpt, content, status,
-  author_id, category_id, city_id, dish_type_id,
-  seo_title, seo_description, published_at
-)
+    id,
+    title,
+    slug,
+    excerpt,
+    content,
+    status,
+    author_id,
+    category_id,
+    city_id,
+    dish_type_id,
+    seo_title,
+    seo_description,
+    published_at
+  )
 VALUES (
-  'b1000000-0000-0000-0000-000000000001',
-  'The Ultimate Guide to Gumbo in New Orleans',
-  'ultimate-guide-gumbo-new-orleans',
-  'From dark roux to okra-thickened bowls, we break down what makes New Orleans gumbo legendary — and who serves the best bowl in the city right now.',
-  '{
+    'b1000000-0000-0000-0000-000000000001',
+    'The Ultimate Guide to Gumbo in New Orleans',
+    'ultimate-guide-gumbo-new-orleans',
+    'From dark roux to okra-thickened bowls, we break down what makes New Orleans gumbo legendary — and who serves the best bowl in the city right now.',
+    '{
     "type": "doc",
     "content": [
       {
@@ -146,28 +201,35 @@ VALUES (
       }
     ]
   }',
-  'published',
-  'a1000000-0000-0000-0000-000000000001',
-  'c1000000-0000-0000-0000-000000000001',
-  '2a8188fa-e530-4cc1-b775-e97bf07dd3fa',
-  '2d45d5d3-03be-4ddd-8cc6-ed533d5f9ce7',
-  'Best Gumbo in New Orleans — The Ultimate Guide | Forked',
-  'Discover what makes great gumbo and see the live Elo-ranked leaderboard of the best gumbo in New Orleans.',
-  now() - interval '2 days'
-);
-
+    'published',
+    'a1000000-0000-0000-0000-000000000001',
+    'c1000000-0000-0000-0000-000000000001',
+    '2a8188fa-e530-4cc1-b775-e97bf07dd3fa',
+    '2d45d5d3-03be-4ddd-8cc6-ed533d5f9ce7',
+    'Best Gumbo in New Orleans — The Ultimate Guide | Forked',
+    'Discover what makes great gumbo and see the live Elo-ranked leaderboard of the best gumbo in New Orleans.',
+    now() - interval '2 days'
+  );
 -- Post 2: General post WITHOUT city/dish references
 INSERT INTO public.blog_posts (
-  id, title, slug, excerpt, content, status,
-  author_id, category_id,
-  seo_title, seo_description, published_at
-)
+    id,
+    title,
+    slug,
+    excerpt,
+    content,
+    status,
+    author_id,
+    category_id,
+    seo_title,
+    seo_description,
+    published_at
+  )
 VALUES (
-  'b1000000-0000-0000-0000-000000000002',
-  'How Elo Rankings Create Better Food Discovery',
-  'how-elo-rankings-create-better-food-discovery',
-  'Why we chose an Elo rating system over traditional reviews, and how head-to-head battles lead to more honest dish rankings.',
-  '{
+    'b1000000-0000-0000-0000-000000000002',
+    'How Elo Rankings Create Better Food Discovery',
+    'how-elo-rankings-create-better-food-discovery',
+    'Why we chose an Elo rating system over traditional reviews, and how head-to-head battles lead to more honest dish rankings.',
+    '{
     "type": "doc",
     "content": [
       {
@@ -273,19 +335,26 @@ VALUES (
       }
     ]
   }',
-  'published',
-  'a1000000-0000-0000-0000-000000000001',
-  'c1000000-0000-0000-0000-000000000003',
-  'How Elo Rankings Create Better Food Discovery | Forked',
-  'Learn why Forked uses Elo ratings from competitive chess to rank dishes, and how head-to-head battles produce more honest food rankings.',
-  now() - interval '5 days'
-);
-
+    'published',
+    'a1000000-0000-0000-0000-000000000001',
+    'c1000000-0000-0000-0000-000000000003',
+    'How Elo Rankings Create Better Food Discovery | Forked',
+    'Learn why Forked uses Elo ratings from competitive chess to rank dishes, and how head-to-head battles produce more honest food rankings.',
+    now() - interval '5 days'
+  );
 -- =====================
 -- 5. Post-Tag associations
 -- =====================
 INSERT INTO public.blog_post_tags (blog_post_id, blog_tag_id)
-VALUES
-  ('b1000000-0000-0000-0000-000000000001', 'd1000000-0000-0000-0000-000000000001'),
-  ('b1000000-0000-0000-0000-000000000001', 'd1000000-0000-0000-0000-000000000002'),
-  ('b1000000-0000-0000-0000-000000000002', 'd1000000-0000-0000-0000-000000000003');
+VALUES (
+    'b1000000-0000-0000-0000-000000000001',
+    'd1000000-0000-0000-0000-000000000001'
+  ),
+  (
+    'b1000000-0000-0000-0000-000000000001',
+    'd1000000-0000-0000-0000-000000000002'
+  ),
+  (
+    'b1000000-0000-0000-0000-000000000002',
+    'd1000000-0000-0000-0000-000000000003'
+  );

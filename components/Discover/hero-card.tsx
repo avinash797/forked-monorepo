@@ -41,7 +41,13 @@ export default function HeroCard({
     const { width: windowWidth } = useWindowDimensions();
     const styles = createStyles(theme, windowWidth);
 
-    const confidence = Math.max(1, Math.ceil((dish.confidence_score ?? 0) * 5));
+    const confidenceTierFlames: Record<string, number> = {
+        low: 1,
+        medium: 2,
+        high: 4,
+        very_high: 5,
+    };
+    const confidence = confidenceTierFlames[dish.confidence_tier ?? 'low'] ?? 1;
     const flames = '🔥'.repeat(confidence);
 
     const handleHeroPress = () => {

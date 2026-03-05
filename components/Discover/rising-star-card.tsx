@@ -120,8 +120,8 @@ export default function RisingStarCard({
 
                     <View style={styles.scoreRow}>
                         <ConfidenceMeter
-                            confidenceScore={dish.confidence_score}
-                            totalBattles={dish.total_battles}
+                            confidenceTier={dish.confidence_tier}
+                            totalRatings={dish.total_ratings}
                             variant="full"
                         />
                     </View>

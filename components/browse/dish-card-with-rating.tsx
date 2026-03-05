@@ -70,8 +70,8 @@ export function DishCardWithRating({
             <View style={styles.cardContent}>
                 {/* Top Right: Rating Badge + Trend Indicator */}
                 <View style={styles.topRightContainer}>
-                    {dish.avg_raw_score !== null && dish.avg_raw_score > 0 && (
-                        <ScoreBadge score={dish.avg_raw_score} />
+                    {dish.bayesian_score !== null && dish.bayesian_score > 0 && (
+                        <ScoreBadge score={dish.bayesian_score} />
                     )}
                 </View>
 

@@ -21,7 +21,7 @@ export function BestEverCard({ item, index, onPress }: BestEverCardProps) {
     const handleShare = async () => {
         try {
             await Share.share({
-                message: `My best ${item.dish_type_name}? ${item.restaurant_name} in ${item.city_name}! Rated ${item.raw_score}/10 on Forked`,
+                message: `My best ${item.dish_type_name}? ${item.restaurant_name} in ${item.city_name}! Scored ${item.derived_score?.toFixed(1)}/10 on Forked`,
                 title: `My Best ${item.dish_type_name}`,
             });
         } catch {
@@ -61,7 +61,7 @@ export function BestEverCard({ item, index, onPress }: BestEverCardProps) {
 
                 {/* Score badge */}
                 <View style={styles.scoreBadgeContainer}>
-                    <ScoreBadge score={item.raw_score} />
+                    <ScoreBadge score={item.derived_score ?? 0} />
                 </View>
 
                 {/* Content */}

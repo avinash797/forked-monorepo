@@ -11,7 +11,8 @@ export type DishWithRestaurant = GlobalDishScore & {
     tags: (TasteTag & { count: number })[];
     userRatingData: {
         user_id: string;
-        raw_score: number;
+        sentiment: 'liked' | 'okay' | 'disliked';
+        derived_score: number | null;
         tags: (TasteTag & { count: number })[];
     };
     menuData: {
@@ -110,7 +111,7 @@ export function useDishRatings(
             const { data: personalRatingData } = await supabase
                 .from('personal_ratings')
                 .select(
-                    `user_id, raw_score, tags:personal_rating_tags(taste_tags(*))`
+                    `user_id, sentiment, derived_score, tags:personal_rating_tags(taste_tags(*))`
                 )
                 .eq('dish_type_id', dishId)
                 .eq('restaurant_id', restaurantId);
@@ -142,7 +143,8 @@ export function useDishRatings(
                 ) as
                     | {
                           user_id: string;
-                          raw_score: number;
+                          sentiment: 'liked' | 'okay' | 'disliked';
+                          derived_score: number | null;
                           tags: (TasteTag & { count: number })[];
                       }
                     | undefined,
