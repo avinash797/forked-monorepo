@@ -134,7 +134,7 @@ export default function ProfileScreen() {
     const displayName =
         profile?.display_name || user?.email?.split('@')[0] || 'User';
     const avatarUrl = profile?.avatar_url;
-    const homeCity = userStats?.home_city || profile?.home_city_id || null;
+    const homeCity = profile?.home_city_id || null;
 
     return (
         <SafeAreaView style={styles.container}>
@@ -263,7 +263,7 @@ export default function ProfileScreen() {
                     <StatsRow
                         totalDishes={userStats?.total_ratings ?? 0}
                         totalCities={userStats?.cities_rated_in ?? 0}
-                        totalBattles={userStats?.total_battles ?? 0}
+                        totalBattles={userStats?.total_comparisons ?? 0}
                     />
 
                     {/* Best Ever Section */}

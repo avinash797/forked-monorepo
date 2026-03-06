@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import type { MatchLocationResponse } from '@/types/rpc.types';
 import * as Location from 'expo-location';
 import { create } from 'zustand';
 
@@ -70,10 +71,7 @@ export const useLocationStore = create<LocationState>((set, get) => ({
 
             if (error) throw error;
 
-            const data = rpcData as unknown as {
-                city: City | null;
-                neighborhood: Neighborhood | null;
-            };
+            const data = rpcData as unknown as MatchLocationResponse;
 
             if (data) {
                 set({

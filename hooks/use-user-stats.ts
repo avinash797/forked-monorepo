@@ -1,20 +1,9 @@
 import { supabase } from '@/lib/supabase';
+import type { LeaderboardEntry, UserStatsResponse } from '@/types/rpc.types';
 import { useQuery } from '@tanstack/react-query';
 
-// Type for get_user_stats RPC response
-export interface UserStats {
-    user_id: string;
-    username: string | null;
-    avatar_url: string | null;
-    total_ratings: number;
-    total_battles: number;
-    cities_rated_in: number;
-    dishes_by_type: { [key: string]: number };
-    credibility_score: number;
-    member_since: string;
-    home_city: string | null;
-    skip_rate: number;
-}
+// Re-export for backward compatibility
+export type UserStats = UserStatsResponse;
 
 // Type for get_my_best_ever RPC response
 export interface BestEverDish {
@@ -43,7 +32,7 @@ export function useUserStats(userId?: string, enabled?: boolean) {
             });
 
             if (error) throw error;
-            return data as UserStats | null;
+            return data as unknown as UserStatsResponse | null;
         },
         enabled: enabled,
     });
@@ -188,7 +177,7 @@ export function useUserBadges(userId?: string) {
             if (error) throw error;
             if (!stats) return [];
 
-            const userStats = stats as unknown as UserStats;
+            const userStats = stats as unknown as UserStatsResponse;
             const badges: Array<{
                 id: string;
                 name: string;
@@ -238,7 +227,7 @@ export function useUserBadges(userId?: string) {
             }
 
             // Battle milestones
-            if (userStats.total_battles >= 25) {
+            if (userStats.total_comparisons >= 25) {
                 badges.push({
                     id: 'battle_tested',
                     name: 'Battle Tested',
@@ -248,7 +237,7 @@ export function useUserBadges(userId?: string) {
                 });
             }
 
-            if (userStats.total_battles >= 100) {
+            if (userStats.total_comparisons >= 100) {
                 badges.push({
                     id: 'battle_master',
                     name: 'Battle Master',
@@ -270,7 +259,7 @@ export function useUserBadges(userId?: string) {
             }
 
             // Diverse palate
-            if (Object.keys(userStats.dishes_by_type).length >= 5) {
+            if (Object.keys(userStats.dishes_by_type ?? {}).length >= 5) {
                 badges.push({
                     id: 'diverse_palate',
                     name: 'Diverse Palate',
@@ -322,7 +311,7 @@ export function useUserLeaderboardPosition(
 
             if (!leaderboard) return null;
 
-            const entries = leaderboard as unknown as { restaurant_id: string }[];
+            const entries = leaderboard as unknown as LeaderboardEntry[];
             const position = entries.findIndex(
                 (entry) => entry.restaurant_id === userRatings[0].restaurant_id
             );

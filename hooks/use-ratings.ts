@@ -1,46 +1,21 @@
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/types/database.types';
+import type {
+    BattleOpponent,
+    CreateRatingResponse,
+    PersonalRankingEntry,
+    SubmitComparisonResponse,
+} from '@/types/rpc.types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 type PersonalRating = Database['public']['Tables']['personal_ratings']['Row'];
 
 export type Sentiment = 'liked' | 'okay' | 'disliked';
 
-export interface BattleOpponent {
-    rating_id: string;
-    restaurant_id: string;
-    restaurant_name: string;
-    photo_url: string;
-    derived_score: number | null;
-    elo_score: number | null;
-}
-
-export interface CreateRatingResponse {
-    rating_id: string;
-    battle_complete: boolean;
-    battle_id?: string;
-    opponent?: BattleOpponent;
-    opponent_index?: number;
-    is_re_rating?: boolean;
-    total_candidates?: number;
-    elo_score?: number;
-    derived_score?: number;
-}
-
-export interface ProcessBattleResponse {
-    battle_complete: boolean;
-    rating_id: string;
-    // Present when battle_complete = true
-    final_elo?: number;
-    final_derived_score?: number;
-    comparisons_made?: number;
-    // Present when battle_complete = false
-    current_elo?: number;
-    opponent?: BattleOpponent;
-    opponent_index?: number;
-    step?: number;
-    remaining_range?: number;
-}
+// Re-export RPC types for backward compatibility
+export type { BattleOpponent, CreateRatingResponse, PersonalRankingEntry };
+/** @deprecated Use SubmitComparisonResponse instead */
+export type ProcessBattleResponse = SubmitComparisonResponse;
 
 export interface CreateRatingInput {
     restaurant_id: string;
@@ -107,7 +82,7 @@ export function useMyDishRankings(dishTypeId?: string) {
             });
 
             if (error) throw error;
-            return data ?? [];
+            return (data ?? []) as unknown as PersonalRankingEntry[];
         },
         enabled: !!dishTypeId,
     });

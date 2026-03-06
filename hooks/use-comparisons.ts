@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
+import type { SubmitComparisonResponse } from '@/types/rpc.types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ProcessBattleResponse } from './use-ratings';
 
 export interface ProcessBattleInput {
     battle_id: string;
@@ -23,7 +23,7 @@ export function useProcessBattle() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (input: ProcessBattleInput): Promise<ProcessBattleResponse> => {
+        mutationFn: async (input: ProcessBattleInput): Promise<SubmitComparisonResponse> => {
             const p_result = input.winner_rating_id === input.new_rating_id
                 ? 'new_wins'
                 : 'opponent_wins';
@@ -34,7 +34,7 @@ export function useProcessBattle() {
             });
 
             if (error) throw error;
-            return data as unknown as ProcessBattleResponse;
+            return data as unknown as SubmitComparisonResponse;
         },
         onSuccess: (data, variables) => {
             queryClient.invalidateQueries({
@@ -58,14 +58,14 @@ export function useSkipBattle() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (input: SkipBattleInput): Promise<ProcessBattleResponse> => {
+        mutationFn: async (input: SkipBattleInput): Promise<SubmitComparisonResponse> => {
             const { data, error } = await supabase.rpc('submit_comparison', {
                 p_battle_id: input.battle_id,
                 p_result: 'skipped',
             });
 
             if (error) throw error;
-            return data as unknown as ProcessBattleResponse;
+            return data as unknown as SubmitComparisonResponse;
         },
         onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({
