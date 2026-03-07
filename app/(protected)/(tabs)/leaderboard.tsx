@@ -8,7 +8,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/contexts/theme-provider';
 import { useCityDishTypes } from '@/hooks/use-dish-types';
-import { useGetLeaderboardByDishType } from '@/hooks/use-leaderboard';
+import { useGetLeaderboardByDishType, useLeaderboardDishTypeCounts } from '@/hooks/use-leaderboard';
 import { useLocationFilterStore } from '@/stores';
 import { DishType } from '@/types/dishes';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -48,6 +48,20 @@ export default function LeaderboardScreen() {
 
     // Fetch city-prioritized dish types
     const { data: cityDishTypes } = useCityDishTypes(cityId);
+
+    // Fetch entry counts to sort pills by activity
+    const { data: dishTypeCounts } = useLeaderboardDishTypeCounts(cityId);
+
+    const sortedDishTypes = useMemo(() => {
+        if (!cityDishTypes?.length) return [];
+        if (!dishTypeCounts) return cityDishTypes;
+
+        return [...cityDishTypes].sort((a, b) => {
+            const countA = dishTypeCounts.get(a.id) ?? 0;
+            const countB = dishTypeCounts.get(b.id) ?? 0;
+            return countB - countA; // desc; JS sort is stable so ties keep city-known order
+        });
+    }, [cityDishTypes, dishTypeCounts]);
 
     // Fetch leaderboard data
     const {
@@ -118,7 +132,7 @@ export default function LeaderboardScreen() {
         <ThemedView style={styles.container}>
             <ListHeader />
             <DishTypePills
-                dishTypes={cityDishTypes ?? []}
+                dishTypes={sortedDishTypes}
                 selectedDishType={selectedDishType}
                 handleDishTypeSelect={handleDishTypeSelect}
                 initialDishTypeId={initialDishTypeId}

@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import type { LeaderboardEntry } from '@/types/rpc.types';
+import type { DishTypeEntryCount, LeaderboardEntry } from '@/types/rpc.types';
 import { useQuery } from '@tanstack/react-query';
 
 export type { LeaderboardEntry };
@@ -42,3 +42,23 @@ export function useLeaderboard({
 // Keep aliases for backward compatibility if needed, but they all point to useLeaderboard
 export const useLeaderboardWithTieBreakers = useLeaderboard;
 export const useGetLeaderboardByDishType = useLeaderboard;
+
+export function useLeaderboardDishTypeCounts(cityId: string | null | undefined) {
+    return useQuery({
+        queryKey: ['leaderboard', 'dish-type-counts', cityId],
+        queryFn: async () => {
+            const { data, error } = await supabase.rpc('get_dish_type_entry_counts', {
+                p_city_id: cityId!,
+            });
+            if (error) throw error;
+
+            const counts = new Map<string, number>();
+            for (const row of (data ?? []) as DishTypeEntryCount[]) {
+                counts.set(row.dish_type_id, row.entry_count);
+            }
+            return counts;
+        },
+        enabled: !!cityId,
+        staleTime: 1000 * 60 * 5, // 5 min
+    });
+}
