@@ -90,7 +90,7 @@ export function UserListTable({ users }: UserListTableProps) {
                 {user.total_ratings ?? 0}
               </td>
               <td className="py-3 px-4 text-text-secondary">
-                {user.total_battles ?? 0}
+                {user.total_comparisons ?? 0}
               </td>
               <td className="py-3 px-4">
                 {user.is_banned ? (

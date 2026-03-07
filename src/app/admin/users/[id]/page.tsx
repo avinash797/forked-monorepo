@@ -82,7 +82,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
               <div>
                 <span className="text-text-secondary">Battles</span>
                 <p className="text-text-primary font-semibold">
-                  {user.total_battles ?? 0}
+                  {user.total_comparisons ?? 0}
                 </p>
               </div>
               <div>

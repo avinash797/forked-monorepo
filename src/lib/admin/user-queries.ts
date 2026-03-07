@@ -8,7 +8,7 @@ export type AdminUserListItem = {
   role: string;
   is_banned: boolean;
   total_ratings: number | null;
-  total_battles: number | null;
+  total_comparisons: number | null;
   credibility_score: number | null;
   created_at: string | null;
 };
@@ -27,7 +27,7 @@ export async function getAdminUserList(filters: UserListFilters = {}) {
   let query = supabase
     .from("profiles")
     .select(
-      "id, display_name, username, avatar_url, role, is_banned, total_ratings, total_battles, credibility_score, created_at",
+      "id, display_name, username, avatar_url, role, is_banned, total_ratings, total_comparisons, credibility_score, created_at",
       { count: "exact" }
     )
     .order("created_at", { ascending: false });
@@ -75,7 +75,7 @@ export type AdminUserDetail = {
   warned_at: string | null;
   warn_count: number;
   total_ratings: number | null;
-  total_battles: number | null;
+  total_comparisons: number | null;
   credibility_score: number | null;
   created_at: string | null;
   home_city: { name: string } | null;
@@ -89,7 +89,7 @@ export async function getAdminUserById(
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, display_name, username, avatar_url, bio, role, is_banned, banned_at, ban_reason, warned_at, warn_count, total_ratings, total_battles, credibility_score, created_at, cities!profiles_home_city_id_fkey(name)"
+      "id, display_name, username, avatar_url, bio, role, is_banned, banned_at, ban_reason, warned_at, warn_count, total_ratings, total_comparisons, credibility_score, created_at, cities!profiles_home_city_id_fkey(name)"
     )
     .eq("id", id)
     .single();
@@ -111,7 +111,7 @@ export async function getAdminUserById(
     warned_at: data.warned_at,
     warn_count: data.warn_count,
     total_ratings: data.total_ratings,
-    total_battles: data.total_battles,
+    total_comparisons: data.total_comparisons,
     credibility_score: data.credibility_score,
     created_at: data.created_at,
     home_city: cityData,
