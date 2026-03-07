@@ -138,6 +138,13 @@ export interface CloseRestaurantResponse {
     closed_at: string;
 }
 
+// ── get_dish_type_entry_counts ───────────────────────────────────────
+
+export interface DishTypeEntryCount {
+    dish_type_id: string;
+    entry_count: number;
+}
+
 // ── delete_user_account ─────────────────────────────────────────────
 
 export interface DeleteUserAccountResponse {
