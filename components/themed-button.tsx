@@ -15,6 +15,7 @@ export type ThemedButtonProps = PressableProps & {
     variant?: 'primary' | 'secondary';
     loading?: boolean;
     icon?: ReactNode;
+    destructive?: boolean;
 };
 
 export function ThemedButton({
@@ -24,6 +25,7 @@ export function ThemedButton({
     disabled,
     style,
     icon,
+    destructive = false,
     ...rest
 }: ThemedButtonProps) {
     const { theme } = useTheme();
@@ -45,6 +47,9 @@ export function ThemedButton({
                 variant === 'primary'
                     ? builtStyles.buttonPrimary
                     : builtStyles.buttonSecondary,
+                destructive && {
+                    backgroundColor: theme.color.error,
+                },
             ]}
             disabled={isDisabled}
             android_ripple={{

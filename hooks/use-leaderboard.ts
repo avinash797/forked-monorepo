@@ -1,5 +1,8 @@
 import { supabase } from '@/lib/supabase';
+import type { LeaderboardEntry } from '@/types/rpc.types';
 import { useQuery } from '@tanstack/react-query';
+
+export type { LeaderboardEntry };
 
 interface LeaderboardParams {
     cityId: string;
@@ -20,13 +23,7 @@ export function useLeaderboard({
     limit = 10,
 }: LeaderboardParams) {
     return useQuery({
-        queryKey: [
-            'leaderboard',
-            cityId,
-            dishTypeId,
-            neighborhoodId,
-            limit,
-        ],
+        queryKey: ['leaderboard', cityId, dishTypeId, neighborhoodId, limit],
         queryFn: async () => {
             const { data, error } = await supabase.rpc('get_leaderboard', {
                 p_city_id: cityId,
@@ -36,7 +33,7 @@ export function useLeaderboard({
             });
 
             if (error) throw error;
-            return data;
+            return (data ?? []) as unknown as LeaderboardEntry[];
         },
         enabled: !!cityId && !!dishTypeId,
     });

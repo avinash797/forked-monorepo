@@ -1,4 +1,6 @@
+import { CitySearchSheet } from '@/components/profile/city-search-sheet';
 import { ThemedButton } from '@/components/themed-button';
+import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-text-input';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
@@ -6,17 +8,18 @@ import { AUTH_KEYS, useAuth } from '@/hooks/use-auth';
 import { usePhotoUpload } from '@/hooks/use-photo-upload';
 import { supabase } from '@/lib/supabase';
 
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
     Alert,
     Image,
     KeyboardAvoidingView,
     Platform,
+    Pressable,
     ScrollView,
     StyleSheet,
-    TouchableOpacity,
     View,
 } from 'react-native';
 
@@ -33,7 +36,6 @@ const profileSchema = z.object({
         .min(3, 'Username must be at least 3 characters')
         .optional()
         .or(z.literal('')),
-    location: z.string().optional(),
     bio: z.string().max(160, 'Bio must be less than 160 characters').optional(),
 });
 
@@ -44,6 +46,7 @@ export default function EditProfileScreen() {
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
     const router = useRouter();
+    const citySheetRef = useRef<BottomSheetModal>(null);
     const {
         pickImage,
         takePhoto,
@@ -52,6 +55,31 @@ export default function EditProfileScreen() {
     } = usePhotoUpload();
 
     const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url);
+    const [selectedCityId, setSelectedCityId] = useState<string | null>(
+        profile?.home_city_id || null
+    );
+    const [selectedCityDisplay, setSelectedCityDisplay] = useState<
+        string | null
+    >(null);
+
+    const cityDisplayText =
+        selectedCityDisplay ||
+        (profile?.home_city
+            ? `${profile.home_city.name}${profile.home_city.state ? `, ${profile.home_city.state}` : ''}`
+            : null);
+
+    const handleCitySelect = useCallback(
+        (result: { cityId: string; displayName: string }) => {
+            setSelectedCityId(result.cityId);
+            setSelectedCityDisplay(result.displayName);
+        },
+        []
+    );
+
+    const handleClearCity = useCallback(() => {
+        setSelectedCityId(null);
+        setSelectedCityDisplay(null);
+    }, []);
 
     const {
         control,
@@ -62,17 +90,13 @@ export default function EditProfileScreen() {
         defaultValues: {
             display_name: profile?.display_name || '',
             username: profile?.username || '',
-            location: profile?.home_city_id || '',
             bio: profile?.bio || '',
         },
     });
 
     const handleAvatarPress = () => {
         Alert.alert('Change Avatar', 'Choose an option', [
-            {
-                text: 'Cancel',
-                style: 'cancel',
-            },
+            { text: 'Cancel', style: 'cancel' },
             {
                 text: 'Take Photo',
                 onPress: async () => {
@@ -84,9 +108,7 @@ export default function EditProfileScreen() {
                             user.id,
                             'avatars'
                         );
-                        if (result) {
-                            setAvatarUrl(result.url);
-                        }
+                        if (result) setAvatarUrl(result.url);
                     }
                 },
             },
@@ -101,9 +123,7 @@ export default function EditProfileScreen() {
                             user.id,
                             'avatars'
                         );
-                        if (result) {
-                            setAvatarUrl(result.url);
-                        }
+                        if (result) setAvatarUrl(result.url);
                     }
                 },
             },
@@ -126,7 +146,7 @@ export default function EditProfileScreen() {
                     .eq('id', userId);
                 if (error) throw error;
             },
-            onSuccess: async (data, variables) => {
+            onSuccess: async (_data, variables) => {
                 queryClient.invalidateQueries({
                     queryKey: AUTH_KEYS.profile(variables.userId),
                 });
@@ -140,12 +160,12 @@ export default function EditProfileScreen() {
     const onSubmit = async (data: ProfileFormValues) => {
         if (!user) return;
 
-        const updates = {
+        const updates: Record<string, any> = {
             display_name: data.display_name,
             username: data.username,
-            location: data.location,
             bio: data.bio,
             avatar_url: avatarUrl,
+            home_city_id: selectedCityId,
             updated_at: new Date().toISOString(),
         };
 
@@ -157,9 +177,13 @@ export default function EditProfileScreen() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
         >
-            <ScrollView contentContainerStyle={styles.scrollContent}>
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                keyboardShouldPersistTaps="handled"
+            >
+                {/* Avatar */}
                 <View style={styles.avatarContainer}>
-                    <TouchableOpacity onPress={handleAvatarPress}>
+                    <Pressable onPress={handleAvatarPress}>
                         {avatarUrl ? (
                             <Image
                                 source={{ uri: avatarUrl }}
@@ -181,9 +205,10 @@ export default function EditProfileScreen() {
                                 color="white"
                             />
                         </View>
-                    </TouchableOpacity>
+                    </Pressable>
                 </View>
 
+                {/* Form */}
                 <View style={styles.form}>
                     <Controller
                         control={control}
@@ -214,19 +239,63 @@ export default function EditProfileScreen() {
                         )}
                     />
 
-                    <Controller
-                        control={control}
-                        name="location"
-                        render={({ field: { onChange, value } }) => (
-                            <ThemedTextInput
-                                label="Location"
-                                value={value}
-                                onChangeText={onChange}
-                                placeholder="City, Country"
-                                error={errors.location?.message}
-                            />
-                        )}
-                    />
+                    {/* City picker field */}
+                    <View style={styles.fieldGroup}>
+                        <ThemedText style={styles.fieldLabel}>
+                            Location
+                        </ThemedText>
+                        <Pressable
+                            style={({ pressed }) => [
+                                styles.cityField,
+                                pressed && styles.cityFieldPressed,
+                            ]}
+                            onPress={() => citySheetRef.current?.present()}
+                        >
+                            <View style={styles.cityFieldIcon}>
+                                <IconSymbol
+                                    name="location-outline"
+                                    size={18}
+                                    color={
+                                        cityDisplayText
+                                            ? theme.color.accent
+                                            : theme.color.textTertiary
+                                    }
+                                />
+                            </View>
+                            <ThemedText
+                                style={[
+                                    styles.cityFieldText,
+                                    !cityDisplayText &&
+                                        styles.cityFieldPlaceholder,
+                                ]}
+                                numberOfLines={1}
+                            >
+                                {cityDisplayText || 'Select your city'}
+                            </ThemedText>
+                            {cityDisplayText ? (
+                                <Pressable
+                                    onPress={handleClearCity}
+                                    hitSlop={8}
+                                    style={({ pressed }) => [
+                                        styles.cityClearButton,
+                                        pressed && { opacity: 0.6 },
+                                    ]}
+                                >
+                                    <IconSymbol
+                                        name="close-circle"
+                                        size={18}
+                                        color={theme.color.textTertiary}
+                                    />
+                                </Pressable>
+                            ) : (
+                                <IconSymbol
+                                    name="chevron-forward"
+                                    size={16}
+                                    color={theme.color.textTertiary}
+                                />
+                            )}
+                        </Pressable>
+                    </View>
 
                     <Controller
                         control={control}
@@ -256,6 +325,13 @@ export default function EditProfileScreen() {
                     </ThemedButton>
                 </View>
             </ScrollView>
+
+            {/* City search bottom sheet */}
+            <CitySearchSheet
+                ref={citySheetRef}
+                onSelect={handleCitySelect}
+                onClose={() => {}}
+            />
         </KeyboardAvoidingView>
     );
 }
@@ -301,6 +377,47 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         form: {
             gap: 16,
             marginBottom: 32,
+        },
+        fieldGroup: {
+            marginBottom: theme.space.md,
+        },
+        fieldLabel: {
+            fontSize: theme.font.size.sm,
+            fontWeight: theme.font.weight.semibold as any,
+            marginBottom: theme.space.xs,
+        },
+        cityField: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            height: 50,
+            borderRadius: theme.radius.md,
+            paddingHorizontal: theme.space.md,
+            borderWidth: theme.border.hairline,
+            backgroundColor: theme.color.inputBg,
+            borderColor: theme.color.inputBorder,
+            gap: theme.space.sm,
+        },
+        cityFieldPressed: {
+            backgroundColor: theme.color.surface2,
+        },
+        cityFieldIcon: {
+            width: 28,
+            height: 28,
+            borderRadius: 14,
+            backgroundColor: theme.color.accentSoft,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        cityFieldText: {
+            flex: 1,
+            fontSize: theme.font.size.md,
+            color: theme.color.textPrimary,
+        },
+        cityFieldPlaceholder: {
+            color: theme.color.placeholder,
+        },
+        cityClearButton: {
+            padding: 4,
         },
         bioInput: {
             height: 100,

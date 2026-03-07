@@ -73,10 +73,10 @@ export function useAuth(): UseAuthReturn {
 
             const userId = session.user.id;
 
-            // Fetch user profile
+            // Fetch user profile with city join
             const { data: profile, error: profileError } = (await supabase
                 .from('profiles')
-                .select('*')
+                .select('*, home_city:cities!home_city_id(name, state)')
                 .eq('id', userId)
                 .single()) as { data: UserProfile | null; error: any };
 

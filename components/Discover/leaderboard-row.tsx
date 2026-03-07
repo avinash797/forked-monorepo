@@ -2,17 +2,22 @@ import { ScoreBadge } from '@/components/score-badge';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
+import type { LeaderboardEntry as RpcLeaderboardEntry, PersonalRankingEntry } from '@/types/rpc.types';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-// Type matching the get_leaderboard RPC return (also used for personal rankings)
-export interface LeaderboardEntry {
+/**
+ * Row display type that accepts both leaderboard and personal ranking data.
+ * All fields beyond the shared core are optional so both RPC shapes work.
+ */
+export type LeaderboardEntry = {
     rank: number;
     restaurant_id: string;
     restaurant_name: string;
     neighborhood_name?: string;
     city_name?: string;
+    address?: string;
     bayesian_score?: number;
     confidence_tier?: string;
     raw_weighted_avg?: number;
@@ -20,7 +25,7 @@ export interface LeaderboardEntry {
     total_ratings?: number;
     featured_photo_url?: string | null;
     photo_url?: string;
-}
+};
 
 interface LeaderboardRowProps {
     item: LeaderboardEntry;
@@ -112,12 +117,14 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
                     <ThemedText style={styles.neighborhood} numberOfLines={1}>
                         {item.neighborhood_name ?? item.city_name}
                     </ThemedText>
-                    <View style={styles.confidenceRow}>
-                        <ThemedText style={styles.flames}>{flames}</ThemedText>
-                        <ThemedText style={styles.ratingCount}>
-                            {item.total_ratings ?? 0} ratings
-                        </ThemedText>
-                    </View>
+                    {(confidenceLevel > 0 || item.total_ratings != null) && (
+                        <View style={styles.confidenceRow}>
+                            <ThemedText style={styles.flames}>{flames}</ThemedText>
+                            <ThemedText style={styles.ratingCount}>
+                                {item.total_ratings ?? 0} ratings
+                            </ThemedText>
+                        </View>
+                    )}
                 </View>
 
                 {/* Score Badge */}

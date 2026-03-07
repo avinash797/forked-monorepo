@@ -64,7 +64,7 @@ export default function LeaderboardScreen() {
     // Process data to add rank
     const leaderboardItems: LeaderboardEntry[] = useMemo(() => {
         if (!leaderboardData) return [];
-        return leaderboardData.map((item: any, index: number) => ({
+        return leaderboardData.map((item, index) => ({
             ...item,
             rank: item.rank || index + 1,
         }));

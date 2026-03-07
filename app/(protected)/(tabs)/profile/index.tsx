@@ -1,7 +1,6 @@
 import { BadgesSection } from '@/components/profile/badges-section';
 import { BestEverSection } from '@/components/profile/best-ever-section';
 import { StatsRow } from '@/components/profile/stats-row';
-import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -22,7 +21,7 @@ import {
     useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
-const HERO_HEIGHT = 280;
+const HERO_HEIGHT = 340;
 const HEADER_HEIGHT = 60;
 
 export default function ProfileScreen() {
@@ -134,13 +133,36 @@ export default function ProfileScreen() {
     const displayName =
         profile?.display_name || user?.email?.split('@')[0] || 'User';
     const avatarUrl = profile?.avatar_url;
-    const homeCity = userStats?.home_city || profile?.home_city_id || null;
+    const username = profile?.username || null;
+    const bio = profile?.bio || null;
+    const homeCity = profile?.home_city
+        ? `${profile.home_city.name}${profile.home_city.state ? `, ${profile.home_city.state}` : ''}`
+        : null;
 
     return (
         <SafeAreaView style={styles.container}>
             <ThemedView style={styles.container}>
                 {/* Settings Button (Always visible but transitions) */}
                 <View style={[styles.topControls]}>
+                    <Link href="/profile/edit" asChild>
+                        <Pressable>
+                            {({ pressed }) => (
+                                <Animated.View
+                                    style={[
+                                        styles.settingsButton,
+                                        animatedSettingsButtonStyle,
+                                        pressed && styles.settingsButtonPressed,
+                                    ]}
+                                >
+                                    <IconSymbol
+                                        name="pencil"
+                                        size={28}
+                                        color={theme.color.textPrimary}
+                                    />
+                                </Animated.View>
+                            )}
+                        </Pressable>
+                    </Link>
                     <Link href="/profile/settings" asChild>
                         <Pressable>
                             {({ pressed }) => (
@@ -234,6 +256,11 @@ export default function ProfileScreen() {
                                 >
                                     {displayName}
                                 </ThemedText>
+                                {username && (
+                                    <ThemedText style={styles.usernameText}>
+                                        @{username}
+                                    </ThemedText>
+                                )}
                                 {homeCity && (
                                     <View style={styles.locationRow}>
                                         <IconSymbol
@@ -246,16 +273,15 @@ export default function ProfileScreen() {
                                         </ThemedText>
                                     </View>
                                 )}
+                                {bio && (
+                                    <ThemedText
+                                        style={styles.bioText}
+                                        numberOfLines={3}
+                                    >
+                                        {bio}
+                                    </ThemedText>
+                                )}
                             </View>
-
-                            <Link href="/profile/edit" asChild>
-                                <ThemedButton
-                                    variant="secondary"
-                                    style={styles.editProfileButton}
-                                >
-                                    Edit Profile
-                                </ThemedButton>
-                            </Link>
                         </Animated.View>
                     </Animated.View>
 
@@ -263,7 +289,7 @@ export default function ProfileScreen() {
                     <StatsRow
                         totalDishes={userStats?.total_ratings ?? 0}
                         totalCities={userStats?.cities_rated_in ?? 0}
-                        totalBattles={userStats?.total_battles ?? 0}
+                        totalBattles={userStats?.total_comparisons ?? 0}
                     />
 
                     {/* Best Ever Section */}
@@ -290,8 +316,10 @@ const createThemedStyles = (
         },
         topControls: {
             position: 'absolute',
-            top: 0,
-            right: 0,
+            left: 0,
+            flexDirection: 'row',
+            width: '100%',
+            justifyContent: 'space-between',
             paddingHorizontal: theme.space.md,
             paddingTop: theme.space.sm,
             zIndex: 20,
@@ -382,6 +410,18 @@ const createThemedStyles = (
             marginBottom: theme.space.sm,
         },
         displayNameHero: {},
+        usernameText: {
+            fontSize: theme.font.size.sm,
+            color: theme.color.textSecondary,
+            marginTop: 2,
+        },
+        bioText: {
+            fontSize: theme.font.size.sm,
+            color: theme.color.textSecondary,
+            textAlign: 'center',
+            marginTop: theme.space.xs,
+            paddingHorizontal: theme.space.md,
+        },
         locationRow: {
             flexDirection: 'row',
             alignItems: 'center',

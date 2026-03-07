@@ -36,7 +36,7 @@ const personal = () => {
         if (!userStats?.dishes_by_type) return [];
         return (
             allDishTypes?.filter((dt) =>
-                Object.keys(userStats.dishes_by_type).includes(dt.name)
+                Object.keys(userStats.dishes_by_type ?? {}).includes(dt.name)
             ) ?? []
         );
     }, [allDishTypes, userStats]);
