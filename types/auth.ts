@@ -5,7 +5,9 @@ export interface Charm {
     timestamp: string;
 }
 
-export type UserProfile = Database['public']['Tables']['profiles']['Row'];
+export type UserProfile = Database['public']['Tables']['profiles']['Row'] & {
+    home_city: { name: string; state: string | null } | null;
+};
 
 export interface User {
     id: string;

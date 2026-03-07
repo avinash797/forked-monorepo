@@ -28,6 +28,7 @@ export const critics = {
                 success: '#2AAE6A', // calmer, less neon
                 warning: '#D18B2A',
                 danger: '#D64545',
+                error: '#ff0000',
                 info: '#3A86FF',
 
                 focusRing: 'rgba(142,44,44,0.42)',
@@ -76,6 +77,7 @@ export const critics = {
                 success: '#1F7D52',
                 warning: '#A06614',
                 danger: '#B42318',
+                error: '#ff0000',
                 info: '#1A73E8',
 
                 focusRing: 'rgba(122,31,31,0.30)',

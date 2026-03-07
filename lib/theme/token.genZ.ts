@@ -34,6 +34,7 @@ export const genZ = {
                 success: '#34C759',
                 warning: '#FF9F0A',
                 danger: '#FF453A',
+                error: '#ff0000',
                 info: '#5AC8FA',
 
                 // Focus / highlight
@@ -85,6 +86,7 @@ export const genZ = {
                 success: '#1F8A4C',
                 warning: '#B35C00',
                 danger: '#C81E1E',
+                error: '#ff0000',
                 info: '#0066CC',
 
                 focusRing: 'rgba(225,37,27,0.28)',

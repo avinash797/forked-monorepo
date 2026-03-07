@@ -34,6 +34,7 @@ export const defaultTheme = {
                 success: '#34D399',
                 warning: '#FBBF24',
                 danger: '#F87171',
+                error: '#ff0000',
                 info: '#60A5FA',
 
                 // Focus / highlight
@@ -91,6 +92,7 @@ export const defaultTheme = {
                 success: '#10B981',
                 warning: '#F59E0B',
                 danger: '#EF4444',
+                error: '#ff0000',
                 info: '#3B82F6',
 
                 // Focus / highlight

@@ -28,6 +28,7 @@ export const foodies = {
                 success: '#2ECC71',
                 warning: '#E67E22',
                 danger: '#E74C3C',
+                error: '#ff0000',
                 info: '#4AA3DF',
 
                 focusRing: 'rgba(192,57,43,0.40)',
@@ -76,6 +77,7 @@ export const foodies = {
                 success: '#1F8A4C',
                 warning: '#B35C00',
                 danger: '#C81E1E',
+                error: '#ff0000',
                 info: '#1A73E8',
 
                 focusRing: 'rgba(184,50,39,0.28)',

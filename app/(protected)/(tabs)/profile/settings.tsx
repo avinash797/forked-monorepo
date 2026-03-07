@@ -20,7 +20,7 @@ const COLOR_SCHEME_OPTIONS = [
 ] as const;
 
 export default function SettingsScreen() {
-    const { logout, user, profile } = useAuth();
+    const { logout } = useAuth();
     const { themeName, setThemeName, themePreference, setThemePreference } =
         useTheme();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -80,63 +80,12 @@ export default function SettingsScreen() {
                 />
             </View>
 
-            <View style={styles.section}>
-                <ThemedText type="subtitle" style={styles.sectionTitle}>
-                    Account
-                </ThemedText>
-
-                <View style={styles.infoContainer}>
-                    <ThemedText style={styles.label}>Display Name</ThemedText>
-                    <ThemedText style={styles.value}>
-                        {profile?.display_name || 'Not set'}
-                    </ThemedText>
-                </View>
-
-                <View style={styles.infoContainer}>
-                    <ThemedText style={styles.label}>Email</ThemedText>
-                    <ThemedText style={styles.value}>{user?.email}</ThemedText>
-                </View>
-
-                {profile?.username && (
-                    <View style={styles.infoContainer}>
-                        <ThemedText style={styles.label}>Username</ThemedText>
-                        <ThemedText style={styles.value}>
-                            @{profile.username}
-                        </ThemedText>
-                    </View>
-                )}
-
-                {profile?.home_city_id && (
-                    <View style={styles.infoContainer}>
-                        <ThemedText style={styles.label}>Location</ThemedText>
-                        <ThemedText style={styles.value}>
-                            {profile.home_city_id}
-                        </ThemedText>
-                    </View>
-                )}
-
-                <View style={styles.infoContainer}>
-                    <ThemedText style={styles.label}>
-                        Reputation Score
-                    </ThemedText>
-                    <ThemedText style={styles.value}>
-                        {profile?.credibility_score || 0}
-                    </ThemedText>
-                </View>
-
-                <View style={styles.infoContainer}>
-                    <ThemedText style={styles.label}>Charms Earned</ThemedText>
-                    <ThemedText style={styles.value}>
-                        {(profile as any)?.charms?.length || 0}
-                    </ThemedText>
-                </View>
-            </View>
-
             <View style={styles.logoutSection}>
                 <ThemedButton
                     onPress={handleLogout}
                     loading={isLoggingOut}
                     variant="secondary"
+                    destructive
                 >
                     Logout
                 </ThemedButton>
@@ -151,6 +100,8 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         padding: 24,
+        justifyContent: 'space-between',
+        flexGrow: 1,
     },
     header: {
         marginBottom: 32,
@@ -160,28 +111,6 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         marginBottom: 16,
-    },
-    infoContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(128, 128, 128, 0.2)',
-    },
-    label: {
-        fontSize: 16,
-        opacity: 0.7,
-    },
-    value: {
-        fontSize: 16,
-        fontWeight: '500',
-    },
-    verified: {
-        color: '#10B981',
-    },
-    unverified: {
-        opacity: 0.5,
     },
     logoutSection: {
         marginTop: 16,
