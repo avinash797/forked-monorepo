@@ -120,7 +120,7 @@ export async function getAdminUserById(
 
 export type UserRating = {
   id: string;
-  raw_score: number;
+  derived_score: number | null;
   created_at: string | null;
   restaurant_name: string;
   dish_type_name: string;
@@ -134,7 +134,7 @@ export async function getUserRatings(
 
   const { data } = await supabase
     .from("personal_ratings")
-    .select("id, raw_score, created_at, restaurants(name), dish_types(name)")
+    .select("id, derived_score, created_at, restaurants(name), dish_types(name)")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -146,7 +146,7 @@ export async function getUserRatings(
     const dishType = r.dish_types as unknown as { name: string } | null;
     return {
       id: r.id,
-      raw_score: r.raw_score,
+      derived_score: r.derived_score,
       created_at: r.created_at,
       restaurant_name: restaurant?.name ?? "Unknown",
       dish_type_name: dishType?.name ?? "Unknown",

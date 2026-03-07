@@ -227,7 +227,7 @@ These files in `../forked/` inform the web app's implementation:
 
 **Key RPC functions used by web:**
 
-- `get_leaderboard(p_city_id, p_dish_type_id, p_limit, p_min_battles, p_min_ratings, p_neighborhood_id)`
+- `get_leaderboard(p_city_id, p_dish_type_id, p_limit, p_neighborhood_id, p_offset)`
 - `get_leaderboard_with_tiebreakers(p_city_id, p_dish_type_id, p_limit)`
 
 **Key tables queried directly:**
@@ -254,3 +254,4 @@ These files in `../forked/` inform the web app's implementation:
 - [x] **Theme toggler in footer using next-themes** — (Ad hoc: installed `next-themes`, defined `:root` as light mode tokens and `.dark` as dark mode tokens in `globals.css`, created `ThemeProvider` client wrapper with `attribute="class" defaultTheme="dark" enableSystem`, added `suppressHydrationWarning` to `<html>`, and added a `ThemeToggle` button in the footer bottom bar using `useTheme()` with mounted guard to prevent hydration mismatch)
 - [x] **Admin waitlist view under Users** — (Ad hoc: added a "Waitlisted" filter tab to `/admin/users` that queries `user_waitlist`, shows email/source/signup date, supports search and pagination, and provides per-row Remove action plus Export CSV and Copy All Emails bulk actions)
 - [x] **Fix admin users page returning 0 results** — (Ad hoc: `profiles` table column is `total_comparisons` but code queried `total_battles`; Supabase returned an error which was silently swallowed. Fixed column name in `user-queries.ts`, `user-list-table.tsx`, and `[id]/page.tsx`)
+- [x] **Fix database type mismatches after schema update** — (Ad hoc: `personal_ratings.raw_score` was renamed to `derived_score` and `get_leaderboard` RPC removed `p_min_battles`/`p_min_ratings` params. Fixed 3 query files, 3 admin components, and 4 leaderboard/marketing files. Also fixed RPC return type casts to go through `unknown`.)
