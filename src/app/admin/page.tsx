@@ -54,14 +54,14 @@ export default async function AdminDashboard() {
                     </span>
                     <span
                       className={`font-semibold ${
-                        r.raw_score >= 7
+                        (r.derived_score ?? 0) >= 7
                           ? "text-success"
-                          : r.raw_score >= 4
+                          : (r.derived_score ?? 0) >= 4
                             ? "text-warning"
                             : "text-danger"
                       }`}
                     >
-                      {r.raw_score}
+                      {r.derived_score ?? "—"}
                     </span>
                   </div>
                 </li>

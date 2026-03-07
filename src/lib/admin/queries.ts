@@ -51,7 +51,7 @@ export async function getAdminDashboardStats(): Promise<DashboardStats> {
 
 export type RecentRating = {
   id: string;
-  raw_score: number;
+  derived_score: number | null;
   created_at: string | null;
   restaurant_name: string;
   dish_type_name: string;
@@ -65,7 +65,7 @@ export async function getRecentRatings(
   const { data } = await supabase
     .from("personal_ratings")
     .select(
-      "id, raw_score, created_at, restaurants(name), dish_types(name), profiles(display_name)"
+      "id, derived_score, created_at, restaurants(name), dish_types(name), profiles(display_name)"
     )
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -81,7 +81,7 @@ export async function getRecentRatings(
 
     return {
       id: r.id,
-      raw_score: r.raw_score,
+      derived_score: r.derived_score,
       created_at: r.created_at,
       restaurant_name: restaurant?.name ?? "Unknown",
       dish_type_name: dishType?.name ?? "Unknown",

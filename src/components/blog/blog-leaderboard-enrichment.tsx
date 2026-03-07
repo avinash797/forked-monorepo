@@ -36,10 +36,8 @@ export async function BlogLeaderboardEnrichment({
       p_city_id: cityId,
       p_dish_type_id: dishTypeId,
       p_limit: 5,
-      p_min_battles: 0,
-      p_min_ratings: 0,
     });
-    entries = data ?? [];
+    entries = (data as unknown as typeof entries) ?? [];
   } catch {
     return null;
   }

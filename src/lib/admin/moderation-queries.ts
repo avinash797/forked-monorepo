@@ -76,7 +76,7 @@ export async function getFlagCounts() {
 export type PhotoForReview = {
   id: string;
   photo_url: string;
-  raw_score: number;
+  derived_score: number | null;
   restaurant_name: string;
   dish_type_name: string;
   user_display_name: string;
@@ -89,7 +89,7 @@ export async function getPhotosForReview(limit = 30): Promise<PhotoForReview[]> 
   const { data } = await supabase
     .from("personal_ratings")
     .select(
-      "id, photo_url, raw_score, created_at, restaurants(name), dish_types(name), profiles(display_name)"
+      "id, photo_url, derived_score, created_at, restaurants(name), dish_types(name), profiles(display_name)"
     )
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -106,7 +106,7 @@ export async function getPhotosForReview(limit = 30): Promise<PhotoForReview[]> 
     return {
       id: r.id,
       photo_url: r.photo_url,
-      raw_score: r.raw_score,
+      derived_score: r.derived_score,
       restaurant_name: restaurant?.name ?? "Unknown",
       dish_type_name: dishType?.name ?? "Unknown",
       user_display_name: profile?.display_name ?? "Anonymous",

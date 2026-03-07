@@ -8,7 +8,7 @@ export type AdminUserListItem = {
   role: string;
   is_banned: boolean;
   total_ratings: number | null;
-  total_battles: number | null;
+  total_comparisons: number | null;
   credibility_score: number | null;
   created_at: string | null;
 };
@@ -27,7 +27,7 @@ export async function getAdminUserList(filters: UserListFilters = {}) {
   let query = supabase
     .from("profiles")
     .select(
-      "id, display_name, username, avatar_url, role, is_banned, total_ratings, total_battles, credibility_score, created_at",
+      "id, display_name, username, avatar_url, role, is_banned, total_ratings, total_comparisons, credibility_score, created_at",
       { count: "exact" }
     )
     .order("created_at", { ascending: false });
@@ -75,7 +75,7 @@ export type AdminUserDetail = {
   warned_at: string | null;
   warn_count: number;
   total_ratings: number | null;
-  total_battles: number | null;
+  total_comparisons: number | null;
   credibility_score: number | null;
   created_at: string | null;
   home_city: { name: string } | null;
@@ -89,7 +89,7 @@ export async function getAdminUserById(
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, display_name, username, avatar_url, bio, role, is_banned, banned_at, ban_reason, warned_at, warn_count, total_ratings, total_battles, credibility_score, created_at, cities!profiles_home_city_id_fkey(name)"
+      "id, display_name, username, avatar_url, bio, role, is_banned, banned_at, ban_reason, warned_at, warn_count, total_ratings, total_comparisons, credibility_score, created_at, cities!profiles_home_city_id_fkey(name)"
     )
     .eq("id", id)
     .single();
@@ -111,7 +111,7 @@ export async function getAdminUserById(
     warned_at: data.warned_at,
     warn_count: data.warn_count,
     total_ratings: data.total_ratings,
-    total_battles: data.total_battles,
+    total_comparisons: data.total_comparisons,
     credibility_score: data.credibility_score,
     created_at: data.created_at,
     home_city: cityData,
@@ -120,7 +120,7 @@ export async function getAdminUserById(
 
 export type UserRating = {
   id: string;
-  raw_score: number;
+  derived_score: number | null;
   created_at: string | null;
   restaurant_name: string;
   dish_type_name: string;
@@ -134,7 +134,7 @@ export async function getUserRatings(
 
   const { data } = await supabase
     .from("personal_ratings")
-    .select("id, raw_score, created_at, restaurants(name), dish_types(name)")
+    .select("id, derived_score, created_at, restaurants(name), dish_types(name)")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -146,7 +146,7 @@ export async function getUserRatings(
     const dishType = r.dish_types as unknown as { name: string } | null;
     return {
       id: r.id,
-      raw_score: r.raw_score,
+      derived_score: r.derived_score,
       created_at: r.created_at,
       restaurant_name: restaurant?.name ?? "Unknown",
       dish_type_name: dishType?.name ?? "Unknown",

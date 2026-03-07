@@ -25,14 +25,14 @@ export function PhotoReviewCard({ photo }: PhotoReviewCardProps) {
           <span className="text-text-secondary">{photo.user_display_name}</span>
           <span
             className={`font-semibold ${
-              photo.raw_score >= 7
+              (photo.derived_score ?? 0) >= 7
                 ? "text-success"
-                : photo.raw_score >= 4
+                : (photo.derived_score ?? 0) >= 4
                   ? "text-warning"
                   : "text-danger"
             }`}
           >
-            {photo.raw_score}/10
+            {photo.derived_score != null ? `${photo.derived_score}/10` : "—"}
           </span>
         </div>
         {photo.created_at && (

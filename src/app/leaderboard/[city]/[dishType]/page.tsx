@@ -59,10 +59,8 @@ async function getLeaderboardEntries(
     p_city_id: cityId,
     p_dish_type_id: dishTypeId,
     p_limit: 25,
-    p_min_battles: 0,
-    p_min_ratings: 0,
   });
-  return (data as LeaderboardEntry[]) ?? [];
+  return (data as unknown as LeaderboardEntry[]) ?? [];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

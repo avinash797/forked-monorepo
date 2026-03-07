@@ -87,11 +87,9 @@ async function getLeaderboardPreview(): Promise<LeaderboardEntry[]> {
       p_city_id: city.id,
       p_dish_type_id: dishType.id,
       p_limit: 5,
-      p_min_battles: 0,
-      p_min_ratings: 0,
     });
 
-    return (data as LeaderboardEntry[]) ?? [];
+    return (data as unknown as LeaderboardEntry[]) ?? [];
   } catch {
     return [];
   }
