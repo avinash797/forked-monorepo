@@ -209,6 +209,7 @@ export default function ProfileScreen() {
                     scrollEventThrottle={16}
                     contentContainerStyle={styles.scrollContent}
                     showsVerticalScrollIndicator={false}
+                    contentInsetAdjustmentBehavior="automatic"
                 >
                     {/* Animated Hero Section */}
                     <Animated.View

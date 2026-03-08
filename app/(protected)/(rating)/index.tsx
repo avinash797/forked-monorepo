@@ -149,6 +149,7 @@ export default function VenueSearchScreen() {
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
+                    contentInsetAdjustmentBehavior="automatic"
                 />
             )}
 

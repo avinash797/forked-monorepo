@@ -350,9 +350,9 @@ export default function RestaurantDetailScreen() {
         <ThemedView style={styles.container}>
             {/* Hero Control (Back Button) */}
             <View style={[styles.topControls, { marginTop: insets.top }]}>
-                <TouchableOpacity
+                <Pressable
                     onPress={() => router.back()}
-                    activeOpacity={0.7}
+                    style={({ pressed }) => pressed && { opacity: 0.7 }}
                 >
                     <Animated.View
                         style={[styles.backButton, animatedBackButtonStyle]}
@@ -364,7 +364,7 @@ export default function RestaurantDetailScreen() {
                             animatedProps={animatedIconProps}
                         />
                     </Animated.View>
-                </TouchableOpacity>
+                </Pressable>
             </View>
 
             {/* Animated Sticky Header */}
@@ -440,6 +440,7 @@ export default function RestaurantDetailScreen() {
                         <ThemedText
                             style={styles.venueNameHero}
                             numberOfLines={2}
+                            selectable
                         >
                             {venue.name}
                         </ThemedText>

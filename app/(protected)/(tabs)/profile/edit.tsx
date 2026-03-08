@@ -179,6 +179,7 @@ export default function EditProfileScreen() {
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 keyboardShouldPersistTaps="handled"
+                contentInsetAdjustmentBehavior="automatic"
             >
                 {/* Avatar */}
                 <View style={styles.avatarContainer}>

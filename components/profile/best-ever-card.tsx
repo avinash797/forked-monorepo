@@ -7,6 +7,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, Share, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { SvgXml } from 'react-native-svg';
 
 interface BestEverCardProps {
     item: BestEverDish;
@@ -52,11 +53,15 @@ export function BestEverCard({ item, index, onPress }: BestEverCardProps) {
                     style={styles.gradient}
                 />
 
-                {/* Emoji badge */}
+                {/* Emoji or Icon badge */}
                 <View style={styles.emojiBadge}>
-                    <ThemedText style={styles.emoji}>
-                        {item.dish_type_emoji}
-                    </ThemedText>
+                    {item.dish_type_icon ? (
+                        <SvgXml xml={item.dish_type_icon} width={24} height={24} />
+                    ) : (
+                        <ThemedText style={styles.emoji}>
+                            {item.dish_type_emoji}
+                        </ThemedText>
+                    )}
                 </View>
 
                 {/* Score badge */}

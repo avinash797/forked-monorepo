@@ -166,7 +166,7 @@ export default function RatingScreen() {
     const canSubmit = sentiment !== null && !isSubmitting && !isUploading;
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container} contentInsetAdjustmentBehavior="automatic">
             <ThemedView style={styles.content}>
                 <View style={styles.header}>
                     <ThemedText style={styles.emoji}>

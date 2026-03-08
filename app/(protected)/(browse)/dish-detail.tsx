@@ -389,9 +389,9 @@ export default function DishDetailScreen() {
         <ThemedView style={styles.container}>
             {/* Hero Control (Back Button always visible but transitions) */}
             <View style={[styles.topControls, { marginTop: insets.top }]}>
-                <TouchableOpacity
+                <Pressable
                     onPress={() => router.back()}
-                    activeOpacity={0.7}
+                    style={({ pressed }) => pressed && { opacity: 0.7 }}
                 >
                     <Animated.View
                         style={[styles.backButton, animatedBackButtonStyle]}
@@ -403,7 +403,7 @@ export default function DishDetailScreen() {
                             animatedProps={animatedIconProps}
                         />
                     </Animated.View>
-                </TouchableOpacity>
+                </Pressable>
             </View>
 
             {/* Animated Sticky Header */}

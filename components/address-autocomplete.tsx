@@ -9,7 +9,6 @@ import {
     Pressable,
     StyleSheet,
     TextInput,
-    TouchableOpacity,
     View,
 } from 'react-native';
 
@@ -156,10 +155,11 @@ export function AddressAutocomplete({
                 >
                     {suggestions.map((item, index) => (
                         <View key={item.mapbox_id}>
-                            <TouchableOpacity
-                                style={[
+                            <Pressable
+                                style={({ pressed }) => [
                                     styles.suggestionItem,
                                     { backgroundColor: suggestionBg },
+                                    pressed && { opacity: 0.7 },
                                 ]}
                                 onPress={() => handleSelect(item.mapbox_id)}
                             >
@@ -175,7 +175,7 @@ export function AddressAutocomplete({
                                 >
                                     {item.full_address}
                                 </ThemedText>
-                            </TouchableOpacity>
+                            </Pressable>
                             {index < suggestions.length - 1 && (
                                 <View
                                     style={[

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
     TextInput,
-    TouchableOpacity,
+    Pressable,
     View,
     type TextInputProps,
 } from 'react-native';
@@ -105,8 +105,8 @@ export function ThemedTextInput({
                     {...rest}
                 />
                 {showPasswordToggle && (
-                    <TouchableOpacity
-                        style={{
+                    <Pressable
+                        style={({ pressed }) => ({
                             position: 'absolute',
                             right: 0,
                             top: 0,
@@ -114,7 +114,8 @@ export function ThemedTextInput({
                             width: 50,
                             justifyContent: 'center',
                             alignItems: 'center',
-                        }}
+                            opacity: pressed ? 0.7 : 1,
+                        })}
                         onPress={() => setIsPasswordVisible(!isPasswordVisible)}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
@@ -127,7 +128,7 @@ export function ThemedTextInput({
                             size={20}
                             color={inputStyles.placeholderColor}
                         />
-                    </TouchableOpacity>
+                    </Pressable>
                 )}
             </View>
             {error && (

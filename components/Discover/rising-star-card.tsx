@@ -14,6 +14,7 @@ import Animated, {
     withRepeat,
     withTiming,
 } from 'react-native-reanimated';
+import { SvgXml } from 'react-native-svg';
 
 interface RisingStarCardProps {
     /** The rising star dish data to display */
@@ -113,9 +114,18 @@ export default function RisingStarCard({
                     </View>
 
                     <View style={styles.detailsRow}>
-                        <ThemedText style={styles.dishType}>
-                            {dish.dish_type_emoji} {dish.dish_type_name}
-                        </ThemedText>
+                        {dish.dish_type_icon ? (
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                <SvgXml xml={dish.dish_type_icon} width={18} height={18} />
+                                <ThemedText style={styles.dishType}>
+                                    {dish.dish_type_name}
+                                </ThemedText>
+                            </View>
+                        ) : (
+                            <ThemedText style={styles.dishType}>
+                                {dish.dish_type_emoji} {dish.dish_type_name}
+                            </ThemedText>
+                        )}
                     </View>
 
                     <View style={styles.scoreRow}>
