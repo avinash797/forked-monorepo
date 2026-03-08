@@ -15,12 +15,13 @@ import { useCallback, useRef, useState } from 'react';
 import {
     Alert,
     Image,
-    KeyboardAvoidingView,
+    Platform,
     Pressable,
     ScrollView,
     StyleSheet,
     View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
@@ -46,6 +47,7 @@ export default function EditProfileScreen() {
     const styles = createThemedStyles(theme);
     const router = useRouter();
     const citySheetRef = useRef<BottomSheetModal>(null);
+    const insets = useSafeAreaInsets();
     const {
         pickImage,
         takePhoto,
@@ -172,14 +174,13 @@ export default function EditProfileScreen() {
     };
 
     return (
-        <KeyboardAvoidingView
-            behavior={process.env.EXPO_OS === 'ios' ? 'padding' : 'height'}
-            style={styles.container}
-        >
+        <View style={styles.container}>
             <ScrollView
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={[
+                    styles.scrollContent,
+                    { paddingBottom: insets.bottom > 0 ? insets.bottom + 24 : 48 },
+                ]}
                 keyboardShouldPersistTaps="handled"
-                contentInsetAdjustmentBehavior="automatic"
             >
                 {/* Avatar */}
                 <View style={styles.avatarContainer}>
@@ -332,7 +333,7 @@ export default function EditProfileScreen() {
                 onSelect={handleCitySelect}
                 onClose={() => {}}
             />
-        </KeyboardAvoidingView>
+        </View>
     );
 }
 

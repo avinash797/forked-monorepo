@@ -13,8 +13,7 @@ export default function ProfileLayout() {
                 options={{
                     title: 'Edit Profile',
                     headerBackTitle: 'Profile',
-                    presentation: 'formSheet',
-                    sheetGrabberVisible: true,
+
                 }}
             />
         </Stack>
