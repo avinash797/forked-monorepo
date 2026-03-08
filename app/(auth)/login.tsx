@@ -197,6 +197,7 @@ const styles = StyleSheet.create({
     subtitle: {
         marginTop: 8,
         fontSize: 16,
+        textAlign: 'center',
     },
     form: {
         width: '100%',
