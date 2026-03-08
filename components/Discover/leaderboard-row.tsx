@@ -2,10 +2,10 @@ import { ScoreBadge } from '@/components/score-badge';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
-import type { LeaderboardEntry as RpcLeaderboardEntry, PersonalRankingEntry } from '@/types/rpc.types';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { ConfidenceMeter } from './confidence-meter';
 
 /**
  * Row display type that accepts both leaderboard and personal ranking data.
@@ -40,18 +40,6 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
     const medal = getMedal(item.rank);
     const styles = createThemedStyles(theme, medal);
 
-    // Confidence flames based on confidence_tier
-    const tierFlames: Record<string, number> = {
-        low: 1,
-        medium: 2,
-        high: 4,
-        very_high: 5,
-    };
-    const confidenceLevel = item.confidence_tier
-        ? (tierFlames[item.confidence_tier] ?? 0)
-        : 0;
-    const flames = Array(confidenceLevel).fill('🔥').join('');
-
     return (
         <Pressable
             onPress={onPress}
@@ -76,15 +64,11 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
             <View style={styles.content}>
                 {/* Rank Badge */}
                 <View style={styles.rankContainer}>
-                    {item.rank === 1 ? (
-                        <ThemedText style={styles.crown}>👑</ThemedText>
-                    ) : (
-                        <View style={styles.rankBadge}>
-                            <ThemedText style={styles.rankText}>
-                                {item.rank}
-                            </ThemedText>
-                        </View>
-                    )}
+                    <View style={styles.rankBadge}>
+                        <ThemedText style={styles.rankText}>
+                            {item.rank}
+                        </ThemedText>
+                    </View>
                 </View>
 
                 {/* Photo */}
@@ -115,14 +99,15 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
                         {item.restaurant_name}
                     </ThemedText>
                     <ThemedText style={styles.neighborhood} numberOfLines={1}>
-                        {item.neighborhood_name ?? item.city_name}
+                        {item.neighborhood_name ?? item.city_name ?? item.address?.split(',')[1]}
                     </ThemedText>
-                    {(confidenceLevel > 0 || item.total_ratings != null) && (
+                    {(item.confidence_tier || item.total_ratings != null) && (
                         <View style={styles.confidenceRow}>
-                            <ThemedText style={styles.flames}>{flames}</ThemedText>
-                            <ThemedText style={styles.ratingCount}>
-                                {item.total_ratings ?? 0} ratings
-                            </ThemedText>
+                            <ConfidenceMeter
+                                confidenceTier={item.confidence_tier ?? "low"}
+                                totalRatings={item.total_ratings}
+                                variant='compact'
+                            />
                         </View>
                     )}
                 </View>

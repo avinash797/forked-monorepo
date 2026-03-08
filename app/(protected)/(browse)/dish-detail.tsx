@@ -16,8 +16,8 @@ import { useEffect } from 'react';
 import {
     Alert,
     Dimensions,
-    StyleSheet,
     Pressable,
+    StyleSheet,
     View,
 } from 'react-native';
 import Animated, {
@@ -301,7 +301,7 @@ export default function DishDetailScreen() {
                 resetRating();
                 setSelectedRestaurant(venue);
                 setSelectedDishType(coreData.dish_type);
-                router.push('/(protected)/(rating)');
+                router.push('/(protected)/(rating)/rating');
             }
         }
     };

@@ -1,3 +1,4 @@
+import { IconSymbol, IconSymbolName } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import * as Haptics from 'expo-haptics';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -8,14 +9,15 @@ export type Sentiment = 'liked' | 'okay' | 'disliked';
 interface SentimentOption {
     value: Sentiment;
     label: string;
-    emoji: string;
     color: string;
+    icon: IconSymbolName;
+    iconSelected: IconSymbolName;
 }
 
 const SENTIMENT_OPTIONS: SentimentOption[] = [
-    { value: 'liked',    label: 'Liked it!',        emoji: '😋', color: '#22c55e' },
-    { value: 'okay',     label: 'It was okay',      emoji: '😐', color: '#f59e0b' },
-    { value: 'disliked', label: "Didn't like it",   emoji: '😕', color: '#ef4444' },
+    { value: 'liked', label: 'Liked it!', color: '#22c55e', icon: 'heart-outline', iconSelected: 'heart' },
+    { value: 'okay', label: 'It was okay', color: '#f59e0b', icon: 'thumbs-up-outline', iconSelected: 'thumbs-up' },
+    { value: 'disliked', label: "Didn't like it", color: '#ef4444', icon: 'thumbs-down-outline', iconSelected: 'thumbs-down' },
 ];
 
 interface SentimentPickerProps {
@@ -56,7 +58,7 @@ export function SentimentPicker({ value, onChange, disabled }: SentimentPickerPr
                         accessibilityState={{ checked: isSelected }}
                         accessibilityLabel={option.label}
                     >
-                        <ThemedText style={styles.emoji}>{option.emoji}</ThemedText>
+                        <IconSymbol name={isSelected ? option.iconSelected : option.icon} size={24} color={option.color} />
                         <ThemedText
                             style={[
                                 styles.label,

@@ -4,6 +4,7 @@ import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-text-input';
 import { ThemedView } from '@/components/themed-view';
+import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
 import { usePhotoUpload } from '@/hooks/use-photo-upload';
@@ -169,9 +170,7 @@ export default function RatingScreen() {
         <ScrollView style={styles.container} contentInsetAdjustmentBehavior="automatic">
             <ThemedView style={styles.content}>
                 <View style={styles.header}>
-                    <ThemedText style={styles.emoji}>
-                        {selectedDishType.emoji}
-                    </ThemedText>
+                    <DishTypeIcon icon={selectedDishType.icon} size={40} />
                     <ThemedText style={styles.dishTypeName} type="title">
                         {selectedDishType.name}
                     </ThemedText>

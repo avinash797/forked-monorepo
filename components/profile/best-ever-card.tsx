@@ -1,13 +1,13 @@
 import { ScoreBadge } from '@/components/score-badge';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { useTheme } from '@/contexts/theme-provider';
 import { BestEverDish } from '@/hooks/use-user-stats';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, Share, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { SvgXml } from 'react-native-svg';
 
 interface BestEverCardProps {
     item: BestEverDish;
@@ -53,15 +53,13 @@ export function BestEverCard({ item, index, onPress }: BestEverCardProps) {
                     style={styles.gradient}
                 />
 
-                {/* Emoji or Icon badge */}
+                {/* Dish type icon badge */}
                 <View style={styles.emojiBadge}>
-                    {item.dish_type_icon ? (
-                        <SvgXml xml={item.dish_type_icon} width={24} height={24} />
-                    ) : (
-                        <ThemedText style={styles.emoji}>
-                            {item.dish_type_emoji}
-                        </ThemedText>
-                    )}
+                    <DishTypeIcon
+                        icon={item.dish_type_icon}
+                        emoji={item.dish_type_emoji}
+                        size={24}
+                    />
                 </View>
 
                 {/* Score badge */}

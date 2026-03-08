@@ -1,5 +1,6 @@
 import { ConfidenceMeter } from '@/components/Discover/confidence-meter';
 import { ThemedText } from '@/components/themed-text';
+import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { RisingStarData } from '@/hooks/use-discover-data';
@@ -14,7 +15,6 @@ import Animated, {
     withRepeat,
     withTiming,
 } from 'react-native-reanimated';
-import { SvgXml } from 'react-native-svg';
 
 interface RisingStarCardProps {
     /** The rising star dish data to display */
@@ -114,18 +114,16 @@ export default function RisingStarCard({
                     </View>
 
                     <View style={styles.detailsRow}>
-                        {dish.dish_type_icon ? (
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                <SvgXml xml={dish.dish_type_icon} width={18} height={18} />
-                                <ThemedText style={styles.dishType}>
-                                    {dish.dish_type_name}
-                                </ThemedText>
-                            </View>
-                        ) : (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                            <DishTypeIcon
+                                icon={dish.dish_type_icon}
+                                emoji={dish.dish_type_emoji}
+                                size={16}
+                            />
                             <ThemedText style={styles.dishType}>
-                                {dish.dish_type_emoji} {dish.dish_type_name}
+                                {dish.dish_type_name}
                             </ThemedText>
-                        )}
+                        </View>
                     </View>
 
                     <View style={styles.scoreRow}>

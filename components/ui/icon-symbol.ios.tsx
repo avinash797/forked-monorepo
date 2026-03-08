@@ -1,7 +1,7 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { SymbolView, SymbolViewProps } from 'expo-symbols';
 import { ComponentProps } from 'react';
 import { OpaqueColorValue, type StyleProp, type ViewStyle } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
 
 export type IconSymbolName = ComponentProps<typeof Ionicons>['name'];
 
@@ -41,6 +41,12 @@ const SF_SYMBOLS_MAP: Partial<Record<string, SymbolViewProps['name']>> = {
     'globe-outline': 'globe',
     'call-outline': 'phone',
     'navigate': 'arrow.triangle.turn.up.right.diamond.fill',
+    'heart': 'heart.fill',
+    'heart-outline': 'heart',
+    'thumbs-up': 'hand.thumbsup.fill',
+    'thumbs-up-outline': 'hand.thumbsup',
+    'thumbs-down': 'hand.thumbsdown.fill',
+    'thumbs-down-outline': 'hand.thumbsdown',
 };
 
 /**

@@ -1,3 +1,4 @@
+import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/lib/supabase';
 import { useQuery } from '@tanstack/react-query';
 
@@ -10,6 +11,7 @@ export interface RecentBattleItem {
     username: string;
     dishTypeName: string;
     dishTypeEmoji: string;
+    dishTypeIcon?: string | null;
     winnerRestaurant: string;
     loserRestaurant: string;
     createdAt: string;
@@ -30,10 +32,17 @@ export function useRecentBattles(
     options: { limit?: number; cityId?: string } = {}
 ) {
     const { limit = 15, cityId } = options;
+    // Used only for queryKey cache isolation — NOT for the actual DB filter,
+    // because user.id from useAuth() may differ from auth.uid() stored in comparisons.
+    const { user } = useAuth();
 
     return useQuery({
-        queryKey: ['recent-battles', limit, cityId],
+        queryKey: ['recent-battles', limit, cityId, user?.id],
         queryFn: async () => {
+            // Get the real auth.uid() — this matches what RPCs store in comparisons.user_id
+            const { data: { session } } = await supabase.auth.getSession();
+            const authUserId = session?.user?.id;
+
             let query = supabase
                 .from('comparisons')
                 .select(
@@ -46,7 +55,8 @@ export function useRecentBattles(
                     ),
                     dish_type:dish_types(
                         name,
-                        emoji
+                        emoji,
+                        icon
                     ),
                     new_rating:personal_ratings!comparisons_new_rating_id_fkey(
                         id,
@@ -61,6 +71,10 @@ export function useRecentBattles(
                 .in('result', ['new_wins', 'opponent_wins']) // Only show decided battles
                 .order('created_at', { ascending: false })
                 .limit(limit);
+
+            if (authUserId) {
+                query = query.neq('user_id', authUserId);
+            }
 
             const { data, error } = await query;
 
@@ -87,6 +101,7 @@ export function useRecentBattles(
                             (item.user as any)?.display_name || 'Anonymous',
                         dishTypeName: (item.dish_type as any)?.name || 'Dish',
                         dishTypeEmoji: (item.dish_type as any)?.emoji || '🍽️',
+                        dishTypeIcon: (item.dish_type as any)?.icon || null,
                         winnerRestaurant,
                         loserRestaurant,
                         createdAt: item.created_at || new Date().toISOString(),
