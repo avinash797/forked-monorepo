@@ -78,8 +78,6 @@ export function useDishMenu(
                 .eq('dish_type_id', dishId)
                 .eq('restaurant_id', restaurantId);
 
-            console.log('restaurantDishData', { restaurantDishData });
-
             return {
                 variations:
                     restaurantDishData
@@ -142,11 +140,11 @@ export function useDishRatings(
                     (rating: any) => rating.user_id === user?.id
                 ) as
                     | {
-                          user_id: string;
-                          sentiment: 'liked' | 'okay' | 'disliked';
-                          derived_score: number | null;
-                          tags: (TasteTag & { count: number })[];
-                      }
+                        user_id: string;
+                        sentiment: 'liked' | 'okay' | 'disliked';
+                        derived_score: number | null;
+                        tags: (TasteTag & { count: number })[];
+                    }
                     | undefined,
             };
         },
