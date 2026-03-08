@@ -1,4 +1,5 @@
 import { useTheme } from '@/contexts/theme-provider';
+import * as Haptics from 'expo-haptics';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '../themed-text';
 
@@ -43,7 +44,13 @@ export function SentimentPicker({ value, onChange, disabled }: SentimentPickerPr
                                 opacity: pressed || (disabled && !isSelected) ? 0.7 : 1,
                             },
                         ]}
-                        onPress={() => !disabled && onChange(option.value)}
+                        onPress={() => {
+                            if (disabled) return;
+                            if (process.env.EXPO_OS === 'ios') {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            }
+                            onChange(option.value);
+                        }}
                         disabled={disabled}
                         accessibilityRole="radio"
                         accessibilityState={{ checked: isSelected }}
@@ -81,6 +88,7 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         paddingHorizontal: 20,
         borderRadius: 14,
+        borderCurve: 'continuous',
         borderWidth: 2,
         gap: 12,
     },

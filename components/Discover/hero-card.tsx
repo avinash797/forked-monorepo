@@ -204,12 +204,9 @@ const createStyles = (theme: any, windowWidth: number) =>
         card: {
             backgroundColor: theme.color.surface,
             borderRadius: theme.radius.lg,
+            borderCurve: 'continuous',
             overflow: 'hidden',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.1,
-            shadowRadius: 10,
-            elevation: 5,
+            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
         },
         cardPressed: {
             opacity: 0.9,
@@ -237,10 +234,8 @@ const createStyles = (theme: any, windowWidth: number) =>
             paddingHorizontal: theme.space.sm,
             paddingVertical: 4,
             borderRadius: theme.radius.sm,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.2,
-            shadowRadius: 4,
+            borderCurve: 'continuous',
+            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
         },
         rankText: {
             fontWeight: 'bold',

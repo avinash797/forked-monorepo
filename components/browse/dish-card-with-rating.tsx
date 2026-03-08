@@ -109,16 +109,10 @@ const createThemedStyles = (
     StyleSheet.create({
         card: {
             borderRadius: theme.radius.sm,
+            borderCurve: 'continuous',
             backgroundColor: theme.color.surface,
             overflow: 'hidden',
-            shadowColor: '#000',
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            shadowOpacity: 0.1,
-            shadowRadius: 3.84,
-            elevation: 5,
+            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
         },
         verticalCard: {
             marginBottom: theme.space.sm,
@@ -148,11 +142,7 @@ const createThemedStyles = (
             borderRadius: theme.radius.sm,
         },
         ratingBadge: {
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.2,
-            shadowRadius: 1.41,
-            elevation: 2,
+            boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.2)',
         },
         bottomContent: {
             justifyContent: 'flex-end',

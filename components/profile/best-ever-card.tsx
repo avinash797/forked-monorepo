@@ -101,6 +101,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         card: {
             height: 200,
             borderRadius: theme.radius.lg,
+            borderCurve: 'continuous',
             overflow: 'hidden',
             backgroundColor: theme.color.surface,
         },

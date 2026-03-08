@@ -9,7 +9,6 @@ import { useState } from 'react';
 import {
     Alert,
     KeyboardAvoidingView,
-    Platform,
     ScrollView,
     StyleSheet,
     View,
@@ -57,7 +56,7 @@ export default function ResetPasswordScreen() {
     return (
         <ThemedView style={styles.container}>
             <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                behavior={process.env.EXPO_OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardView}
             >
                 <ScrollView

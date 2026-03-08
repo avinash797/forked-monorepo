@@ -15,7 +15,7 @@ import {
     Dimensions,
     Linking,
     StyleSheet,
-    TouchableOpacity,
+    Pressable,
     View,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -261,9 +261,9 @@ export default function RestaurantDetailScreen() {
             <ThemedView style={styles.container}>
                 {/* Back button always available */}
                 <View style={[styles.topControls, { marginTop: insets.top }]}>
-                    <TouchableOpacity
+                    <Pressable
                         onPress={() => router.back()}
-                        activeOpacity={0.7}
+                        style={({ pressed }) => pressed && { opacity: 0.7 }}
                     >
                         <View style={styles.backButton}>
                             <IconSymbol
@@ -272,7 +272,7 @@ export default function RestaurantDetailScreen() {
                                 color={theme.color.textOnImage}
                             />
                         </View>
-                    </TouchableOpacity>
+                    </Pressable>
                 </View>
 
                 {/* Hero skeleton */}
@@ -650,11 +650,7 @@ const createThemedStyles = (
             paddingHorizontal: theme.space.md,
             borderBottomWidth: StyleSheet.hairlineWidth,
             borderBottomColor: theme.color.border,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-            elevation: 5,
+            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
         },
         headerContent: {
             flexDirection: 'row',
@@ -680,6 +676,7 @@ const createThemedStyles = (
             backgroundColor: theme.color.bg,
             borderTopLeftRadius: theme.radius.xl,
             borderTopRightRadius: theme.radius.xl,
+            borderCurve: 'continuous',
             marginTop: -theme.radius.xl,
             minHeight: Dimensions.get('window').height - HERO_HEIGHT,
             paddingTop: theme.space.lg,
@@ -690,6 +687,7 @@ const createThemedStyles = (
             marginHorizontal: theme.space.md,
             backgroundColor: theme.color.surface2 + '40',
             borderRadius: theme.radius.lg,
+            borderCurve: 'continuous',
             marginBottom: theme.space.lg,
             flexDirection: 'row',
             gap: theme.space.md,

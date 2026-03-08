@@ -61,17 +61,15 @@ export function ScoreBadge({ score, style }: ScoreBadgeProps) {
     const localStyles = StyleSheet.create({
         container: {
             borderRadius: theme.radius.md,
+            borderCurve: 'continuous',
             backgroundColor: 'transparent',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: theme.shadow.sm.y },
-            shadowOpacity: theme.shadow.sm.opacity,
-            shadowRadius: theme.shadow.sm.radius,
-            elevation: 3,
+            boxShadow: `0px ${theme.shadow.sm.y}px ${theme.shadow.sm.radius}px rgba(0, 0, 0, ${theme.shadow.sm.opacity})`,
         },
         gradient: {
             paddingHorizontal: theme.space.xs + 2,
             paddingVertical: theme.space.xxs,
             borderRadius: theme.radius.md,
+            borderCurve: 'continuous',
             borderWidth: 1,
             borderColor: config.borderColor,
             alignItems: 'center',
@@ -83,6 +81,7 @@ export function ScoreBadge({ score, style }: ScoreBadgeProps) {
             fontWeight: '800',
             fontSize: theme.font.size.sm,
             letterSpacing: -0.2,
+            fontVariant: ['tabular-nums'],
         },
     });
 

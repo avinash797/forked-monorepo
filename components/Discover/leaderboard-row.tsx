@@ -181,13 +181,12 @@ const createThemedStyles = (
         container: {
             marginBottom: medal ? theme.space.md : theme.space.sm,
             borderRadius: theme.radius.lg,
+            borderCurve: 'continuous',
             backgroundColor: theme.color.surface,
             overflow: medal ? 'visible' : 'hidden',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: medal ? 4 : 1 },
-            shadowOpacity: medal ? 0.2 : 0.08,
-            shadowRadius: medal ? 6 : 2,
-            elevation: medal ? 6 : 2,
+            boxShadow: medal
+                ? '0px 4px 6px rgba(0, 0, 0, 0.2)'
+                : '0px 1px 2px rgba(0, 0, 0, 0.08)',
         },
         medalBorder: {
             position: 'absolute',
@@ -204,6 +203,7 @@ const createThemedStyles = (
             padding: theme.space.sm,
             backgroundColor: theme.color.surface,
             borderRadius: theme.radius.lg,
+            borderCurve: 'continuous',
         },
         rankContainer: {
             width: 36,
@@ -226,6 +226,7 @@ const createThemedStyles = (
             fontSize: 14,
             fontWeight: '700',
             color: theme.color.textSecondary,
+            fontVariant: ['tabular-nums'] as any,
         },
         photoContainer: {
             marginRight: theme.space.sm,
@@ -234,6 +235,7 @@ const createThemedStyles = (
             width: 64,
             height: 64,
             borderRadius: theme.radius.md,
+            borderCurve: 'continuous',
             backgroundColor: theme.color.surface2,
         },
         photoPlaceholder: {
@@ -268,6 +270,7 @@ const createThemedStyles = (
         ratingCount: {
             fontSize: theme.font.size.xs,
             color: theme.color.textTertiary,
+            fontVariant: ['tabular-nums'] as any,
         },
         scoreBadge: {
             marginLeft: 'auto',

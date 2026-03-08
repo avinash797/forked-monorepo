@@ -12,6 +12,7 @@ export const buildComponentStyles = (t: ActiveTheme) =>
             card: {
                 backgroundColor: t.color.surface,
                 borderRadius: t.radius.lg,
+                borderCurve: 'continuous',
                 borderWidth: t.border.hairline,
                 borderColor: t.color.border,
                 padding: t.space.md,
@@ -59,6 +60,7 @@ export const buildComponentStyles = (t: ActiveTheme) =>
                 borderColor: t.color.inputBorder,
                 borderWidth: t.border.hairline,
                 borderRadius: t.radius.md,
+                borderCurve: 'continuous',
                 paddingHorizontal: t.space.md,
                 paddingVertical: t.space.sm,
                 color: t.color.textPrimary,
@@ -67,6 +69,7 @@ export const buildComponentStyles = (t: ActiveTheme) =>
             buttonPrimary: {
                 backgroundColor: t.color.accent,
                 borderRadius: t.radius.xs,
+                borderCurve: 'continuous',
                 paddingVertical: t.space.sm,
                 paddingHorizontal: t.space.lg,
                 alignItems: 'center',
@@ -83,6 +86,7 @@ export const buildComponentStyles = (t: ActiveTheme) =>
                 borderColor: t.color.border,
                 borderWidth: t.border.hairline,
                 borderRadius: t.radius.xs,
+                borderCurve: 'continuous',
                 paddingVertical: t.space.sm,
                 paddingHorizontal: t.space.lg,
                 alignItems: 'center',

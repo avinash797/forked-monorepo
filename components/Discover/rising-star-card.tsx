@@ -215,14 +215,11 @@ const createStyles = (theme: any, windowWidth: number) =>
         card: {
             backgroundColor: theme.color.surface,
             borderRadius: theme.radius.lg,
+            borderCurve: 'continuous',
             overflow: 'hidden',
             borderWidth: 2,
             borderColor: theme.color.warning + '40', // Semi-transparent warning color
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.1,
-            shadowRadius: 10,
-            elevation: 5,
+            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
         },
         cardPressed: {
             opacity: 0.9,

@@ -231,10 +231,10 @@ export default function RatingScreen() {
                                         key={tag.id}
                                         style={[
                                             styles.tag,
+                                            { borderColor: isSelected ? theme.color.accent : theme.color.border },
                                             isSelected && {
                                                 backgroundColor:
                                                     theme.color.accent,
-                                                borderColor: theme.color.accent,
                                             },
                                         ]}
                                         onPress={() => toggleTag(tag.id)}
@@ -313,7 +313,8 @@ const styles = StyleSheet.create({
     },
     tagHint: {
         fontSize: 13,
-        color: '#999',
+        color: undefined, // uses ThemedText default
+        opacity: 0.6,
         marginBottom: 12,
     },
     tagsContainer: {
@@ -325,8 +326,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
         paddingVertical: 8,
         borderRadius: 20,
+        borderCurve: 'continuous',
         borderWidth: 1,
-        borderColor: '#ddd',
         backgroundColor: 'transparent',
     },
     tagText: {

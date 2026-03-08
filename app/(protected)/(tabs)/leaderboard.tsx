@@ -148,6 +148,7 @@ export default function LeaderboardScreen() {
                 }
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
+                contentInsetAdjustmentBehavior="automatic"
             >
                 {!isLoading && leaderboardItems.length === 0 ? (
                     <View style={styles.emptyContainer}>

@@ -87,7 +87,7 @@ export default function HomeScreen() {
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
             <ThemedView style={styles.container}>
-                <ScrollView showsVerticalScrollIndicator={false}>
+                <ScrollView showsVerticalScrollIndicator={false} contentInsetAdjustmentBehavior="automatic">
                     <LocationHeader
                         onLocationPress={handleLocationPress}
                         onSearchPress={handleSearchPress}
@@ -114,6 +114,7 @@ export default function HomeScreen() {
                                 horizontal
                                 showsHorizontalScrollIndicator={false}
                                 style={styles.heroSectionWrapper}
+                                contentContainerStyle={{ paddingHorizontal: theme.space.md }}
                             >
                                 {isLoading ? (
                                     // Show skeletons during loading
@@ -168,6 +169,7 @@ export default function HomeScreen() {
                                 horizontal
                                 showsHorizontalScrollIndicator={false}
                                 style={styles.heroSectionWrapper}
+                                contentContainerStyle={{ paddingHorizontal: theme.space.md }}
                             >
                                 {isLoading ? (
                                     // Show skeletons during loading
@@ -228,7 +230,6 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             fontSize: 36,
             fontWeight: theme.font.weight.bold,
             lineHeight: 40,
-            fontFamily: "'Instrument Serif', serif",
         },
         headerCaptionContainer: {
             paddingHorizontal: theme.space.md,

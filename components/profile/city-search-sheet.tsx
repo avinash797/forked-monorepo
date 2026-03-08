@@ -171,6 +171,7 @@ export const CitySearchSheet = forwardRef<
             snapPoints={snapPoints}
             enablePanDownToClose
             onDismiss={handleDismiss}
+            bottomInset={bottom}
             backgroundStyle={{ backgroundColor: theme.color.bg }}
             handleIndicatorStyle={{ backgroundColor: theme.color.border }}
             backdropComponent={renderBackdrop}
@@ -308,6 +309,7 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             alignItems: 'center',
             backgroundColor: theme.color.inputBg,
             borderRadius: theme.radius.md,
+            borderCurve: 'continuous',
             borderWidth: theme.border.hairline,
             borderColor: theme.color.inputBorder,
             paddingHorizontal: theme.space.sm,
@@ -330,6 +332,7 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             paddingVertical: theme.space.md,
             paddingHorizontal: theme.space.sm,
             borderRadius: theme.radius.md,
+            borderCurve: 'continuous',
             backgroundColor: theme.color.surface,
             borderWidth: theme.border.hairline,
             borderColor: theme.color.border,
@@ -389,11 +392,8 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             paddingVertical: theme.space.md,
             paddingHorizontal: theme.space.lg,
             borderRadius: theme.radius.md,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.15,
-            shadowRadius: 8,
-            elevation: 4,
+            borderCurve: 'continuous',
+            boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)',
         },
         selectingText: {
             fontSize: theme.font.size.sm,

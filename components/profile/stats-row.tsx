@@ -60,6 +60,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             paddingHorizontal: theme.space.md,
             marginHorizontal: theme.space.md,
             borderRadius: theme.radius.lg,
+            borderCurve: 'continuous',
             backgroundColor: theme.color.surface,
         },
         statItem: {
@@ -68,8 +69,10 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         statValue: {
             fontSize: theme.font.size.xxl,
+            lineHeight: theme.font.size.xxl,
             fontWeight: theme.font.weight.bold,
             color: theme.color.textPrimary,
+            fontVariant: ['tabular-nums'] as any,
         },
         statLabel: {
             fontSize: theme.font.size.sm,

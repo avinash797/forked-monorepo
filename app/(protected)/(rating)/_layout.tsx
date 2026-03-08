@@ -1,6 +1,5 @@
 import { HeaderBackButton } from '@react-navigation/elements';
 import { Stack, useRouter } from 'expo-router';
-import { Platform } from 'react-native';
 import { useTheme } from '@/contexts/theme-provider';
 
 export default function RatingLayout() {
@@ -16,7 +15,7 @@ export default function RatingLayout() {
                 name="index"
                 options={{
                     title: 'Find Restaurant',
-                    headerLeft: Platform.OS === 'ios'
+                    headerLeft: process.env.EXPO_OS === 'ios'
                         ? (props) => (
                             <HeaderBackButton
                                 {...props}
@@ -31,7 +30,8 @@ export default function RatingLayout() {
                 name="create-venue"
                 options={{
                     title: 'Add New Venue',
-                    presentation: 'modal',
+                    presentation: 'formSheet',
+                    sheetGrabberVisible: true,
                 }}
             />
             <Stack.Screen

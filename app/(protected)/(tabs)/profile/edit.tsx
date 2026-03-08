@@ -16,7 +16,6 @@ import {
     Alert,
     Image,
     KeyboardAvoidingView,
-    Platform,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -174,7 +173,7 @@ export default function EditProfileScreen() {
 
     return (
         <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            behavior={process.env.EXPO_OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
         >
             <ScrollView
@@ -371,6 +370,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             backgroundColor: theme.color.accent,
             padding: 8,
             borderRadius: 20,
+            borderCurve: 'continuous',
             borderWidth: 2,
             borderColor: theme.color.bg,
         },
@@ -391,6 +391,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             alignItems: 'center',
             height: 50,
             borderRadius: theme.radius.md,
+            borderCurve: 'continuous',
             paddingHorizontal: theme.space.md,
             borderWidth: theme.border.hairline,
             backgroundColor: theme.color.inputBg,

@@ -17,7 +17,7 @@ import {
     Alert,
     Dimensions,
     StyleSheet,
-    TouchableOpacity,
+    Pressable,
     View,
 } from 'react-native';
 import Animated, {
@@ -314,9 +314,9 @@ export default function DishDetailScreen() {
             <ThemedView style={styles.container}>
                 {/* Back button always available */}
                 <View style={[styles.topControls, { marginTop: insets.top }]}>
-                    <TouchableOpacity
+                    <Pressable
                         onPress={() => router.back()}
-                        activeOpacity={0.7}
+                        style={({ pressed }) => pressed && { opacity: 0.7 }}
                     >
                         <View style={styles.backButton}>
                             <IconSymbol
@@ -325,7 +325,7 @@ export default function DishDetailScreen() {
                                 color={theme.color.textOnImage}
                             />
                         </View>
-                    </TouchableOpacity>
+                    </Pressable>
                 </View>
                 {/* Hero skeleton */}
                 <SkeletonBlock
@@ -495,14 +495,17 @@ export default function DishDetailScreen() {
                                     {coreData.dish_type.name}
                                 </ThemedText>
 
-                                <TouchableOpacity
+                                <Pressable
                                     onPress={handleVenuePress}
-                                    activeOpacity={0.7}
-                                    style={styles.venueNameContainer}
+                                    style={({ pressed }) => [
+                                        styles.venueNameContainer,
+                                        pressed && { opacity: 0.7 },
+                                    ]}
                                 >
                                     <ThemedText
                                         type="subtitle"
                                         style={styles.venueNameHero}
+                                        selectable
                                     >
                                         at {coreData.restaurant.name}{' '}
                                     </ThemedText>
@@ -510,7 +513,7 @@ export default function DishDetailScreen() {
                                         name="chevron-forward"
                                         color={theme.color.textSecondary}
                                     />
-                                </TouchableOpacity>
+                                </Pressable>
                             </View>
                             <View style={styles.ratingContainer}>
                                 {coreData.bayesian_score !== null &&
@@ -726,11 +729,7 @@ const createThemedStyles = (
             paddingHorizontal: theme.space.md,
             borderBottomWidth: StyleSheet.hairlineWidth,
             borderBottomColor: theme.color.border,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-            elevation: 5,
+            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
         },
         headerContent: {
             flexDirection: 'row',
@@ -766,11 +765,7 @@ const createThemedStyles = (
             borderRadius: theme.radius.md,
         },
         ratingBadge: {
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.3,
-            shadowRadius: 4,
-            elevation: 5,
+            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)',
         },
         heroContent: {
             position: 'absolute',
@@ -805,6 +800,7 @@ const createThemedStyles = (
                     ? 'rgba(255,255,255,0.05)'
                     : 'rgba(0,0,0,0.03)',
             borderRadius: theme.radius.lg,
+            borderCurve: 'continuous',
             paddingVertical: theme.space.md,
             paddingHorizontal: theme.space.sm,
             marginBottom: theme.space.lg,
@@ -825,6 +821,7 @@ const createThemedStyles = (
             fontSize: theme.font.size.sm + 1,
             fontWeight: theme.font.weight.bold,
             color: theme.color.textPrimary,
+            fontVariant: ['tabular-nums'] as any,
         },
         statLabel: {
             fontSize: 9,
@@ -855,6 +852,7 @@ const createThemedStyles = (
             backgroundColor: theme.color.bg,
             borderTopLeftRadius: theme.radius.xl,
             borderTopRightRadius: theme.radius.xl,
+            borderCurve: 'continuous',
             marginTop: -theme.radius.xl,
             minHeight: Dimensions.get('window').height - HERO_HEIGHT,
             padding: theme.space.sm,
