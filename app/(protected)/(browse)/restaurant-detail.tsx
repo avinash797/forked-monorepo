@@ -437,36 +437,28 @@ export default function RestaurantDetailScreen() {
                         pointerEvents="none"
                     />
 
-                    <View style={styles.heroContent}>
-                        <ThemedText
-                            style={styles.venueNameHero}
-                            numberOfLines={2}
-                            selectable
-                        >
-                            {venue.name}
-                        </ThemedText>
-
-                        <View style={styles.metaRowHero}>
-                            <View style={styles.cuisinesContainer}>
-                                {dishTypesServed &&
-                                    [...dishTypesServed].map(
-                                        (dishType, index) => (
-                                            <ThemedText
-                                                key={index}
-                                                style={styles.cuisineTextHero}
-                                            >
-                                                {index > 0 ? ' • ' : ''}
-                                                {dishType}
-                                            </ThemedText>
-                                        )
-                                    )}
-                            </View>
-                        </View>
-                    </View>
                 </Animated.View>
 
                 {/* Content Section */}
                 <View style={styles.contentSection}>
+                    <View style={styles.venueHeader}>
+                        <ThemedText type="title" style={styles.venueName}>
+                            {venue.name}
+                        </ThemedText>
+                        {dishTypesServed && [...dishTypesServed].length > 0 && (
+                            <View style={styles.cuisinesContainer}>
+                                {[...dishTypesServed].map((dishType, index) => (
+                                    <ThemedText
+                                        key={index}
+                                        style={styles.cuisineText}
+                                    >
+                                        {index > 0 ? ' • ' : ''}
+                                        {dishType}
+                                    </ThemedText>
+                                ))}
+                            </View>
+                        )}
+                    </View>
                     <View style={styles.infoBox}>
                         <ThemedButton
                             variant="icon"
@@ -574,43 +566,6 @@ const createThemedStyles = (
             position: 'relative',
             overflow: 'hidden',
         },
-        heroContent: {
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            padding: theme.space.md,
-            paddingBottom: theme.space.lg + 20,
-        },
-        venueNameHero: {
-            fontSize: theme.font.size.xxl + 8,
-            lineHeight: theme.font.size.xxl + 14,
-            fontWeight: theme.font.weight.bold,
-            color: theme.color.textOnImage,
-            textShadowColor: 'rgba(0, 0, 0, 0.75)',
-            textShadowOffset: { width: 0, height: 1 },
-            textShadowRadius: 4,
-        },
-        metaRowHero: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: 4,
-        },
-        cuisinesContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-        },
-        cuisineTextHero: {
-            fontSize: theme.font.size.md,
-            color: 'rgba(255, 255, 255, 0.9)',
-            fontWeight: theme.font.weight.medium,
-        },
-        priceHero: {
-            fontSize: theme.font.size.lg,
-            fontWeight: theme.font.weight.bold,
-            color: theme.color.textOnImage,
-        },
         topControls: {
             position: 'absolute',
             top: 0,
@@ -675,6 +630,25 @@ const createThemedStyles = (
             paddingTop: theme.space.lg,
             flex: 1,
             alignItems: 'center',
+        },
+        venueHeader: {
+            alignSelf: 'stretch',
+            paddingHorizontal: theme.space.md,
+            marginBottom: theme.space.md,
+        },
+        venueName: {
+            fontSize: theme.font.size.xxl + 6,
+            marginBottom: 4,
+        },
+        cuisinesContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+        },
+        cuisineText: {
+            fontSize: theme.font.size.md,
+            color: theme.color.textSecondary,
+            fontWeight: theme.font.weight.medium,
         },
         infoBox: {
             alignSelf: 'flex-start',

@@ -34,7 +34,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const HERO_HEIGHT = 450;
+const HERO_HEIGHT = 320;
 const HEADER_HEIGHT = 60;
 
 const AnimatedIconSymbol = Animated.createAnimatedComponent(IconSymbol);
