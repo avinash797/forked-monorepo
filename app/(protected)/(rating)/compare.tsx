@@ -87,7 +87,7 @@ export default function CompareScreen() {
                     });
                 }
             } catch (error) {
-                console.error('Error processing battle:', error);
+                if (__DEV__) console.error('Error processing battle:', error);
             } finally {
                 setIsProcessing(false);
             }
@@ -113,7 +113,7 @@ export default function CompareScreen() {
                 router.dismissAll();
                 router.replace('/(protected)/(tabs)');
             } catch (error) {
-                console.error('Error skipping battle:', error);
+                if (__DEV__) console.error('Error skipping battle:', error);
             } finally {
                 setIsProcessing(false);
             }

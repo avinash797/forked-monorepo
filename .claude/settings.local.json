@@ -23,7 +23,13 @@
       "Bash(grep:*)",
       "mcp__plugin_supabase_supabase__get_advisors",
       "mcp__plugin_supabase_supabase__list_migrations",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "mcp__XcodeBuildMCP__session_show_defaults",
+      "mcp__XcodeBuildMCP__discover_projs",
+      "mcp__XcodeBuildMCP__list_sims",
+      "mcp__XcodeBuildMCP__session_set_defaults",
+      "mcp__XcodeBuildMCP__screenshot",
+      "mcp__XcodeBuildMCP__snapshot_ui"
     ]
   },
   "enabledPlugins": {
