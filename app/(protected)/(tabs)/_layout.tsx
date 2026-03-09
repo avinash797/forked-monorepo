@@ -18,16 +18,16 @@ export default function TabLayout() {
                 headerShown: false,
                 tabBarButton: HapticTab,
                 tabBarStyle: {
-                    height: 60 + bottom,
-                    paddingTop: 6,
-                    paddingBottom: bottom,
+                    height: 60 + Math.max(bottom, 10),
+                    paddingTop: 8,
+                    paddingBottom: Math.max(bottom, 10),
                     borderTopWidth: 0,
                     backgroundColor: theme.color.surface,
                 },
                 tabBarActiveTintColor: theme.color.accent,
                 tabBarInactiveTintColor: theme.color.textSecondary,
                 tabBarLabelStyle: {
-                    fontSize: 12,
+                    fontSize: 10,
                     fontWeight: '500',
                 },
                 tabBarIconStyle: {

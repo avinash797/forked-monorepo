@@ -154,26 +154,26 @@ export function AddressAutocomplete({
                     ]}
                 >
                     {suggestions.map((item, index) => (
-                        <View key={item.mapbox_id}>
+                        <View key={item.placePrediction.placeId}>
                             <Pressable
                                 style={({ pressed }) => [
                                     styles.suggestionItem,
                                     { backgroundColor: suggestionBg },
                                     pressed && { opacity: 0.7 },
                                 ]}
-                                onPress={() => handleSelect(item.mapbox_id)}
+                                onPress={() => handleSelect(item.placePrediction.placeId)}
                             >
                                 <ThemedText
                                     style={styles.suggestionName}
                                     numberOfLines={1}
                                 >
-                                    {item.name}
+                                    {item.placePrediction.structuredFormat.mainText.text}
                                 </ThemedText>
                                 <ThemedText
                                     style={styles.suggestionAddress}
                                     numberOfLines={1}
                                 >
-                                    {item.full_address}
+                                    {item.placePrediction.structuredFormat.secondaryText?.text ?? item.placePrediction.text.text}
                                 </ThemedText>
                             </Pressable>
                             {index < suggestions.length - 1 && (

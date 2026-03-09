@@ -43,6 +43,38 @@ export function useLeaderboard({
 export const useLeaderboardWithTieBreakers = useLeaderboard;
 export const useGetLeaderboardByDishType = useLeaderboard;
 
+interface NearbyLeaderboardParams {
+    dishTypeId: string;
+    latitude: number | null;
+    longitude: number | null;
+    radiusMeters?: number;
+    limit?: number;
+}
+
+export function useNearbyLeaderboard({
+    dishTypeId,
+    latitude,
+    longitude,
+    radiusMeters = 3218, // ~2 miles
+    limit = 10,
+}: NearbyLeaderboardParams) {
+    return useQuery({
+        queryKey: ['leaderboard', 'nearby', dishTypeId, latitude, longitude, radiusMeters, limit],
+        queryFn: async () => {
+            const { data, error } = await supabase.rpc('get_nearby_leaderboard', {
+                p_dish_type_id: dishTypeId,
+                p_latitude: latitude!,
+                p_longitude: longitude!,
+                p_radius_meters: radiusMeters,
+                p_limit: limit,
+            });
+            if (error) throw error;
+            return (data ?? []) as unknown as LeaderboardEntry[];
+        },
+        enabled: !!dishTypeId && !!latitude && !!longitude,
+    });
+}
+
 export function useLeaderboardDishTypeCounts(cityId: string | null | undefined) {
     return useQuery({
         queryKey: ['leaderboard', 'dish-type-counts', cityId],

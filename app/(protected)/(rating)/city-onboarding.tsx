@@ -75,7 +75,7 @@ export default function CityOnboardingScreen() {
 
             router.replace('/(protected)/(rating)/dish-selection');
         } catch (err) {
-            console.error('City enrichment failed:', err);
+            if (__DEV__) console.error('City enrichment failed:', err);
             setError('Something went wrong, but you can still continue.');
         }
     }, [newCityInfo, queryClient, router]);
