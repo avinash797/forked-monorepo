@@ -2,6 +2,7 @@ import type { LeaderboardEntry } from '@/components/Discover/leaderboard-row';
 import { ForkLogo } from '@/components/fork-logo';
 import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useTheme } from '@/contexts/theme-provider';
 import {
     GeistMono_500Medium,
     GeistMono_600SemiBold,
@@ -24,12 +25,6 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
-
-const SCORE_COLORS = (score: number) => {
-    if (score >= 7.0) return { bg: '#059669', text: '#fff' };
-    if (score >= 4.0) return { bg: '#D97706', text: '#fff' };
-    return { bg: '#DC2626', text: '#fff' };
-};
 
 interface LeaderboardShareModalProps {
     visible: boolean;
@@ -60,6 +55,7 @@ export function LeaderboardShareModal({
     const insets = useSafeAreaInsets();
     const cardRef = useRef<View>(null);
     const [isSharing, setIsSharing] = useState(false);
+    const { theme } = useTheme();
 
     const [fontsLoaded] = useFonts({
         GeistMono_500Medium,
@@ -71,6 +67,14 @@ export function LeaderboardShareModal({
 
     const top5 = entries.slice(0, 5);
     const heroPhoto = top5[0]?.featured_photo_url ?? top5[0]?.photo_url;
+
+    const getScoreColors = (s: number) => {
+        if (s >= 7.0)
+            return { bg: theme.color.success, text: theme.color.accentOn };
+        if (s >= 4.0)
+            return { bg: theme.color.warning, text: theme.color.accentOn };
+        return { bg: theme.color.danger, text: theme.color.accentOn };
+    };
 
     const handleShare = async () => {
         if (!cardRef.current) return;
@@ -100,6 +104,7 @@ export function LeaderboardShareModal({
     };
 
     const contextLabel = isPersonal ? '' : cityName.toUpperCase();
+    const styles = createStyles(theme);
 
     return (
         <Modal
@@ -153,7 +158,7 @@ export function LeaderboardShareModal({
                         <View style={styles.topHeader}>
                             {/* Branded logo box */}
                             <View style={styles.logoBox}>
-                                <ForkLogo size={20} color="#fff" />
+                                <ForkLogo size={20} color={theme.color.gold} />
                             </View>
 
                             {/* Title block */}
@@ -164,7 +169,7 @@ export function LeaderboardShareModal({
                                             icon={dishTypeIcon}
                                             emoji={dishTypeEmoji}
                                             size={20}
-                                            color="#fff"
+                                            color={theme.color.textOnImage}
                                         />
                                     )}
                                     <Text
@@ -201,7 +206,7 @@ export function LeaderboardShareModal({
                                     entry.bayesian_score ??
                                     entry.derived_score ??
                                     0;
-                                const scoreColor = SCORE_COLORS(score);
+                                const scoreColor = getScoreColors(score);
 
                                 return (
                                     <View
@@ -299,13 +304,16 @@ export function LeaderboardShareModal({
                         disabled={isSharing}
                     >
                         {isSharing ? (
-                            <ActivityIndicator color="#fff" size="small" />
+                            <ActivityIndicator
+                                color={theme.color.accentOn}
+                                size="small"
+                            />
                         ) : (
                             <>
                                 <IconSymbol
                                     name="share-outline"
                                     size={24}
-                                    color="#fff"
+                                    color={theme.color.accentOn}
                                 />
                                 <Text style={styles.shareButtonText}>
                                     Share Image
@@ -319,167 +327,168 @@ export function LeaderboardShareModal({
     );
 }
 
-const styles = StyleSheet.create({
-    screen: {
-        flex: 1,
-        backgroundColor: '#000',
-    },
-    fallbackBg: {
-        backgroundColor: '#0d0117',
-    },
-    contentWrapper: {
-        flex: 1,
-        paddingHorizontal: 28,
-    },
-    flex1: {
-        flex: 1,
-    },
-    // ─── Header ───
-    topHeader: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        gap: 14,
-    },
-    logoBox: {
-        width: 42,
-        height: 42,
-        borderRadius: 11,
-        backgroundColor: '#ee6c2b',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 2,
-        flexShrink: 0,
-    },
-    titleBlock: {
-        flex: 1,
-        gap: 1,
-    },
-    titleRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 7,
-        flexWrap: 'nowrap',
-    },
-    titleMain: {
-        fontSize: 22,
-        fontFamily: 'GeistMono_900Black',
-        color: '#fff',
-        letterSpacing: 0.3,
-        flexShrink: 1,
-    },
-    titleSub: {
-        fontSize: 15,
-        fontFamily: 'GeistMono_700Bold',
-        color: 'rgba(255,255,255,0.65)',
-        letterSpacing: 0.5,
-        marginTop: 2,
-    },
-    titleMeta: {
-        fontSize: 10,
-        fontFamily: 'GeistMono_500Medium',
-        color: 'rgba(255,255,255,0.35)',
-        letterSpacing: 1.8,
-        marginTop: 5,
-    },
-    // ─── Ranking Rows ───
-    rankingList: {
-        gap: 0,
-    },
-    rankRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 16,
-        paddingVertical: 18,
-    },
-    rankRowDivider: {
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: 'rgba(255,255,255,0.18)',
-    },
-    rankNum: {
-        width: 42,
-        fontSize: 52,
-        fontFamily: 'GeistMono_900Black',
-        color: '#fff',
-        textAlign: 'center',
-        lineHeight: 56,
-        includeFontPadding: false,
-    },
-    rowInfo: {
-        flex: 1,
-        gap: 4,
-    },
-    restaurantName: {
-        fontSize: 18,
-        fontFamily: 'GeistMono_800ExtraBold',
-        color: '#fff',
-    },
-    neighborhoodText: {
-        fontSize: 11,
-        fontFamily: 'GeistMono_500Medium',
-        color: 'rgba(255,255,255,0.50)',
-        letterSpacing: 1.2,
-    },
-    scorePill: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    scoreText: {
-        fontSize: 15,
-        fontFamily: 'GeistMono_800ExtraBold',
-        letterSpacing: -0.3,
-    },
-    // ─── Footer ───
-    footer: {
-        alignItems: 'center',
-    },
-    footerText: {
-        fontSize: 11,
-        fontFamily: 'GeistMono_600SemiBold',
-        color: 'rgba(255,255,255,0.28)',
-        letterSpacing: 3,
-    },
-    // ─── Absolute Buttons ───
-    closeButton: {
-        position: 'absolute',
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 10,
-    },
-    actionArea: {
-        position: 'absolute',
-        width: '100%',
-        paddingHorizontal: 24,
-        zIndex: 10,
-    },
-    shareButton: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 12,
-        backgroundColor: '#ee6c2b',
-        borderRadius: 24,
-        paddingVertical: 18,
-        shadowColor: '#ee6c2b',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.4,
-        shadowRadius: 16,
-    },
-    buttonPressed: {
-        opacity: 0.9,
-        transform: [{ scale: 0.98 }],
-    },
-    shareButtonText: {
-        fontSize: 18,
-        fontWeight: '800',
-        color: '#fff',
-        letterSpacing: 0.5,
-    },
-});
+const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+    StyleSheet.create({
+        screen: {
+            flex: 1,
+            backgroundColor: '#000',
+        },
+        fallbackBg: {
+            backgroundColor: theme.color.bg,
+        },
+        contentWrapper: {
+            flex: 1,
+            paddingHorizontal: 28,
+        },
+        flex1: {
+            flex: 1,
+        },
+        // ─── Header ───
+        topHeader: {
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            gap: 14,
+        },
+        logoBox: {
+            width: 42,
+            height: 42,
+            borderRadius: theme.radius.sm,
+            backgroundColor: theme.color.accent,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginTop: 2,
+            flexShrink: 0,
+        },
+        titleBlock: {
+            flex: 1,
+            gap: 1,
+        },
+        titleRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 7,
+            flexWrap: 'nowrap',
+        },
+        titleMain: {
+            fontSize: 22,
+            fontFamily: 'GeistMono_900Black',
+            color: theme.color.textOnImage,
+            letterSpacing: 0.3,
+            flexShrink: 1,
+        },
+        titleSub: {
+            fontSize: theme.font.size.md - 1,
+            fontFamily: 'GeistMono_700Bold',
+            color: 'rgba(255,255,255,0.65)',
+            letterSpacing: 0.5,
+            marginTop: 2,
+        },
+        titleMeta: {
+            fontSize: 10,
+            fontFamily: 'GeistMono_500Medium',
+            color: 'rgba(255,255,255,0.35)',
+            letterSpacing: 1.8,
+            marginTop: 5,
+        },
+        // ─── Ranking Rows ───
+        rankingList: {
+            gap: 0,
+        },
+        rankRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.space.md,
+            paddingVertical: 18,
+        },
+        rankRowDivider: {
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            borderBottomColor: 'rgba(255,255,255,0.18)',
+        },
+        rankNum: {
+            width: 42,
+            fontSize: 52,
+            fontFamily: 'GeistMono_900Black',
+            color: theme.color.textOnImage,
+            textAlign: 'center',
+            lineHeight: 56,
+            includeFontPadding: false,
+        },
+        rowInfo: {
+            flex: 1,
+            gap: 4,
+        },
+        restaurantName: {
+            fontSize: theme.font.size.lg,
+            fontFamily: 'GeistMono_800ExtraBold',
+            color: theme.color.textOnImage,
+        },
+        neighborhoodText: {
+            fontSize: 11,
+            fontFamily: 'GeistMono_500Medium',
+            color: 'rgba(255,255,255,0.50)',
+            letterSpacing: 1.2,
+        },
+        scorePill: {
+            width: 48,
+            height: 48,
+            borderRadius: 24,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        scoreText: {
+            fontSize: theme.font.size.md - 1,
+            fontFamily: 'GeistMono_800ExtraBold',
+            letterSpacing: -0.3,
+        },
+        // ─── Footer ───
+        footer: {
+            alignItems: 'center',
+        },
+        footerText: {
+            fontSize: 11,
+            fontFamily: 'GeistMono_600SemiBold',
+            color: 'rgba(255,255,255,0.28)',
+            letterSpacing: 3,
+        },
+        // ─── Absolute Buttons ───
+        closeButton: {
+            position: 'absolute',
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            backgroundColor: theme.color.overlay,
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10,
+        },
+        actionArea: {
+            position: 'absolute',
+            width: '100%',
+            paddingHorizontal: theme.space.xl,
+            zIndex: 10,
+        },
+        shareButton: {
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: theme.space.sm,
+            backgroundColor: theme.color.accent,
+            borderRadius: theme.radius.pill,
+            paddingVertical: 18,
+            shadowColor: theme.color.accent,
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.4,
+            shadowRadius: 16,
+        },
+        buttonPressed: {
+            opacity: theme.opacity.pressed,
+            transform: [{ scale: 0.98 }],
+        },
+        shareButtonText: {
+            fontSize: theme.font.size.lg,
+            fontWeight: '800',
+            color: theme.color.accentOn,
+            letterSpacing: 0.5,
+        },
+    });

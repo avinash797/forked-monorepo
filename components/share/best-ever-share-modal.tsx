@@ -1,6 +1,7 @@
 import { ForkLogo } from '@/components/fork-logo';
 import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useTheme } from '@/contexts/theme-provider';
 import { BestEverDish } from '@/hooks/use-user-stats';
 import {
     GeistMono_500Medium,
@@ -25,12 +26,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
 
-const SCORE_COLORS = (score: number) => {
-    if (score >= 7.0) return { bg: '#059669', text: '#fff' };
-    if (score >= 4.0) return { bg: '#D97706', text: '#fff' };
-    return { bg: '#DC2626', text: '#fff' };
-};
-
 interface BestEverShareModalProps {
     visible: boolean;
     onClose: () => void;
@@ -47,6 +42,7 @@ export function BestEverShareModal({
     const insets = useSafeAreaInsets();
     const cardRef = useRef<View>(null);
     const [isSharing, setIsSharing] = useState(false);
+    const { theme } = useTheme();
 
     const [fontsLoaded] = useFonts({
         GeistMono_500Medium,
@@ -57,7 +53,16 @@ export function BestEverShareModal({
     });
 
     const score = item.derived_score ?? 0;
-    const scoreColor = SCORE_COLORS(score);
+
+    const getScoreColors = (s: number) => {
+        if (s >= 7.0)
+            return { bg: theme.color.success, text: theme.color.accentOn };
+        if (s >= 4.0)
+            return { bg: theme.color.warning, text: theme.color.accentOn };
+        return { bg: theme.color.danger, text: theme.color.accentOn };
+    };
+
+    const scoreColor = getScoreColors(score);
 
     const captureOptions = {
         format: 'png' as const,
@@ -84,6 +89,8 @@ export function BestEverShareModal({
             setIsSharing(false);
         }
     };
+
+    const styles = createStyles(theme);
 
     return (
         <Modal
@@ -148,7 +155,7 @@ export function BestEverShareModal({
                                         {username ? `@${username}` : ''}
                                     </Text>
                                 </View>
-                                <ForkLogo size={32} color="#1a1a2e" />
+                                <ForkLogo size={32} color={theme.color.gold} />
                             </View>
 
                             {/* Photo */}
@@ -172,7 +179,7 @@ export function BestEverShareModal({
                                                 icon={item.dish_type_icon}
                                                 emoji={item.dish_type_emoji}
                                                 size={16}
-                                                color="#1a1a2e"
+                                                color={theme.color.textPrimary}
                                             />
                                         )}
                                         <Text style={styles.dishLabel}>
@@ -241,13 +248,16 @@ export function BestEverShareModal({
                         disabled={isSharing}
                     >
                         {isSharing ? (
-                            <ActivityIndicator color="#fff" size="small" />
+                            <ActivityIndicator
+                                color={theme.color.accentOn}
+                                size="small"
+                            />
                         ) : (
                             <>
                                 <IconSymbol
                                     name="share-outline"
                                     size={24}
-                                    color="#fff"
+                                    color={theme.color.accentOn}
                                 />
                                 <Text style={styles.shareButtonText}>
                                     Share Image
@@ -261,156 +271,157 @@ export function BestEverShareModal({
     );
 }
 
-const styles = StyleSheet.create({
-    screen: {
-        flex: 1,
-        backgroundColor: '#000',
-    },
-    fallbackBg: {
-        backgroundColor: '#0d0117',
-    },
-    contentWrapper: {
-        flex: 1,
-        paddingHorizontal: 24,
-    },
-    flex1: {
-        flex: 1,
-    },
-    // ─── White Card ───
-    card: {
-        backgroundColor: '#ffffff',
-        borderRadius: 24,
-        padding: 20,
-        gap: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.3,
-        shadowRadius: 24,
-        elevation: 12,
-    },
-    cardHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    userInfo: {
-        gap: 2,
-    },
-    displayName: {
-        fontSize: 17,
-        fontFamily: 'GeistMono_700Bold',
-        color: '#1a1a2e',
-    },
-    usernameHandle: {
-        fontSize: 14,
-        fontFamily: 'GeistMono_500Medium',
-        color: '#6b7280',
-    },
-    photoContainer: {
-        borderRadius: 16,
-        overflow: 'hidden',
-    },
-    photo: {
-        width: '100%',
-        height: 200,
-        borderRadius: 16,
-    },
-    restaurantRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 12,
-    },
-    restaurantInfo: {
-        flex: 1,
-        gap: 4,
-    },
-    dishLabelRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginBottom: 2,
-    },
-    dishLabel: {
-        fontSize: 12,
-        fontFamily: 'GeistMono_600SemiBold',
-        color: '#6b7280',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-    },
-    restaurantName: {
-        fontSize: 20,
-        fontFamily: 'GeistMono_800ExtraBold',
-        color: '#1a1a2e',
-        letterSpacing: -0.3,
-    },
-    cityName: {
-        fontSize: 14,
-        fontFamily: 'GeistMono_500Medium',
-        color: '#6b7280',
-    },
-    scoreBadge: {
-        width: 52,
-        height: 52,
-        borderRadius: 26,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    scoreValue: {
-        fontSize: 18,
-        fontFamily: 'GeistMono_900Black',
-        color: '#fff',
-        letterSpacing: -0.5,
-    },
-    // ─── Footer ───
-    footer: {
-        alignItems: 'center',
-    },
-    footerText: {
-        fontSize: 11,
-        fontFamily: 'GeistMono_600SemiBold',
-        color: 'rgba(255,255,255,0.28)',
-        letterSpacing: 3,
-    },
-    // ─── Absolute Buttons ───
-    closeButton: {
-        position: 'absolute',
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 10,
-    },
-    actionArea: {
-        position: 'absolute',
-        width: '100%',
-        paddingHorizontal: 24,
-        zIndex: 10,
-    },
-    shareButton: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 12,
-        backgroundColor: '#ee6c2b',
-        borderRadius: 24,
-        paddingVertical: 18,
-        shadowColor: '#ee6c2b',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.4,
-        shadowRadius: 16,
-    },
-    shareButtonPressed: {
-        opacity: 0.9,
-        transform: [{ scale: 0.98 }],
-    },
-    shareButtonText: {
-        fontSize: 18,
-        fontWeight: '800',
-        color: '#fff',
-        letterSpacing: 0.5,
-    },
-});
+const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+    StyleSheet.create({
+        screen: {
+            flex: 1,
+            backgroundColor: '#000',
+        },
+        fallbackBg: {
+            backgroundColor: theme.color.bg,
+        },
+        contentWrapper: {
+            flex: 1,
+            paddingHorizontal: 24,
+        },
+        flex1: {
+            flex: 1,
+        },
+        // ─── White Card ───
+        card: {
+            backgroundColor: theme.color.surface2,
+            borderRadius: theme.radius.xl,
+            padding: theme.space.lg,
+            gap: theme.space.md,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 12 },
+            shadowOpacity: 0.3,
+            shadowRadius: 24,
+            elevation: 12,
+        },
+        cardHeader: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+        },
+        userInfo: {
+            gap: 2,
+        },
+        displayName: {
+            fontSize: 17,
+            fontFamily: 'GeistMono_700Bold',
+            color: theme.color.textPrimary,
+        },
+        usernameHandle: {
+            fontSize: theme.font.size.sm,
+            fontFamily: 'GeistMono_500Medium',
+            color: theme.color.textSecondary,
+        },
+        photoContainer: {
+            borderRadius: theme.radius.lg,
+            overflow: 'hidden',
+        },
+        photo: {
+            width: '100%',
+            height: 200,
+            borderRadius: theme.radius.lg,
+        },
+        restaurantRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: theme.space.sm,
+        },
+        restaurantInfo: {
+            flex: 1,
+            gap: 4,
+        },
+        dishLabelRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            marginBottom: 2,
+        },
+        dishLabel: {
+            fontSize: theme.font.size.xs,
+            fontFamily: 'GeistMono_600SemiBold',
+            color: theme.color.textSecondary,
+            textTransform: 'uppercase',
+            letterSpacing: 1,
+        },
+        restaurantName: {
+            fontSize: theme.font.size.lg + 2,
+            fontFamily: 'GeistMono_800ExtraBold',
+            color: theme.color.textPrimary,
+            letterSpacing: -0.3,
+        },
+        cityName: {
+            fontSize: theme.font.size.sm,
+            fontFamily: 'GeistMono_500Medium',
+            color: theme.color.textSecondary,
+        },
+        scoreBadge: {
+            width: 52,
+            height: 52,
+            borderRadius: 26,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        scoreValue: {
+            fontSize: theme.font.size.lg,
+            fontFamily: 'GeistMono_900Black',
+            color: theme.color.accentOn,
+            letterSpacing: -0.5,
+        },
+        // ─── Footer ───
+        footer: {
+            alignItems: 'center',
+        },
+        footerText: {
+            fontSize: 11,
+            fontFamily: 'GeistMono_600SemiBold',
+            color: 'rgba(255,255,255,0.28)',
+            letterSpacing: 3,
+        },
+        // ─── Absolute Buttons ───
+        closeButton: {
+            position: 'absolute',
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            backgroundColor: theme.color.overlay,
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10,
+        },
+        actionArea: {
+            position: 'absolute',
+            width: '100%',
+            paddingHorizontal: theme.space.xl,
+            zIndex: 10,
+        },
+        shareButton: {
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: theme.space.sm,
+            backgroundColor: theme.color.accent,
+            borderRadius: theme.radius.pill,
+            paddingVertical: 18,
+            shadowColor: theme.color.accent,
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.4,
+            shadowRadius: 16,
+        },
+        shareButtonPressed: {
+            opacity: theme.opacity.pressed,
+            transform: [{ scale: 0.98 }],
+        },
+        shareButtonText: {
+            fontSize: theme.font.size.lg,
+            fontWeight: '800',
+            color: theme.color.accentOn,
+            letterSpacing: 0.5,
+        },
+    });
