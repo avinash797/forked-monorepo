@@ -1,5 +1,14 @@
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { BestEverDish } from '@/hooks/use-user-stats';
+import {
+    GeistMono_500Medium,
+    GeistMono_600SemiBold,
+    GeistMono_800ExtraBold,
+    GeistMono_900Black,
+    GeistMono_700Bold,
+} from '@expo-google-fonts/geist-mono';
+import { useFonts } from 'expo-font';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRef, useState } from 'react';
@@ -38,6 +47,14 @@ export function BestEverShareModal({
     const insets = useSafeAreaInsets();
     const cardRef = useRef<View>(null);
     const [isSharing, setIsSharing] = useState(false);
+
+    const [fontsLoaded] = useFonts({
+        GeistMono_500Medium,
+        GeistMono_600SemiBold,
+        GeistMono_700Bold,
+        GeistMono_800ExtraBold,
+        GeistMono_900Black,
+    });
 
     const score = item.derived_score ?? 0;
     const scoreColor = SCORE_COLORS(score);
@@ -110,10 +127,19 @@ export function BestEverShareModal({
                                 <Text style={styles.usernameLabel}>
                                     {username ? `@${username}` : 'My'}
                                 </Text>
-                                <Text style={styles.titleMain}>
-                                    Best {item.dish_type_emoji ? `${item.dish_type_emoji} ` : ''}
-                                    {item.dish_type_name}
-                                </Text>
+                                <View style={styles.titleMainRow}>
+                                    {(item.dish_type_icon || item.dish_type_emoji) && (
+                                        <DishTypeIcon
+                                            icon={item.dish_type_icon}
+                                            emoji={item.dish_type_emoji}
+                                            size={28}
+                                            color="#ffffff"
+                                        />
+                                    )}
+                                    <Text style={styles.titleMain}>
+                                        Best {item.dish_type_name}
+                                    </Text>
+                                </View>
                             </View>
 
                             {/* Photo */}
@@ -235,7 +261,7 @@ const styles = StyleSheet.create({
     },
     brandText: {
         fontSize: 11,
-        fontWeight: '800',
+        fontFamily: 'GeistMono_800ExtraBold',
         color: '#ee6c2b',
         letterSpacing: 4,
     },
@@ -243,16 +269,23 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 18,
     },
+    titleMainRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        flexWrap: 'wrap',
+    },
     usernameLabel: {
         fontSize: 13,
-        fontWeight: '600',
+        fontFamily: 'GeistMono_600SemiBold',
         color: 'rgba(255,255,255,0.5)',
         letterSpacing: 0.5,
         marginBottom: 4,
     },
     titleMain: {
         fontSize: 26,
-        fontWeight: '900',
+        fontFamily: 'GeistMono_900Black',
         color: '#ffffff',
         letterSpacing: -0.5,
         textAlign: 'center',
@@ -291,13 +324,13 @@ const styles = StyleSheet.create({
     },
     scoreValue: {
         fontSize: 22,
-        fontWeight: '900',
+        fontFamily: 'GeistMono_900Black',
         color: '#fff',
         letterSpacing: -0.5,
     },
     scoreMax: {
         fontSize: 13,
-        fontWeight: '600',
+        fontFamily: 'GeistMono_600SemiBold',
         color: 'rgba(255,255,255,0.7)',
     },
     infoBlock: {
@@ -307,15 +340,15 @@ const styles = StyleSheet.create({
     },
     restaurantName: {
         fontSize: 20,
-        fontWeight: '800',
+        fontFamily: 'GeistMono_800ExtraBold',
         color: '#ffffff',
         textAlign: 'center',
         letterSpacing: -0.3,
     },
     cityName: {
         fontSize: 14,
+        fontFamily: 'GeistMono_500Medium',
         color: 'rgba(255,255,255,0.5)',
-        fontWeight: '500',
     },
     footer: {
         marginTop: 18,
@@ -329,9 +362,9 @@ const styles = StyleSheet.create({
     },
     footerText: {
         fontSize: 12,
+        fontFamily: 'GeistMono_500Medium',
         color: 'rgba(255,255,255,0.3)',
         letterSpacing: 1,
-        fontWeight: '500',
     },
     actionArea: {
         width: '100%',
