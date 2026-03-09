@@ -98,6 +98,30 @@ export const buildComponentStyles = (t: ActiveTheme) =>
                 fontWeight: t.font.weight.semibold as any,
             },
 
+            buttonText: {
+                backgroundColor: 'transparent',
+                borderRadius: t.radius.xs,
+                borderCurve: 'continuous',
+                paddingVertical: t.space.xs,
+                paddingHorizontal: t.space.sm,
+                alignItems: 'center',
+                justifyContent: 'center',
+            },
+            buttonTextText: {
+                color: t.color.accent,
+                fontSize: t.font.size.md,
+                fontWeight: t.font.weight.semibold as any,
+            },
+
+            buttonIcon: {
+                backgroundColor: 'transparent',
+                borderRadius: t.radius.xs,
+                borderCurve: 'continuous',
+                padding: t.space.xxs,
+                alignItems: 'center',
+                justifyContent: 'center',
+            },
+
             badge: {
                 alignSelf: 'flex-start',
                 backgroundColor: t.color.badgeBg,

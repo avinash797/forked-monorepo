@@ -10,12 +10,40 @@ import { useTheme } from '@/contexts/theme-provider';
 import { buildComponentStyles } from '@/lib/theme/componentStyles';
 import { ThemedText } from './themed-text';
 
+export type ThemedButtonVariant = 'primary' | 'secondary' | 'text' | 'icon';
+
 export type ThemedButtonProps = PressableProps & {
     children?: ReactNode;
-    variant?: 'primary' | 'secondary';
+    variant?: ThemedButtonVariant;
     loading?: boolean;
     icon?: ReactNode;
     destructive?: boolean;
+};
+
+const variantStyleKey: Record<
+    ThemedButtonVariant,
+    'buttonPrimary' | 'buttonSecondary' | 'buttonText' | 'buttonIcon'
+> = {
+    primary: 'buttonPrimary',
+    secondary: 'buttonSecondary',
+    text: 'buttonText',
+    icon: 'buttonIcon',
+};
+
+const variantTextStyleKey: Record<
+    Exclude<ThemedButtonVariant, 'icon'>,
+    'buttonPrimaryText' | 'buttonSecondaryText' | 'buttonTextText'
+> = {
+    primary: 'buttonPrimaryText',
+    secondary: 'buttonSecondaryText',
+    text: 'buttonTextText',
+};
+
+const rippleColor: Record<ThemedButtonVariant, string> = {
+    primary: 'rgba(255, 255, 255, 0.2)',
+    secondary: 'rgba(0, 0, 0, 0.1)',
+    text: 'rgba(0, 0, 0, 0.08)',
+    icon: 'rgba(0, 0, 0, 0.08)',
 };
 
 export function ThemedButton({
@@ -33,6 +61,11 @@ export function ThemedButton({
 
     const isDisabled = disabled || loading;
 
+    const loaderColor =
+        variant === 'primary'
+            ? theme.color.accentOn
+            : theme.color.textPrimary;
+
     return (
         <Pressable
             style={({ pressed }) => [
@@ -43,31 +76,20 @@ export function ThemedButton({
                           ? theme.opacity.pressed
                           : 1,
                 },
-                typeof style === 'function' ? style({ pressed } as any) : style,
-                variant === 'primary'
-                    ? builtStyles.buttonPrimary
-                    : builtStyles.buttonSecondary,
+                builtStyles[variantStyleKey[variant]],
                 destructive && {
                     backgroundColor: theme.color.error,
                 },
+                typeof style === 'function' ? style({ pressed } as any) : style,
             ]}
             disabled={isDisabled}
-            android_ripple={{
-                color:
-                    variant === 'primary'
-                        ? 'rgba(255, 255, 255, 0.2)'
-                        : 'rgba(0, 0, 0, 0.1)',
-            }}
+            android_ripple={{ color: rippleColor[variant] }}
             {...rest}
         >
             {loading ? (
-                <ActivityIndicator
-                    color={
-                        variant === 'primary'
-                            ? theme.color.accentOn
-                            : theme.color.textPrimary
-                    }
-                />
+                <ActivityIndicator color={loaderColor} />
+            ) : variant === 'icon' ? (
+                icon
             ) : (
                 <View
                     style={{
@@ -80,9 +102,14 @@ export function ThemedButton({
                     {typeof children === 'string' ? (
                         <ThemedText
                             style={
-                                variant === 'primary'
-                                    ? builtStyles.buttonPrimaryText
-                                    : builtStyles.buttonSecondaryText
+                                builtStyles[
+                                    variantTextStyleKey[
+                                        variant as Exclude<
+                                            ThemedButtonVariant,
+                                            'icon'
+                                        >
+                                    ]
+                                ]
                             }
                         >
                             {children}

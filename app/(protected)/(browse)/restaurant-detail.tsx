@@ -14,8 +14,8 @@ import { useEffect, useRef } from 'react';
 import {
     Dimensions,
     Linking,
-    StyleSheet,
     Pressable,
+    StyleSheet,
     View,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -434,6 +434,7 @@ export default function RestaurantDetailScreen() {
                         ]}
                         locations={[0, 0.2, 0.5, 1]}
                         style={StyleSheet.absoluteFill}
+                        pointerEvents="none"
                     />
 
                     <View style={styles.heroContent}>
@@ -468,47 +469,38 @@ export default function RestaurantDetailScreen() {
                 <View style={styles.contentSection}>
                     <View style={styles.infoBox}>
                         <ThemedButton
-                            variant="secondary"
-                            style={{ flex: 1 }}
+                            variant="icon"
                             onPress={handleWebsitePress}
                             icon={
                                 <IconSymbol
                                     name="globe-outline"
-                                    size={20}
-                                    color={theme.color.textTertiary}
+                                    size={22}
+                                    color={theme.color.textSecondary}
                                 />
                             }
-                        >
-                            Website
-                        </ThemedButton>
+                        />
                         <ThemedButton
-                            variant="secondary"
-                            style={{ flex: 1 }}
+                            variant="icon"
                             onPress={handlePhonePress}
                             icon={
                                 <IconSymbol
                                     name="call-outline"
-                                    size={20}
-                                    color={theme.color.textTertiary}
+                                    size={22}
+                                    color={theme.color.textSecondary}
                                 />
                             }
-                        >
-                            Phone
-                        </ThemedButton>
+                        />
                         <ThemedButton
-                            variant="secondary"
-                            style={{ flex: 1 }}
+                            variant="icon"
                             onPress={handleAddressPress}
                             icon={
                                 <IconSymbol
                                     name="location-sharp"
-                                    size={20}
-                                    color={theme.color.textTertiary}
+                                    size={22}
+                                    color={theme.color.textSecondary}
                                 />
                             }
-                        >
-                            Directions
-                        </ThemedButton>
+                        />
                     </View>
 
                     {/* Dishes Section */}
@@ -685,13 +677,13 @@ const createThemedStyles = (
             alignItems: 'center',
         },
         infoBox: {
-            marginHorizontal: theme.space.md,
-            backgroundColor: theme.color.surface2 + '40',
+            alignSelf: 'flex-start',
+            marginLeft: theme.space.md,
             borderRadius: theme.radius.lg,
             borderCurve: 'continuous',
             marginBottom: theme.space.lg,
             flexDirection: 'row',
-            gap: theme.space.md,
+            gap: theme.space.xxs,
         },
         addressRow: {
             flexDirection: 'row',
