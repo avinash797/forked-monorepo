@@ -270,7 +270,7 @@ export const LocationBottomSheet = forwardRef<
             enableContentPanningGesture={false}
             enableDynamicSizing={false}
         >
-            {/* <View style={styles.header}>
+            <View style={styles.header}>
                 <Pressable onPress={onClose}>
                     <IconSymbol
                         name="close"
@@ -278,45 +278,20 @@ export const LocationBottomSheet = forwardRef<
                         color={theme.color.textTertiary}
                     />
                 </Pressable>
-            </View> */}
-
-            {/* Tabs */}
-            <View style={styles.tabContainer}>
-                <Pressable
-                    style={[
-                        styles.tab,
-                        activeTab === 'cities' && styles.activeTab,
-                    ]}
-                    onPress={() => setActiveTab('cities')}
-                >
-                    <ThemedText
-                        style={[
-                            styles.tabText,
-                            activeTab === 'cities' && styles.activeTabText,
-                        ]}
-                    >
-                        Cities
-                    </ThemedText>
-                </Pressable>
-                <Pressable
-                    style={[
-                        styles.tab,
-                        activeTab === 'neighborhoods' && styles.activeTab,
-                    ]}
-                    onPress={() => setActiveTab('neighborhoods')}
-                >
-                    <ThemedText
-                        style={[
-                            styles.tabText,
-                            activeTab === 'neighborhoods' &&
-                                styles.activeTabText,
-                        ]}
-                    >
-                        Neighborhoods
-                    </ThemedText>
-                </Pressable>
             </View>
 
+            {/* Tabs — Neighborhoods tab hidden until feature is ready */}
+            <View style={styles.tabContainer}>
+
+                <ThemedText
+                    style={[
+                        styles.tabText,
+                        styles.activeTabText,
+                    ]}
+                >
+                    Cities
+                </ThemedText>
+            </View>
             <View style={{ flex: 1 }}>{renderContent()}</View>
         </BottomSheetModal>
     );
@@ -340,7 +315,6 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             flexDirection: 'row',
             marginHorizontal: theme.space.md,
             marginVertical: theme.space.sm,
-            backgroundColor: theme.color.inputBg,
             borderRadius: theme.radius.md,
             borderCurve: 'continuous',
             padding: 4,

@@ -151,7 +151,7 @@ export function useVenueSearch() {
                 );
 
                 if (error) {
-                    console.error('RPC Error:', error);
+                    if (__DEV__) console.error('RPC Error:', error);
                     throw new Error(error.message);
                 }
 

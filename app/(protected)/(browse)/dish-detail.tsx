@@ -636,9 +636,14 @@ export default function DishDetailScreen() {
                             ) : (
                                 menuData &&
                                 menuData.photos.length > 0 && (
-                                    <PhotoGallery
-                                        photos={[...menuData.photos]}
-                                    />
+                                    <>
+                                        <ThemedText type="defaultSemiBold">
+                                            Community Photos
+                                        </ThemedText>
+                                        <PhotoGallery
+                                            photos={[...menuData.photos]}
+                                        />
+                                    </>
                                 )
                             )}
                         </View>
