@@ -2,6 +2,14 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { useTheme } from '@/contexts/theme-provider';
 import type { LeaderboardEntry } from '@/components/Discover/leaderboard-row';
+import {
+    GeistMono_500Medium,
+    GeistMono_600SemiBold,
+    GeistMono_800ExtraBold,
+    GeistMono_900Black,
+    GeistMono_700Bold,
+} from '@expo-google-fonts/geist-mono';
+import { useFonts } from 'expo-font';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRef, useState } from 'react';
@@ -60,6 +68,14 @@ export function LeaderboardShareModal({
     const insets = useSafeAreaInsets();
     const cardRef = useRef<View>(null);
     const [isSharing, setIsSharing] = useState(false);
+
+    const [fontsLoaded] = useFonts({
+        GeistMono_500Medium,
+        GeistMono_600SemiBold,
+        GeistMono_700Bold,
+        GeistMono_800ExtraBold,
+        GeistMono_900Black,
+    });
 
     const top3 = entries.slice(0, 3);
 
@@ -300,7 +316,7 @@ const styles = StyleSheet.create({
     },
     brandText: {
         fontSize: 11,
-        fontWeight: '800',
+        fontFamily: 'GeistMono_800ExtraBold',
         color: '#ee6c2b',
         letterSpacing: 4,
     },
@@ -323,14 +339,14 @@ const styles = StyleSheet.create({
     },
     usernameLabel: {
         fontSize: 14,
-        fontWeight: '600',
+        fontFamily: 'GeistMono_600SemiBold',
         color: 'rgba(255,255,255,0.55)',
         letterSpacing: 0.5,
         marginBottom: 6,
     },
     titleMain: {
         fontSize: 28,
-        fontWeight: '900',
+        fontFamily: 'GeistMono_900Black',
         color: '#ffffff',
         letterSpacing: -0.5,
         textAlign: 'center',
@@ -338,7 +354,7 @@ const styles = StyleSheet.create({
     },
     titleCity: {
         fontSize: 15,
-        fontWeight: '500',
+        fontFamily: 'GeistMono_500Medium',
         color: 'rgba(255,255,255,0.55)',
         marginTop: 4,
         letterSpacing: 0.2,
@@ -371,7 +387,7 @@ const styles = StyleSheet.create({
     },
     rankNum: {
         fontSize: 14,
-        fontWeight: '800',
+        fontFamily: 'GeistMono_800ExtraBold',
     },
     photoWrap: {
         borderRadius: 10,
@@ -396,11 +412,12 @@ const styles = StyleSheet.create({
     },
     restaurantName: {
         fontSize: 15,
-        fontWeight: '700',
+        fontFamily: 'GeistMono_700Bold',
         color: '#ffffff',
     },
     neighborhoodText: {
         fontSize: 12,
+        fontFamily: 'GeistMono_500Medium',
         color: 'rgba(255,255,255,0.5)',
     },
     scorePill: {
@@ -412,7 +429,7 @@ const styles = StyleSheet.create({
     },
     scoreText: {
         fontSize: 15,
-        fontWeight: '800',
+        fontFamily: 'GeistMono_800ExtraBold',
         letterSpacing: -0.3,
     },
     footer: {
@@ -421,9 +438,9 @@ const styles = StyleSheet.create({
     },
     footerText: {
         fontSize: 12,
+        fontFamily: 'GeistMono_500Medium',
         color: 'rgba(255,255,255,0.3)',
         letterSpacing: 1,
-        fontWeight: '500',
     },
     actionArea: {
         width: '100%',
