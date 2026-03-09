@@ -161,6 +161,7 @@ export default function LeaderboardScreen() {
                 visible={shareModalVisible}
                 onClose={() => setShareModalVisible(false)}
                 dishTypeName={selectedDishType?.name ?? ''}
+                dishTypeIcon={selectedDishType?.icon ?? undefined}
                 dishTypeEmoji={selectedDishType?.emoji ?? undefined}
                 cityName={selectedCityName ?? ''}
                 username={user?.display_name ?? ''}

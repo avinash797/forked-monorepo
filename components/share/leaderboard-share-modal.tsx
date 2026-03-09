@@ -1,4 +1,5 @@
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { useTheme } from '@/contexts/theme-provider';
 import type { LeaderboardEntry } from '@/components/Discover/leaderboard-row';
 import { Image } from 'expo-image';
@@ -33,7 +34,10 @@ interface LeaderboardShareModalProps {
     visible: boolean;
     onClose: () => void;
     dishTypeName: string;
-    dishTypeEmoji?: string;
+    /** SVG string — rendered first when available */
+    dishTypeIcon?: string | null;
+    /** Emoji fallback when no SVG icon */
+    dishTypeEmoji?: string | null;
     cityName: string;
     username: string;
     entries: LeaderboardEntry[];
@@ -45,6 +49,7 @@ export function LeaderboardShareModal({
     visible,
     onClose,
     dishTypeName,
+    dishTypeIcon,
     dishTypeEmoji,
     cityName,
     username,
@@ -127,11 +132,21 @@ export function LeaderboardShareModal({
                                 <Text style={styles.usernameLabel}>
                                     {username ? `@${username}` : isPersonal ? 'My' : 'Community'}
                                 </Text>
-                                <Text style={styles.titleMain}>
-                                    {isPersonal ? 'My' : 'Top 3'}{' '}
-                                    {dishTypeEmoji ? `${dishTypeEmoji} ` : ''}
-                                    {dishTypeName}
-                                </Text>
+                                <View style={styles.titleMainRow}>
+                                    {(dishTypeIcon || dishTypeEmoji) && (
+                                        <View style={styles.dishIconWrap}>
+                                            <DishTypeIcon
+                                                icon={dishTypeIcon}
+                                                emoji={dishTypeEmoji}
+                                                size={30}
+                                                color="#ffffff"
+                                            />
+                                        </View>
+                                    )}
+                                    <Text style={styles.titleMain}>
+                                        {isPersonal ? 'My' : 'Top 3'} {dishTypeName}
+                                    </Text>
+                                </View>
                                 {!isPersonal && cityName ? (
                                     <Text style={styles.titleCity}>in {cityName}</Text>
                                 ) : null}
@@ -292,6 +307,19 @@ const styles = StyleSheet.create({
     titleBlock: {
         alignItems: 'center',
         marginBottom: 20,
+    },
+    titleMainRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        flexWrap: 'wrap',
+    },
+    dishIconWrap: {
+        width: 30,
+        height: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     usernameLabel: {
         fontSize: 14,

@@ -101,6 +101,7 @@ const personal = () => {
                 visible={shareModalVisible}
                 onClose={() => setShareModalVisible(false)}
                 dishTypeName={selectedDishType?.name ?? ''}
+                dishTypeIcon={selectedDishType?.icon ?? undefined}
                 dishTypeEmoji={selectedDishType?.emoji ?? undefined}
                 cityName=""
                 username={user?.display_name ?? ''}
