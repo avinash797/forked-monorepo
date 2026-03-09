@@ -25,12 +25,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
 
-const MEDAL_COLORS = {
-    1: { bg: '#F59E0B', border: '#D97706', label: '#78350F' },
-    2: { bg: '#9CA3AF', border: '#6B7280', label: '#1F2937' },
-    3: { bg: '#CD7F32', border: '#B45309', label: '#451A03' },
-} as const;
-
 const SCORE_COLORS = (score: number) => {
     if (score >= 7.0) return { bg: '#059669', text: '#fff' };
     if (score >= 4.0) return { bg: '#D97706', text: '#fff' };
@@ -48,7 +42,7 @@ interface LeaderboardShareModalProps {
     cityName: string;
     username: string;
     entries: LeaderboardEntry[];
-    /** When true, shows personal framing ("My Top 3") instead of city framing */
+    /** When true, shows personal framing ("My Top 5") instead of city framing */
     isPersonal?: boolean;
 }
 
@@ -75,25 +69,26 @@ export function LeaderboardShareModal({
         GeistMono_900Black,
     });
 
-    const top3 = entries.slice(0, 3);
+    const top5 = entries.slice(0, 5);
+    const heroPhoto = top5[0]?.featured_photo_url ?? top5[0]?.photo_url;
 
     const handleShare = async () => {
         if (!cardRef.current) return;
         setIsSharing(true);
         try {
             const uri = await captureRef(cardRef, {
-                format: 'jpg',
-                quality: 0.95,
+                format: 'png',
+                quality: 1,
             });
             const msg = isPersonal
                 ? `My top ${dishTypeName} ranked on Forked 🍴`
-                : `Top 3 ${dishTypeName} in ${cityName} on Forked 🍴`;
+                : `Top 5 ${dishTypeName} in ${cityName} on Forked 🍴`;
 
             const isAvailable = await Sharing.isAvailableAsync();
             if (isAvailable) {
                 await Sharing.shareAsync(uri, {
-                    mimeType: 'image/jpeg',
-                    UTI: 'public.jpeg',
+                    mimeType: 'image/png',
+                    UTI: 'public.png',
                     dialogTitle: msg,
                 });
             }
@@ -104,6 +99,8 @@ export function LeaderboardShareModal({
         }
     };
 
+    const contextLabel = isPersonal ? '' : cityName.toUpperCase();
+
     return (
         <Modal
             visible={visible}
@@ -113,123 +110,190 @@ export function LeaderboardShareModal({
         >
             <View style={styles.screen}>
                 {/* Full-screen capturable area */}
-                <View ref={cardRef} collapsable={false} style={StyleSheet.absoluteFill}>
+                <View
+                    ref={cardRef}
+                    collapsable={false}
+                    style={StyleSheet.absoluteFill}
+                >
+                    {/* Hero background photo */}
+                    {heroPhoto ? (
+                        <Image
+                            source={{ uri: heroPhoto }}
+                            style={StyleSheet.absoluteFill}
+                            contentFit="cover"
+                        />
+                    ) : (
+                        <View
+                            style={[StyleSheet.absoluteFill, styles.fallbackBg]}
+                        />
+                    )}
+
+                    {/* Dark overlay — heavier at top + bottom for readability */}
                     <LinearGradient
-                        colors={['#0d0117', '#12082a', '#1c0e35', '#0f0c1e']}
-                        locations={[0, 0.35, 0.7, 1]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={styles.gradient}
+                        colors={[
+                            'rgba(0,0,0,0.82)',
+                            'rgba(0,0,0,0.52)',
+                            'rgba(0,0,0,0.52)',
+                            'rgba(0,0,0,0.88)',
+                        ]}
+                        locations={[0, 0.28, 0.65, 1]}
+                        style={StyleSheet.absoluteFill}
+                    />
+
+                    <View
+                        style={[
+                            styles.contentWrapper,
+                            {
+                                paddingTop: insets.top + 28,
+                                paddingBottom: insets.bottom + 148,
+                            },
+                        ]}
                     >
-                        {/* Decorative glows */}
-                        <View style={styles.glowTopRight} />
-                        <View style={styles.glowBottomLeft} />
-
-                        <View style={[styles.contentWrapper, { paddingTop: insets.top + 32, paddingBottom: insets.bottom + 140 }]}>
-
-                            {/* Spacer bottom */}
-                            <View style={styles.flex1} />
-                            {/* White Card */}
-                            <View style={styles.card}>
-                                {/* Card header: context label + logo */}
-                                <View style={styles.cardHeader}>
-                                    <View style={styles.headerInfo}>
-                                        {(dishTypeIcon || dishTypeEmoji) && (
-                                            <DishTypeIcon
-                                                icon={dishTypeIcon}
-                                                emoji={dishTypeEmoji}
-                                                size={20}
-                                                color="#1a1a2e"
-                                            />
-                                        )}
-                                        <Text style={styles.headerLabel}>
-                                            {isPersonal ? (username ? `@${username}` : 'Personal') : cityName}
-                                        </Text>
-                                    </View>
-                                    <ForkLogo size={32} color="#1a1a2e" />
-                                </View>
-
-                                {/* Ranking rows */}
-                                <View style={styles.rankingList}>
-                                    {top3.map((entry, idx) => {
-                                        const rank = (idx + 1) as 1 | 2 | 3;
-                                        const medal = MEDAL_COLORS[rank];
-                                        const score = entry.bayesian_score ?? entry.derived_score ?? 0;
-                                        const scoreColor = SCORE_COLORS(score);
-                                        const photoUri = entry.featured_photo_url ?? entry.photo_url;
-
-                                        return (
-                                            <View key={entry.restaurant_id} style={styles.rankRow}>
-                                                {/* Rank badge */}
-                                                <View style={[styles.rankBadge, { backgroundColor: medal.bg, borderColor: medal.border }]}>
-                                                    <Text style={[styles.rankNum, { color: medal.label }]}>
-                                                        {rank}
-                                                    </Text>
-                                                </View>
-
-                                                {/* Photo */}
-                                                <View style={styles.photoWrap}>
-                                                    {photoUri ? (
-                                                        <Image
-                                                            source={{ uri: photoUri }}
-                                                            style={styles.photo}
-                                                            contentFit="cover"
-                                                        />
-                                                    ) : (
-                                                        <View style={[styles.photo, styles.photoPlaceholder]}>
-                                                            <Text style={styles.photoPlaceholderText}>🍽️</Text>
-                                                        </View>
-                                                    )}
-                                                </View>
-
-                                                {/* Info */}
-                                                <View style={styles.rowInfo}>
-                                                    <Text style={styles.restaurantName} numberOfLines={1}>
-                                                        {entry.restaurant_name}
-                                                    </Text>
-                                                    <Text style={styles.neighborhoodText} numberOfLines={1}>
-                                                        {entry.neighborhood_name ?? entry.city_name ?? ''}
-                                                    </Text>
-                                                </View>
-
-                                                {/* Score */}
-                                                <View style={[styles.scorePill, { backgroundColor: scoreColor.bg }]}>
-                                                    <Text style={[styles.scoreText, { color: scoreColor.text }]}>
-                                                        {score.toFixed(1)}
-                                                    </Text>
-                                                </View>
-                                            </View>
-                                        );
-                                    })}
-                                </View>
+                        {/* ─── Header ─── */}
+                        <View style={styles.topHeader}>
+                            {/* Branded logo box */}
+                            <View style={styles.logoBox}>
+                                <ForkLogo size={20} color="#fff" />
                             </View>
 
-                            {/* Footer branding */}
-                            <View style={styles.footer}>
-                                <Text style={styles.footerText}>forkedapp.com</Text>
+                            {/* Title block */}
+                            <View style={styles.titleBlock}>
+                                <View style={styles.titleRow}>
+                                    {(dishTypeIcon || dishTypeEmoji) && (
+                                        <DishTypeIcon
+                                            icon={dishTypeIcon}
+                                            emoji={dishTypeEmoji}
+                                            size={20}
+                                            color="#fff"
+                                        />
+                                    )}
+                                    <Text
+                                        style={[
+                                            styles.titleMain,
+                                            isPersonal && {
+                                                fontSize: 26,
+                                            },
+                                        ]}
+                                        numberOfLines={1}
+                                    >
+                                        {isPersonal
+                                            ? `${username}'s TOP ${dishTypeName.toUpperCase()}`
+                                            : `TOP ${dishTypeName.toUpperCase()}`}
+                                    </Text>
+                                </View>
+                                <Text style={styles.titleSub}>
+                                    {contextLabel}
+                                </Text>
+                                <Text style={styles.titleMeta}>
+                                    {!isPersonal
+                                        ? 'BASED ON FORKED RATINGS'
+                                        : ''}
+                                </Text>
                             </View>
-                            {/* Spacer bottom */}
-                            <View style={styles.flex1} />
-
                         </View>
-                    </LinearGradient>
+
+                        <View style={styles.flex1} />
+
+                        {/* ─── Ranking rows ─── */}
+                        <View style={styles.rankingList}>
+                            {top5.map((entry, idx) => {
+                                const score =
+                                    entry.bayesian_score ??
+                                    entry.derived_score ??
+                                    0;
+                                const scoreColor = SCORE_COLORS(score);
+
+                                return (
+                                    <View
+                                        key={entry.restaurant_id}
+                                        style={[
+                                            styles.rankRow,
+                                            idx < top5.length - 1 &&
+                                                styles.rankRowDivider,
+                                        ]}
+                                    >
+                                        {/* Large rank number */}
+                                        <Text style={styles.rankNum}>
+                                            {idx + 1}
+                                        </Text>
+
+                                        {/* Name + neighborhood */}
+                                        <View style={styles.rowInfo}>
+                                            <Text
+                                                style={styles.restaurantName}
+                                                numberOfLines={1}
+                                            >
+                                                {entry.restaurant_name}
+                                            </Text>
+                                            <Text
+                                                style={styles.neighborhoodText}
+                                                numberOfLines={1}
+                                            >
+                                                {(
+                                                    entry.neighborhood_name ??
+                                                    entry.city_name ??
+                                                    ''
+                                                ).toUpperCase()}
+                                            </Text>
+                                        </View>
+
+                                        {/* Score pill */}
+                                        <View
+                                            style={[
+                                                styles.scorePill,
+                                                {
+                                                    backgroundColor:
+                                                        scoreColor.bg,
+                                                },
+                                            ]}
+                                        >
+                                            <Text
+                                                style={[
+                                                    styles.scoreText,
+                                                    { color: scoreColor.text },
+                                                ]}
+                                            >
+                                                {score.toFixed(1)}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                );
+                            })}
+                        </View>
+
+                        <View style={styles.flex1} />
+
+                        {/* ─── Footer branding ─── */}
+                        <View style={styles.footer}>
+                            <Text style={styles.footerText}>forkedapp.com</Text>
+                        </View>
+                    </View>
                 </View>
 
-                {/* Close button (absolute, excluded from capture) */}
+                {/* Close button (excluded from capture) */}
                 <Pressable
-                    style={[styles.closeButton, { top: insets.top + 12, right: 20 }]}
+                    style={[
+                        styles.closeButton,
+                        { top: insets.top + 12, right: 20 },
+                    ]}
                     onPress={onClose}
                     hitSlop={12}
                 >
-                    <IconSymbol name="close-outline" size={24} color="rgba(255,255,255,0.8)" />
+                    <IconSymbol
+                        name="close-outline"
+                        size={24}
+                        color="rgba(255,255,255,0.8)"
+                    />
                 </Pressable>
 
-                {/* Share button (absolute, excluded from capture) */}
-                <View style={[styles.actionArea, { bottom: insets.bottom + 24 }]}>
+                {/* Action buttons (excluded from capture) */}
+                <View
+                    style={[styles.actionArea, { bottom: insets.bottom + 24 }]}
+                >
                     <Pressable
                         style={({ pressed }) => [
                             styles.shareButton,
-                            pressed && styles.shareButtonPressed,
+                            pressed && styles.buttonPressed,
                         ]}
                         onPress={handleShare}
                         disabled={isSharing}
@@ -238,8 +302,14 @@ export function LeaderboardShareModal({
                             <ActivityIndicator color="#fff" size="small" />
                         ) : (
                             <>
-                                <IconSymbol name="share-outline" size={24} color="#fff" />
-                                <Text style={styles.shareButtonText}>Share Image</Text>
+                                <IconSymbol
+                                    name="share-outline"
+                                    size={24}
+                                    color="#fff"
+                                />
+                                <Text style={styles.shareButtonText}>
+                                    Share Image
+                                </Text>
                             </>
                         )}
                     </Pressable>
@@ -254,119 +324,105 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#000',
     },
-    gradient: {
-        flex: 1,
-    },
-    glowTopRight: {
-        position: 'absolute',
-        top: -100,
-        right: -100,
-        width: 350,
-        height: 350,
-        borderRadius: 175,
-        backgroundColor: '#ee6c2b',
-        opacity: 0.2,
-    },
-    glowBottomLeft: {
-        position: 'absolute',
-        bottom: -50,
-        left: -100,
-        width: 300,
-        height: 300,
-        borderRadius: 150,
-        backgroundColor: '#7c3aed',
-        opacity: 0.18,
+    fallbackBg: {
+        backgroundColor: '#0d0117',
     },
     contentWrapper: {
         flex: 1,
-        paddingHorizontal: 24,
+        paddingHorizontal: 28,
     },
     flex1: {
         flex: 1,
     },
-    // ─── White Card ───
-    card: {
-        backgroundColor: '#ffffff',
-        borderRadius: 24,
-        padding: 20,
-        gap: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.3,
-        shadowRadius: 24,
-        elevation: 12,
+    // ─── Header ───
+    topHeader: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: 14,
     },
-    cardHeader: {
+    logoBox: {
+        width: 42,
+        height: 42,
+        borderRadius: 11,
+        backgroundColor: '#ee6c2b',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 2,
+        flexShrink: 0,
+    },
+    titleBlock: {
+        flex: 1,
+        gap: 1,
+    },
+    titleRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        gap: 7,
+        flexWrap: 'nowrap',
     },
-    headerInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
+    titleMain: {
+        fontSize: 22,
+        fontFamily: 'GeistMono_900Black',
+        color: '#fff',
+        letterSpacing: 0.3,
+        flexShrink: 1,
     },
-    headerLabel: {
+    titleSub: {
         fontSize: 15,
         fontFamily: 'GeistMono_700Bold',
-        color: '#1a1a2e',
+        color: 'rgba(255,255,255,0.65)',
+        letterSpacing: 0.5,
+        marginTop: 2,
+    },
+    titleMeta: {
+        fontSize: 10,
+        fontFamily: 'GeistMono_500Medium',
+        color: 'rgba(255,255,255,0.35)',
+        letterSpacing: 1.8,
+        marginTop: 5,
     },
     // ─── Ranking Rows ───
     rankingList: {
-        gap: 12,
+        gap: 0,
     },
     rankRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: 16,
+        paddingVertical: 18,
     },
-    rankBadge: {
-        width: 34,
-        height: 34,
-        borderRadius: 17,
-        borderWidth: 2,
-        alignItems: 'center',
-        justifyContent: 'center',
+    rankRowDivider: {
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: 'rgba(255,255,255,0.18)',
     },
     rankNum: {
-        fontSize: 14,
+        width: 42,
+        fontSize: 52,
         fontFamily: 'GeistMono_900Black',
-    },
-    photoWrap: {
-        borderRadius: 12,
-        overflow: 'hidden',
-    },
-    photo: {
-        width: 56,
-        height: 56,
-        borderRadius: 12,
-    },
-    photoPlaceholder: {
-        backgroundColor: '#f3f4f6',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    photoPlaceholderText: {
-        fontSize: 24,
+        color: '#fff',
+        textAlign: 'center',
+        lineHeight: 56,
+        includeFontPadding: false,
     },
     rowInfo: {
         flex: 1,
-        gap: 2,
+        gap: 4,
     },
     restaurantName: {
-        fontSize: 16,
+        fontSize: 18,
         fontFamily: 'GeistMono_800ExtraBold',
-        color: '#1a1a2e',
+        color: '#fff',
     },
     neighborhoodText: {
-        fontSize: 13,
+        fontSize: 11,
         fontFamily: 'GeistMono_500Medium',
-        color: '#6b7280',
+        color: 'rgba(255,255,255,0.50)',
+        letterSpacing: 1.2,
     },
     scorePill: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: 48,
+        height: 48,
+        borderRadius: 24,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -378,13 +434,12 @@ const styles = StyleSheet.create({
     // ─── Footer ───
     footer: {
         alignItems: 'center',
-        marginTop: 16,
     },
     footerText: {
-        fontSize: 14,
+        fontSize: 11,
         fontFamily: 'GeistMono_600SemiBold',
-        color: 'rgba(255,255,255,0.3)',
-        letterSpacing: 2,
+        color: 'rgba(255,255,255,0.28)',
+        letterSpacing: 3,
     },
     // ─── Absolute Buttons ───
     closeButton: {
@@ -404,6 +459,7 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     shareButton: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
@@ -416,7 +472,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.4,
         shadowRadius: 16,
     },
-    shareButtonPressed: {
+    buttonPressed: {
         opacity: 0.9,
         transform: [{ scale: 0.98 }],
     },

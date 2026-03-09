@@ -59,19 +59,22 @@ export function BestEverShareModal({
     const score = item.derived_score ?? 0;
     const scoreColor = SCORE_COLORS(score);
 
+    const captureOptions = {
+        format: 'png' as const,
+        quality: 1,
+        pixelRatio: 3,
+    };
+
     const handleShare = async () => {
         if (!cardRef.current) return;
         setIsSharing(true);
         try {
-            const uri = await captureRef(cardRef, {
-                format: 'jpg',
-                quality: 0.95,
-            });
+            const uri = await captureRef(cardRef, captureOptions);
             const isAvailable = await Sharing.isAvailableAsync();
             if (isAvailable) {
                 await Sharing.shareAsync(uri, {
-                    mimeType: 'image/jpeg',
-                    UTI: 'public.jpeg',
+                    mimeType: 'image/png',
+                    UTI: 'public.png',
                     dialogTitle: `My best ${item.dish_type_name}? ${item.restaurant_name} in ${item.city_name}! Scored ${score.toFixed(1)}/10 on Forked 🍴`,
                 });
             }
@@ -91,102 +94,144 @@ export function BestEverShareModal({
         >
             <View style={styles.screen}>
                 {/* Full-screen capturable area */}
-                <View ref={cardRef} collapsable={false} style={StyleSheet.absoluteFill}>
+                <View
+                    ref={cardRef}
+                    collapsable={false}
+                    style={StyleSheet.absoluteFill}
+                >
+                    {/* Hero background photo */}
+                    {item.photo_url ? (
+                        <Image
+                            source={{ uri: item.photo_url }}
+                            style={StyleSheet.absoluteFill}
+                            contentFit="cover"
+                        />
+                    ) : (
+                        <View
+                            style={[StyleSheet.absoluteFill, styles.fallbackBg]}
+                        />
+                    )}
+
+                    {/* Dark overlay — heavier at top + bottom for readability */}
                     <LinearGradient
-                        colors={['#0d0117', '#12082a', '#1c0e35', '#0f0c1e']}
-                        locations={[0, 0.35, 0.7, 1]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={styles.gradient}
+                        colors={[
+                            'rgba(0,0,0,0.82)',
+                            'rgba(0,0,0,0.52)',
+                            'rgba(0,0,0,0.52)',
+                            'rgba(0,0,0,0.88)',
+                        ]}
+                        locations={[0, 0.28, 0.65, 1]}
+                        style={StyleSheet.absoluteFill}
+                    />
+
+                    <View
+                        style={[
+                            styles.contentWrapper,
+                            {
+                                paddingTop: insets.top + 28,
+                                paddingBottom: insets.bottom + 148,
+                            },
+                        ]}
                     >
-                        {/* Decorative glows */}
-                        <View style={styles.glowTopRight} />
-                        <View style={styles.glowBottomLeft} />
+                        {/* Spacer top */}
+                        <View style={styles.flex1} />
 
-                        <View style={[styles.contentWrapper, { paddingTop: insets.top + 32, paddingBottom: insets.bottom + 140 }]}>
-                            {/* Spacer top */}
-                            <View style={styles.flex1} />
-
-                            {/* Headline */}
-                            <Text style={styles.headline}>
-                                {username ? `${username}'s` : 'My'} best {item.dish_type_name} ever
-                            </Text>
-
-                            {/* White Card */}
-                            <View style={styles.card}>
-                                {/* Card header: username + logo */}
-                                <View style={styles.cardHeader}>
-                                    <View style={styles.userInfo}>
-                                        <Text style={styles.displayName}>
-                                            {username || 'My'}
-                                        </Text>
-                                        <Text style={styles.usernameHandle}>
-                                            {username ? `@${username}` : ''}
-                                        </Text>
-                                    </View>
-                                    <ForkLogo size={32} color="#1a1a2e" />
+                        {/* White Card */}
+                        <View style={styles.card}>
+                            {/* Card header: username + logo */}
+                            <View style={styles.cardHeader}>
+                                <View style={styles.userInfo}>
+                                    <Text style={styles.displayName}>
+                                        {username || 'My'}
+                                    </Text>
+                                    <Text style={styles.usernameHandle}>
+                                        {username ? `@${username}` : ''}
+                                    </Text>
                                 </View>
-
-                                {/* Photo */}
-                                {item.photo_url ? (
-                                    <View style={styles.photoContainer}>
-                                        <Image
-                                            source={{ uri: item.photo_url }}
-                                            style={styles.photo}
-                                            contentFit="cover"
-                                        />
-                                    </View>
-                                ) : null}
-
-                                {/* Restaurant name + score */}
-                                <View style={styles.restaurantRow}>
-                                    <View style={styles.restaurantInfo}>
-                                        <View style={styles.dishLabelRow}>
-                                            {(item.dish_type_icon || item.dish_type_emoji) && (
-                                                <DishTypeIcon
-                                                    icon={item.dish_type_icon}
-                                                    emoji={item.dish_type_emoji}
-                                                    size={16}
-                                                    color="#1a1a2e"
-                                                />
-                                            )}
-                                            <Text style={styles.dishLabel}>Best {item.dish_type_name}</Text>
-                                        </View>
-                                        <Text style={styles.restaurantName} numberOfLines={2}>
-                                            {item.restaurant_name}
-                                        </Text>
-                                        <Text style={styles.cityName}>
-                                            {item.city_name}
-                                        </Text>
-                                    </View>
-                                    <View style={[styles.scoreBadge, { backgroundColor: scoreColor.bg }]}>
-                                        <Text style={styles.scoreValue}>{score.toFixed(1)}</Text>
-                                    </View>
-                                </View>
+                                <ForkLogo size={32} color="#1a1a2e" />
                             </View>
 
-                            {/* Spacer bottom */}
-                            <View style={styles.flex1} />
+                            {/* Photo */}
+                            {item.photo_url ? (
+                                <View style={styles.photoContainer}>
+                                    <Image
+                                        source={{ uri: item.photo_url }}
+                                        style={styles.photo}
+                                        contentFit="cover"
+                                    />
+                                </View>
+                            ) : null}
 
-                            {/* Footer branding */}
-                            <View style={styles.footer}>
-                                <Text style={styles.footerText}>forked.app</Text>
+                            {/* Restaurant name + score */}
+                            <View style={styles.restaurantRow}>
+                                <View style={styles.restaurantInfo}>
+                                    <View style={styles.dishLabelRow}>
+                                        {(item.dish_type_icon ||
+                                            item.dish_type_emoji) && (
+                                            <DishTypeIcon
+                                                icon={item.dish_type_icon}
+                                                emoji={item.dish_type_emoji}
+                                                size={16}
+                                                color="#1a1a2e"
+                                            />
+                                        )}
+                                        <Text style={styles.dishLabel}>
+                                            Best {item.dish_type_name}
+                                        </Text>
+                                    </View>
+                                    <Text
+                                        style={styles.restaurantName}
+                                        numberOfLines={2}
+                                    >
+                                        {item.restaurant_name}
+                                    </Text>
+                                    <Text style={styles.cityName}>
+                                        {item.city_name}
+                                    </Text>
+                                </View>
+                                <View
+                                    style={[
+                                        styles.scoreBadge,
+                                        { backgroundColor: scoreColor.bg },
+                                    ]}
+                                >
+                                    <Text style={styles.scoreValue}>
+                                        {score.toFixed(1)}
+                                    </Text>
+                                </View>
                             </View>
                         </View>
-                    </LinearGradient>
+
+                        {/* Spacer bottom */}
+                        <View style={styles.flex1} />
+
+                        {/* Footer branding */}
+                        <View style={styles.footer}>
+                            <Text style={styles.footerText}>forkedapp.com</Text>
+                        </View>
+                    </View>
                 </View>
 
-                {/* Close button (absolute, excluded from capture) */}
+                {/* Close button (excluded from capture) */}
                 <Pressable
-                    style={[styles.closeButton, { top: insets.top + 12, right: 20 }]}
+                    style={[
+                        styles.closeButton,
+                        { top: insets.top + 12, right: 20 },
+                    ]}
                     onPress={onClose}
                     hitSlop={12}
                 >
-                    <IconSymbol name="close-outline" size={24} color="rgba(255,255,255,0.8)" />
+                    <IconSymbol
+                        name="close-outline"
+                        size={24}
+                        color="rgba(255,255,255,0.8)"
+                    />
                 </Pressable>
 
                 {/* Share button (absolute, excluded from capture) */}
-                <View style={[styles.actionArea, { bottom: insets.bottom + 24 }]}>
+                <View
+                    style={[styles.actionArea, { bottom: insets.bottom + 24 }]}
+                >
                     <Pressable
                         style={({ pressed }) => [
                             styles.shareButton,
@@ -199,8 +244,14 @@ export function BestEverShareModal({
                             <ActivityIndicator color="#fff" size="small" />
                         ) : (
                             <>
-                                <IconSymbol name="share-outline" size={24} color="#fff" />
-                                <Text style={styles.shareButtonText}>Share Image</Text>
+                                <IconSymbol
+                                    name="share-outline"
+                                    size={24}
+                                    color="#fff"
+                                />
+                                <Text style={styles.shareButtonText}>
+                                    Share Image
+                                </Text>
                             </>
                         )}
                     </Pressable>
@@ -215,28 +266,8 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#000',
     },
-    gradient: {
-        flex: 1,
-    },
-    glowTopRight: {
-        position: 'absolute',
-        top: -100,
-        right: -100,
-        width: 350,
-        height: 350,
-        borderRadius: 175,
-        backgroundColor: '#ee6c2b',
-        opacity: 0.2,
-    },
-    glowBottomLeft: {
-        position: 'absolute',
-        bottom: -50,
-        left: -100,
-        width: 300,
-        height: 300,
-        borderRadius: 150,
-        backgroundColor: '#7c3aed',
-        opacity: 0.18,
+    fallbackBg: {
+        backgroundColor: '#0d0117',
     },
     contentWrapper: {
         flex: 1,
@@ -244,16 +275,6 @@ const styles = StyleSheet.create({
     },
     flex1: {
         flex: 1,
-    },
-    headline: {
-        fontSize: 32,
-        fontFamily: 'GeistMono_900Black',
-        color: '#ffffff',
-        textAlign: 'center',
-        letterSpacing: -1,
-        lineHeight: 38,
-        marginBottom: 28,
-        paddingHorizontal: 8,
     },
     // ─── White Card ───
     card: {
@@ -344,13 +365,12 @@ const styles = StyleSheet.create({
     // ─── Footer ───
     footer: {
         alignItems: 'center',
-        marginTop: 16,
     },
     footerText: {
-        fontSize: 14,
+        fontSize: 11,
         fontFamily: 'GeistMono_600SemiBold',
-        color: 'rgba(255,255,255,0.3)',
-        letterSpacing: 2,
+        color: 'rgba(255,255,255,0.28)',
+        letterSpacing: 3,
     },
     // ─── Absolute Buttons ───
     closeButton: {
@@ -370,6 +390,7 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     shareButton: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
