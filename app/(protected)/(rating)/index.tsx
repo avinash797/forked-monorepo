@@ -1,22 +1,234 @@
-import { useRatingStore } from '@/stores';
-import { Redirect } from 'expo-router';
+import { SearchInput } from '@/components/rating/search-input';
+import { ThemedButton } from '@/components/themed-button';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useTheme } from '@/contexts/theme-provider';
+import { GooglePlaceSuggestion } from '@/hooks/use-address-search';
+import { SearchResultItem, useVenueSearch } from '@/hooks/use-venue-search';
+import { Database } from '@/types/database.types';
+import { useRouter } from 'expo-router';
+import { useCallback } from 'react';
+import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
 
-/**
- * Rating flow entry point.
- * The workflow starts with restaurant/venue selection,
- * so we redirect immediately to the venue-search screen.
- */
-export default function RatingEntryRedirect() {
-    const { selectedRestaurant, selectedDishType } = useRatingStore();
-    // Determine if we should skip venue/dish selection (when coming from dish detail)
-    const shouldSkipSelection = !!selectedRestaurant && !!selectedDishType;
+type Restaurant = Database['public']['Tables']['restaurants']['Row'];
 
-    // Get the next route based on whether we have pre-populated data
-    const getNextRoute = () => {
-        if (shouldSkipSelection) {
-            return '/(protected)/(rating)/rating';
-        }
-        return '/(protected)/(rating)/venue-search';
+export default function VenueSearchScreen() {
+    const router = useRouter();
+    const { theme } = useTheme();
+    const styles = createThemedStyles(theme);
+
+    const {
+        searchQuery,
+        setSearchQuery,
+        combinedResults,
+        isSearching,
+        isSelecting,
+        selectRestaurant,
+        selectGooglePlace,
+        hasEmptyResults,
+    } = useVenueSearch();
+
+    const iconColor = theme.color.textTertiary;
+
+    const handleRestaurantSelect = useCallback(
+        (restaurant: Restaurant) => {
+            selectRestaurant(restaurant);
+            router.push('/(protected)/(rating)/dish-selection');
+        },
+        [selectRestaurant, router]
+    );
+
+    const handleAddressSelect = useCallback(
+        async (suggestion: GooglePlaceSuggestion) => {
+            try {
+                await selectGooglePlace(suggestion);
+                router.push('/(protected)/(rating)/dish-selection');
+            } catch (err) {
+                Alert.alert(
+                    'Error',
+                    'Could not select this restaurant. Please try again.'
+                );
+            }
+        },
+        [selectGooglePlace, router]
+    );
+
+    const handleCreateRestaurant = () => {
+        router.push('/(protected)/(rating)/create-venue');
     };
-    return <Redirect href={getNextRoute()} />;
+
+    const renderItem = useCallback(
+        ({ item }: { item: SearchResultItem }) => {
+            const isRestaurant = item.type === 'restaurant';
+
+            let name: string;
+            let address: string | undefined;
+            let handlePress: () => void;
+            let distance: number | undefined;
+
+            if (isRestaurant) {
+                name = item.data.name;
+                address = item.data.address || undefined;
+                handlePress = () => handleRestaurantSelect(item.data);
+                distance = item.data.distance_meters;
+            } else {
+                const { structuredFormat } = item.data.placePrediction;
+                name = structuredFormat.mainText.text;
+                address = structuredFormat.secondaryText?.text;
+                handlePress = () => handleAddressSelect(item.data);
+            }
+
+            return (
+                <Pressable
+                    style={({ pressed }) => [
+                        styles.restaurantItem,
+                        pressed && styles.restaurantItemPressed,
+                    ]}
+                    onPress={handlePress}
+                >
+                    <View style={styles.restaurantContent}>
+                        <ThemedText
+                            style={styles.restaurantName}
+                            numberOfLines={1}
+                        >
+                            {name}
+                        </ThemedText>
+                        {address && (
+                            <ThemedText
+                                style={styles.restaurantAddress}
+                                numberOfLines={1}
+                            >
+                                {address}
+                            </ThemedText>
+                        )}
+                    </View>
+                    <IconSymbol
+                        name="chevron-forward"
+                        size={20}
+                        color={iconColor}
+                    />
+                </Pressable>
+            );
+        },
+        [
+            styles,
+            iconColor,
+            handleRestaurantSelect,
+            handleAddressSelect,
+            theme.color.accent,
+        ]
+    );
+
+    return (
+        <ThemedView style={styles.container}>
+            <SearchInput
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder="Search for a restaurant..."
+                isLoading={isSearching || isSelecting}
+            />
+
+            {combinedResults.length > 0 && !searchQuery && (
+                <View style={styles.sectionHeader}>
+                    <ThemedText style={styles.emptyHint}>
+                        Nearby Restaurants
+                    </ThemedText>
+                </View>
+            )}
+
+            {combinedResults.length > 0 && (
+                <FlatList
+                    data={combinedResults}
+                    keyExtractor={(item) =>
+                        item.type === 'restaurant'
+                            ? `restaurant-${item.data.id}`
+                            : `google-${item.data.placePrediction.placeId}`
+                    }
+                    renderItem={renderItem}
+                    contentContainerStyle={styles.listContent}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                    contentInsetAdjustmentBehavior="automatic"
+                />
+            )}
+
+            {hasEmptyResults && (
+                <ThemedView style={styles.emptyState}>
+                    <ThemedText style={styles.emptyText}>
+                        No results found for "{searchQuery}"
+                    </ThemedText>
+                    <ThemedButton
+                        variant="secondary"
+                        onPress={handleCreateRestaurant}
+                        style={styles.createButton}
+                    >
+                        Manually Add Restaurant
+                    </ThemedButton>
+                </ThemedView>
+            )}
+        </ThemedView>
+    );
 }
+
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+    StyleSheet.create({
+        container: {
+            flex: 1,
+            padding: theme.space.md,
+            backgroundColor: theme.color.bg,
+        },
+        sectionHeader: {
+            paddingTop: theme.space.md,
+        },
+        listContent: {
+            paddingVertical: theme.space.md,
+            gap: theme.space.sm,
+        },
+        emptyState: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: theme.space.xl,
+            gap: theme.space.sm,
+        },
+        emptyText: {
+            fontSize: theme.font.size.lg,
+            fontWeight: '600',
+            color: theme.color.textPrimary,
+            textAlign: 'center',
+        },
+        emptyHint: {
+            fontSize: theme.font.size.md,
+            color: theme.color.textSecondary,
+            textAlign: 'center',
+        },
+        createButton: {
+            marginTop: theme.space.md,
+        },
+        restaurantItem: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            padding: theme.space.md,
+            backgroundColor: theme.color.surface,
+            borderRadius: theme.radius.md,
+            borderWidth: 1,
+            borderColor: theme.color.border,
+        },
+        restaurantItemPressed: {
+            backgroundColor: theme.color.surface2,
+        },
+        restaurantContent: {
+            flex: 1,
+        },
+        restaurantName: {
+            fontSize: theme.font.size.md,
+            fontWeight: '600',
+            color: theme.color.textPrimary,
+        },
+        restaurantAddress: {
+            fontSize: theme.font.size.sm,
+            color: theme.color.textSecondary,
+            marginTop: 2,
+        },
+    });

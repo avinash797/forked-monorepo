@@ -259,6 +259,7 @@ export const LocationBottomSheet = forwardRef<
             snapPoints={snapPoints}
             enablePanDownToClose
             onDismiss={onClose}
+            bottomInset={bottom}
             backgroundStyle={{
                 backgroundColor: theme.color.bg,
             }}
@@ -341,6 +342,7 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             marginVertical: theme.space.sm,
             backgroundColor: theme.color.inputBg,
             borderRadius: theme.radius.md,
+            borderCurve: 'continuous',
             padding: 4,
         },
         tab: {
@@ -348,17 +350,11 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             paddingVertical: theme.space.sm,
             alignItems: 'center',
             borderRadius: theme.radius.sm,
+            borderCurve: 'continuous',
         },
         activeTab: {
             backgroundColor: theme.color.bg,
-            shadowColor: '#000',
-            shadowOffset: {
-                width: 0,
-                height: 1,
-            },
-            shadowOpacity: 0.1,
-            shadowRadius: 2,
-            elevation: 2,
+            boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.1)',
         },
         tabText: {
             fontSize: theme.font.size.sm,
@@ -380,6 +376,7 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             paddingVertical: theme.space.md,
             paddingHorizontal: theme.space.sm,
             borderRadius: theme.radius.sm,
+            borderCurve: 'continuous',
             borderBottomWidth: theme.border.hairline,
             borderBottomColor: theme.color.border,
         },

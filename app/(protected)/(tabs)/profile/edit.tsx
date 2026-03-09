@@ -15,13 +15,13 @@ import { useCallback, useRef, useState } from 'react';
 import {
     Alert,
     Image,
-    KeyboardAvoidingView,
     Platform,
     Pressable,
     ScrollView,
     StyleSheet,
     View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
@@ -47,6 +47,7 @@ export default function EditProfileScreen() {
     const styles = createThemedStyles(theme);
     const router = useRouter();
     const citySheetRef = useRef<BottomSheetModal>(null);
+    const insets = useSafeAreaInsets();
     const {
         pickImage,
         takePhoto,
@@ -173,12 +174,12 @@ export default function EditProfileScreen() {
     };
 
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.container}
-        >
+        <View style={styles.container}>
             <ScrollView
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={[
+                    styles.scrollContent,
+                    { paddingBottom: insets.bottom > 0 ? insets.bottom + 24 : 48 },
+                ]}
                 keyboardShouldPersistTaps="handled"
             >
                 {/* Avatar */}
@@ -332,7 +333,7 @@ export default function EditProfileScreen() {
                 onSelect={handleCitySelect}
                 onClose={() => {}}
             />
-        </KeyboardAvoidingView>
+        </View>
     );
 }
 
@@ -371,6 +372,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             backgroundColor: theme.color.accent,
             padding: 8,
             borderRadius: 20,
+            borderCurve: 'continuous',
             borderWidth: 2,
             borderColor: theme.color.bg,
         },
@@ -391,6 +393,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             alignItems: 'center',
             height: 50,
             borderRadius: theme.radius.md,
+            borderCurve: 'continuous',
             paddingHorizontal: theme.space.md,
             borderWidth: theme.border.hairline,
             backgroundColor: theme.color.inputBg,

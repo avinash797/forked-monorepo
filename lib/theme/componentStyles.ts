@@ -12,6 +12,7 @@ export const buildComponentStyles = (t: ActiveTheme) =>
             card: {
                 backgroundColor: t.color.surface,
                 borderRadius: t.radius.lg,
+                borderCurve: 'continuous',
                 borderWidth: t.border.hairline,
                 borderColor: t.color.border,
                 padding: t.space.md,
@@ -59,6 +60,7 @@ export const buildComponentStyles = (t: ActiveTheme) =>
                 borderColor: t.color.inputBorder,
                 borderWidth: t.border.hairline,
                 borderRadius: t.radius.md,
+                borderCurve: 'continuous',
                 paddingHorizontal: t.space.md,
                 paddingVertical: t.space.sm,
                 color: t.color.textPrimary,
@@ -67,6 +69,7 @@ export const buildComponentStyles = (t: ActiveTheme) =>
             buttonPrimary: {
                 backgroundColor: t.color.accent,
                 borderRadius: t.radius.xs,
+                borderCurve: 'continuous',
                 paddingVertical: t.space.sm,
                 paddingHorizontal: t.space.lg,
                 alignItems: 'center',
@@ -83,6 +86,7 @@ export const buildComponentStyles = (t: ActiveTheme) =>
                 borderColor: t.color.border,
                 borderWidth: t.border.hairline,
                 borderRadius: t.radius.xs,
+                borderCurve: 'continuous',
                 paddingVertical: t.space.sm,
                 paddingHorizontal: t.space.lg,
                 alignItems: 'center',
@@ -92,6 +96,30 @@ export const buildComponentStyles = (t: ActiveTheme) =>
                 color: t.color.textPrimary,
                 fontSize: t.font.size.md,
                 fontWeight: t.font.weight.semibold as any,
+            },
+
+            buttonText: {
+                backgroundColor: 'transparent',
+                borderRadius: t.radius.xs,
+                borderCurve: 'continuous',
+                paddingVertical: t.space.xs,
+                paddingHorizontal: t.space.sm,
+                alignItems: 'center',
+                justifyContent: 'center',
+            },
+            buttonTextText: {
+                color: t.color.accent,
+                fontSize: t.font.size.md,
+                fontWeight: t.font.weight.semibold as any,
+            },
+
+            buttonIcon: {
+                backgroundColor: 'transparent',
+                borderRadius: t.radius.xs,
+                borderCurve: 'continuous',
+                padding: t.space.xxs,
+                alignItems: 'center',
+                justifyContent: 'center',
             },
 
             badge: {

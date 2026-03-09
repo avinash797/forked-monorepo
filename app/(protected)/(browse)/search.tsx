@@ -3,6 +3,7 @@ import { SectionHeader } from '@/components/browse/section-header';
 import { SearchInput } from '@/components/rating/search-input';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import {
@@ -115,9 +116,7 @@ export default function SearchScreen() {
             android_ripple={{ color: 'rgba(0, 0, 0, 0.1)' }}
         >
             <View style={styles.emojiContainer}>
-                <ThemedText style={styles.emoji}>
-                    {dishType.emoji || '🍽️'}
-                </ThemedText>
+                <DishTypeIcon icon={dishType.icon} emoji={dishType.emoji} size={20} />
             </View>
             <View style={styles.resultTextContainer}>
                 <ThemedText style={styles.resultTitle} numberOfLines={1}>
@@ -190,9 +189,7 @@ export default function SearchScreen() {
                     />
                 ) : (
                     <View style={styles.emojiContainer}>
-                        <ThemedText style={styles.emoji}>
-                            {item.dish_type_emoji || '🍽️'}
-                        </ThemedText>
+                        <DishTypeIcon icon={item.dish_type_icon} emoji={item.dish_type_emoji} size={20} />
                     </View>
                 )}
                 <View style={styles.resultTextContainer}>

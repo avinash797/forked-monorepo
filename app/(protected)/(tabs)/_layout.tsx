@@ -1,5 +1,6 @@
 import { Tabs, useRouter } from 'expo-router';
 import React from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CenterTabButton } from '@/components/center-tab-button';
 import { HapticTab } from '@/components/haptic-tab';
@@ -9,6 +10,7 @@ import { useTheme } from '@/contexts/theme-provider';
 export default function TabLayout() {
     const { theme } = useTheme();
     const router = useRouter();
+    const { bottom } = useSafeAreaInsets();
 
     return (
         <Tabs
@@ -16,18 +18,20 @@ export default function TabLayout() {
                 headerShown: false,
                 tabBarButton: HapticTab,
                 tabBarStyle: {
-                    height: 80,
-                    paddingTop: 8,
-                    paddingBottom: 28,
+                    height: 60 + bottom,
+                    paddingTop: 6,
+                    paddingBottom: bottom,
                     borderTopWidth: 0,
                     backgroundColor: theme.color.surface,
-                    elevation: 0,
                 },
                 tabBarActiveTintColor: theme.color.accent,
                 tabBarInactiveTintColor: theme.color.textSecondary,
                 tabBarLabelStyle: {
                     fontSize: 12,
                     fontWeight: '500',
+                },
+                tabBarIconStyle: {
+                    marginBottom: 2,
                 },
             }}
         >
@@ -37,7 +41,7 @@ export default function TabLayout() {
                     title: 'Discover',
                     tabBarIcon: ({ color, focused }) => (
                         <IconSymbol
-                            size={28}
+                            size={24}
                             name={focused ? 'compass' : 'compass-outline'}
                             color={color}
                         />
@@ -50,7 +54,7 @@ export default function TabLayout() {
                     title: 'Leaderboard',
                     tabBarIcon: ({ color, focused }) => (
                         <IconSymbol
-                            size={28}
+                            size={24}
                             name={focused ? 'podium' : 'podium-outline'}
                             color={color}
                         />
@@ -83,7 +87,7 @@ export default function TabLayout() {
                     title: 'Personal',
                     tabBarIcon: ({ color, focused }) => (
                         <IconSymbol
-                            size={28}
+                            size={24}
                             name={focused ? 'list' : 'list-outline'}
                             color={color}
                         />
@@ -96,7 +100,7 @@ export default function TabLayout() {
                     title: 'Profile',
                     tabBarIcon: ({ color, focused }) => (
                         <IconSymbol
-                            size={28}
+                            size={24}
                             name={focused ? 'person' : 'person-outline'}
                             color={color}
                         />

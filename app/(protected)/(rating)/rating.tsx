@@ -4,6 +4,7 @@ import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-text-input';
 import { ThemedView } from '@/components/themed-view';
+import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
 import { usePhotoUpload } from '@/hooks/use-photo-upload';
@@ -166,12 +167,10 @@ export default function RatingScreen() {
     const canSubmit = sentiment !== null && !isSubmitting && !isUploading;
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container} contentInsetAdjustmentBehavior="automatic">
             <ThemedView style={styles.content}>
                 <View style={styles.header}>
-                    <ThemedText style={styles.emoji}>
-                        {selectedDishType.emoji}
-                    </ThemedText>
+                    <DishTypeIcon icon={selectedDishType.icon} size={40} />
                     <ThemedText style={styles.dishTypeName} type="title">
                         {selectedDishType.name}
                     </ThemedText>
@@ -231,10 +230,10 @@ export default function RatingScreen() {
                                         key={tag.id}
                                         style={[
                                             styles.tag,
+                                            { borderColor: isSelected ? theme.color.accent : theme.color.border },
                                             isSelected && {
                                                 backgroundColor:
                                                     theme.color.accent,
-                                                borderColor: theme.color.accent,
                                             },
                                         ]}
                                         onPress={() => toggleTag(tag.id)}
@@ -313,7 +312,8 @@ const styles = StyleSheet.create({
     },
     tagHint: {
         fontSize: 13,
-        color: '#999',
+        color: undefined, // uses ThemedText default
+        opacity: 0.6,
         marginBottom: 12,
     },
     tagsContainer: {
@@ -325,8 +325,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
         paddingVertical: 8,
         borderRadius: 20,
+        borderCurve: 'continuous',
         borderWidth: 1,
-        borderColor: '#ddd',
         backgroundColor: 'transparent',
     },
     tagText: {

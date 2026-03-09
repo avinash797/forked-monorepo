@@ -1,5 +1,6 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useRecentBattles } from '@/hooks/use-recent-battles';
@@ -165,10 +166,17 @@ export function RecentBattleTicker({ cityId }: RecentBattleTickerProps) {
                                 </ThemedText>
                             </ThemedText>
                             <View style={styles.bottomTextContainer}>
-                                <ThemedText style={styles.secondaryText}>
-                                    {currentBattle.dishTypeEmoji}{' '}
-                                    {currentBattle.dishTypeName}
-                                </ThemedText>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                    <DishTypeIcon
+                                        icon={currentBattle.dishTypeIcon}
+                                        emoji={currentBattle.dishTypeEmoji}
+                                        size={14}
+                                        color={theme.color.accent}
+                                    />
+                                    <ThemedText style={styles.secondaryText}>
+                                        {currentBattle.dishTypeName}
+                                    </ThemedText>
+                                </View>
                                 <ThemedText style={styles.timestamp}>
                                     {timeAgo}
                                 </ThemedText>

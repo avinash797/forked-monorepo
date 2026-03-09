@@ -1,32 +1,37 @@
-import { Stack } from 'expo-router';
+import { HeaderBackButton } from '@react-navigation/elements';
+import { Stack, useRouter } from 'expo-router';
+import { useTheme } from '@/contexts/theme-provider';
 
 export default function RatingLayout() {
+    const router = useRouter();
+    const { theme } = useTheme();
     return (
         <Stack
             screenOptions={{
-                headerShown: true,
                 headerBackTitle: 'Back',
-                presentation: 'card',
             }}
         >
             <Stack.Screen
                 name="index"
                 options={{
-                    headerShown: false,
-                }}
-            />
-            <Stack.Screen
-                name="venue-search"
-                options={{
                     title: 'Find Restaurant',
-                    headerBackVisible: true,
+                    headerLeft: process.env.EXPO_OS === 'ios'
+                        ? (props) => (
+                            <HeaderBackButton
+                                {...props}
+                                tintColor={theme.color.textPrimary}
+                                onPress={() => router.back()}
+                            />
+                        )
+                        : undefined,
                 }}
             />
             <Stack.Screen
                 name="create-venue"
                 options={{
                     title: 'Add New Venue',
-                    presentation: 'modal',
+                    presentation: 'formSheet',
+                    sheetGrabberVisible: true,
                 }}
             />
             <Stack.Screen

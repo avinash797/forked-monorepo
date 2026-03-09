@@ -15,13 +15,14 @@ import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const personal = () => {
     const router = useRouter();
 
     const { theme } = useTheme();
-    const styles = useMemo(() => createThemedStyles(theme), [theme]);
+    const insets = useSafeAreaInsets();
+    const styles = useMemo(() => createThemedStyles(theme, insets), [theme, insets]);
     const { user } = useAuth();
 
     const [selectedDishType, setSelectedDishType] = useState<DishType | null>(
@@ -72,7 +73,7 @@ const personal = () => {
         </View>
     );
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <ListHeader />
             <DishTypePills
                 dishTypes={personalDishTypes}
@@ -89,6 +90,7 @@ const personal = () => {
                 }
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
+                contentInsetAdjustmentBehavior="automatic"
             >
                 {!isLoadingDishRankings && dishRankings.length === 0 ? (
                     <View style={styles.emptyContainer}>
@@ -122,20 +124,20 @@ const personal = () => {
                     </Animated.View>
                 ))}
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 };
 
 export default personal;
 
-const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme'], insets: ReturnType<typeof useSafeAreaInsets>) =>
     StyleSheet.create({
         container: {
             flex: 1,
             backgroundColor: theme.color.bg,
         },
         listHeader: {
-            paddingTop: theme.space.md,
+            paddingTop: insets.top + theme.space.md,
         },
         titleSection: {
             paddingHorizontal: theme.space.md,

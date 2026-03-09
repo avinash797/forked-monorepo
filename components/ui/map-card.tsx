@@ -157,6 +157,7 @@ export function MapCard({
 const styles = StyleSheet.create({
     container: {
         borderRadius: 18,
+        borderCurve: 'continuous',
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: 'rgba(0,0,0,0.05)',
@@ -182,11 +183,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 2,
         borderColor: '#FFFFFF',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.25)',
     },
     contentContainer: {
         padding: 12,

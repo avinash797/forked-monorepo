@@ -10,6 +10,7 @@ export interface RestaurantDishSearchResult {
     dish_type_id: string;
     dish_type_name: string;
     dish_type_emoji: string | null;
+    dish_type_icon?: string | null;
     restaurant_id: string;
     restaurant_name: string;
     photos: string[];

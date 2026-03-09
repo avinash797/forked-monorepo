@@ -14,6 +14,7 @@ import {
     StyleSheet,
     View,
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import Animated, {
     FadeIn,
     FadeInDown,
@@ -59,6 +60,9 @@ export default function CompareScreen() {
         async (winnerId: string) => {
             if (isProcessing || !battleState) return;
 
+            if (process.env.EXPO_OS === 'ios') {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            }
             setIsProcessing(true);
             try {
                 const result = await processBattle({
@@ -298,6 +302,7 @@ const createThemedStyles = (
         stepIndicator: {
             fontSize: theme.font.size.sm,
             color: theme.color.textSecondary,
+            fontVariant: ['tabular-nums'] as any,
         },
         skipButton: {
             padding: theme.space.xs,
@@ -323,6 +328,7 @@ const createThemedStyles = (
         card: {
             flex: 1,
             borderRadius: theme.radius.lg,
+            borderCurve: 'continuous',
             overflow: 'hidden',
             backgroundColor: theme.color.surface,
         },
@@ -353,7 +359,7 @@ const createThemedStyles = (
         restaurantName: {
             fontSize: theme.font.size.xl,
             fontWeight: '700',
-            color: '#fff',
+            color: theme.color.textOnImage,
             flex: 1,
             textShadowColor: 'rgba(0,0,0,0.5)',
             textShadowOffset: { width: 0, height: 1 },
@@ -362,6 +368,7 @@ const createThemedStyles = (
         newBadgeContainer: {
             backgroundColor: theme.color.accent,
             borderRadius: theme.radius.sm,
+            borderCurve: 'continuous',
             paddingHorizontal: 8,
             paddingVertical: 4,
         },
@@ -385,11 +392,7 @@ const createThemedStyles = (
             backgroundColor: theme.color.accent,
             justifyContent: 'center',
             alignItems: 'center',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 8,
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)',
         },
         vsText: {
             fontSize: 18,
@@ -406,6 +409,6 @@ const createThemedStyles = (
         processingText: {
             fontSize: theme.font.size.lg,
             fontWeight: '600',
-            color: '#fff',
+            color: theme.color.textOnImage,
         },
     });

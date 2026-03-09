@@ -15,10 +15,9 @@ import { useState } from 'react';
 import {
     ImageBackground,
     KeyboardAvoidingView,
-    Platform,
+    Pressable,
     ScrollView,
     StyleSheet,
-    TouchableOpacity,
     View,
 } from 'react-native';
 
@@ -83,7 +82,7 @@ export default function SignupScreen() {
             >
                 <View style={styles.container}>
                     <KeyboardAvoidingView
-                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                        behavior={process.env.EXPO_OS === 'ios' ? 'padding' : 'height'}
                         style={styles.keyboardView}
                     >
                         <ScrollView
@@ -168,11 +167,11 @@ export default function SignupScreen() {
                                         Already have an account?{' '}
                                     </ThemedText>
                                     <Link href="/(auth)/login" asChild>
-                                        <TouchableOpacity>
+                                        <Pressable>
                                             <ThemedText type="link">
                                                 Login
                                             </ThemedText>
-                                        </TouchableOpacity>
+                                        </Pressable>
                                     </Link>
                                 </View>
                             </LinearGradient>

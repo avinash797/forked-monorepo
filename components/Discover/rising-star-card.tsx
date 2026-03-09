@@ -1,5 +1,6 @@
 import { ConfidenceMeter } from '@/components/Discover/confidence-meter';
 import { ThemedText } from '@/components/themed-text';
+import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { RisingStarData } from '@/hooks/use-discover-data';
@@ -113,9 +114,16 @@ export default function RisingStarCard({
                     </View>
 
                     <View style={styles.detailsRow}>
-                        <ThemedText style={styles.dishType}>
-                            {dish.dish_type_emoji} {dish.dish_type_name}
-                        </ThemedText>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                            <DishTypeIcon
+                                icon={dish.dish_type_icon}
+                                emoji={dish.dish_type_emoji}
+                                size={16}
+                            />
+                            <ThemedText style={styles.dishType}>
+                                {dish.dish_type_name}
+                            </ThemedText>
+                        </View>
                     </View>
 
                     <View style={styles.scoreRow}>
@@ -215,14 +223,11 @@ const createStyles = (theme: any, windowWidth: number) =>
         card: {
             backgroundColor: theme.color.surface,
             borderRadius: theme.radius.lg,
+            borderCurve: 'continuous',
             overflow: 'hidden',
             borderWidth: 2,
             borderColor: theme.color.warning + '40', // Semi-transparent warning color
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.1,
-            shadowRadius: 10,
-            elevation: 5,
+            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
         },
         cardPressed: {
             opacity: 0.9,

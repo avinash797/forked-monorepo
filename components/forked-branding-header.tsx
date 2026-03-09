@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
     },
     brandName: {
         fontSize: 28,
+        lineHeight: 28,
         fontWeight: '700',
         color: '#FFFFFF',
     },

@@ -12,7 +12,7 @@ export default function ProtectedLayout() {
                 name="(rating)"
                 options={{
                     headerShown: false,
-                    presentation: 'fullScreenModal',
+                    presentation: 'card',
                 }}
             />
             <Stack.Screen name="(browse)" options={{ headerShown: false }} />

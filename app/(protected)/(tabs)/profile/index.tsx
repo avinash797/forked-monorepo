@@ -209,6 +209,7 @@ export default function ProfileScreen() {
                     scrollEventThrottle={16}
                     contentContainerStyle={styles.scrollContent}
                     showsVerticalScrollIndicator={false}
+                    contentInsetAdjustmentBehavior="automatic"
                 >
                     {/* Animated Hero Section */}
                     <Animated.View
@@ -253,6 +254,7 @@ export default function ProfileScreen() {
                                 <ThemedText
                                     type="title"
                                     style={styles.displayNameHero}
+                                    selectable
                                 >
                                     {displayName}
                                 </ThemedText>
@@ -328,6 +330,7 @@ const createThemedStyles = (
             width: 40,
             height: 40,
             borderRadius: 20,
+            borderCurve: 'continuous',
             alignItems: 'center',
             justifyContent: 'center',
         },
@@ -376,14 +379,7 @@ const createThemedStyles = (
         },
         avatarContainer: {
             marginBottom: theme.space.sm,
-            shadowColor: '#000',
-            shadowOffset: {
-                width: 0,
-                height: 4,
-            },
-            shadowOpacity: 0.3,
-            shadowRadius: 12,
-            elevation: 8,
+
         },
         avatar: {
             width: 120,
@@ -400,9 +396,11 @@ const createThemedStyles = (
             alignItems: 'center',
             borderWidth: 3,
             borderColor: theme.color.border,
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.3)',
         },
         avatarInitials: {
             fontSize: 40,
+            lineHeight: 40,
             fontWeight: 'bold',
         },
         heroUserDetailsContent: {

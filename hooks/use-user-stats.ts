@@ -11,6 +11,7 @@ export interface BestEverDish {
     dish_type_id: string;
     dish_type_name: string;
     dish_type_emoji: string;
+    dish_type_icon?: string | null;
     restaurant_id: string;
     restaurant_name: string;
     city_name: string;
@@ -113,7 +114,8 @@ export function useRatingsByDishType(userId?: string) {
             // Get count of ratings per dish type
             const { data, error } = await supabase
                 .from('personal_ratings')
-                .select('dish_type_id, dish_type:dish_types(id, name, emoji)')
+                .select('dish_type_id, dish_type:dish_types(id, name, emoji, icon)')
+
                 .eq('user_id', targetUserId);
 
             if (error) throw error;
@@ -126,8 +128,10 @@ export function useRatingsByDishType(userId?: string) {
                     dish_type_id: string;
                     name: string;
                     emoji: string;
+                    icon: string | null;
                     count: number;
                 }
+
             >();
 
             data.forEach((rating) => {
@@ -135,7 +139,9 @@ export function useRatingsByDishType(userId?: string) {
                     id: string;
                     name: string;
                     emoji: string;
+                    icon: string | null;
                 } | null;
+
                 if (dishType) {
                     const existing = countMap.get(dishType.id);
                     if (existing) {
@@ -145,8 +151,10 @@ export function useRatingsByDishType(userId?: string) {
                             dish_type_id: dishType.id,
                             name: dishType.name,
                             emoji: dishType.emoji,
+                            icon: dishType.icon,
                             count: 1,
                         });
+
                     }
                 }
             });

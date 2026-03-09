@@ -27,7 +27,9 @@ export interface RisingStarData {
     dish_type_id: string;
     dish_type_name: string;
     dish_type_emoji: string;
+    dish_type_icon?: string | null;
     city_id: string;
+
     neighborhood_id: string | null;
     neighborhood_name: string | null;
     bayesian_score: number;
@@ -44,6 +46,8 @@ export interface DishTypeWithData {
     id: string;
     name: string;
     emoji: string | null;
+    icon: string | null;
+
     topDish: TopDishData | null;
     risingStar: RisingStarData | null;
 }
@@ -110,9 +114,10 @@ export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
                     // 1. Fetch dish types
                     supabase
                         .from('dish_types')
-                        .select('id, name, emoji')
+                        .select('id, name, emoji, icon')
                         .eq('is_active', true)
                         .order('launch_order', { ascending: true }),
+
 
                     // 2. Fetch heroes using RPC (excludes user-rated restaurants)
                     supabase.rpc('get_discover_heroes', {
@@ -166,7 +171,9 @@ export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
                         dish_type_id: star.dish_type_id,
                         dish_type_name: star.dish_type_name || 'Dish',
                         dish_type_emoji: star.dish_type_emoji || '🍽️',
+                        dish_type_icon: star.dish_type_emoji,
                         city_id: star.city_id,
+
                         neighborhood_id: star.neighborhood_id,
                         neighborhood_name: star.neighborhood_name || null,
                         bayesian_score: star.bayesian_score || 5.0,
@@ -184,8 +191,10 @@ export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
                     id: dt.id,
                     name: dt.name,
                     emoji: dt.emoji,
+                    icon: dt.icon,
                     topDish: heroMap[dt.id] || null,
                     risingStar: risingStarMap[dt.id] || null,
+
                 })
             );
 

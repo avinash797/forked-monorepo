@@ -14,8 +14,8 @@ import { useEffect, useRef } from 'react';
 import {
     Dimensions,
     Linking,
+    Pressable,
     StyleSheet,
-    TouchableOpacity,
     View,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -261,9 +261,9 @@ export default function RestaurantDetailScreen() {
             <ThemedView style={styles.container}>
                 {/* Back button always available */}
                 <View style={[styles.topControls, { marginTop: insets.top }]}>
-                    <TouchableOpacity
+                    <Pressable
                         onPress={() => router.back()}
-                        activeOpacity={0.7}
+                        style={({ pressed }) => pressed && { opacity: 0.7 }}
                     >
                         <View style={styles.backButton}>
                             <IconSymbol
@@ -272,7 +272,7 @@ export default function RestaurantDetailScreen() {
                                 color={theme.color.textOnImage}
                             />
                         </View>
-                    </TouchableOpacity>
+                    </Pressable>
                 </View>
 
                 {/* Hero skeleton */}
@@ -350,9 +350,9 @@ export default function RestaurantDetailScreen() {
         <ThemedView style={styles.container}>
             {/* Hero Control (Back Button) */}
             <View style={[styles.topControls, { marginTop: insets.top }]}>
-                <TouchableOpacity
+                <Pressable
                     onPress={() => router.back()}
-                    activeOpacity={0.7}
+                    style={({ pressed }) => pressed && { opacity: 0.7 }}
                 >
                     <Animated.View
                         style={[styles.backButton, animatedBackButtonStyle]}
@@ -364,7 +364,7 @@ export default function RestaurantDetailScreen() {
                             animatedProps={animatedIconProps}
                         />
                     </Animated.View>
-                </TouchableOpacity>
+                </Pressable>
             </View>
 
             {/* Animated Sticky Header */}
@@ -434,80 +434,65 @@ export default function RestaurantDetailScreen() {
                         ]}
                         locations={[0, 0.2, 0.5, 1]}
                         style={StyleSheet.absoluteFill}
+                        pointerEvents="none"
                     />
 
-                    <View style={styles.heroContent}>
-                        <ThemedText
-                            style={styles.venueNameHero}
-                            numberOfLines={2}
-                        >
-                            {venue.name}
-                        </ThemedText>
-
-                        <View style={styles.metaRowHero}>
-                            <View style={styles.cuisinesContainer}>
-                                {dishTypesServed &&
-                                    [...dishTypesServed].map(
-                                        (dishType, index) => (
-                                            <ThemedText
-                                                key={index}
-                                                style={styles.cuisineTextHero}
-                                            >
-                                                {index > 0 ? ' • ' : ''}
-                                                {dishType}
-                                            </ThemedText>
-                                        )
-                                    )}
-                            </View>
-                        </View>
-                    </View>
                 </Animated.View>
 
                 {/* Content Section */}
                 <View style={styles.contentSection}>
+                    <View style={styles.venueHeader}>
+                        <ThemedText type="title" style={styles.venueName}>
+                            {venue.name}
+                        </ThemedText>
+                        {dishTypesServed && [...dishTypesServed].length > 0 && (
+                            <View style={styles.cuisinesContainer}>
+                                {[...dishTypesServed].map((dishType, index) => (
+                                    <ThemedText
+                                        key={index}
+                                        style={styles.cuisineText}
+                                    >
+                                        {index > 0 ? ' • ' : ''}
+                                        {dishType}
+                                    </ThemedText>
+                                ))}
+                            </View>
+                        )}
+                    </View>
                     <View style={styles.infoBox}>
                         <ThemedButton
-                            variant="secondary"
-                            style={{ flex: 1 }}
+                            variant="icon"
                             onPress={handleWebsitePress}
                             icon={
                                 <IconSymbol
                                     name="globe-outline"
-                                    size={20}
-                                    color={theme.color.textTertiary}
+                                    size={22}
+                                    color={theme.color.textSecondary}
                                 />
                             }
-                        >
-                            Website
-                        </ThemedButton>
+                        />
                         <ThemedButton
-                            variant="secondary"
-                            style={{ flex: 1 }}
+                            variant="icon"
                             onPress={handlePhonePress}
                             icon={
                                 <IconSymbol
                                     name="call-outline"
-                                    size={20}
-                                    color={theme.color.textTertiary}
+                                    size={22}
+                                    color={theme.color.textSecondary}
                                 />
                             }
-                        >
-                            Phone
-                        </ThemedButton>
+                        />
                         <ThemedButton
-                            variant="secondary"
-                            style={{ flex: 1 }}
+                            variant="icon"
                             onPress={handleAddressPress}
                             icon={
                                 <IconSymbol
                                     name="location-sharp"
-                                    size={20}
-                                    color={theme.color.textTertiary}
+                                    size={22}
+                                    color={theme.color.textSecondary}
                                 />
                             }
-                        >
-                            Directions
-                        </ThemedButton>
+                        />
                     </View>
 
                     {/* Dishes Section */}
@@ -581,43 +566,6 @@ const createThemedStyles = (
             position: 'relative',
             overflow: 'hidden',
         },
-        heroContent: {
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            padding: theme.space.md,
-            paddingBottom: theme.space.lg + 20,
-        },
-        venueNameHero: {
-            fontSize: theme.font.size.xxl + 8,
-            lineHeight: theme.font.size.xxl + 14,
-            fontWeight: theme.font.weight.bold,
-            color: theme.color.textOnImage,
-            textShadowColor: 'rgba(0, 0, 0, 0.75)',
-            textShadowOffset: { width: 0, height: 1 },
-            textShadowRadius: 4,
-        },
-        metaRowHero: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: 4,
-        },
-        cuisinesContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-        },
-        cuisineTextHero: {
-            fontSize: theme.font.size.md,
-            color: 'rgba(255, 255, 255, 0.9)',
-            fontWeight: theme.font.weight.medium,
-        },
-        priceHero: {
-            fontSize: theme.font.size.lg,
-            fontWeight: theme.font.weight.bold,
-            color: theme.color.textOnImage,
-        },
         topControls: {
             position: 'absolute',
             top: 0,
@@ -650,11 +598,7 @@ const createThemedStyles = (
             paddingHorizontal: theme.space.md,
             borderBottomWidth: StyleSheet.hairlineWidth,
             borderBottomColor: theme.color.border,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-            elevation: 5,
+            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
         },
         headerContent: {
             flexDirection: 'row',
@@ -680,19 +624,40 @@ const createThemedStyles = (
             backgroundColor: theme.color.bg,
             borderTopLeftRadius: theme.radius.xl,
             borderTopRightRadius: theme.radius.xl,
+            borderCurve: 'continuous',
             marginTop: -theme.radius.xl,
             minHeight: Dimensions.get('window').height - HERO_HEIGHT,
             paddingTop: theme.space.lg,
             flex: 1,
             alignItems: 'center',
         },
+        venueHeader: {
+            alignSelf: 'stretch',
+            paddingHorizontal: theme.space.md,
+            marginBottom: theme.space.md,
+        },
+        venueName: {
+            fontSize: theme.font.size.xxl + 6,
+            marginBottom: 4,
+        },
+        cuisinesContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+        },
+        cuisineText: {
+            fontSize: theme.font.size.md,
+            color: theme.color.textSecondary,
+            fontWeight: theme.font.weight.medium,
+        },
         infoBox: {
-            marginHorizontal: theme.space.md,
-            backgroundColor: theme.color.surface2 + '40',
+            alignSelf: 'flex-start',
+            marginLeft: theme.space.md,
             borderRadius: theme.radius.lg,
+            borderCurve: 'continuous',
             marginBottom: theme.space.lg,
             flexDirection: 'row',
-            gap: theme.space.md,
+            gap: theme.space.xxs,
         },
         addressRow: {
             flexDirection: 'row',

@@ -1,6 +1,7 @@
 import { ScoreBadge } from '@/components/score-badge';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { useTheme } from '@/contexts/theme-provider';
 import { BestEverDish } from '@/hooks/use-user-stats';
 import { Image } from 'expo-image';
@@ -52,11 +53,13 @@ export function BestEverCard({ item, index, onPress }: BestEverCardProps) {
                     style={styles.gradient}
                 />
 
-                {/* Emoji badge */}
+                {/* Dish type icon badge */}
                 <View style={styles.emojiBadge}>
-                    <ThemedText style={styles.emoji}>
-                        {item.dish_type_emoji}
-                    </ThemedText>
+                    <DishTypeIcon
+                        icon={item.dish_type_icon}
+                        emoji={item.dish_type_emoji}
+                        size={24}
+                    />
                 </View>
 
                 {/* Score badge */}
@@ -101,6 +104,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         card: {
             height: 200,
             borderRadius: theme.radius.lg,
+            borderCurve: 'continuous',
             overflow: 'hidden',
             backgroundColor: theme.color.surface,
         },

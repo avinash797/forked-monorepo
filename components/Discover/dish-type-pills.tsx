@@ -1,8 +1,8 @@
 import { useTheme } from '@/contexts/theme-provider';
 import { DishType } from '@/types/dishes';
+import * as Haptics from 'expo-haptics';
 import React, { useEffect } from 'react';
 import {
-    Platform,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -69,13 +69,16 @@ export default function DishTypePills({
                                 ]}
                             >
                                 <Pressable
-                                    onPress={() =>
-                                        handleDishTypeSelect(dishType)
-                                    }
+                                    onPress={() => {
+                                        if (process.env.EXPO_OS === 'ios') {
+                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        }
+                                        handleDishTypeSelect(dishType);
+                                    }}
                                     style={({ pressed }) => [
                                         styles.chipPressable,
                                         pressed &&
-                                            Platform.OS === 'ios' && {
+                                            process.env.EXPO_OS === 'ios' && {
                                                 opacity: 0.7,
                                             },
                                     ]}
@@ -108,15 +111,12 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         chip: {
             borderRadius: theme.radius.sm,
+            borderCurve: 'continuous',
             backgroundColor: theme.color.surface,
             borderWidth: 1.5,
             borderColor: theme.color.border,
             margin: theme.space.xs,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.05,
-            shadowRadius: 4,
-            elevation: 2,
+            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.05)',
             overflow: 'hidden',
         },
         chipPressable: {
@@ -133,9 +133,6 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         chipSelected: {
             backgroundColor: theme.color.accentSoft,
             borderColor: theme.color.accent,
-            shadowColor: theme.color.accent,
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 4,
+            boxShadow: `0px 2px 8px ${theme.color.accent}4D`,
         },
     });

@@ -13,9 +13,7 @@ export default function ProfileLayout() {
                 options={{
                     title: 'Edit Profile',
                     headerBackTitle: 'Profile',
-                    presentation: 'pageSheet',
-                    animation: 'fade_from_bottom',
-                    animationDuration: 50,
+
                 }}
             />
         </Stack>

@@ -9,6 +9,7 @@
         "userInterfaceStyle": "automatic",
         "newArchEnabled": true,
         "ios": {
+            "bundleIdentifier": "com.avinashj1.forked",
             "supportsTablet": true,
             "infoPlist": {
                 "NSCameraUsageDescription": "Forked needs camera access to photograph your dishes",
@@ -35,10 +36,6 @@
             "predictiveBackGestureEnabled": false,
             "softwareKeyboardLayoutMode": "pan",
             "permissions": [
-                "android.permission.ACCESS_COARSE_LOCATION",
-                "android.permission.ACCESS_FINE_LOCATION",
-                "android.permission.CAMERA",
-                "android.permission.RECORD_AUDIO",
                 "android.permission.ACCESS_COARSE_LOCATION",
                 "android.permission.ACCESS_FINE_LOCATION",
                 "android.permission.CAMERA",

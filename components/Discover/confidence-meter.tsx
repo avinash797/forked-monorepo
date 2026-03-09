@@ -117,11 +117,11 @@ export function ConfidenceMeter({
                 color={config.color}
                 style={localStyles.icon}
             />
-            {variant === 'full' && (
-                <ThemedText style={localStyles.label}>
-                    {config.label}
-                </ThemedText>
-            )}
+
+            <ThemedText style={localStyles.label}>
+                {config.label}
+            </ThemedText>
+
             {totalRatings > 0 && (
                 <ThemedText style={localStyles.battles}>
                     {totalRatings} {variant === 'full' ? 'ratings' : ''}
