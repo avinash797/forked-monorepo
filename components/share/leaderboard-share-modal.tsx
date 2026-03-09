@@ -1,27 +1,26 @@
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { DishTypeIcon } from '@/components/ui/dish-type-icon';
-import { useTheme } from '@/contexts/theme-provider';
 import type { LeaderboardEntry } from '@/components/Discover/leaderboard-row';
+import { ForkLogo } from '@/components/fork-logo';
+import { DishTypeIcon } from '@/components/ui/dish-type-icon';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import {
     GeistMono_500Medium,
     GeistMono_600SemiBold,
+    GeistMono_700Bold,
     GeistMono_800ExtraBold,
     GeistMono_900Black,
-    GeistMono_700Bold,
 } from '@expo-google-fonts/geist-mono';
 import { useFonts } from 'expo-font';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Sharing from 'expo-sharing';
 import { useRef, useState } from 'react';
 import {
     ActivityIndicator,
     Modal,
     Pressable,
-    Share,
     StyleSheet,
     Text,
     View,
-    Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
@@ -64,7 +63,6 @@ export function LeaderboardShareModal({
     entries,
     isPersonal = false,
 }: LeaderboardShareModalProps) {
-    const { theme } = useTheme();
     const insets = useSafeAreaInsets();
     const cardRef = useRef<View>(null);
     const [isSharing, setIsSharing] = useState(false);
@@ -89,11 +87,16 @@ export function LeaderboardShareModal({
             });
             const msg = isPersonal
                 ? `My top ${dishTypeName} ranked on Forked 🍴`
-                : `${username ? `${username}'s` : 'Community'} Top 3 ${dishTypeName} in ${cityName} on Forked 🍴`;
-            await Share.share({
-                url: uri,
-                message: Platform.OS === 'android' ? msg : undefined,
-            });
+                : `Top 3 ${dishTypeName} in ${cityName} on Forked 🍴`;
+
+            const isAvailable = await Sharing.isAvailableAsync();
+            if (isAvailable) {
+                await Sharing.shareAsync(uri, {
+                    mimeType: 'image/jpeg',
+                    UTI: 'public.jpeg',
+                    dialogTitle: msg,
+                });
+            }
         } catch {
             // user cancelled or error
         } finally {
@@ -108,133 +111,121 @@ export function LeaderboardShareModal({
             presentationStyle="fullScreen"
             statusBarTranslucent
         >
-            <LinearGradient
-                colors={['#0d0117', '#12082a', '#1c0e35', '#0f0c1e']}
-                locations={[0, 0.35, 0.7, 1]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={[styles.screen, { paddingTop: insets.top }]}
-            >
-                {/* Close button */}
-                <Pressable
-                    style={styles.closeButton}
-                    onPress={onClose}
-                    hitSlop={12}
-                >
-                    <IconSymbol name="close-outline" size={26} color="rgba(255,255,255,0.8)" />
-                </Pressable>
+            <View style={styles.screen}>
+                {/* Full-screen capturable area */}
+                <View ref={cardRef} collapsable={false} style={StyleSheet.absoluteFill}>
+                    <LinearGradient
+                        colors={['#0d0117', '#12082a', '#1c0e35', '#0f0c1e']}
+                        locations={[0, 0.35, 0.7, 1]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.gradient}
+                    >
+                        {/* Decorative glows */}
+                        <View style={styles.glowTopRight} />
+                        <View style={styles.glowBottomLeft} />
 
-                {/* Shareable card area */}
-                <View style={styles.cardWrapper}>
-                    <View ref={cardRef} collapsable={false}>
-                        <LinearGradient
-                            colors={['#0d0117', '#12082a', '#1c0e35', '#0f0c1e']}
-                            locations={[0, 0.35, 0.7, 1]}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 1 }}
-                            style={styles.shareCard}
-                        >
-                            {/* Decorative glow blobs */}
-                            <View style={styles.glowTopRight} />
-                            <View style={styles.glowBottomLeft} />
+                        <View style={[styles.contentWrapper, { paddingTop: insets.top + 32, paddingBottom: insets.bottom + 140 }]}>
 
-                            {/* Header branding */}
-                            <View style={styles.brandRow}>
-                                <Text style={styles.brandText}>FORKED</Text>
-                            </View>
-
-                            {/* Title */}
-                            <View style={styles.titleBlock}>
-                                <Text style={styles.usernameLabel}>
-                                    {username ? `@${username}` : isPersonal ? 'My' : 'Community'}
-                                </Text>
-                                <View style={styles.titleMainRow}>
-                                    {(dishTypeIcon || dishTypeEmoji) && (
-                                        <View style={styles.dishIconWrap}>
+                            {/* Spacer bottom */}
+                            <View style={styles.flex1} />
+                            {/* White Card */}
+                            <View style={styles.card}>
+                                {/* Card header: context label + logo */}
+                                <View style={styles.cardHeader}>
+                                    <View style={styles.headerInfo}>
+                                        {(dishTypeIcon || dishTypeEmoji) && (
                                             <DishTypeIcon
                                                 icon={dishTypeIcon}
                                                 emoji={dishTypeEmoji}
-                                                size={30}
-                                                color="#ffffff"
+                                                size={20}
+                                                color="#1a1a2e"
                                             />
-                                        </View>
-                                    )}
-                                    <Text style={styles.titleMain}>
-                                        {isPersonal ? 'My' : 'Top 3'} {dishTypeName}
-                                    </Text>
+                                        )}
+                                        <Text style={styles.headerLabel}>
+                                            {isPersonal ? (username ? `@${username}` : 'Personal') : cityName}
+                                        </Text>
+                                    </View>
+                                    <ForkLogo size={32} color="#1a1a2e" />
                                 </View>
-                                {!isPersonal && cityName ? (
-                                    <Text style={styles.titleCity}>in {cityName}</Text>
-                                ) : null}
+
+                                {/* Ranking rows */}
+                                <View style={styles.rankingList}>
+                                    {top3.map((entry, idx) => {
+                                        const rank = (idx + 1) as 1 | 2 | 3;
+                                        const medal = MEDAL_COLORS[rank];
+                                        const score = entry.bayesian_score ?? entry.derived_score ?? 0;
+                                        const scoreColor = SCORE_COLORS(score);
+                                        const photoUri = entry.featured_photo_url ?? entry.photo_url;
+
+                                        return (
+                                            <View key={entry.restaurant_id} style={styles.rankRow}>
+                                                {/* Rank badge */}
+                                                <View style={[styles.rankBadge, { backgroundColor: medal.bg, borderColor: medal.border }]}>
+                                                    <Text style={[styles.rankNum, { color: medal.label }]}>
+                                                        {rank}
+                                                    </Text>
+                                                </View>
+
+                                                {/* Photo */}
+                                                <View style={styles.photoWrap}>
+                                                    {photoUri ? (
+                                                        <Image
+                                                            source={{ uri: photoUri }}
+                                                            style={styles.photo}
+                                                            contentFit="cover"
+                                                        />
+                                                    ) : (
+                                                        <View style={[styles.photo, styles.photoPlaceholder]}>
+                                                            <Text style={styles.photoPlaceholderText}>🍽️</Text>
+                                                        </View>
+                                                    )}
+                                                </View>
+
+                                                {/* Info */}
+                                                <View style={styles.rowInfo}>
+                                                    <Text style={styles.restaurantName} numberOfLines={1}>
+                                                        {entry.restaurant_name}
+                                                    </Text>
+                                                    <Text style={styles.neighborhoodText} numberOfLines={1}>
+                                                        {entry.neighborhood_name ?? entry.city_name ?? ''}
+                                                    </Text>
+                                                </View>
+
+                                                {/* Score */}
+                                                <View style={[styles.scorePill, { backgroundColor: scoreColor.bg }]}>
+                                                    <Text style={[styles.scoreText, { color: scoreColor.text }]}>
+                                                        {score.toFixed(1)}
+                                                    </Text>
+                                                </View>
+                                            </View>
+                                        );
+                                    })}
+                                </View>
                             </View>
 
-                            {/* Divider */}
-                            <View style={styles.divider} />
-
-                            {/* Top 3 cards */}
-                            <View style={styles.rankingList}>
-                                {top3.map((entry, idx) => {
-                                    const rank = (idx + 1) as 1 | 2 | 3;
-                                    const medal = MEDAL_COLORS[rank];
-                                    const score = entry.bayesian_score ?? entry.derived_score ?? 0;
-                                    const scoreColor = SCORE_COLORS(score);
-                                    const photoUri = entry.featured_photo_url ?? entry.photo_url;
-
-                                    return (
-                                        <View key={entry.restaurant_id} style={styles.rankCard}>
-                                            {/* Rank badge */}
-                                            <View style={[styles.rankBadge, { backgroundColor: medal.bg, borderColor: medal.border }]}>
-                                                <Text style={[styles.rankNum, { color: medal.label }]}>
-                                                    {rank}
-                                                </Text>
-                                            </View>
-
-                                            {/* Photo */}
-                                            <View style={styles.photoWrap}>
-                                                {photoUri ? (
-                                                    <Image
-                                                        source={{ uri: photoUri }}
-                                                        style={styles.photo}
-                                                        contentFit="cover"
-                                                    />
-                                                ) : (
-                                                    <View style={[styles.photo, styles.photoPlaceholder]}>
-                                                        <Text style={styles.photoPlaceholderText}>🍽️</Text>
-                                                    </View>
-                                                )}
-                                            </View>
-
-                                            {/* Info */}
-                                            <View style={styles.cardInfo}>
-                                                <Text style={styles.restaurantName} numberOfLines={1}>
-                                                    {entry.restaurant_name}
-                                                </Text>
-                                                <Text style={styles.neighborhoodText} numberOfLines={1}>
-                                                    {entry.neighborhood_name ?? entry.city_name ?? ''}
-                                                </Text>
-                                            </View>
-
-                                            {/* Score */}
-                                            <View style={[styles.scorePill, { backgroundColor: scoreColor.bg }]}>
-                                                <Text style={[styles.scoreText, { color: scoreColor.text }]}>
-                                                    {score.toFixed(1)}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                    );
-                                })}
-                            </View>
-
-                            {/* Footer */}
+                            {/* Footer branding */}
                             <View style={styles.footer}>
-                                <Text style={styles.footerText}>forked.app</Text>
+                                <Text style={styles.footerText}>forkedapp.com</Text>
                             </View>
-                        </LinearGradient>
-                    </View>
+                            {/* Spacer bottom */}
+                            <View style={styles.flex1} />
+
+                        </View>
+                    </LinearGradient>
                 </View>
 
-                {/* Share action button */}
-                <View style={[styles.actionArea, { paddingBottom: insets.bottom + 16 }]}>
+                {/* Close button (absolute, excluded from capture) */}
+                <Pressable
+                    style={[styles.closeButton, { top: insets.top + 12, right: 20 }]}
+                    onPress={onClose}
+                    hitSlop={12}
+                >
+                    <IconSymbol name="close-outline" size={24} color="rgba(255,255,255,0.8)" />
+                </Pressable>
+
+                {/* Share button (absolute, excluded from capture) */}
+                <View style={[styles.actionArea, { bottom: insets.bottom + 24 }]}>
                     <Pressable
                         style={({ pressed }) => [
                             styles.shareButton,
@@ -247,13 +238,13 @@ export function LeaderboardShareModal({
                             <ActivityIndicator color="#fff" size="small" />
                         ) : (
                             <>
-                                <IconSymbol name="share-outline" size={20} color="#fff" />
+                                <IconSymbol name="share-outline" size={24} color="#fff" />
                                 <Text style={styles.shareButtonText}>Share Image</Text>
                             </>
                         )}
                     </Pressable>
                 </View>
-            </LinearGradient>
+            </View>
         </Modal>
     );
 }
@@ -261,208 +252,178 @@ export function LeaderboardShareModal({
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        backgroundColor: '#000',
     },
-    closeButton: {
-        alignSelf: 'flex-end',
-        marginRight: 20,
-        marginTop: 8,
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: 'rgba(255,255,255,0.12)',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    cardWrapper: {
+    gradient: {
         flex: 1,
-        width: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: 20,
-    },
-    shareCard: {
-        width: '100%',
-        borderRadius: 28,
-        overflow: 'hidden',
-        paddingTop: 28,
-        paddingBottom: 20,
-        paddingHorizontal: 20,
     },
     glowTopRight: {
         position: 'absolute',
-        top: -60,
-        right: -60,
-        width: 200,
-        height: 200,
-        borderRadius: 100,
+        top: -100,
+        right: -100,
+        width: 350,
+        height: 350,
+        borderRadius: 175,
         backgroundColor: '#ee6c2b',
-        opacity: 0.15,
+        opacity: 0.2,
     },
     glowBottomLeft: {
         position: 'absolute',
-        bottom: -40,
-        left: -40,
-        width: 160,
-        height: 160,
-        borderRadius: 80,
+        bottom: -50,
+        left: -100,
+        width: 300,
+        height: 300,
+        borderRadius: 150,
         backgroundColor: '#7c3aed',
         opacity: 0.18,
     },
-    brandRow: {
-        alignItems: 'center',
-        marginBottom: 20,
+    contentWrapper: {
+        flex: 1,
+        paddingHorizontal: 24,
     },
-    brandText: {
-        fontSize: 11,
-        fontFamily: 'GeistMono_800ExtraBold',
-        color: '#ee6c2b',
-        letterSpacing: 4,
+    flex1: {
+        flex: 1,
     },
-    titleBlock: {
-        alignItems: 'center',
-        marginBottom: 20,
+    // ─── White Card ───
+    card: {
+        backgroundColor: '#ffffff',
+        borderRadius: 24,
+        padding: 20,
+        gap: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.3,
+        shadowRadius: 24,
+        elevation: 12,
     },
-    titleMainRow: {
+    cardHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
+    },
+    headerInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
         gap: 8,
-        flexWrap: 'wrap',
     },
-    dishIconWrap: {
-        width: 30,
-        height: 30,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    usernameLabel: {
-        fontSize: 14,
-        fontFamily: 'GeistMono_600SemiBold',
-        color: 'rgba(255,255,255,0.55)',
-        letterSpacing: 0.5,
-        marginBottom: 6,
-    },
-    titleMain: {
-        fontSize: 28,
-        fontFamily: 'GeistMono_900Black',
-        color: '#ffffff',
-        letterSpacing: -0.5,
-        textAlign: 'center',
-        lineHeight: 32,
-    },
-    titleCity: {
+    headerLabel: {
         fontSize: 15,
-        fontFamily: 'GeistMono_500Medium',
-        color: 'rgba(255,255,255,0.55)',
-        marginTop: 4,
-        letterSpacing: 0.2,
+        fontFamily: 'GeistMono_700Bold',
+        color: '#1a1a2e',
     },
-    divider: {
-        height: 1,
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        marginBottom: 16,
-    },
+    // ─── Ranking Rows ───
     rankingList: {
-        gap: 10,
+        gap: 12,
     },
-    rankCard: {
+    rankRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(255,255,255,0.07)',
-        borderRadius: 16,
-        padding: 10,
-        gap: 10,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
+        gap: 12,
     },
     rankBadge: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        width: 34,
+        height: 34,
+        borderRadius: 17,
         borderWidth: 2,
         alignItems: 'center',
         justifyContent: 'center',
     },
     rankNum: {
         fontSize: 14,
-        fontFamily: 'GeistMono_800ExtraBold',
+        fontFamily: 'GeistMono_900Black',
     },
     photoWrap: {
-        borderRadius: 10,
+        borderRadius: 12,
         overflow: 'hidden',
     },
     photo: {
-        width: 52,
-        height: 52,
-        borderRadius: 10,
+        width: 56,
+        height: 56,
+        borderRadius: 12,
     },
     photoPlaceholder: {
-        backgroundColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: '#f3f4f6',
         alignItems: 'center',
         justifyContent: 'center',
     },
     photoPlaceholderText: {
-        fontSize: 22,
+        fontSize: 24,
     },
-    cardInfo: {
+    rowInfo: {
         flex: 1,
-        gap: 3,
+        gap: 2,
     },
     restaurantName: {
-        fontSize: 15,
-        fontFamily: 'GeistMono_700Bold',
-        color: '#ffffff',
+        fontSize: 16,
+        fontFamily: 'GeistMono_800ExtraBold',
+        color: '#1a1a2e',
     },
     neighborhoodText: {
-        fontSize: 12,
+        fontSize: 13,
         fontFamily: 'GeistMono_500Medium',
-        color: 'rgba(255,255,255,0.5)',
+        color: '#6b7280',
     },
     scorePill: {
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 10,
-        minWidth: 44,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         alignItems: 'center',
+        justifyContent: 'center',
     },
     scoreText: {
         fontSize: 15,
         fontFamily: 'GeistMono_800ExtraBold',
         letterSpacing: -0.3,
     },
+    // ─── Footer ───
     footer: {
-        marginTop: 20,
         alignItems: 'center',
+        marginTop: 16,
     },
     footerText: {
-        fontSize: 12,
-        fontFamily: 'GeistMono_500Medium',
+        fontSize: 14,
+        fontFamily: 'GeistMono_600SemiBold',
         color: 'rgba(255,255,255,0.3)',
-        letterSpacing: 1,
+        letterSpacing: 2,
+    },
+    // ─── Absolute Buttons ───
+    closeButton: {
+        position: 'absolute',
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 10,
     },
     actionArea: {
+        position: 'absolute',
         width: '100%',
         paddingHorizontal: 24,
+        zIndex: 10,
     },
     shareButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
+        gap: 12,
         backgroundColor: '#ee6c2b',
-        borderRadius: 16,
-        paddingVertical: 16,
+        borderRadius: 24,
+        paddingVertical: 18,
+        shadowColor: '#ee6c2b',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.4,
+        shadowRadius: 16,
     },
     shareButtonPressed: {
-        opacity: 0.85,
+        opacity: 0.9,
         transform: [{ scale: 0.98 }],
     },
     shareButtonText: {
-        fontSize: 17,
-        fontWeight: '700',
+        fontSize: 18,
+        fontWeight: '800',
         color: '#fff',
-        letterSpacing: 0.2,
+        letterSpacing: 0.5,
     },
 });

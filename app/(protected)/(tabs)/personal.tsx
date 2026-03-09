@@ -67,34 +67,6 @@ const personal = () => {
         });
     };
 
-    const ListHeader = () => (
-        <View style={styles.listHeader}>
-            <View style={styles.titleSection}>
-                <View style={styles.titleRow}>
-                    <ThemedText style={styles.mainTitle}>
-                        Your Best {selectedDishType?.name || 'Dishes'}
-                    </ThemedText>
-                    {canShare && (
-                        <Pressable
-                            style={({ pressed }) => [
-                                styles.shareBtn,
-                                pressed && styles.shareBtnPressed,
-                            ]}
-                            onPress={() => setShareModalVisible(true)}
-                            hitSlop={8}
-                        >
-                            <IconSymbol
-                                name="share-outline"
-                                size={20}
-                                color={theme.color.accent}
-                            />
-                        </Pressable>
-                    )}
-                </View>
-            </View>
-        </View>
-    );
-
     return (
         <View style={styles.container}>
             <LeaderboardShareModal
@@ -108,7 +80,31 @@ const personal = () => {
                 entries={dishRankings}
                 isPersonal
             />
-            <ListHeader />
+            <View style={styles.listHeader}>
+                <View style={styles.titleSection}>
+                    <View style={styles.titleRow}>
+                        <ThemedText style={styles.mainTitle}>
+                            Your Best {selectedDishType?.name || 'Dishes'}
+                        </ThemedText>
+                        {canShare && (
+                            <Pressable
+                                style={({ pressed }) => [
+                                    styles.shareBtn,
+                                    pressed && styles.shareBtnPressed,
+                                ]}
+                                onPress={() => setShareModalVisible(true)}
+                                hitSlop={8}
+                            >
+                                <IconSymbol
+                                    name="share-outline"
+                                    size={20}
+                                    color={theme.color.accent}
+                                />
+                            </Pressable>
+                        )}
+                    </View>
+                </View>
+            </View>
             <DishTypePills
                 dishTypes={personalDishTypes}
                 selectedDishType={selectedDishType}
