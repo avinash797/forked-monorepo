@@ -23,6 +23,7 @@
  */
 
 export { useAuthStore } from './auth.store'; // Optional - auth uses useAuth() hook
+export { useBadgeStore } from './use-badge-store';
 export { useLocationStore } from './location.store';
 export { useLocationFilterStore } from './use-location-filter-store';
 export { usePreferencesStore } from './use-preferences-store';

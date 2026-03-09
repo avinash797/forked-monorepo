@@ -1,7 +1,9 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/contexts/theme-provider';
-import { useUserBadges } from '@/hooks/use-user-stats';
+import { useUserBadges } from '@/hooks/use-badges';
+import type { UserBadge } from '@/types/badge.types';
+import { Image } from 'expo-image';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
@@ -9,21 +11,13 @@ interface BadgesSectionProps {
     userId?: string;
 }
 
-interface ComputedBadge {
-    id: string;
-    name: string;
-    description: string;
-    emoji: string;
-    earned: boolean;
-}
-
 export function BadgesSection({ userId }: BadgesSectionProps) {
     const { theme } = useTheme();
     const { data: badges, isLoading } = useUserBadges(userId);
     const styles = createThemedStyles(theme);
 
-    // Filter to only show earned badges
-    const earnedBadges = badges?.filter((b) => b.earned) ?? [];
+    const earnedBadges = badges?.filter((b) => b.earned_at !== null) ?? [];
+    const totalBadges = badges?.filter((b) => b.is_active).length ?? 0;
 
     if (isLoading) {
         return (
@@ -59,7 +53,13 @@ export function BadgesSection({ userId }: BadgesSectionProps) {
         );
     }
 
-    const renderBadge = ({ item, index }: { item: ComputedBadge; index: number }) => (
+    const renderBadge = ({
+        item,
+        index,
+    }: {
+        item: UserBadge;
+        index: number;
+    }) => (
         <Animated.View entering={FadeInDown.delay(index * 50).duration(300)}>
             <Pressable
                 style={({ pressed }) => [
@@ -67,8 +67,23 @@ export function BadgesSection({ userId }: BadgesSectionProps) {
                     pressed && styles.badgeItemPressed,
                 ]}
             >
-                <ThemedView style={styles.badgeEmoji}>
-                    <ThemedText style={styles.emoji}>{item.emoji}</ThemedText>
+                <ThemedView
+                    style={[
+                        styles.badgeImageContainer,
+                        item.is_featured && styles.badgeImageFeatured,
+                    ]}
+                >
+                    {item.image_url ? (
+                        <Image
+                            source={{ uri: item.image_url }}
+                            style={styles.badgeImage}
+                            contentFit="contain"
+                        />
+                    ) : (
+                        <ThemedText style={styles.placeholderEmoji}>
+                            🏅
+                        </ThemedText>
+                    )}
                 </ThemedView>
                 <ThemedText style={styles.badgeName} numberOfLines={2}>
                     {item.name}
@@ -85,7 +100,7 @@ export function BadgesSection({ userId }: BadgesSectionProps) {
             <View style={styles.header}>
                 <ThemedText style={styles.title}>Badges</ThemedText>
                 <ThemedText style={styles.badgeCount}>
-                    {earnedBadges.length} earned
+                    {earnedBadges.length} of {totalBadges} earned
                 </ThemedText>
             </View>
             <FlatList
@@ -134,7 +149,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         badgeItemPressed: {
             opacity: 0.7,
         },
-        badgeEmoji: {
+        badgeImageContainer: {
             width: 56,
             height: 56,
             borderRadius: 28,
@@ -143,8 +158,21 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             alignItems: 'center',
             marginBottom: theme.space.xs,
         },
-        emoji: {
-            fontSize: 28,
+        badgeImageFeatured: {
+            borderWidth: 2,
+            borderColor: '#F5C842',
+            shadowColor: '#F5C842',
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0.6,
+            shadowRadius: 6,
+            elevation: 4,
+        },
+        badgeImage: {
+            width: 40,
+            height: 40,
+        },
+        placeholderEmoji: {
+            fontSize: 24,
         },
         badgeName: {
             fontSize: theme.font.size.xs,

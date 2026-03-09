@@ -3,6 +3,8 @@
  * Derived from SQL definitions in 20260302235108_functions_and_rpcs.sql.
  */
 
+import type { NewBadgeAward } from './badge.types';
+
 // ── Shared ──────────────────────────────────────────────────────────
 
 /** Battle opponent nested in create_rating / submit_comparison responses */
@@ -27,6 +29,8 @@ export interface CreateRatingResponse {
     total_candidates?: number;
     elo_score: number;
     derived_score?: number;
+    /** Present when battle_complete = true */
+    new_badges?: NewBadgeAward[];
 }
 
 // ── submit_comparison ───────────────────────────────────────────────
@@ -50,6 +54,8 @@ export interface SubmitComparisonResponse {
     step?: number;
     /** Present when battle_complete = false */
     remaining_range?: number;
+    /** Present when battle_complete = true */
+    new_badges?: NewBadgeAward[];
 }
 
 // ── get_leaderboard ─────────────────────────────────────────────────

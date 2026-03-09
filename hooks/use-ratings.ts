@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { useBadgeStore } from '@/stores/use-badge-store';
 import { Database } from '@/types/database.types';
 import type {
     BattleOpponent,
@@ -34,6 +35,7 @@ export interface CreateRatingInput {
  */
 export function useCreateRating() {
     const queryClient = useQueryClient();
+    const { addBadges } = useBadgeStore();
 
     return useMutation({
         mutationFn: async (
@@ -60,6 +62,10 @@ export function useCreateRating() {
                 queryClient.invalidateQueries({ queryKey: ['topDish'] });
                 queryClient.invalidateQueries({ queryKey: ['userStats'] });
                 queryClient.invalidateQueries({ queryKey: ['myBestEver'] });
+                if (data.new_badges?.length) {
+                    addBadges(data.new_badges);
+                    queryClient.invalidateQueries({ queryKey: ['userBadges'] });
+                }
             }
             queryClient.invalidateQueries({
                 queryKey: ['myDishRankings', variables.dish_type_id],

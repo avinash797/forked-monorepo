@@ -3,6 +3,7 @@ import { ThemedSelect } from '@/components/themed-select';
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
+import { useBadgeStore } from '@/stores/use-badge-store';
 import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 
@@ -23,7 +24,20 @@ export default function SettingsScreen() {
     const { logout } = useAuth();
     const { themeName, setThemeName, themePreference, setThemePreference } =
         useTheme();
+    const { addBadges } = useBadgeStore();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    const handleDemoBadge = () => {
+        addBadges([
+            {
+                id: 'demo-badge',
+                slug: 'first-bite',
+                name: 'First Bite',
+                description: 'You rated your very first dish. The adventure begins!',
+                image_url: '',
+            },
+        ]);
+    };
 
     const handleLogout = () => {
         Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -78,6 +92,15 @@ export default function SettingsScreen() {
                     options={COLOR_SCHEME_OPTIONS}
                     onValueChange={(value) => setThemePreference(value as any)}
                 />
+            </View>
+
+            <View style={styles.section}>
+                <ThemedText type="subtitle" style={styles.sectionTitle}>
+                    Developer
+                </ThemedText>
+                <ThemedButton onPress={handleDemoBadge} variant="secondary">
+                    Demo Badge Modal
+                </ThemedButton>
             </View>
 
             <View style={styles.logoutSection}>

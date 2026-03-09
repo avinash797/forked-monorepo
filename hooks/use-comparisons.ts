@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { useBadgeStore } from '@/stores/use-badge-store';
 import type { SubmitComparisonResponse } from '@/types/rpc.types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -21,6 +22,7 @@ export interface SkipBattleInput {
  */
 export function useProcessBattle() {
     const queryClient = useQueryClient();
+    const { addBadges } = useBadgeStore();
 
     return useMutation({
         mutationFn: async (input: ProcessBattleInput): Promise<SubmitComparisonResponse> => {
@@ -45,6 +47,10 @@ export function useProcessBattle() {
                 queryClient.invalidateQueries({ queryKey: ['topDish'] });
                 queryClient.invalidateQueries({ queryKey: ['userStats'] });
                 queryClient.invalidateQueries({ queryKey: ['myBestEver'] });
+                if (data.new_badges?.length) {
+                    addBadges(data.new_badges);
+                    queryClient.invalidateQueries({ queryKey: ['userBadges'] });
+                }
             }
         },
     });
@@ -56,6 +62,7 @@ export function useProcessBattle() {
  */
 export function useSkipBattle() {
     const queryClient = useQueryClient();
+    const { addBadges } = useBadgeStore();
 
     return useMutation({
         mutationFn: async (input: SkipBattleInput): Promise<SubmitComparisonResponse> => {
@@ -67,7 +74,7 @@ export function useSkipBattle() {
             if (error) throw error;
             return data as unknown as SubmitComparisonResponse;
         },
-        onSuccess: (_data, variables) => {
+        onSuccess: (data, variables) => {
             queryClient.invalidateQueries({
                 queryKey: ['myDishRankings', variables.dish_type_id],
             });
@@ -76,6 +83,10 @@ export function useSkipBattle() {
             queryClient.invalidateQueries({ queryKey: ['topDish'] });
             queryClient.invalidateQueries({ queryKey: ['userStats'] });
             queryClient.invalidateQueries({ queryKey: ['myBestEver'] });
+            if (data.new_badges?.length) {
+                addBadges(data.new_badges);
+                queryClient.invalidateQueries({ queryKey: ['userBadges'] });
+            }
         },
     });
 }
