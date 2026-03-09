@@ -4,16 +4,19 @@ import {
     LeaderboardEntry,
     LeaderboardRow,
 } from '@/components/Discover/leaderboard-row';
+import { LeaderboardShareModal } from '@/components/share/leaderboard-share-modal';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
+import { useAuth } from '@/hooks/use-auth';
 import { useCityDishTypes } from '@/hooks/use-dish-types';
 import { useGetLeaderboardByDishType, useLeaderboardDishTypeCounts } from '@/hooks/use-leaderboard';
 import { useLocationFilterStore } from '@/stores';
 import { DishType } from '@/types/dishes';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -26,6 +29,7 @@ export default function LeaderboardScreen() {
     }>();
     const insets = useSafeAreaInsets();
     const { theme } = useTheme();
+    const { user } = useAuth();
     const styles = useMemo(
         () => createThemedStyles(theme, insets),
         [theme, insets]
@@ -42,6 +46,7 @@ export default function LeaderboardScreen() {
     const [selectedDishType, setSelectedDishType] = useState<DishType | null>(
         null
     );
+    const [shareModalVisible, setShareModalVisible] = useState(false);
 
     // Use current city or fallback to NOLA
     const cityId = selectedCityId;
@@ -98,16 +103,38 @@ export default function LeaderboardScreen() {
         });
     };
 
+    const canShare = leaderboardItems.length > 0 && !!selectedDishType;
+
     const ListHeader = () => (
         <View style={styles.listHeader}>
             {/* Title */}
             <View style={styles.titleSection}>
-                <ThemedText style={styles.mainTitle}>
-                    Best {selectedDishType?.name || 'Dishes'}
-                </ThemedText>
-                <ThemedText style={styles.mainSubtitle}>
-                    in {selectedCityName}
-                </ThemedText>
+                <View style={styles.titleRow}>
+                    <View style={styles.titleTextBlock}>
+                        <ThemedText style={styles.mainTitle}>
+                            Best {selectedDishType?.name || 'Dishes'}
+                        </ThemedText>
+                        <ThemedText style={styles.mainSubtitle}>
+                            in {selectedCityName}
+                        </ThemedText>
+                    </View>
+                    {canShare && (
+                        <Pressable
+                            style={({ pressed }) => [
+                                styles.shareBtn,
+                                pressed && styles.shareBtnPressed,
+                            ]}
+                            onPress={() => setShareModalVisible(true)}
+                            hitSlop={8}
+                        >
+                            <IconSymbol
+                                name="share-outline"
+                                size={20}
+                                color={theme.color.accent}
+                            />
+                        </Pressable>
+                    )}
+                </View>
             </View>
         </View>
     );
@@ -130,6 +157,15 @@ export default function LeaderboardScreen() {
 
     return (
         <ThemedView style={styles.container}>
+            <LeaderboardShareModal
+                visible={shareModalVisible}
+                onClose={() => setShareModalVisible(false)}
+                dishTypeName={selectedDishType?.name ?? ''}
+                dishTypeEmoji={selectedDishType?.emoji ?? undefined}
+                cityName={selectedCityName ?? ''}
+                username={user?.display_name ?? ''}
+                entries={leaderboardItems}
+            />
             <ListHeader />
             <DishTypePills
                 dishTypes={sortedDishTypes}
@@ -197,6 +233,27 @@ const createThemedStyles = (
         titleSection: {
             paddingHorizontal: theme.space.md,
             marginBottom: theme.space.sm,
+        },
+        titleRow: {
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+        },
+        titleTextBlock: {
+            flex: 1,
+        },
+        shareBtn: {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: theme.color.accentSoft,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginTop: 2,
+        },
+        shareBtnPressed: {
+            opacity: 0.75,
+            transform: [{ scale: 0.95 }],
         },
         mainTitle: {
             fontSize: theme.font.size.xxl + 4,

@@ -1,12 +1,15 @@
 import { ScoreBadge } from '@/components/score-badge';
+import { BestEverShareModal } from '@/components/share/best-ever-share-modal';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { useTheme } from '@/contexts/theme-provider';
+import { useAuth } from '@/hooks/use-auth';
 import { BestEverDish } from '@/hooks/use-user-stats';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Pressable, Share, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 interface BestEverCardProps {
@@ -17,24 +20,21 @@ interface BestEverCardProps {
 
 export function BestEverCard({ item, index, onPress }: BestEverCardProps) {
     const { theme } = useTheme();
+    const { user } = useAuth();
     const styles = createThemedStyles(theme);
-
-    const handleShare = async () => {
-        try {
-            await Share.share({
-                message: `My best ${item.dish_type_name}? ${item.restaurant_name} in ${item.city_name}! Scored ${item.derived_score?.toFixed(1)}/10 on Forked`,
-                title: `My Best ${item.dish_type_name}`,
-            });
-        } catch {
-            // User cancelled or error
-        }
-    };
+    const [shareModalVisible, setShareModalVisible] = useState(false);
 
     return (
         <Animated.View
             entering={FadeInDown.delay(index * 100).duration(400)}
             style={styles.container}
         >
+            <BestEverShareModal
+                visible={shareModalVisible}
+                onClose={() => setShareModalVisible(false)}
+                item={item}
+                username={user?.display_name ?? ''}
+            />
             <Pressable
                 style={({ pressed }) => [
                     styles.card,
@@ -86,7 +86,7 @@ export function BestEverCard({ item, index, onPress }: BestEverCardProps) {
                         styles.shareButton,
                         pressed && styles.shareButtonPressed,
                     ]}
-                    onPress={handleShare}
+                    onPress={() => setShareModalVisible(true)}
                     hitSlop={8}
                 >
                     <IconSymbol name="share-outline" size={20} color="#fff" />
