@@ -37,6 +37,8 @@ interface LeaderboardShareModalProps {
     cityName: string;
     username: string;
     entries: LeaderboardEntry[];
+    /** When true, shows personal framing ("My Top 3") instead of city framing */
+    isPersonal?: boolean;
 }
 
 export function LeaderboardShareModal({
@@ -47,6 +49,7 @@ export function LeaderboardShareModal({
     cityName,
     username,
     entries,
+    isPersonal = false,
 }: LeaderboardShareModalProps) {
     const { theme } = useTheme();
     const insets = useSafeAreaInsets();
@@ -63,11 +66,12 @@ export function LeaderboardShareModal({
                 format: 'jpg',
                 quality: 0.95,
             });
+            const msg = isPersonal
+                ? `My top ${dishTypeName} ranked on Forked 🍴`
+                : `${username ? `${username}'s` : 'Community'} Top 3 ${dishTypeName} in ${cityName} on Forked 🍴`;
             await Share.share({
                 url: uri,
-                message: Platform.OS === 'android'
-                    ? `${username}'s Top 3 ${dishTypeName} in ${cityName} on Forked 🍴`
-                    : undefined,
+                message: Platform.OS === 'android' ? msg : undefined,
             });
         } catch {
             // user cancelled or error
@@ -121,13 +125,16 @@ export function LeaderboardShareModal({
                             {/* Title */}
                             <View style={styles.titleBlock}>
                                 <Text style={styles.usernameLabel}>
-                                    {username ? `@${username}` : 'Community'}
+                                    {username ? `@${username}` : isPersonal ? 'My' : 'Community'}
                                 </Text>
                                 <Text style={styles.titleMain}>
-                                    Top 3 {dishTypeEmoji ? `${dishTypeEmoji} ` : ''}
+                                    {isPersonal ? 'My' : 'Top 3'}{' '}
+                                    {dishTypeEmoji ? `${dishTypeEmoji} ` : ''}
                                     {dishTypeName}
                                 </Text>
-                                <Text style={styles.titleCity}>in {cityName}</Text>
+                                {!isPersonal && cityName ? (
+                                    <Text style={styles.titleCity}>in {cityName}</Text>
+                                ) : null}
                             </View>
 
                             {/* Divider */}

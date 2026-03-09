@@ -4,7 +4,9 @@ import {
     LeaderboardEntry,
     LeaderboardRow,
 } from '@/components/Discover/leaderboard-row';
+import { LeaderboardShareModal } from '@/components/share/leaderboard-share-modal';
 import { ThemedText } from '@/components/themed-text';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
 import { useDishTypes } from '@/hooks/use-dish-types';
@@ -13,7 +15,7 @@ import { useUserStats } from '@/hooks/use-user-stats';
 import { DishType } from '@/types/dishes';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -28,6 +30,7 @@ const personal = () => {
     const [selectedDishType, setSelectedDishType] = useState<DishType | null>(
         null
     );
+    const [shareModalVisible, setShareModalVisible] = useState(false);
 
     // Fetch dish types and user stats, then filter to only types the user has rated
     const { data: allDishTypes } = useDishTypes();
@@ -52,6 +55,8 @@ const personal = () => {
         ? dishRankingsData
         : [];
 
+    const canShare = dishRankings.length > 0 && !!selectedDishType;
+
     const handleRowPress = (item: LeaderboardEntry) => {
         router.push({
             pathname: '/(protected)/(browse)/dish-detail',
@@ -64,16 +69,44 @@ const personal = () => {
 
     const ListHeader = () => (
         <View style={styles.listHeader}>
-            {/* Title */}
             <View style={styles.titleSection}>
-                <ThemedText style={styles.mainTitle}>
-                    Your Best {selectedDishType?.name || 'Dishes'}
-                </ThemedText>
+                <View style={styles.titleRow}>
+                    <ThemedText style={styles.mainTitle}>
+                        Your Best {selectedDishType?.name || 'Dishes'}
+                    </ThemedText>
+                    {canShare && (
+                        <Pressable
+                            style={({ pressed }) => [
+                                styles.shareBtn,
+                                pressed && styles.shareBtnPressed,
+                            ]}
+                            onPress={() => setShareModalVisible(true)}
+                            hitSlop={8}
+                        >
+                            <IconSymbol
+                                name="share-outline"
+                                size={20}
+                                color={theme.color.accent}
+                            />
+                        </Pressable>
+                    )}
+                </View>
             </View>
         </View>
     );
+
     return (
         <View style={styles.container}>
+            <LeaderboardShareModal
+                visible={shareModalVisible}
+                onClose={() => setShareModalVisible(false)}
+                dishTypeName={selectedDishType?.name ?? ''}
+                dishTypeEmoji={selectedDishType?.emoji ?? undefined}
+                cityName=""
+                username={user?.display_name ?? ''}
+                entries={dishRankings}
+                isPersonal
+            />
             <ListHeader />
             <DishTypePills
                 dishTypes={personalDishTypes}
@@ -142,6 +175,23 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme'], insets:
         titleSection: {
             paddingHorizontal: theme.space.md,
             marginBottom: theme.space.sm,
+        },
+        titleRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+        },
+        shareBtn: {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: theme.color.accentSoft,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        shareBtnPressed: {
+            opacity: 0.75,
+            transform: [{ scale: 0.95 }],
         },
         mainTitle: {
             fontSize: theme.font.size.xxl + 4,
