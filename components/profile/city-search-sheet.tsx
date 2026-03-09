@@ -171,9 +171,8 @@ export const CitySearchSheet = forwardRef<
             snapPoints={snapPoints}
             enablePanDownToClose
             onDismiss={handleDismiss}
-            bottomInset={bottom}
-            backgroundStyle={{ backgroundColor: theme.color.bg }}
-            handleIndicatorStyle={{ backgroundColor: theme.color.border }}
+            backgroundStyle={{ backgroundColor: theme.color.surface }}
+            handleIndicatorStyle={{ backgroundColor: theme.color.textSecondary }}
             backdropComponent={renderBackdrop}
             enableContentPanningGesture={false}
             enableDynamicSizing={false}

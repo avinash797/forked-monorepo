@@ -3,18 +3,19 @@ import {
     BottomSheetBackdrop,
     BottomSheetModal,
     BottomSheetView,
+    BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
 import type { BottomSheetDefaultBackdropProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
     Pressable,
-    ScrollView,
     StyleSheet,
     TextInput,
     View,
     type StyleProp,
     type ViewStyle,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from './themed-text';
 import { IconSymbol } from './ui/icon-symbol';
 
@@ -57,6 +58,7 @@ export function ThemedSelect({
     const bottomSheetRef = useRef<BottomSheetModal>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const { theme, colorScheme } = useTheme();
+    const { bottom } = useSafeAreaInsets();
 
     const backgroundColor =
         colorScheme === 'light' ? lightColor : darkColor || theme.color.inputBg;
@@ -147,9 +149,10 @@ export function ThemedSelect({
 
             <BottomSheetModal
                 ref={bottomSheetRef}
-                snapPoints={['50%', '70%']}
+                snapPoints={['70%', '90%']}
                 backdropComponent={renderBackdrop}
                 onDismiss={handleClose}
+                enablePanDownToClose
                 backgroundStyle={{ backgroundColor: surfaceColor }}
                 handleIndicatorStyle={{ backgroundColor: mutedColor }}
             >
@@ -198,7 +201,10 @@ export function ThemedSelect({
                             />
                         </View>
                     )}
-                    <ScrollView style={styles.optionsList}>
+                    <BottomSheetScrollView
+                        style={styles.optionsList}
+                        contentContainerStyle={{ paddingBottom: bottom + 24 }}
+                    >
                         {filteredOptions.length === 0 ? (
                             <View style={styles.emptyState}>
                                 <ThemedText
@@ -239,7 +245,7 @@ export function ThemedSelect({
                                 </Pressable>
                             ))
                         )}
-                    </ScrollView>
+                    </BottomSheetScrollView>
                 </BottomSheetView>
             </BottomSheetModal>
         </View>

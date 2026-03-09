@@ -259,26 +259,12 @@ export const LocationBottomSheet = forwardRef<
             snapPoints={snapPoints}
             enablePanDownToClose
             onDismiss={onClose}
-            bottomInset={bottom}
-            backgroundStyle={{
-                backgroundColor: theme.color.bg,
-            }}
-            handleIndicatorStyle={{
-                backgroundColor: theme.color.border,
-            }}
+            backgroundStyle={{ backgroundColor: theme.color.surface }}
+            handleIndicatorStyle={{ backgroundColor: theme.color.textSecondary }}
             backdropComponent={renderBackdrop}
             enableContentPanningGesture={false}
             enableDynamicSizing={false}
         >
-            <View style={styles.header}>
-                <Pressable onPress={onClose}>
-                    <IconSymbol
-                        name="close"
-                        size={24}
-                        color={theme.color.textTertiary}
-                    />
-                </Pressable>
-            </View>
 
             {/* Tabs — Neighborhoods tab hidden until feature is ready */}
             <View style={styles.tabContainer}>
