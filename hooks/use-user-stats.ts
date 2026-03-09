@@ -2,6 +2,9 @@ import { supabase } from '@/lib/supabase';
 import type { LeaderboardEntry, UserStatsResponse } from '@/types/rpc.types';
 import { useQuery } from '@tanstack/react-query';
 
+// Re-export for backward compatibility (hook moved to use-badges.ts)
+export { useUserBadges } from './use-badges';
+
 // Re-export for backward compatibility
 export type UserStats = UserStatsResponse;
 
@@ -162,122 +165,6 @@ export function useRatingsByDishType(userId?: string) {
             return Array.from(countMap.values()).sort(
                 (a, b) => b.count - a.count
             );
-        },
-    });
-}
-
-/**
- * Get badges/achievements for a user
- * This is a placeholder - badges can be computed based on stats
- */
-export function useUserBadges(userId?: string) {
-    return useQuery({
-        queryKey: ['userBadges', userId],
-        queryFn: async () => {
-            // Get user stats first
-            const { data: stats, error } = await supabase.rpc(
-                'get_user_stats',
-                {
-                    p_user_id: userId,
-                }
-            );
-
-            if (error) throw error;
-            if (!stats) return [];
-
-            const userStats = stats as unknown as UserStatsResponse;
-            const badges: Array<{
-                id: string;
-                name: string;
-                description: string;
-                emoji: string;
-                earned: boolean;
-            }> = [];
-
-            // Founding Fork - early adopter badge (manual assignment for now)
-            badges.push({
-                id: 'founding_fork',
-                name: 'Founding Fork',
-                description: 'Early adopter who helped launch Forked',
-                emoji: '🍴',
-                earned: false, // Would need to check a separate table
-            });
-
-            // Rating milestones
-            if (userStats.total_ratings >= 10) {
-                badges.push({
-                    id: 'first_ten',
-                    name: 'Getting Started',
-                    description: 'Rated 10 dishes',
-                    emoji: '🌟',
-                    earned: true,
-                });
-            }
-
-            if (userStats.total_ratings >= 50) {
-                badges.push({
-                    id: 'fifty_ratings',
-                    name: 'Foodie',
-                    description: 'Rated 50 dishes',
-                    emoji: '🍽️',
-                    earned: true,
-                });
-            }
-
-            if (userStats.total_ratings >= 100) {
-                badges.push({
-                    id: 'hundred_ratings',
-                    name: 'Connoisseur',
-                    description: 'Rated 100 dishes',
-                    emoji: '👑',
-                    earned: true,
-                });
-            }
-
-            // Battle milestones
-            if (userStats.total_comparisons >= 25) {
-                badges.push({
-                    id: 'battle_tested',
-                    name: 'Battle Tested',
-                    description: 'Completed 25 This vs That battles',
-                    emoji: '⚔️',
-                    earned: true,
-                });
-            }
-
-            if (userStats.total_comparisons >= 100) {
-                badges.push({
-                    id: 'battle_master',
-                    name: 'Battle Master',
-                    description: 'Completed 100 This vs That battles',
-                    emoji: '🏆',
-                    earned: true,
-                });
-            }
-
-            // Explorer badge
-            if (userStats.cities_rated_in >= 3) {
-                badges.push({
-                    id: 'explorer',
-                    name: 'Explorer',
-                    description: 'Rated dishes in 3+ cities',
-                    emoji: '🗺️',
-                    earned: true,
-                });
-            }
-
-            // Diverse palate
-            if (Object.keys(userStats.dishes_by_type ?? {}).length >= 5) {
-                badges.push({
-                    id: 'diverse_palate',
-                    name: 'Diverse Palate',
-                    description: 'Rated all 5 dish types',
-                    emoji: '🎨',
-                    earned: true,
-                });
-            }
-
-            return badges;
         },
     });
 }

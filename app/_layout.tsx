@@ -12,6 +12,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { BadgeCelebrationModal } from '@/components/badges/badge-celebration-modal';
 import { ThemedView } from '@/components/themed-view';
 import { ThemeProvider, useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
@@ -123,6 +124,7 @@ export default function RootLayout() {
                     <ThemeProvider>
                         <BottomSheetModalProvider>
                             <RootLayoutNav />
+                            <BadgeCelebrationModal />
                         </BottomSheetModalProvider>
                     </ThemeProvider>
                 </SafeAreaProvider>
