@@ -1,8 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import {
     GroupedRestaurantDish,
-    Restaurant,
     RestaurantDishWithDetails,
+    RestaurantWithNeighborhood,
 } from '@/types/restaurant';
 import { useQuery } from '@tanstack/react-query';
 
@@ -65,11 +65,11 @@ export function useRestaurantDetail(restaurantId: string | null) {
         queryFn: async () => {
             if (!restaurantId) throw new Error('No restaurant ID provided');
 
-            // Fetch venue
+            // Fetch venue with neighborhood join
             const { data: restaurantData, error: restaurantError } =
                 await supabase
                     .from('restaurants')
-                    .select('*')
+                    .select('*, neighborhood:neighborhoods(name)')
                     .eq('id', restaurantId)
                     .single();
 
@@ -77,7 +77,7 @@ export function useRestaurantDetail(restaurantId: string | null) {
                 throw new Error(restaurantError.message || 'Venue not found');
             }
 
-            const venue = restaurantData as Restaurant;
+            const venue = restaurantData as RestaurantWithNeighborhood;
 
             // Fetch all dishes for this venue
             // Sort by total ratings (highest first)

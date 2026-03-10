@@ -106,10 +106,7 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
                                 variant='compact'
                             /> */}
                             <ThemedText style={styles.ratingCount}>
-                                {item.total_ratings} ratings
-                            </ThemedText>
-                            <ThemedText style={styles.ratingCount}>
-                                | {item.confidence_tier} confidence
+                                {item.total_ratings} ratings | Confidence: {item.confidence_tier}
                             </ThemedText>
                         </View>
                     )}
@@ -194,21 +191,12 @@ const createThemedStyles = (
             borderCurve: 'continuous',
         },
         rankContainer: {
-            width: 36,
             alignItems: 'center',
             justifyContent: 'center',
             marginRight: theme.space.sm,
         },
         crown: {
             fontSize: 28,
-        },
-        rankBadge: {
-            width: 28,
-            height: 28,
-            borderRadius: 14,
-            backgroundColor: theme.color.surface2,
-            alignItems: 'center',
-            justifyContent: 'center',
         },
         rankText: {
             fontSize: 24,
@@ -221,9 +209,9 @@ const createThemedStyles = (
             marginRight: theme.space.sm,
         },
         photo: {
-            width: 64,
-            height: 64,
-            borderRadius: theme.radius.md,
+            width: 68,
+            height: 68,
+            borderRadius: theme.radius.sm,
             borderCurve: 'continuous',
             backgroundColor: theme.color.surface2,
         },

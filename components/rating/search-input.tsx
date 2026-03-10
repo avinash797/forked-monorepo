@@ -87,7 +87,6 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             flexDirection: 'row',
             alignItems: 'center',
             paddingHorizontal: theme.space.sm,
-            paddingVertical: theme.space.sm,
             borderRadius: theme.radius.sm,
             gap: theme.space.xs,
             borderWidth: theme.border.hairline,
@@ -99,5 +98,6 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             fontSize: theme.font.size.md,
             padding: 0,
             color: theme.color.textPrimary,
+            paddingVertical: theme.space.sm,
         },
     });
