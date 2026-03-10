@@ -11,13 +11,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
-import {
-    Dimensions,
-    Linking,
-    Pressable,
-    StyleSheet,
-    View,
-} from 'react-native';
+import { Dimensions, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, {
     Easing,
@@ -209,7 +203,7 @@ export default function RestaurantDetailScreen() {
     const animatedHeaderStyle = useAnimatedStyle(() => {
         const opacity = interpolate(
             scrollY.value,
-            [HERO_HEIGHT * 0.7, HERO_HEIGHT * 0.9],
+            [HERO_HEIGHT * 0.8, HERO_HEIGHT * 0.95],
             [0, 1],
             Extrapolation.CLAMP
         );
@@ -331,11 +325,31 @@ export default function RestaurantDetailScreen() {
                                 marginBottom: 10,
                             }}
                         >
-                            <SkeletonBlock width={90} height={15} borderRadius={4} />
-                            <SkeletonBlock width={4} height={4} borderRadius={2} />
-                            <SkeletonBlock width={130} height={15} borderRadius={4} />
-                            <SkeletonBlock width={4} height={4} borderRadius={2} />
-                            <SkeletonBlock width={36} height={15} borderRadius={4} />
+                            <SkeletonBlock
+                                width={90}
+                                height={15}
+                                borderRadius={4}
+                            />
+                            <SkeletonBlock
+                                width={4}
+                                height={4}
+                                borderRadius={2}
+                            />
+                            <SkeletonBlock
+                                width={130}
+                                height={15}
+                                borderRadius={4}
+                            />
+                            <SkeletonBlock
+                                width={4}
+                                height={4}
+                                borderRadius={2}
+                            />
+                            <SkeletonBlock
+                                width={36}
+                                height={15}
+                                borderRadius={4}
+                            />
                         </View>
 
                         {/* Neighborhood pill */}
@@ -356,13 +370,27 @@ export default function RestaurantDetailScreen() {
 
                     {/* Action icon buttons (globe / phone / location) */}
                     <View style={[styles.infoBox, { gap: theme.space.xs }]}>
-                        <SkeletonBlock width={40} height={40} borderRadius={20} />
-                        <SkeletonBlock width={40} height={40} borderRadius={20} />
-                        <SkeletonBlock width={40} height={40} borderRadius={20} />
+                        <SkeletonBlock
+                            width={40}
+                            height={40}
+                            borderRadius={20}
+                        />
+                        <SkeletonBlock
+                            width={40}
+                            height={40}
+                            borderRadius={20}
+                        />
+                        <SkeletonBlock
+                            width={40}
+                            height={40}
+                            borderRadius={20}
+                        />
                     </View>
 
                     {/* Menu section */}
-                    <View style={[styles.dishesSection, { alignSelf: 'stretch' }]}>
+                    <View
+                        style={[styles.dishesSection, { alignSelf: 'stretch' }]}
+                    >
                         <SkeletonBlock
                             width={120}
                             height={22}
@@ -489,7 +517,6 @@ export default function RestaurantDetailScreen() {
                         style={StyleSheet.absoluteFill}
                         pointerEvents="none"
                     />
-
                 </Animated.View>
 
                 {/* Content Section */}
@@ -532,15 +559,17 @@ export default function RestaurantDetailScreen() {
                         {/* Google place type pills */}
                         {formatPlaceTypes(venue.types).length > 0 && (
                             <View style={styles.placeTypesRow}>
-                                {formatPlaceTypes(venue.types).map((t, index) => (
-                                    <ThemedText
-                                        key={index}
-                                        style={styles.cuisineText}
-                                    >
-                                        {index > 0 ? ' • ' : ''}
-                                        {t}
-                                    </ThemedText>
-                                ))}
+                                {formatPlaceTypes(venue.types).map(
+                                    (t, index) => (
+                                        <ThemedText
+                                            key={index}
+                                            style={styles.cuisineText}
+                                        >
+                                            {index > 0 ? ' • ' : ''}
+                                            {t}
+                                        </ThemedText>
+                                    )
+                                )}
                             </View>
                         )}
 
@@ -548,31 +577,33 @@ export default function RestaurantDetailScreen() {
                         <View style={styles.cuisinesContainer}>
                             {venue.neighborhood?.name && (
                                 <>
-                                    <Pressable onPress={handleAddressPress} style={styles.neighborhoodPill}>
+                                    <Pressable
+                                        onPress={handleAddressPress}
+                                        style={styles.neighborhoodPill}
+                                    >
                                         <IconSymbol
                                             name="location-outline"
-                                            size={11}
+                                            size={12}
                                             color={theme.color.accent}
                                         />
-                                        <ThemedText style={styles.neighborhoodText}>
+                                        <ThemedText
+                                            style={styles.neighborhoodText}
+                                        >
                                             {venue.neighborhood.name}
                                         </ThemedText>
                                     </Pressable>
                                 </>
                             )}
-
                         </View>
                         <View style={styles.dishTypesRow}>
                             {[...dishTypesServed].map((dishType, index) => (
-                                <View key={index} style={styles.placeTypePill}>
-                                    <ThemedText style={styles.placeTypeText}>
+                                <View key={index} style={styles.dishTypePill}>
+                                    <ThemedText style={styles.dishTypeText}>
                                         {dishType}
                                     </ThemedText>
                                 </View>
                             ))}
                         </View>
-
-
                     </View>
 
                     <View style={styles.infoBox}>
@@ -602,23 +633,25 @@ export default function RestaurantDetailScreen() {
                                 }
                             />
                         )}
-                        {venue.google_place_id && <ThemedButton
-                            variant="icon"
-                            onPress={handleAddressPress}
-                            icon={
-                                <IconSymbol
-                                    name="location-sharp"
-                                    size={22}
-                                    color={theme.color.textSecondary}
-                                />
-                            }
-                        />}
+                        {venue.google_place_id && (
+                            <ThemedButton
+                                variant="icon"
+                                onPress={handleAddressPress}
+                                icon={
+                                    <IconSymbol
+                                        name="location-sharp"
+                                        size={22}
+                                        color={theme.color.textSecondary}
+                                    />
+                                }
+                            />
+                        )}
                     </View>
 
                     {/* Dishes Section */}
                     <View style={styles.dishesSection}>
                         <SectionHeader
-                            title={`Menu (${dishes.length})`}
+                            title={`Dishes Rated (${dishes.length})`}
                             subtitle={
                                 dishes.length === 0
                                     ? 'No dishes rated yet'
@@ -785,7 +818,7 @@ const createThemedStyles = (
             borderRadius: theme.radius.pill,
         },
         neighborhoodText: {
-            fontSize: theme.font.size.xs,
+            fontSize: theme.font.size.sm,
             color: theme.color.accent,
             fontWeight: theme.font.weight.semibold,
         },
@@ -801,7 +834,6 @@ const createThemedStyles = (
         placeTypesRow: {
             flexDirection: 'row',
             flexWrap: 'wrap',
-            gap: theme.space.xs,
             marginBottom: theme.space.xs,
         },
         dishTypesRow: {
@@ -810,7 +842,7 @@ const createThemedStyles = (
             gap: theme.space.xs,
             marginBottom: theme.space.xs,
         },
-        placeTypePill: {
+        dishTypePill: {
             backgroundColor: theme.color.surface,
             borderWidth: StyleSheet.hairlineWidth,
             borderColor: theme.color.border,
@@ -818,8 +850,8 @@ const createThemedStyles = (
             paddingHorizontal: theme.space.sm,
             paddingVertical: 3,
         },
-        placeTypeText: {
-            fontSize: theme.font.size.xs,
+        dishTypeText: {
+            fontSize: theme.font.size.sm,
             color: theme.color.textSecondary,
         },
         closedBanner: {
