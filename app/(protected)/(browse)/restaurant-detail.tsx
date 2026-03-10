@@ -37,6 +37,29 @@ const { width, height } = Dimensions.get('window');
 const HERO_HEIGHT = 450;
 const HEADER_HEIGHT = 60;
 
+// Generic Google place types that add no useful info
+const GENERIC_TYPES = new Set([
+    'point_of_interest',
+    'establishment',
+    'food',
+    'restaurant',
+    'premise',
+    'geocode',
+]);
+
+function formatPlaceTypes(types: string[] | null): string[] {
+    if (!types) return [];
+    return types
+        .filter((t) => !GENERIC_TYPES.has(t))
+        .map((t) =>
+            t
+                .split('_')
+                .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                .join(' ')
+        )
+        .slice(0, 3); // cap at 3 to avoid clutter
+}
+
 const AnimatedIconSymbol = Animated.createAnimatedComponent(IconSymbol);
 
 // ── Skeleton placeholder with pulsing animation ─────────────────────────
@@ -282,32 +305,64 @@ export default function RestaurantDetailScreen() {
                     borderRadius={0}
                 />
 
-                {/* Content skeleton */}
-                <View style={[{ display: 'flex', flexDirection: 'column' }]}>
-                    {/* Action buttons skeleton */}
-                    <View style={styles.infoBox}>
+                {/* Content skeleton – mirrors the rounded card */}
+                <View style={[styles.contentSection, { minHeight: undefined }]}>
+                    {/* Venue name – two large lines */}
+                    <View style={styles.venueHeader}>
                         <SkeletonBlock
-                            width="100%"
-                            height={44}
-                            borderRadius={12}
-                            style={{ flex: 1 }}
+                            width="80%"
+                            height={38}
+                            borderRadius={6}
+                            style={{ marginBottom: 8 }}
                         />
                         <SkeletonBlock
-                            width="100%"
-                            height={44}
-                            borderRadius={12}
-                            style={{ flex: 1 }}
+                            width="55%"
+                            height={38}
+                            borderRadius={6}
+                            style={{ marginBottom: 12 }}
                         />
+
+                        {/* Place types row  e.g. "Steak House • Fine Dining • Bar" */}
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: 6,
+                                marginBottom: 10,
+                            }}
+                        >
+                            <SkeletonBlock width={90} height={15} borderRadius={4} />
+                            <SkeletonBlock width={4} height={4} borderRadius={2} />
+                            <SkeletonBlock width={130} height={15} borderRadius={4} />
+                            <SkeletonBlock width={4} height={4} borderRadius={2} />
+                            <SkeletonBlock width={36} height={15} borderRadius={4} />
+                        </View>
+
+                        {/* Neighborhood pill */}
                         <SkeletonBlock
-                            width="100%"
-                            height={44}
-                            borderRadius={12}
-                            style={{ flex: 1 }}
+                            width={170}
+                            height={26}
+                            borderRadius={13}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        {/* Dish type pill */}
+                        <SkeletonBlock
+                            width={68}
+                            height={26}
+                            borderRadius={6}
                         />
                     </View>
 
-                    {/* Menu section skeleton */}
-                    <View style={styles.dishesSection}>
+                    {/* Action icon buttons (globe / phone / location) */}
+                    <View style={[styles.infoBox, { gap: theme.space.xs }]}>
+                        <SkeletonBlock width={40} height={40} borderRadius={20} />
+                        <SkeletonBlock width={40} height={40} borderRadius={20} />
+                        <SkeletonBlock width={40} height={40} borderRadius={20} />
+                    </View>
+
+                    {/* Menu section */}
+                    <View style={[styles.dishesSection, { alignSelf: 'stretch' }]}>
                         <SkeletonBlock
                             width={120}
                             height={22}
@@ -315,8 +370,6 @@ export default function RestaurantDetailScreen() {
                             style={{ marginLeft: 16, marginBottom: 16 }}
                         />
                         <View style={styles.dishesList}>
-                            <DishCardSkeleton />
-                            <DishCardSkeleton />
                             <DishCardSkeleton />
                             <DishCardSkeleton />
                         </View>
@@ -441,48 +494,115 @@ export default function RestaurantDetailScreen() {
 
                 {/* Content Section */}
                 <View style={styles.contentSection}>
+                    {/* Closed Warning Banner */}
+                    {venue.is_closed && (
+                        <View style={styles.closedBanner}>
+                            <IconSymbol
+                                name="alert-circle-outline"
+                                size={16}
+                                color="#fff"
+                            />
+                            <ThemedText style={styles.closedBannerText}>
+                                Permanently Closed
+                            </ThemedText>
+                        </View>
+                    )}
+
                     <View style={styles.venueHeader}>
-                        <ThemedText type="title" style={styles.venueName}>
-                            {venue.name}
-                        </ThemedText>
-                        {dishTypesServed && [...dishTypesServed].length > 0 && (
-                            <View style={styles.cuisinesContainer}>
-                                {[...dishTypesServed].map((dishType, index) => (
+                        {/* Name row with verified badge */}
+                        <View style={styles.nameRow}>
+                            <ThemedText
+                                type="title"
+                                style={styles.venueName}
+                                numberOfLines={2}
+                            >
+                                {venue.name}
+                            </ThemedText>
+                            {venue.is_verified && (
+                                <View style={styles.verifiedBadge}>
+                                    <IconSymbol
+                                        name="checkmark-circle"
+                                        size={18}
+                                        color={theme.color.accent}
+                                    />
+                                </View>
+                            )}
+                        </View>
+
+                        {/* Google place type pills */}
+                        {formatPlaceTypes(venue.types).length > 0 && (
+                            <View style={styles.placeTypesRow}>
+                                {formatPlaceTypes(venue.types).map((t, index) => (
                                     <ThemedText
                                         key={index}
                                         style={styles.cuisineText}
                                     >
                                         {index > 0 ? ' • ' : ''}
-                                        {dishType}
+                                        {t}
                                     </ThemedText>
                                 ))}
                             </View>
                         )}
+
+                        {/* Neighborhood + dish types row */}
+                        <View style={styles.cuisinesContainer}>
+                            {venue.neighborhood?.name && (
+                                <>
+                                    <Pressable onPress={handleAddressPress} style={styles.neighborhoodPill}>
+                                        <IconSymbol
+                                            name="location-outline"
+                                            size={11}
+                                            color={theme.color.accent}
+                                        />
+                                        <ThemedText style={styles.neighborhoodText}>
+                                            {venue.neighborhood.name}
+                                        </ThemedText>
+                                    </Pressable>
+                                </>
+                            )}
+
+                        </View>
+                        <View style={styles.dishTypesRow}>
+                            {[...dishTypesServed].map((dishType, index) => (
+                                <View key={index} style={styles.placeTypePill}>
+                                    <ThemedText style={styles.placeTypeText}>
+                                        {dishType}
+                                    </ThemedText>
+                                </View>
+                            ))}
+                        </View>
+
+
                     </View>
+
                     <View style={styles.infoBox}>
-                        <ThemedButton
-                            variant="icon"
-                            onPress={handleWebsitePress}
-                            icon={
-                                <IconSymbol
-                                    name="globe-outline"
-                                    size={22}
-                                    color={theme.color.textSecondary}
-                                />
-                            }
-                        />
-                        <ThemedButton
-                            variant="icon"
-                            onPress={handlePhonePress}
-                            icon={
-                                <IconSymbol
-                                    name="call-outline"
-                                    size={22}
-                                    color={theme.color.textSecondary}
-                                />
-                            }
-                        />
-                        <ThemedButton
+                        {venue.website && (
+                            <ThemedButton
+                                variant="icon"
+                                onPress={handleWebsitePress}
+                                icon={
+                                    <IconSymbol
+                                        name="globe-outline"
+                                        size={22}
+                                        color={theme.color.textSecondary}
+                                    />
+                                }
+                            />
+                        )}
+                        {venue.phone && (
+                            <ThemedButton
+                                variant="icon"
+                                onPress={handlePhonePress}
+                                icon={
+                                    <IconSymbol
+                                        name="call-outline"
+                                        size={22}
+                                        color={theme.color.textSecondary}
+                                    />
+                                }
+                            />
+                        )}
+                        {venue.google_place_id && <ThemedButton
                             variant="icon"
                             onPress={handleAddressPress}
                             icon={
@@ -492,7 +612,7 @@ export default function RestaurantDetailScreen() {
                                     color={theme.color.textSecondary}
                                 />
                             }
-                        />
+                        />}
                     </View>
 
                     {/* Dishes Section */}
@@ -634,56 +754,112 @@ const createThemedStyles = (
         venueHeader: {
             alignSelf: 'stretch',
             paddingHorizontal: theme.space.md,
-            marginBottom: theme.space.md,
+        },
+        nameRow: {
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            gap: theme.space.xs,
+            marginBottom: 4,
         },
         venueName: {
             fontSize: theme.font.size.xxl + 6,
-            marginBottom: 4,
+            flex: 1,
+        },
+        verifiedBadge: {
+            marginTop: 6,
         },
         cuisinesContainer: {
             flexDirection: 'row',
             alignItems: 'center',
             flexWrap: 'wrap',
+            gap: 4,
+            marginBottom: theme.space.xs,
+        },
+        neighborhoodPill: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 3,
+            backgroundColor: theme.color.accent + '18',
+            paddingHorizontal: 8,
+            paddingVertical: 3,
+            borderRadius: theme.radius.pill,
+        },
+        neighborhoodText: {
+            fontSize: theme.font.size.xs,
+            color: theme.color.accent,
+            fontWeight: theme.font.weight.semibold,
+        },
+        cuisineSeparator: {
+            fontSize: theme.font.size.md,
+            color: theme.color.textSecondary,
         },
         cuisineText: {
             fontSize: theme.font.size.md,
             color: theme.color.textSecondary,
             fontWeight: theme.font.weight.medium,
         },
+        placeTypesRow: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: theme.space.xs,
+            marginBottom: theme.space.xs,
+        },
+        dishTypesRow: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: theme.space.xs,
+            marginBottom: theme.space.xs,
+        },
+        placeTypePill: {
+            backgroundColor: theme.color.surface,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: theme.color.border,
+            borderRadius: theme.radius.sm,
+            paddingHorizontal: theme.space.sm,
+            paddingVertical: 3,
+        },
+        placeTypeText: {
+            fontSize: theme.font.size.xs,
+            color: theme.color.textSecondary,
+        },
+        closedBanner: {
+            alignSelf: 'stretch',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.space.xs,
+            backgroundColor: '#c0392b',
+            marginHorizontal: theme.space.md,
+            marginBottom: theme.space.sm,
+            borderRadius: theme.radius.md,
+            paddingHorizontal: theme.space.md,
+            paddingVertical: theme.space.sm,
+        },
+        closedBannerText: {
+            color: '#fff',
+            fontSize: theme.font.size.sm,
+            fontWeight: theme.font.weight.bold,
+        },
         infoBox: {
             alignSelf: 'flex-start',
             marginLeft: theme.space.md,
             borderRadius: theme.radius.lg,
             borderCurve: 'continuous',
-            marginBottom: theme.space.lg,
+            marginBottom: theme.space.md,
             flexDirection: 'row',
             gap: theme.space.xxs,
         },
         addressRow: {
+            alignSelf: 'stretch',
             flexDirection: 'row',
-            alignItems: 'flex-start',
-            gap: theme.space.sm,
+            alignItems: 'center',
+            gap: theme.space.xs,
+            paddingHorizontal: theme.space.md,
+            paddingVertical: theme.space.sm,
         },
         addressText: {
-            fontSize: theme.font.size.md,
-            fontWeight: theme.font.weight.medium,
-            color: theme.color.textPrimary,
-        },
-        addressSubtext: {
+            flex: 1,
             fontSize: theme.font.size.sm,
             color: theme.color.textSecondary,
-            marginTop: 2,
-        },
-        distanceTag: {
-            paddingHorizontal: theme.space.xs,
-            paddingVertical: 2,
-            backgroundColor: theme.color.accent + '20',
-            borderRadius: theme.radius.xs,
-        },
-        distanceText: {
-            fontSize: theme.font.size.xs,
-            fontWeight: theme.font.weight.bold,
-            color: theme.color.accent,
         },
         dishesSection: {
             marginTop: theme.space.xs,

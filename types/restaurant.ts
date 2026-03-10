@@ -3,6 +3,10 @@ import { DishType, DishTypeVariation, RestaurantDish } from './dishes';
 
 export type Restaurant = Database['public']['Tables']['restaurants']['Row'];
 
+export type RestaurantWithNeighborhood = Restaurant & {
+    neighborhood: { name: string } | null;
+};
+
 export type RestaurantDishWithDetails = RestaurantDish & {
     type: DishType;
     variation: DishTypeVariation;

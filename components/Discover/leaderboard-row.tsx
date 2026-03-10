@@ -5,7 +5,6 @@ import { useTheme } from '@/contexts/theme-provider';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { ConfidenceMeter } from './confidence-meter';
 
 /**
  * Row display type that accepts both leaderboard and personal ranking data.
@@ -64,11 +63,9 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
             <View style={styles.content}>
                 {/* Rank Badge */}
                 <View style={styles.rankContainer}>
-                    <View style={styles.rankBadge}>
-                        <ThemedText style={styles.rankText}>
-                            {item.rank}
-                        </ThemedText>
-                    </View>
+                    <ThemedText style={styles.rankText}>
+                        {item.rank}
+                    </ThemedText>
                 </View>
 
                 {/* Photo */}
@@ -103,11 +100,14 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
                     </ThemedText>
                     {(item.confidence_tier || item.total_ratings != null) && (
                         <View style={styles.confidenceRow}>
-                            <ConfidenceMeter
+                            {/* <ConfidenceMeter
                                 confidenceTier={item.confidence_tier ?? "low"}
                                 totalRatings={item.total_ratings}
                                 variant='compact'
-                            />
+                            /> */}
+                            <ThemedText style={styles.ratingCount}>
+                                {item.total_ratings} ratings | Confidence: {item.confidence_tier}
+                            </ThemedText>
                         </View>
                     )}
                 </View>
@@ -191,7 +191,6 @@ const createThemedStyles = (
             borderCurve: 'continuous',
         },
         rankContainer: {
-            width: 36,
             alignItems: 'center',
             justifyContent: 'center',
             marginRight: theme.space.sm,
@@ -199,27 +198,20 @@ const createThemedStyles = (
         crown: {
             fontSize: 28,
         },
-        rankBadge: {
-            width: 28,
-            height: 28,
-            borderRadius: 14,
-            backgroundColor: theme.color.surface2,
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
         rankText: {
-            fontSize: 14,
-            fontWeight: '700',
-            color: theme.color.textSecondary,
+            fontSize: 24,
+            lineHeight: 24,
+            fontWeight: '600',
+            color: theme.color.textPrimary,
             fontVariant: ['tabular-nums'] as any,
         },
         photoContainer: {
             marginRight: theme.space.sm,
         },
         photo: {
-            width: 64,
-            height: 64,
-            borderRadius: theme.radius.md,
+            width: 68,
+            height: 68,
+            borderRadius: theme.radius.sm,
             borderCurve: 'continuous',
             backgroundColor: theme.color.surface2,
         },
