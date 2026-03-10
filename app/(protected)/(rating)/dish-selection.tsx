@@ -1,6 +1,7 @@
 import { SearchInput } from '@/components/rating/search-input';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import {
@@ -167,7 +168,7 @@ export default function DishSelectionScreen() {
             }
         } else {
             // Default view: structured sections
-            if (top5RestaurantDishes.length > 0) {
+            if (allRestaurantDishes.length > 5 && top5RestaurantDishes.length > 0) {
                 result.push({
                     key: 'top',
                     title: 'Most Rated Here',
@@ -459,9 +460,13 @@ function RestaurantDishRow({
             ]}
             onPress={() => onPress(item)}
         >
-            <ThemedText style={styles.itemEmoji}>
-                {item.dish_type.emoji ?? '🍽️'}
-            </ThemedText>
+            <View style={styles.itemIconContainer}>
+                <DishTypeIcon
+                    icon={item.dish_type.icon}
+                    emoji={item.dish_type.emoji}
+                    size={28}
+                />
+            </View>
             <View style={styles.itemContent}>
                 <ThemedText style={styles.itemName} numberOfLines={1}>
                     {displayName}
@@ -505,9 +510,13 @@ function DishTypeRow({
                 ]}
                 onPress={() => onPress(item)}
             >
-                <ThemedText style={styles.itemEmoji}>
-                    {item.emoji ?? '🍽️'}
-                </ThemedText>
+                <View style={styles.itemIconContainer}>
+                    <DishTypeIcon
+                        icon={item.icon}
+                        emoji={item.emoji}
+                        size={28}
+                    />
+                </View>
                 <View style={styles.itemContent}>
                     <ThemedText style={styles.itemName} numberOfLines={1}>
                         {item.name}
@@ -670,8 +679,11 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             borderBottomRightRadius: 0,
             marginBottom: 0,
         },
-        itemEmoji: {
-            fontSize: 28,
+        itemIconContainer: {
+            width: 36,
+            height: 36,
+            justifyContent: 'center',
+            alignItems: 'center',
             marginRight: theme.space.sm,
         },
         itemContent: {

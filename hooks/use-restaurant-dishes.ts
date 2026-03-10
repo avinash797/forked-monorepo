@@ -12,8 +12,8 @@ export interface RestaurantDishWithDetails
     extends Omit<RestaurantDishRow, 'dish_type_id' | 'variation_id'> {
     dish_type_id: string;
     variation_id: string | null;
-    dish_type: Pick<DishTypeRow, 'id' | 'name' | 'emoji' | 'slug' | 'aliases'>;
-    variation: Pick<VariationRow, 'id' | 'name' | 'emoji' | 'slug'> | null;
+    dish_type: Pick<DishTypeRow, 'id' | 'name' | 'emoji' | 'icon' | 'slug' | 'aliases'>;
+    variation: Pick<VariationRow, 'id' | 'name' | 'emoji' | 'icon' | 'slug'> | null;
 }
 
 /**
@@ -32,8 +32,8 @@ export function useRestaurantDishes(restaurantId: string | null | undefined) {
                 .select(
                     `
                     *,
-                    dish_type:dish_types(id, name, emoji, slug, aliases),
-                    variation:dish_type_variations(id, name, emoji, slug)
+                    dish_type:dish_types(id, name, emoji, icon, slug, aliases),
+                    variation:dish_type_variations(id, name, emoji, icon, slug)
                 `
                 )
                 .eq('restaurant_id', restaurantId)

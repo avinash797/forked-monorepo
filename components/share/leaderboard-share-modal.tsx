@@ -3,14 +3,7 @@ import { ForkLogo } from '@/components/fork-logo';
 import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
-import {
-    GeistMono_500Medium,
-    GeistMono_600SemiBold,
-    GeistMono_700Bold,
-    GeistMono_800ExtraBold,
-    GeistMono_900Black,
-} from '@expo-google-fonts/geist-mono';
-import { useFonts } from 'expo-font';
+
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Sharing from 'expo-sharing';
@@ -56,14 +49,6 @@ export function LeaderboardShareModal({
     const cardRef = useRef<View>(null);
     const [isSharing, setIsSharing] = useState(false);
     const { theme } = useTheme();
-
-    const [fontsLoaded] = useFonts({
-        GeistMono_500Medium,
-        GeistMono_600SemiBold,
-        GeistMono_700Bold,
-        GeistMono_800ExtraBold,
-        GeistMono_900Black,
-    });
 
     const top5 = entries.slice(0, 5);
     const heroPhoto = top5[0]?.featured_photo_url ?? top5[0]?.photo_url;
@@ -214,7 +199,7 @@ export function LeaderboardShareModal({
                                         style={[
                                             styles.rankRow,
                                             idx < top5.length - 1 &&
-                                                styles.rankRowDivider,
+                                            styles.rankRowDivider,
                                         ]}
                                     >
                                         {/* Large rank number */}

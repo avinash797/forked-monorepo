@@ -3,14 +3,6 @@ import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { BestEverDish } from '@/hooks/use-user-stats';
-import {
-    GeistMono_500Medium,
-    GeistMono_600SemiBold,
-    GeistMono_700Bold,
-    GeistMono_800ExtraBold,
-    GeistMono_900Black,
-} from '@expo-google-fonts/geist-mono';
-import { useFonts } from 'expo-font';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Sharing from 'expo-sharing';
@@ -43,14 +35,6 @@ export function BestEverShareModal({
     const cardRef = useRef<View>(null);
     const [isSharing, setIsSharing] = useState(false);
     const { theme } = useTheme();
-
-    const [fontsLoaded] = useFonts({
-        GeistMono_500Medium,
-        GeistMono_600SemiBold,
-        GeistMono_700Bold,
-        GeistMono_800ExtraBold,
-        GeistMono_900Black,
-    });
 
     const score = item.derived_score ?? 0;
 
@@ -175,13 +159,13 @@ export function BestEverShareModal({
                                     <View style={styles.dishLabelRow}>
                                         {(item.dish_type_icon ||
                                             item.dish_type_emoji) && (
-                                            <DishTypeIcon
-                                                icon={item.dish_type_icon}
-                                                emoji={item.dish_type_emoji}
-                                                size={16}
-                                                color={theme.color.textPrimary}
-                                            />
-                                        )}
+                                                <DishTypeIcon
+                                                    icon={item.dish_type_icon}
+                                                    emoji={item.dish_type_emoji}
+                                                    size={16}
+                                                    color={theme.color.textPrimary}
+                                                />
+                                            )}
                                         <Text style={styles.dishLabel}>
                                             Best {item.dish_type_name}
                                         </Text>

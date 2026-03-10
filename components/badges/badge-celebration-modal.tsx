@@ -101,6 +101,7 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         headline: {
             fontSize: theme.font.size.sm,
+            lineHeight: theme.font.size.sm,
             fontWeight: theme.font.weight.semibold,
             color: theme.color.textSecondary,
             textTransform: 'uppercase',
@@ -127,6 +128,7 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         badgeName: {
             fontSize: theme.font.size.xxl,
+            lineHeight: theme.font.size.xxl,
             fontWeight: theme.font.weight.bold,
             color: theme.color.textPrimary,
             textAlign: 'center',
