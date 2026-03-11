@@ -537,6 +537,15 @@ export default function RestaurantDetailScreen() {
 
                     <View style={styles.venueHeader}>
                         {/* Name row with verified badge */}
+                        <ScrollView contentContainerStyle={styles.dishTypesRow} horizontal showsHorizontalScrollIndicator={false}>
+                            {[...dishTypesServed].map((dishType, index) => (
+                                <View key={index} style={styles.dishTypePill}>
+                                    <ThemedText style={styles.dishTypeText}>
+                                        {dishType}
+                                    </ThemedText>
+                                </View>
+                            ))}
+                        </ScrollView>
                         <View style={styles.nameRow}>
                             <ThemedText
                                 type="title"
@@ -555,75 +564,65 @@ export default function RestaurantDetailScreen() {
                                 </View>
                             )}
                         </View>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
 
-                        {/* Google place type pills */}
-                        {formatPlaceTypes(venue.types).length > 0 && (
-                            <View style={styles.placeTypesRow}>
-                                {formatPlaceTypes(venue.types).map(
-                                    (t, index) => (
-                                        <ThemedText
-                                            key={index}
-                                            style={styles.cuisineText}
-                                        >
-                                            {index > 0 ? ' • ' : ''}
-                                            {t}
-                                        </ThemedText>
-                                    )
-                                )}
-                            </View>
-                        )}
+                            {/* Google place type pills */}
+                            {formatPlaceTypes(venue.types).length > 0 && (
+                                <View style={styles.placeTypesRow}>
+                                    {formatPlaceTypes(venue.types).map(
+                                        (t, index) => (
+                                            <ThemedText
+                                                key={index}
+                                                style={styles.cuisineText}
+                                            >
+                                                {index > 0 ? ' • ' : ''}
+                                                {t}
+                                            </ThemedText>
+                                        )
+                                    )}
+                                </View>
+                            )}
+                        </ScrollView>
 
                         {/* Neighborhood + dish types row */}
                         <View style={styles.cuisinesContainer}>
-                            {venue.neighborhood?.name && (
-                                <>
-                                    <Pressable
-                                        onPress={handleAddressPress}
-                                        style={styles.neighborhoodPill}
-                                    >
-                                        <IconSymbol
-                                            name="location-outline"
-                                            size={12}
-                                            color={theme.color.accent}
-                                        />
-                                        <ThemedText
-                                            style={styles.neighborhoodText}
-                                        >
-                                            {venue.neighborhood.name}
-                                        </ThemedText>
-                                    </Pressable>
-                                </>
-                            )}
+
+                            <Pressable
+                                onPress={handleAddressPress}
+                                style={styles.neighborhoodPill}
+                            >
+                                <IconSymbol
+                                    name="location-outline"
+                                    size={12}
+                                    color={theme.color.accent}
+                                />
+                                {venue.neighborhood?.name && <ThemedText
+                                    style={styles.neighborhoodText}
+                                >
+                                    {venue.neighborhood.name},{" "}
+                                </ThemedText>}
+                                {venue.location_properties && <ThemedText
+                                    style={styles.neighborhoodText}
+                                >
+                                    {venue.location_properties.city},{" "}
+                                </ThemedText>}
+                                {venue.location_properties && <ThemedText
+                                    style={styles.neighborhoodText}
+                                >
+                                    {venue.location_properties.state}
+                                </ThemedText>}
+                            </Pressable>
+
                         </View>
-                        <View style={styles.dishTypesRow}>
-                            {[...dishTypesServed].map((dishType, index) => (
-                                <View key={index} style={styles.dishTypePill}>
-                                    <ThemedText style={styles.dishTypeText}>
-                                        {dishType}
-                                    </ThemedText>
-                                </View>
-                            ))}
-                        </View>
+
                     </View>
 
                     <View style={styles.infoBox}>
-                        {venue.website && (
-                            <ThemedButton
-                                variant="icon"
-                                onPress={handleWebsitePress}
-                                icon={
-                                    <IconSymbol
-                                        name="globe-outline"
-                                        size={22}
-                                        color={theme.color.textSecondary}
-                                    />
-                                }
-                            />
-                        )}
                         {venue.phone && (
                             <ThemedButton
-                                variant="icon"
+                                variant="secondary"
                                 onPress={handlePhonePress}
+                                style={styles.infoButton}
                                 icon={
                                     <IconSymbol
                                         name="call-outline"
@@ -631,20 +630,23 @@ export default function RestaurantDetailScreen() {
                                         color={theme.color.textSecondary}
                                     />
                                 }
-                            />
+                            >
+                                <ThemedText style={styles.infoButtonText}>Phone</ThemedText>
+                            </ThemedButton>
                         )}
-                        {venue.google_place_id && (
+                        {venue.website && (
                             <ThemedButton
-                                variant="icon"
-                                onPress={handleAddressPress}
+                                variant="secondary"
+                                onPress={handleWebsitePress}
+                                style={styles.infoButton}
                                 icon={
                                     <IconSymbol
-                                        name="location-sharp"
+                                        name="globe-outline"
                                         size={22}
                                         color={theme.color.textSecondary}
                                     />
                                 }
-                            />
+                            > <ThemedText style={styles.infoButtonText}>Website</ThemedText></ThemedButton>
                         )}
                     </View>
 
@@ -846,9 +848,9 @@ const createThemedStyles = (
             backgroundColor: theme.color.surface,
             borderWidth: StyleSheet.hairlineWidth,
             borderColor: theme.color.border,
-            borderRadius: theme.radius.sm,
-            paddingHorizontal: theme.space.sm,
-            paddingVertical: 3,
+            borderRadius: theme.radius.pill,
+            paddingHorizontal: theme.space.xs,
+            paddingVertical: 2,
         },
         dishTypeText: {
             fontSize: theme.font.size.sm,
@@ -879,6 +881,17 @@ const createThemedStyles = (
             marginBottom: theme.space.md,
             flexDirection: 'row',
             gap: theme.space.xxs,
+        },
+        infoButton: {
+            borderRadius: theme.radius.pill,
+            paddingHorizontal: theme.space.xs,
+            paddingVertical: theme.space.xxs,
+            borderWidth: theme.border.hairline,
+            borderColor: theme.color.inputBorder,
+        },
+        infoButtonText: {
+            fontSize: theme.font.size.sm,
+            color: theme.color.textSecondary,
         },
         addressRow: {
             alignSelf: 'stretch',
