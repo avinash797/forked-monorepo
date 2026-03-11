@@ -146,6 +146,56 @@ export default function RisingStarCard({
 }
 
 /**
+ * Empty state card for RisingStarCard when no hidden gems are available
+ */
+export function RisingStarCardEmpty() {
+    const { theme } = useTheme();
+    const { width: windowWidth } = useWindowDimensions();
+    const router = useRouter();
+    const styles = createStyles(theme, windowWidth);
+
+    return (
+        <Animated.View entering={FadeInRight.duration(400)} style={styles.container}>
+            <View style={[styles.card, styles.emptyCard]}>
+                {/* Illustration area */}
+                <View style={styles.emptyIllustrationContainer}>
+                    <View style={styles.emptyIconWrapper}>
+                        <IconSymbol
+                            name="sparkles-outline"
+                            size={48}
+                            color={theme.color.warning}
+                        />
+                    </View>
+                    <ThemedText style={styles.emptyIllustrationLabel}>
+                        Not enough data yet
+                    </ThemedText>
+                </View>
+
+                {/* Content */}
+                <View style={styles.content}>
+                    <ThemedText type="subtitle" style={styles.restaurantName}>
+                        Hidden Gems Await
+                    </ThemedText>
+                    <ThemedText style={styles.emptySubtext}>
+                        Every legend starts somewhere — don't keep that secret spot to yourself! Let us in on that!
+                    </ThemedText>
+                    <View style={styles.callToActionRow}>
+                        <Pressable
+                            onPress={() => router.push('/(protected)/(rating)')}
+                            style={({ pressed }) => pressed && { opacity: theme.opacity.pressed }}
+                        >
+                            <ThemedText style={styles.callToAction}>
+                                Rate a Hidden Spot →
+                            </ThemedText>
+                        </Pressable>
+                    </View>
+                </View>
+            </View>
+        </Animated.View>
+    );
+}
+
+/**
  * Skeleton placeholder for RisingStarCard during loading with pulsing animation
  */
 export function RisingStarCardSkeleton() {
@@ -219,6 +269,7 @@ const createStyles = (theme: any, windowWidth: number) =>
             paddingHorizontal: theme.space.md,
             marginVertical: theme.space.md,
             minWidth: windowWidth * 0.85,
+            maxWidth: windowWidth * 0.85,
         },
         card: {
             backgroundColor: theme.color.surface,
@@ -299,5 +350,34 @@ const createStyles = (theme: any, windowWidth: number) =>
         skeletonText: {
             backgroundColor: theme.color.border,
             borderRadius: theme.radius.sm,
+        },
+        emptyCard: {
+            borderStyle: 'dashed',
+            borderColor: theme.color.warning + '60',
+        },
+        emptyIllustrationContainer: {
+            height: 110,
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: theme.space.sm,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.color.warning + '30',
+        },
+        emptyIconWrapper: {
+            opacity: 0.35,
+        },
+        emptyIllustrationLabel: {
+            fontSize: theme.font.size.xs,
+            color: theme.color.textTertiary,
+            fontWeight: theme.font.weight.medium,
+            textTransform: 'uppercase',
+            letterSpacing: 1,
+            opacity: 0.7,
+        },
+        emptySubtext: {
+            fontSize: theme.font.size.sm,
+            color: theme.color.textSecondary,
+            marginBottom: theme.space.xs,
+            lineHeight: 20,
         },
     });

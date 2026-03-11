@@ -134,6 +134,62 @@ export default function HeroCard({
 }
 
 /**
+ * Empty state card for HeroCard when no popular dishes are available
+ */
+export function HeroCardEmpty() {
+    const { theme } = useTheme();
+    const { width: windowWidth } = useWindowDimensions();
+    const router = useRouter();
+    const styles = createStyles(theme, windowWidth);
+
+    return (
+        <Animated.View entering={FadeInRight.duration(400)} style={styles.container}>
+            <View style={[styles.card, styles.emptyCard]}>
+                {/* Illustration area */}
+                <View style={styles.emptyIllustrationContainer}>
+                    <View style={styles.emptyIconWrapper}>
+                        <IconSymbol
+                            name="trophy-outline"
+                            size={52}
+                            color={theme.color.accent}
+                        />
+                    </View>
+                    <ThemedText style={styles.emptyIllustrationLabel}>
+                        No rankings yet
+                    </ThemedText>
+                </View>
+
+                {/* Content */}
+                <View style={styles.content}>
+                    <ThemedText type="subtitle" style={styles.restaurantName}>
+                        Be the Trendsetter
+                    </ThemedText>
+                    <ThemedText style={styles.emptySubtext}>
+                        Rate a dish to crown the best spot in your area
+                    </ThemedText>
+                    <Pressable
+                        onPress={() => router.push('/(protected)/(rating)')}
+                        style={({ pressed }) => [
+                            styles.emptyCtaButton,
+                            pressed && styles.emptyCtaButtonPressed,
+                        ]}
+                    >
+                        <IconSymbol
+                            name="camera-outline"
+                            size={14}
+                            color={theme.color.bg}
+                        />
+                        <ThemedText style={styles.emptyCtaButtonText}>
+                            Rate a Dish
+                        </ThemedText>
+                    </Pressable>
+                </View>
+            </View>
+        </Animated.View>
+    );
+}
+
+/**
  * Skeleton placeholder for HeroCard during loading with pulsing animation
  */
 export function HeroCardSkeleton() {
@@ -200,6 +256,7 @@ const createStyles = (theme: any, windowWidth: number) =>
             paddingHorizontal: theme.space.md,
             marginVertical: theme.space.sm,
             minWidth: windowWidth * 0.85,
+            maxWidth: windowWidth * 0.85,
         },
         card: {
             backgroundColor: theme.color.surface,
@@ -286,5 +343,54 @@ const createStyles = (theme: any, windowWidth: number) =>
         skeletonText: {
             backgroundColor: theme.color.border,
             borderRadius: theme.radius.sm,
+        },
+        emptyCard: {
+            borderWidth: 1,
+            borderColor: theme.color.border,
+            borderStyle: 'dashed',
+        },
+        emptyIllustrationContainer: {
+            height: 130,
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: theme.space.sm,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.color.border,
+        },
+        emptyIconWrapper: {
+            opacity: 0.35,
+        },
+        emptyIllustrationLabel: {
+            fontSize: theme.font.size.xs,
+            color: theme.color.textTertiary,
+            fontWeight: theme.font.weight.medium,
+            textTransform: 'uppercase',
+            letterSpacing: 1,
+            opacity: 0.7,
+        },
+        emptySubtext: {
+            fontSize: theme.font.size.sm,
+            color: theme.color.textSecondary,
+            marginTop: theme.space.xs,
+            marginBottom: theme.space.md,
+            lineHeight: 20,
+        },
+        emptyCtaButton: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.space.xs,
+            backgroundColor: theme.color.accent,
+            paddingHorizontal: theme.space.md,
+            paddingVertical: theme.space.sm,
+            borderRadius: theme.radius.pill,
+            alignSelf: 'flex-start',
+        },
+        emptyCtaButtonPressed: {
+            opacity: theme.opacity.pressed,
+        },
+        emptyCtaButtonText: {
+            color: theme.color.bg,
+            fontSize: theme.font.size.sm,
+            fontWeight: theme.font.weight.semibold,
         },
     });
