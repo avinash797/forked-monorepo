@@ -1,8 +1,12 @@
 import { LocationBottomSheet } from '@/components/browse/location-bottom-sheet';
 import { LocationHeader } from '@/components/browse/location-header';
-import HeroCard, { HeroCardSkeleton } from '@/components/Discover/hero-card';
+import HeroCard, {
+    HeroCardEmpty,
+    HeroCardSkeleton,
+} from '@/components/Discover/hero-card';
 import { RecentBattleTicker } from '@/components/Discover/recent-battle-ticker';
 import RisingStarCard, {
+    RisingStarCardEmpty,
     RisingStarCardSkeleton,
 } from '@/components/Discover/rising-star-card';
 import { ThemedText } from '@/components/themed-text';
@@ -135,14 +139,8 @@ export default function HomeScreen() {
                                         )
                                     )
                                 ) : (
-                                    // Empty state
-                                    <View style={styles.emptyState}>
-                                        <ThemedText
-                                            style={styles.emptyStateText}
-                                        >
-                                            No popular dishes yet
-                                        </ThemedText>
-                                    </View>
+                                    // Empty state card
+                                    <HeroCardEmpty />
                                 )}
                             </ScrollView>
                         </View>
@@ -189,14 +187,8 @@ export default function HomeScreen() {
                                         )
                                     )
                                 ) : (
-                                    // Empty state
-                                    <View style={styles.emptyState}>
-                                        <ThemedText
-                                            style={styles.emptyStateText}
-                                        >
-                                            No rising stars yet
-                                        </ThemedText>
-                                    </View>
+                                    // Empty state card
+                                    <RisingStarCardEmpty />
                                 )}
                             </ScrollView>
                         </View>
@@ -257,16 +249,6 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             fontSize: theme.font.size.sm,
             fontWeight: '400',
             color: theme.color.textSecondary,
-        },
-        emptyState: {
-            padding: theme.space.xl,
-            alignItems: 'center',
-            justifyContent: 'center',
-            minWidth: 200,
-        },
-        emptyStateText: {
-            color: theme.color.textSecondary,
-            fontSize: theme.font.size.md,
         },
         loadingContainer: {
             padding: theme.space.xl,
