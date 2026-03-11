@@ -611,6 +611,11 @@ export default function RestaurantDetailScreen() {
                                 >
                                     {venue.location_properties.state}
                                 </ThemedText>}
+                                {!venue.neighborhood?.name && !venue.location_properties && <ThemedText
+                                    style={styles.neighborhoodText}
+                                >
+                                    {venue.address}
+                                </ThemedText>}
                             </Pressable>
 
                         </View>
