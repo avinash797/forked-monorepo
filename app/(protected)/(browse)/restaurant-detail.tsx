@@ -646,7 +646,9 @@ export default function RestaurantDetailScreen() {
                                         color={theme.color.textSecondary}
                                     />
                                 }
-                            > <ThemedText style={styles.infoButtonText}>Website</ThemedText></ThemedButton>
+                            >
+                                <ThemedText style={styles.infoButtonText}>Website</ThemedText>
+                            </ThemedButton>
                         )}
                     </View>
 
