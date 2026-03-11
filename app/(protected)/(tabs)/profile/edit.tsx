@@ -99,11 +99,6 @@ export default function EditProfileScreen() {
         [setValue]
     );
 
-    const handleClearCity = useCallback(() => {
-        setValue('home_city_id', null, { shouldDirty: true });
-        setSelectedCityDisplay(null);
-    }, [setValue]);
-
     // Warn user when navigating away with unsaved changes
     const navigation = useNavigation();
     useEffect(() => {
@@ -220,6 +215,7 @@ export default function EditProfileScreen() {
                     { paddingBottom: insets.bottom > 0 ? insets.bottom + 24 : 48 },
                 ]}
                 keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
             >
                 {/* Avatar */}
                 <View style={styles.avatarContainer}>
