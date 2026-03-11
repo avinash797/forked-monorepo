@@ -147,6 +147,21 @@ export function useVenueSearch() {
                         p_phone: addressData.phone || undefined,
                         p_website: addressData.website || undefined,
                         p_types: addressData.types,
+                        p_location_properties: {
+                            name: addressData.name,
+                            full_address: addressData.full_address,
+                            street: addressData.street,
+                            city: addressData.city,
+                            state: addressData.state,
+                            zip: addressData.zip,
+                            country: addressData.country,
+                            neighborhood: addressData.neighborhood,
+                            lat: addressData.latitude,
+                            lng: addressData.longitude,
+                            phone: addressData.phone,
+                            website: addressData.website,
+                            types: addressData.types,
+                        },
                     }
                 );
 

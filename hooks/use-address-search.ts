@@ -244,9 +244,9 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
                 getComponent('locality') ||
                 getComponent('sublocality') ||
                 getComponent('administrative_area_level_2'); // fallback
-            const state = getComponent('administrative_area_level_1');
+            const state = getShortComponent('administrative_area_level_1') || getComponent('administrative_area_level_1');
             const zip = getComponent('postal_code');
-            const country = getShortComponent('country');
+            const country = getShortComponent('country') || getComponent('country');
             const neighborhood = getComponent('neighborhood');
 
             const phone = data.nationalPhoneNumber;

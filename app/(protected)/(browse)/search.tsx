@@ -1,5 +1,4 @@
 import { EmptyState } from '@/components/browse/empty-state';
-import { SectionHeader } from '@/components/browse/section-header';
 import { SearchInput } from '@/components/rating/search-input';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -16,12 +15,19 @@ import { Restaurant } from '@/types/restaurant';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+type SearchTab = 'dishes' | 'restaurants';
+
+type DishTabItem =
+    | { type: 'dish-type'; data: DishType }
+    | { type: 'food-item'; data: RestaurantDishSearchResult };
 
 export default function SearchScreen() {
     const router = useRouter();
     const [query, setQuery] = useState('');
+    const [activeTab, setActiveTab] = useState<SearchTab>('dishes');
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
 
@@ -69,45 +75,27 @@ export default function SearchScreen() {
         });
     };
 
-    // ── Empty / hint / error states ─────────────────────────────────────
+    // ── Tab bar ─────────────────────────────────────────────────────────
 
-    const renderEmptyQuery = () => (
-        <View style={styles.emptyContainer}>
-            <EmptyState
-                icon="search-outline"
-                title="Search for dishes and restaurants"
-                message="Find your favorite dishes, restaurants, or food items"
-            />
-        </View>
-    );
+    const dishTabItems: DishTabItem[] = [
+        ...dishTypes.map((d) => ({ type: 'dish-type' as const, data: d })),
+        ...restaurantDishes.map((d) => ({
+            type: 'food-item' as const,
+            data: d,
+        })),
+    ];
 
-    const renderNoResults = () => (
-        <View style={styles.emptyContainer}>
-            <EmptyState
-                icon="search-outline"
-                title={`No results for "${query}"`}
-                message="Try adjusting your search or browse top dishes"
-                actionLabel="Browse Dishes"
-                onActionPress={() => router.back()}
-            />
-        </View>
-    );
+    const tabs: { key: SearchTab; label: string; count: number }[] = [
+        { key: 'dishes', label: 'Dishes', count: dishTabItems.length },
+        { key: 'restaurants', label: 'Restaurants', count: restaurants.length },
+    ];
 
-    const renderError = () => (
-        <View style={styles.emptyContainer}>
-            <EmptyState
-                icon="alert-circle-outline"
-                title="Search failed"
-                message={error || 'Please try again'}
-            />
-        </View>
-    );
+    const showCounts = query.length >= 2 && !isLoading;
 
     // ── Result row components ───────────────────────────────────────────
 
-    const renderDishTypeRow = (dishType: DishType) => (
+    const renderDishTypeRow = ({ item: dishType }: { item: DishType }) => (
         <Pressable
-            key={dishType.id}
             onPress={() => handleDishTypePress(dishType)}
             style={({ pressed }) => [
                 styles.resultRow,
@@ -116,11 +104,15 @@ export default function SearchScreen() {
             android_ripple={{ color: 'rgba(0, 0, 0, 0.1)' }}
         >
             <View style={styles.emojiContainer}>
-                <DishTypeIcon icon={dishType.icon} emoji={dishType.emoji} size={20} />
+                <DishTypeIcon
+                    icon={dishType.icon}
+                    emoji={dishType.emoji}
+                    size={20}
+                />
             </View>
             <View style={styles.resultTextContainer}>
                 <ThemedText style={styles.resultTitle} numberOfLines={1}>
-                    {dishType.name}
+                    {dishType.name} Leaderboard
                 </ThemedText>
             </View>
             <IconSymbol
@@ -131,9 +123,12 @@ export default function SearchScreen() {
         </Pressable>
     );
 
-    const renderRestaurantRow = (restaurant: Restaurant) => (
+    const renderRestaurantRow = ({
+        item: restaurant,
+    }: {
+        item: Restaurant;
+    }) => (
         <Pressable
-            key={restaurant.id}
             onPress={() => handleRestaurantPress(restaurant)}
             style={({ pressed }) => [
                 styles.resultRow,
@@ -166,13 +161,16 @@ export default function SearchScreen() {
         </Pressable>
     );
 
-    const renderFoodItemRow = (item: RestaurantDishSearchResult) => {
+    const renderFoodItemRow = ({
+        item,
+    }: {
+        item: RestaurantDishSearchResult;
+    }) => {
         const hasPhoto = item.photos && item.photos.length > 0;
         const photoUrl = hasPhoto ? item.photos[0] : null;
 
         return (
             <Pressable
-                key={item.restaurant_dish_id}
                 onPress={() => handleFoodItemPress(item)}
                 style={({ pressed }) => [
                     styles.resultRow,
@@ -189,7 +187,11 @@ export default function SearchScreen() {
                     />
                 ) : (
                     <View style={styles.emojiContainer}>
-                        <DishTypeIcon icon={item.dish_type_icon} emoji={item.dish_type_emoji} size={20} />
+                        <DishTypeIcon
+                            icon={item.dish_type_icon}
+                            emoji={item.dish_type_emoji}
+                            size={20}
+                        />
                     </View>
                 )}
                 <View style={styles.resultTextContainer}>
@@ -209,12 +211,30 @@ export default function SearchScreen() {
         );
     };
 
-    // ── Main render ─────────────────────────────────────────────────────
+    // ── Tab content ─────────────────────────────────────────────────────
 
-    const renderContent = () => {
-        if (error) return renderError();
-        if (query.length === 0) return renderEmptyQuery();
-        if (query.length > 0 && query.length < 2) {
+    const renderTabContent = () => {
+        if (error) {
+            return (
+                <EmptyState
+                    icon="alert-circle-outline"
+                    title="Search failed"
+                    message={error || 'Please try again'}
+                />
+            );
+        }
+
+        if (query.length === 0) {
+            return (
+                <EmptyState
+                    icon="search-outline"
+                    title="Search for dishes and restaurants"
+                    message="Find your favorite dishes, restaurants, or food items"
+                />
+            );
+        }
+
+        if (query.length < 2) {
             return (
                 <View style={styles.hintContainer}>
                     <ThemedText style={styles.hintText}>
@@ -223,62 +243,77 @@ export default function SearchScreen() {
                 </View>
             );
         }
-        if (query.length >= 2 && !isLoading && !hasResults) {
-            return renderNoResults();
+
+        if (!isLoading && !hasResults) {
+            return (
+                <EmptyState
+                    icon="search-outline"
+                    title={`No results for "${query}"`}
+                    message="Try adjusting your search or browse top dishes"
+                    actionLabel="Browse Dishes"
+                    onActionPress={() => router.back()}
+                />
+            );
         }
 
+        if (activeTab === 'dishes') {
+            if (!isLoading && dishTabItems.length === 0) {
+                return (
+                    <EmptyState
+                        icon="search-outline"
+                        title="No dishes found"
+                        message={`Try the "Restaurants" tab`}
+                    />
+                );
+            }
+            return (
+                <FlatList
+                    data={dishTabItems}
+                    keyExtractor={(item) =>
+                        item.type === 'dish-type'
+                            ? item.data.id
+                            : item.data.restaurant_dish_id
+                    }
+                    renderItem={({ item }) =>
+                        item.type === 'dish-type'
+                            ? renderDishTypeRow({ item: item.data })
+                            : renderFoodItemRow({ item: item.data })
+                    }
+                    contentContainerStyle={styles.listContent}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                />
+            );
+        }
+
+        // restaurants tab
+        if (!isLoading && restaurants.length === 0) {
+            return (
+                <EmptyState
+                    icon="search-outline"
+                    title="No restaurants found"
+                    message={`Try the "Dishes" tab`}
+                />
+            );
+        }
         return (
-            <ScrollView
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
+            <FlatList
+                data={restaurants}
+                keyExtractor={(item) => item.id}
+                renderItem={renderRestaurantRow}
+                contentContainerStyle={styles.listContent}
                 keyboardShouldPersistTaps="handled"
-            >
-                {/* Dish Types Section */}
-                {dishTypes.length > 0 && (
-                    <View style={styles.section}>
-                        <SectionHeader
-                            title="Dish Types"
-                            subtitle={`${dishTypes.length} ${dishTypes.length === 1 ? 'result' : 'results'}`}
-                        />
-                        <View style={styles.resultsList}>
-                            {dishTypes.map(renderDishTypeRow)}
-                        </View>
-                    </View>
-                )}
-
-                {/* Restaurants Section */}
-                {restaurants.length > 0 && (
-                    <View style={styles.section}>
-                        <SectionHeader
-                            title="Restaurants"
-                            subtitle={`${restaurants.length} ${restaurants.length === 1 ? 'result' : 'results'}`}
-                        />
-                        <View style={styles.resultsList}>
-                            {restaurants.map(renderRestaurantRow)}
-                        </View>
-                    </View>
-                )}
-
-                {/* Food Items (Restaurant Dishes) Section */}
-                {restaurantDishes.length > 0 && (
-                    <View style={styles.section}>
-                        <SectionHeader
-                            title="Food Items"
-                            subtitle={`${restaurantDishes.length} ${restaurantDishes.length === 1 ? 'result' : 'results'}`}
-                        />
-                        <View style={styles.resultsList}>
-                            {restaurantDishes.map(renderFoodItemRow)}
-                        </View>
-                    </View>
-                )}
-            </ScrollView>
+                showsVerticalScrollIndicator={false}
+            />
         );
     };
+
+    // ── Main render ─────────────────────────────────────────────────────
 
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
             <ThemedView style={styles.container}>
-                {/* Custom Header with Back Button and Search */}
+                {/* Header */}
                 <View style={styles.header}>
                     <Pressable
                         onPress={() => router.back()}
@@ -310,7 +345,56 @@ export default function SearchScreen() {
                     </View>
                 </View>
 
-                {renderContent()}
+                {/* Tab Bar */}
+                <View style={styles.tabBar}>
+                    {tabs.map((tab) => {
+                        const isActive = activeTab === tab.key;
+                        return (
+                            <Pressable
+                                key={tab.key}
+                                onPress={() => setActiveTab(tab.key)}
+                                style={({ pressed }) => [
+                                    styles.tab,
+                                    isActive && styles.tabActive,
+                                    pressed && { opacity: 0.7 },
+                                ]}
+                                android_ripple={{
+                                    color: theme.color.accent + '20',
+                                }}
+                            >
+                                <ThemedText
+                                    style={[
+                                        styles.tabLabel,
+                                        isActive && styles.tabLabelActive,
+                                    ]}
+                                >
+                                    {tab.label}
+                                </ThemedText>
+                                {showCounts && tab.count > 0 && (
+                                    <View
+                                        style={[
+                                            styles.tabBadge,
+                                            isActive && styles.tabBadgeActive,
+                                        ]}
+                                    >
+                                        <ThemedText
+                                            style={[
+                                                styles.tabBadgeText,
+                                                isActive &&
+                                                    styles.tabBadgeTextActive,
+                                            ]}
+                                        >
+                                            {tab.count}
+                                        </ThemedText>
+                                    </View>
+                                )}
+                            </Pressable>
+                        );
+                    })}
+                </View>
+
+                {/* Tab Content */}
+                {renderTabContent()}
             </ThemedView>
         </SafeAreaView>
     );
@@ -339,20 +423,63 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         searchInputContainer: {
             flex: 1,
         },
-        scrollContent: {
+        // Tab bar
+        tabBar: {
+            flexDirection: 'row',
+            borderBottomWidth: theme.border.hairline,
+            borderBottomColor: theme.color.border,
+        },
+        tab: {
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: theme.space.sm,
+            paddingHorizontal: theme.space.xs,
+            gap: theme.space.xxs,
+            borderBottomWidth: 2,
+            borderBottomColor: 'transparent',
+        },
+        tabActive: {
+            borderBottomColor: theme.color.accent,
+        },
+        tabLabel: {
+            fontSize: theme.font.size.sm,
+            fontWeight: theme.font.weight.medium,
+            color: theme.color.textTertiary,
+        },
+        tabLabelActive: {
+            color: theme.color.accent,
+            fontWeight: theme.font.weight.semibold,
+        },
+        tabBadge: {
+            backgroundColor: theme.color.surface2,
+            borderRadius: theme.radius.pill,
+            paddingHorizontal: 6,
+            paddingVertical: 1,
+            minWidth: 20,
+            alignItems: 'center',
+        },
+        tabBadgeActive: {
+            backgroundColor: theme.color.accent + '20',
+        },
+        tabBadgeText: {
+            fontSize: theme.font.size.xs,
+            fontWeight: theme.font.weight.medium,
+            color: theme.color.textTertiary,
+        },
+        tabBadgeTextActive: {
+            color: theme.color.accent,
+        },
+        // List
+        listContent: {
             paddingBottom: theme.space.xxl,
-        },
-        section: {
-            marginTop: theme.space.xs,
-        },
-        resultsList: {
-            paddingHorizontal: theme.space.md,
         },
         resultRow: {
             flexDirection: 'row',
             alignItems: 'center',
             paddingVertical: theme.space.sm + 2,
-            paddingHorizontal: theme.space.sm,
+            paddingHorizontal: theme.space.md,
             borderBottomWidth: StyleSheet.hairlineWidth,
             borderBottomColor: theme.color.border,
             gap: theme.space.sm,
@@ -379,9 +506,6 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             borderRadius: theme.radius.md,
             backgroundColor: theme.color.surface2,
         },
-        emoji: {
-            fontSize: 20,
-        },
         resultTextContainer: {
             flex: 1,
             justifyContent: 'center',
@@ -398,7 +522,6 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         emptyContainer: {
             flex: 1,
-            paddingTop: 120,
             paddingHorizontal: theme.space.md,
         },
         hintContainer: {

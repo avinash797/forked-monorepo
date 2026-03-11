@@ -1,7 +1,10 @@
 import { Database } from './database.types';
 import { DishType, DishTypeVariation, RestaurantDish } from './dishes';
 
-export type Restaurant = Database['public']['Tables']['restaurants']['Row'];
+export type RawRestaurant = Database['public']['Tables']['restaurants']['Row'];
+export interface Restaurant extends RawRestaurant {
+    location_properties: LocationProperties;
+}
 
 export type RestaurantWithNeighborhood = Restaurant & {
     neighborhood: { name: string } | null;
@@ -28,3 +31,19 @@ export type GroupedRestaurantDish = Omit<
         photos: string[] | null;
     })[];
 };
+
+
+export type LocationProperties = {
+    lat: number | null;
+    lng: number | null;
+    zip: string | null;
+    city: string | null;
+    name: string | null;
+    phone: string | null;
+    state: string | null;
+    street: string | null;
+    country: string | null;
+    website: string | null;
+    full_address: string;
+    neighborhood: string | null;
+}
