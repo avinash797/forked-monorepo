@@ -13,7 +13,6 @@ export default function ProfileLayout() {
                 options={{
                     title: 'Edit Profile',
                     headerBackTitle: 'Profile',
-
                 }}
             />
         </Stack>

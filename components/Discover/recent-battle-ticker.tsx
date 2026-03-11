@@ -178,7 +178,7 @@ export function RecentBattleTicker({ cityId }: RecentBattleTickerProps) {
                                     </ThemedText>
                                 </View>
                                 <ThemedText style={styles.timestamp}>
-                                    {timeAgo}
+                                    {timeAgo} ago
                                 </ThemedText>
                             </View>
                         </View>
@@ -193,7 +193,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     StyleSheet.create({
         container: {
             paddingHorizontal: theme.space.md,
-            marginVertical: theme.space.lg,
+            marginBottom: theme.space.lg,
         },
         bannerWrapper: {
             ...makeShadow(theme, 'md'),

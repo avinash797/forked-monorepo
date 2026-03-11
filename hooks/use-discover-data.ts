@@ -171,7 +171,7 @@ export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
                         dish_type_id: star.dish_type_id,
                         dish_type_name: star.dish_type_name || 'Dish',
                         dish_type_emoji: star.dish_type_emoji || '🍽️',
-                        dish_type_icon: star.dish_type_emoji,
+                        dish_type_icon: star.dish_type_icon,
                         city_id: star.city_id,
 
                         neighborhood_id: star.neighborhood_id,

@@ -83,7 +83,7 @@ export function ConfidenceMeter({
             flexDirection: 'row',
             alignItems: 'center',
             paddingHorizontal: variant === 'compact' ? theme.space.xs : theme.space.sm,
-            paddingVertical: variant === 'compact' ? theme.space.xxs : theme.space.xs,
+            paddingVertical: theme.space.xxs,
             backgroundColor: config.backgroundColor,
             borderRadius: theme.radius.pill,
             borderWidth: 1,
@@ -119,7 +119,7 @@ export function ConfidenceMeter({
             />
 
             <ThemedText style={localStyles.label}>
-                {config.label}
+                {config.label} {'•'}
             </ThemedText>
 
             {totalRatings > 0 && (

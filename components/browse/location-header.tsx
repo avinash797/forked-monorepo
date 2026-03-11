@@ -2,6 +2,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useLocationFilterStore } from '@/stores';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { ForkLogo } from '../fork-logo';
 import { SearchInput } from '../rating/search-input';
 import { ThemedText } from '../themed-text';
 
@@ -32,40 +33,47 @@ export function LocationHeader({
 
     return (
         <View style={styles.container}>
-            {/* Location Indicator Button */}
-            <Pressable
-                onPress={onLocationPress}
-                style={({ pressed }) => [
-                    styles.locationButton,
-                    {
-                        backgroundColor: theme.color.accentSoft,
-                    },
-                    pressed && { opacity: theme.opacity.pressed },
-                ]}
-                android_ripple={{
-                    color: 'rgba(0, 0, 0, 0.1)',
-                    borderless: false,
-                }}
-            >
-                <IconSymbol
-                    name="pin"
-                    size={18}
-                    color={theme.color.textPrimary}
-                />
-                <ThemedText
-                    style={[styles.locationText, { color: theme.color.accent }]}
-                    numberOfLines={1}
+            <View style={styles.locationWrapper}>
+                <View style={styles.logoContainer}>
+                    <ForkLogo size={22} />
+                    <ThemedText type="title">forked.</ThemedText>
+                </View>
+                {/* Location Indicator Button */}
+                <Pressable
+                    onPress={onLocationPress}
+                    style={({ pressed }) => [
+                        styles.locationButton,
+                        {
+                            backgroundColor: theme.color.accentSoft,
+                        },
+                        pressed && { opacity: theme.opacity.pressed },
+                    ]}
+                    android_ripple={{
+                        color: 'rgba(0, 0, 0, 0.1)',
+                        borderless: false,
+                    }}
                 >
-                    {displayText}
-                </ThemedText>
-            </Pressable>
+                    <IconSymbol
+                        name="pin"
+                        size={18}
+                        color={theme.color.textPrimary}
+                    />
+                    <ThemedText
+                        style={[styles.locationText, { color: theme.color.accent }]}
+                        numberOfLines={1}
+                    >
+                        {displayText}
+                    </ThemedText>
+                </Pressable>
+            </View>
+
 
             {/* Search Input */}
             <View style={styles.searchWrapper}>
                 <SearchInput
                     value=""
-                    onChangeText={() => {}}
-                    placeholder="Search what you want..."
+                    onChangeText={() => { }}
+                    placeholder="What are you craving?"
                     onFocus={onSearchPress}
                     isLoading={false}
                 />
@@ -77,11 +85,19 @@ export function LocationHeader({
 const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     StyleSheet.create({
         container: {
-            flexDirection: 'row',
-            alignItems: 'center',
             gap: theme.space.xs,
             paddingVertical: theme.space.xxs,
             paddingHorizontal: theme.space.md,
+        },
+        locationWrapper: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+        },
+        logoContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.space.xxs,
         },
         locationButton: {
             flexDirection: 'row',

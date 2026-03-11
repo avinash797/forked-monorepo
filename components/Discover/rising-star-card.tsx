@@ -15,6 +15,7 @@ import Animated, {
     withRepeat,
     withTiming,
 } from 'react-native-reanimated';
+import { ScoreBadge } from '../score-badge';
 
 interface RisingStarCardProps {
     /** The rising star dish data to display */
@@ -124,6 +125,8 @@ export default function RisingStarCard({
                                 {dish.dish_type_name}
                             </ThemedText>
                         </View>
+
+                        <ScoreBadge score={dish.bayesian_score} />
                     </View>
 
                     <View style={styles.scoreRow}>
@@ -315,6 +318,7 @@ const createStyles = (theme: any, windowWidth: number) =>
         detailsRow: {
             flexDirection: 'row',
             alignItems: 'center',
+            justifyContent: 'space-between',
             marginBottom: theme.space.xs,
         },
         dishType: {

@@ -20,8 +20,8 @@ import { trackEvent } from '@/lib/amplitude';
 import { useLocationFilterStore, useLocationStore } from '@/stores';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
-import { useEffect, useMemo, useRef } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const DEFAULT_CITY_NAME = 'New Orleans';
@@ -56,7 +56,17 @@ export default function HomeScreen() {
     }, [filterType, selectedCityName, nearbyConfig, currentCity?.name]);
 
     // Fetch all discover data in a single batch
-    const { data: discoverData, isLoading } = useDiscoverData(locationFilter);
+    const { data: discoverData, isLoading, refetch } = useDiscoverData(locationFilter);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        try {
+            await refetch();
+        } finally {
+            setRefreshing(false);
+        }
+    }, [refetch]);
 
     // Filter dish types that have hero data
     const dishTypesWithHeroes =
@@ -90,22 +100,25 @@ export default function HomeScreen() {
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']} >
             <ThemedView style={styles.container}>
-                <ScrollView showsVerticalScrollIndicator={false} contentInsetAdjustmentBehavior="automatic">
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentInsetAdjustmentBehavior="automatic"
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            tintColor={theme.color.accent}
+                        />
+                    }
+                >
                     <LocationHeader
                         onLocationPress={handleLocationPress}
                         onSearchPress={handleSearchPress}
                     />
-                    <View style={styles.headerCaptionContainer}>
-                        <ThemedText style={styles.headerText}>
-                            What are you
-                        </ThemedText>
-                        <ThemedText style={styles.headerText}>
-                            craving?
-                        </ThemedText>
-                    </View>
-
-                    {/* Hero Section - Popular among Users */}
                     <View style={styles.heroSection}>
+
+                        <RecentBattleTicker />
+
                         <View style={styles.sectionContainer}>
                             <ThemedText
                                 type="subtitle"
@@ -144,7 +157,6 @@ export default function HomeScreen() {
                             </ScrollView>
                         </View>
 
-                        {/* Rising Stars Section */}
                         <View style={styles.sectionContainer}>
                             <View style={styles.sectionTitleContainer}>
 
@@ -189,8 +201,7 @@ export default function HomeScreen() {
                         </View>
                     </View>
 
-                    {/* Recent Battle Ticker */}
-                    <RecentBattleTicker />
+
                 </ScrollView>
             </ThemedView>
 
