@@ -146,7 +146,7 @@ export function HeroCardEmpty() {
         <Animated.View entering={FadeInRight.duration(400)} style={styles.container}>
             <View style={[styles.card, styles.emptyCard]}>
                 {/* Illustration area */}
-                <View style={[styles.imageContainer, styles.emptyIllustration]}>
+                <View style={styles.emptyIllustrationContainer}>
                     <View style={styles.emptyIconWrapper}>
                         <IconSymbol
                             name="trophy-outline"
@@ -348,10 +348,13 @@ const createStyles = (theme: any, windowWidth: number) =>
             borderColor: theme.color.border,
             borderStyle: 'dashed',
         },
-        emptyIllustration: {
+        emptyIllustrationContainer: {
+            height: 130,
             alignItems: 'center',
             justifyContent: 'center',
             gap: theme.space.sm,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.color.border,
         },
         emptyIconWrapper: {
             opacity: 0.35,

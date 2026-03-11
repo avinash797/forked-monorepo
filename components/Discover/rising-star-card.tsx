@@ -158,7 +158,7 @@ export function RisingStarCardEmpty() {
         <Animated.View entering={FadeInRight.duration(400)} style={styles.container}>
             <View style={[styles.card, styles.emptyCard]}>
                 {/* Illustration area */}
-                <View style={[styles.imageContainer, styles.emptyIllustration]}>
+                <View style={styles.emptyIllustrationContainer}>
                     <View style={styles.emptyIconWrapper}>
                         <IconSymbol
                             name="sparkles-outline"
@@ -354,10 +354,13 @@ const createStyles = (theme: any, windowWidth: number) =>
             borderStyle: 'dashed',
             borderColor: theme.color.warning + '60',
         },
-        emptyIllustration: {
+        emptyIllustrationContainer: {
+            height: 110,
             alignItems: 'center',
             justifyContent: 'center',
             gap: theme.space.sm,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.color.warning + '30',
         },
         emptyIconWrapper: {
             opacity: 0.35,
