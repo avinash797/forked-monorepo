@@ -256,6 +256,7 @@ const createStyles = (theme: any, windowWidth: number) =>
             paddingHorizontal: theme.space.md,
             marginVertical: theme.space.sm,
             minWidth: windowWidth * 0.85,
+            maxWidth: windowWidth * 0.85,
         },
         card: {
             backgroundColor: theme.color.surface,

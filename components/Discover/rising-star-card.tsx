@@ -177,7 +177,7 @@ export function RisingStarCardEmpty() {
                         Hidden Gems Await
                     </ThemedText>
                     <ThemedText style={styles.emptySubtext}>
-                        Every legend starts somewhere — go find the next great spot
+                        Every legend starts somewhere — don't keep that secret spot to yourself! Let us in on that!
                     </ThemedText>
                     <View style={styles.callToActionRow}>
                         <Pressable
@@ -185,7 +185,7 @@ export function RisingStarCardEmpty() {
                             style={({ pressed }) => pressed && { opacity: theme.opacity.pressed }}
                         >
                             <ThemedText style={styles.callToAction}>
-                                Go Rate a Spot →
+                                Rate a Hidden Spot →
                             </ThemedText>
                         </Pressable>
                     </View>
@@ -269,6 +269,7 @@ const createStyles = (theme: any, windowWidth: number) =>
             paddingHorizontal: theme.space.md,
             marginVertical: theme.space.md,
             minWidth: windowWidth * 0.85,
+            maxWidth: windowWidth * 0.85,
         },
         card: {
             backgroundColor: theme.color.surface,

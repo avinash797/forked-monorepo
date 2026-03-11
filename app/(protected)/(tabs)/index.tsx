@@ -11,7 +11,6 @@ import RisingStarCard, {
 } from '@/components/Discover/rising-star-card';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import {
     DiscoverLocationFilter,
@@ -89,7 +88,7 @@ export default function HomeScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <SafeAreaView style={styles.safeArea} edges={['top']} >
             <ThemedView style={styles.container}>
                 <ScrollView showsVerticalScrollIndicator={false} contentInsetAdjustmentBehavior="automatic">
                     <LocationHeader
@@ -148,11 +147,7 @@ export default function HomeScreen() {
                         {/* Rising Stars Section */}
                         <View style={styles.sectionContainer}>
                             <View style={styles.sectionTitleContainer}>
-                                <IconSymbol
-                                    name="sparkles-outline"
-                                    size={20}
-                                    color={theme.color.warning}
-                                />
+
                                 <ThemedText type="subtitle">
                                     Rising Stars
                                 </ThemedText>
@@ -213,7 +208,6 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         safeArea: {
             flex: 1,
             backgroundColor: theme.color.bg,
-            paddingTop: theme.space.xxl,
         },
         container: {
             flex: 1,
