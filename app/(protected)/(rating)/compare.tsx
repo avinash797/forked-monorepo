@@ -184,12 +184,18 @@ export default function CompareScreen() {
                         onPress={() => handleVote(ratingId)}
                         disabled={isProcessing}
                     >
-                        <Image
-                            source={{ uri: params.yourPhoto }}
-                            style={styles.cardImage}
-                            contentFit="cover"
-                            transition={200}
-                        />
+                        {params.yourPhoto ? (
+                            <Image
+                                source={{ uri: params.yourPhoto }}
+                                style={styles.cardImage}
+                                contentFit="cover"
+                                transition={200}
+                            />
+                        ) : (
+                            <View style={[styles.cardImage, styles.noPhotoPlaceholder]}>
+                                <IconSymbol name="restaurant-outline" size={40} color="#666" />
+                            </View>
+                        )}
                         <LinearGradient
                             colors={['transparent', 'rgba(0,0,0,0.8)']}
                             style={styles.cardGradient}
@@ -230,12 +236,18 @@ export default function CompareScreen() {
                         onPress={() => handleVote(opponent.rating_id)}
                         disabled={isProcessing}
                     >
-                        <Image
-                            source={{ uri: opponent.photo_url }}
-                            style={styles.cardImage}
-                            contentFit="cover"
-                            transition={200}
-                        />
+                        {opponent.photo_url ? (
+                            <Image
+                                source={{ uri: opponent.photo_url }}
+                                style={styles.cardImage}
+                                contentFit="cover"
+                                transition={200}
+                            />
+                        ) : (
+                            <View style={[styles.cardImage, styles.noPhotoPlaceholder]}>
+                                <IconSymbol name="restaurant-outline" size={40} color="#666" />
+                            </View>
+                        )}
                         <LinearGradient
                             colors={['transparent', 'rgba(0,0,0,0.8)']}
                             style={styles.cardGradient}
@@ -338,6 +350,11 @@ const createThemedStyles = (
         },
         cardImage: {
             ...StyleSheet.absoluteFillObject,
+        },
+        noPhotoPlaceholder: {
+            backgroundColor: theme.color.surface,
+            alignItems: 'center',
+            justifyContent: 'center',
         },
         cardGradient: {
             position: 'absolute',

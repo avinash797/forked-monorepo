@@ -10,7 +10,7 @@ export interface BattleOpponent {
     rating_id: string;
     restaurant_id: string;
     restaurant_name: string;
-    photo_url: string;
+    photo_url: string | null;
     derived_score: number | null;
     elo_score: number | null;
 }

@@ -196,13 +196,10 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             marginBottom: theme.space.lg,
         },
         bannerWrapper: {
-            ...makeShadow(theme, 'md'),
+            ...makeShadow(theme, 'sm'),
             height: BANNER_HEIGHT,
             borderRadius: theme.radius.md,
-            backgroundColor:
-                theme.mode === 'dark'
-                    ? theme.color.surface
-                    : theme.color.surface,
+            backgroundColor: theme.color.surface,
             borderWidth: 1,
             borderColor:
                 theme.mode === 'dark'

@@ -85,11 +85,6 @@ export default function RatingScreen() {
             return;
         }
 
-        if (!photoUri) {
-            Alert.alert('Photo Required', 'Please add a photo of the dish');
-            return;
-        }
-
         if (!user) {
             Alert.alert('Error', 'You must be logged in to submit a rating');
             return;
@@ -169,7 +164,7 @@ export default function RatingScreen() {
         }
     };
 
-    const canSubmit = sentiment !== null && photoUri !== null && !isSubmitting && !isUploading;
+    const canSubmit = sentiment !== null && !isSubmitting && !isUploading;
 
     return (
         <ScrollView style={styles.container} contentInsetAdjustmentBehavior="automatic">
@@ -212,7 +207,6 @@ export default function RatingScreen() {
                         onRemovePhoto={handleRemovePhoto}
                         maxPhotos={1}
                         isLoading={isUploading}
-                        required
                     />
                 </ThemedView>
 

@@ -14,7 +14,7 @@ export interface BattleOpponent {
     restaurant_name: string;
     elo_score: number;
     derived_score: number;
-    photo_url: string;
+    photo_url: string | null;
 }
 
 // ── create_rating ───────────────────────────────────────────────────
@@ -81,7 +81,7 @@ export interface PersonalRankingEntry {
     elo_score: number;
     derived_score: number;
     sentiment: 'liked' | 'okay' | 'disliked';
-    photo_url: string;
+    photo_url: string | null;
     comparison_count: number;
     notes: string | null;
     rated_at: string;

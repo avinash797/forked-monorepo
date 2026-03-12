@@ -23,7 +23,7 @@ export type LeaderboardEntry = {
     derived_score?: number;
     total_ratings?: number;
     featured_photo_url?: string | null;
-    photo_url?: string;
+    photo_url?: string | null;
 };
 
 interface LeaderboardRowProps {
@@ -73,7 +73,7 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
                     {item.featured_photo_url || item.photo_url ? (
                         <Image
                             source={{
-                                uri: item.featured_photo_url || item.photo_url,
+                                uri: item.featured_photo_url ?? item.photo_url ?? undefined,
                             }}
                             style={styles.photo}
                             contentFit="cover"
