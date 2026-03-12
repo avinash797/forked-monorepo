@@ -1,7 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/contexts/theme-provider';
-import { AddressData, usePlacesSearch } from '@/hooks/use-address-search';
+import { AddressData, useAddressSearch } from '@/hooks/use-address-search';
 import { useLocation } from '@/hooks/use-location';
 import React, { useState } from 'react';
 import {
@@ -33,7 +33,7 @@ export function AddressAutocomplete({
         error,
         selectAddress,
         clearSearch,
-    } = usePlacesSearch({
+    } = useAddressSearch({
         proximity: location
             ? { longitude: location.longitude, latitude: location.latitude }
             : null,

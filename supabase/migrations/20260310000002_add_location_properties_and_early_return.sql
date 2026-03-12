@@ -8,6 +8,8 @@
 ALTER TABLE public.restaurants
     ADD COLUMN IF NOT EXISTS location_properties JSONB;
 
+DROP FUNCTION IF EXISTS public.upsert_restaurant_from_google(TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, DOUBLE PRECISION, DOUBLE PRECISION, TEXT, TEXT, TEXT[]);
+
 CREATE OR REPLACE FUNCTION public.upsert_restaurant_from_google(
         p_google_place_id TEXT,
         p_name TEXT,
