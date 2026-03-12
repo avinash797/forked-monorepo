@@ -128,7 +128,7 @@ export function useNearbyGooglePlaces(options: UseNearbyGooglePlacesOptions) {
     });
 }
 
-export function useAddressSearch(options?: UseAddressSearchOptions) {
+export function usePlacesSearch(options?: UseAddressSearchOptions) {
     const [query, setQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
 
@@ -198,7 +198,7 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
 
     // Details Mutation
     const {
-        mutateAsync: selectAddress,
+        mutateAsync: selectPlace,
         isPending: isSelecting,
         error: selectError,
     } = useMutation({
@@ -287,7 +287,7 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
         suggestions,
         loading: isSearching || isSelecting,
         error,
-        selectAddress,
+        selectAddress: selectPlace,
         clearSearch,
     };
 }

@@ -1,29 +1,16 @@
+import { useTheme } from '@/contexts/theme-provider';
 import { HeaderBackButton } from '@react-navigation/elements';
 import { Stack, useRouter } from 'expo-router';
-import { useTheme } from '@/contexts/theme-provider';
 
 export default function RatingLayout() {
     const router = useRouter();
     const { theme } = useTheme();
     return (
-        <Stack
-            screenOptions={{
-                headerBackTitle: 'Back',
-            }}
-        >
+        <Stack screenOptions={{ headerLeft: () => <HeaderBackButton onPress={() => router.back()} tintColor={theme.color.textPrimary} /> }}>
             <Stack.Screen
                 name="index"
                 options={{
                     title: 'Find Restaurant',
-                    headerLeft: process.env.EXPO_OS === 'ios'
-                        ? (props) => (
-                            <HeaderBackButton
-                                {...props}
-                                tintColor={theme.color.textPrimary}
-                                onPress={() => router.back()}
-                            />
-                        )
-                        : undefined,
                 }}
             />
             <Stack.Screen

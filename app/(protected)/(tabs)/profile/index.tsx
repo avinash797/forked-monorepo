@@ -144,7 +144,7 @@ export default function ProfileScreen() {
             <ThemedView style={styles.container}>
                 {/* Settings Button (Always visible but transitions) */}
                 <View style={[styles.topControls]}>
-                    <Link href="/profile/edit" asChild>
+                    <Link href="/(protected)/(profile)/edit" asChild>
                         <Pressable>
                             {({ pressed }) => (
                                 <Animated.View
@@ -163,7 +163,7 @@ export default function ProfileScreen() {
                             )}
                         </Pressable>
                     </Link>
-                    <Link href="/profile/settings" asChild>
+                    <Link href="/(protected)/(profile)/settings" asChild>
                         <Pressable>
                             {({ pressed }) => (
                                 <Animated.View
