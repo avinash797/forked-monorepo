@@ -251,6 +251,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         container: {
             flex: 1,
+            overflow: 'hidden',
         },
         stickyHeader: {
             backgroundColor: theme.color.bg,
