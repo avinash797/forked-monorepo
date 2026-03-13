@@ -98,35 +98,36 @@ export default function RisingStarCard({
                         <ThemedText
                             type="subtitle"
                             numberOfLines={1}
-                            style={styles.restaurantName}
+                            style={styles.dishTypeName}
                         >
-                            {dish.restaurant_name}
-                        </ThemedText>
-                        {dish.neighborhood_name && (
-                            <ThemedText style={styles.detailText}>
-                                <IconSymbol
-                                    name="location-outline"
-                                    size={16}
-                                    color={theme.color.textSecondary}
-                                />
-                                {dish.neighborhood_name}
-                            </ThemedText>
-                        )}
-                    </View>
-
-                    <View style={styles.detailsRow}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                             <DishTypeIcon
                                 icon={dish.dish_type_icon}
                                 emoji={dish.dish_type_emoji}
                                 size={16}
-                            />
-                            <ThemedText style={styles.dishType}>
-                                {dish.dish_type_name}
-                            </ThemedText>
-                        </View>
+                            /> {" "}
+                            {dish.dish_type_name}
+                        </ThemedText>
 
                         <ScoreBadge score={dish.bayesian_score} />
+                    </View>
+
+                    <View style={styles.detailsRow}>
+                        <View>
+                            <ThemedText style={styles.restaurantName}>
+                                @ {dish.restaurant_name}
+                            </ThemedText>
+                            {dish.neighborhood_name && (
+                                <ThemedText style={styles.detailText}>
+                                    <IconSymbol
+                                        name="location-outline"
+                                        size={16}
+                                        color={theme.color.textSecondary}
+                                    />
+                                    {dish.neighborhood_name}
+                                </ThemedText>
+                            )}
+                        </View>
+
                     </View>
 
                     <View style={styles.scoreRow}>
@@ -176,7 +177,7 @@ export function RisingStarCardEmpty() {
 
                 {/* Content */}
                 <View style={styles.content}>
-                    <ThemedText type="subtitle" style={styles.restaurantName}>
+                    <ThemedText type="subtitle" style={styles.dishTypeName}>
                         Hidden Gems Await
                     </ThemedText>
                     <ThemedText style={styles.emptySubtext}>
@@ -306,14 +307,14 @@ const createStyles = (theme: any, windowWidth: number) =>
         },
         headerRow: {
             flexDirection: 'row',
-            justifyContent: 'flex-start',
-            alignItems: 'flex-end',
+            justifyContent: 'space-between',
+            alignItems: 'center',
             gap: theme.space.xs,
-            marginBottom: 4,
         },
-        restaurantName: {
+        dishTypeName: {
             fontSize: 20,
             fontWeight: '700',
+            textAlignVertical: 'center',
         },
         detailsRow: {
             flexDirection: 'row',
@@ -321,8 +322,8 @@ const createStyles = (theme: any, windowWidth: number) =>
             justifyContent: 'space-between',
             marginBottom: theme.space.xs,
         },
-        dishType: {
-            color: theme.color.textPrimary,
+        restaurantName: {
+            color: theme.color.textSecondary,
             fontSize: 14,
             fontWeight: '600',
         },
