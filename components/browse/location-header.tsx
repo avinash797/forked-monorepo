@@ -86,7 +86,8 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     StyleSheet.create({
         container: {
             gap: theme.space.xs,
-            paddingVertical: theme.space.xxs,
+            paddingTop: theme.space.xxs,
+            paddingBottom: theme.space.sm,
             paddingHorizontal: theme.space.md,
         },
         locationWrapper: {
@@ -111,6 +112,6 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             fontWeight: theme.font.weight.medium,
         },
         searchWrapper: {
-            flex: 1,
+            width: '100%',
         },
     });
