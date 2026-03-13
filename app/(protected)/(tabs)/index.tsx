@@ -130,7 +130,6 @@ export default function HomeScreen() {
                                 horizontal
                                 showsHorizontalScrollIndicator={false}
                                 style={styles.heroSectionWrapper}
-                                contentContainerStyle={{ paddingHorizontal: theme.space.md }}
                             >
                                 {isLoading ? (
                                     // Show skeletons during loading
@@ -174,7 +173,6 @@ export default function HomeScreen() {
                                 horizontal
                                 showsHorizontalScrollIndicator={false}
                                 style={styles.heroSectionWrapper}
-                                contentContainerStyle={{ paddingHorizontal: theme.space.md }}
                             >
                                 {isLoading ? (
                                     // Show skeletons during loading
@@ -221,19 +219,10 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             backgroundColor: theme.color.bg,
         },
         container: {
-            flex: 1,
-        },
-        headerText: {
-            fontSize: 36,
-            fontWeight: theme.font.weight.bold,
-            lineHeight: 40,
-        },
-        headerCaptionContainer: {
-            paddingHorizontal: theme.space.md,
+
         },
         heroSectionWrapper: {
             gap: theme.space.md,
-            flex: 1,
         },
         heroSection: {
             marginTop: theme.space.md,
@@ -258,20 +247,5 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         loadingContainer: {
             padding: theme.space.xl,
             alignItems: 'center',
-        },
-        expandButton: {
-            alignItems: 'center',
-            padding: theme.space.md,
-        },
-        expandText: {
-            color: theme.color.textSecondary,
-            fontSize: 14,
-            fontWeight: '600',
-        },
-        runnersUpContainer: {
-            padding: theme.space.md,
-            backgroundColor: theme.color.surface,
-            marginHorizontal: theme.space.md,
-            borderRadius: theme.radius.md,
         },
     });
