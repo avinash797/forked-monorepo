@@ -3,6 +3,7 @@ import DishTypePills from '@/components/Discover/dish-type-pills';
 import {
     LeaderboardEntry,
     LeaderboardRow,
+    LeaderboardRowSkeleton,
 } from '@/components/Discover/leaderboard-row';
 import { LeaderboardShareModal } from '@/components/share/leaderboard-share-modal';
 import { ThemedText } from '@/components/themed-text';
@@ -53,10 +54,10 @@ export default function LeaderboardScreen() {
     const cityId = selectedCityId;
 
     // Fetch city-prioritized dish types
-    const { data: cityDishTypes } = useCityDishTypes(cityId);
+    const { data: cityDishTypes, isPending: isCityDishTypesPending } = useCityDishTypes(cityId);
 
     // Fetch entry counts to sort pills by activity
-    const { data: dishTypeCounts } = useLeaderboardDishTypeCounts(cityId);
+    const { data: dishTypeCounts, isPending: isDishTypeCountsPending } = useLeaderboardDishTypeCounts(cityId);
 
     const sortedDishTypes = useMemo(() => {
         if (!cityDishTypes?.length) return [];
@@ -72,7 +73,8 @@ export default function LeaderboardScreen() {
     // Fetch leaderboard data
     const {
         data: leaderboardData,
-        isLoading,
+        isPending,
+        isFetching,
         error,
         refetch,
     } = useGetLeaderboardByDishType({
@@ -177,7 +179,7 @@ export default function LeaderboardScreen() {
             <ScrollView
                 refreshControl={
                     <RefreshControl
-                        refreshing={isLoading}
+                        refreshing={isFetching && !isPending}
                         onRefresh={() => refetch()}
                         tintColor={theme.color.accent}
                         progressViewOffset={insets.top + 20}
@@ -187,7 +189,13 @@ export default function LeaderboardScreen() {
                 showsVerticalScrollIndicator={false}
                 contentInsetAdjustmentBehavior="automatic"
             >
-                {!isLoading && leaderboardItems.length === 0 ? (
+                {(isCityDishTypesPending || isDishTypeCountsPending || (selectedDishType && isPending)) ? (
+                    [0, 1, 2, 3, 4].map((i) => (
+                        <LeaderboardRowSkeleton key={i} />
+                    ))
+                ) : null}
+
+                {selectedDishType && !isPending && leaderboardItems.length === 0 ? (
                     <View style={styles.emptyContainer}>
                         <EmptyState
                             icon="restaurant-outline"

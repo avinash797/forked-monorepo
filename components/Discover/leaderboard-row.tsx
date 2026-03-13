@@ -4,7 +4,14 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useEffect } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Animated, {
+    useAnimatedStyle,
+    useSharedValue,
+    withRepeat,
+    withTiming,
+} from 'react-native-reanimated';
 
 /**
  * Row display type that accepts both leaderboard and personal ranking data.
@@ -121,6 +128,71 @@ export function LeaderboardRow({ item, onPress }: LeaderboardRowProps) {
         </Pressable>
     );
 }
+
+export function LeaderboardRowSkeleton() {
+    const { theme } = useTheme();
+    const opacity = useSharedValue(1);
+
+    useEffect(() => {
+        opacity.value = withRepeat(withTiming(0.35, { duration: 750 }), -1, true);
+    }, []);
+
+    const animStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+    const bg = theme.color.surface2;
+
+    return (
+        <Animated.View style={[skeletonStyles.container, { backgroundColor: theme.color.surface }, animStyle]}>
+            <View style={skeletonStyles.content}>
+                <View style={[skeletonStyles.rank, { backgroundColor: bg }]} />
+                <View style={[skeletonStyles.photo, { backgroundColor: bg, borderRadius: theme.radius.sm }]} />
+                <View style={skeletonStyles.info}>
+                    <View style={[skeletonStyles.nameLine, { backgroundColor: bg, borderRadius: 4 }]} />
+                    <View style={[skeletonStyles.subLine, { backgroundColor: bg, borderRadius: 4 }]} />
+                </View>
+                <View style={[skeletonStyles.score, { backgroundColor: bg, borderRadius: theme.radius.sm }]} />
+            </View>
+        </Animated.View>
+    );
+}
+
+const skeletonStyles = StyleSheet.create({
+    container: {
+        marginBottom: 8,
+        borderRadius: 12,
+        overflow: 'hidden',
+    },
+    content: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 10,
+        gap: 10,
+    },
+    rank: {
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+    },
+    photo: {
+        width: 68,
+        height: 68,
+    },
+    info: {
+        flex: 1,
+        gap: 8,
+    },
+    nameLine: {
+        height: 14,
+        width: '75%',
+    },
+    subLine: {
+        height: 11,
+        width: '50%',
+    },
+    score: {
+        width: 44,
+        height: 44,
+    },
+});
 
 function getMedal(rank: number): 'gold' | 'silver' | 'bronze' | undefined {
     if (rank === 1) return 'gold';

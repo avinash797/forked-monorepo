@@ -3,6 +3,7 @@ import DishTypePills from '@/components/Discover/dish-type-pills';
 import {
     LeaderboardEntry,
     LeaderboardRow,
+    LeaderboardRowSkeleton,
 } from '@/components/Discover/leaderboard-row';
 import { LeaderboardShareModal } from '@/components/share/leaderboard-share-modal';
 import { ThemedText } from '@/components/themed-text';
@@ -33,8 +34,8 @@ const personal = () => {
     const [shareModalVisible, setShareModalVisible] = useState(false);
 
     // Fetch dish types and user stats, then filter to only types the user has rated
-    const { data: allDishTypes } = useDishTypes();
-    const { data: userStats } = useUserStats(user?.id);
+    const { data: allDishTypes, isPending: isDishTypesPending } = useDishTypes();
+    const { data: userStats, isPending: isUserStatsPending } = useUserStats(user?.id);
 
     const personalDishTypes = useMemo(() => {
         if (!userStats?.dishes_by_type) return [];
@@ -47,7 +48,8 @@ const personal = () => {
 
     const {
         data: dishRankingsData,
-        isLoading: isLoadingDishRankings,
+        isPending: isDishRankingsPending,
+        isFetching: isDishRankingsFetching,
         refetch,
     } = useMyDishRankings(selectedDishType?.id);
 
@@ -113,7 +115,7 @@ const personal = () => {
             <ScrollView
                 refreshControl={
                     <RefreshControl
-                        refreshing={isLoadingDishRankings}
+                        refreshing={isDishRankingsFetching && !isDishRankingsPending}
                         onRefresh={() => refetch()}
                         tintColor={theme.color.accent}
                     />
@@ -122,16 +124,32 @@ const personal = () => {
                 showsVerticalScrollIndicator={false}
                 contentInsetAdjustmentBehavior="automatic"
             >
-                {!isLoadingDishRankings && dishRankings.length === 0 ? (
+                {(isDishTypesPending || isUserStatsPending || (selectedDishType && isDishRankingsPending)) ? (
+                    [0, 1, 2, 3, 4].map((i) => (
+                        <LeaderboardRowSkeleton key={i} />
+                    ))
+                ) : null}
+
+                {selectedDishType && !isDishRankingsPending && dishRankings.length === 0 ? (
                     <View style={styles.emptyContainer}>
                         <EmptyState
                             icon="restaurant-outline"
                             title="No Rankings Yet"
-                            message={
-                                selectedDishType
-                                    ? `You don't seem to have rated any ${selectedDishType.name} yet. Start by rating one!`
-                                    : 'This is where you will see your best dishes. \nStart by rating one!'
+                            message={`You don't seem to have rated any ${selectedDishType.name} yet. Start by rating one!`}
+                            actionLabel="Rate a Dish"
+                            onActionPress={() =>
+                                router.push('/(protected)/(rating)')
                             }
+                        />
+                    </View>
+                ) : null}
+
+                {!selectedDishType && !isDishRankingsPending && dishRankings.length === 0 ? (
+                    <View style={styles.emptyContainer}>
+                        <EmptyState
+                            icon="restaurant-outline"
+                            title="No Rankings Yet"
+                            message={'This is where you will see your best dishes. \nStart by rating one!'}
                             actionLabel="Rate a Dish"
                             onActionPress={() =>
                                 router.push('/(protected)/(rating)')
