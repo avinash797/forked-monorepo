@@ -5,7 +5,7 @@ import HeroCard, {
     HeroCardSkeleton,
 } from '@/components/Discover/hero-card';
 import { RecentBattleTicker } from '@/components/Discover/recent-battle-ticker';
-import RisingStarCard, {
+import RisingStarCard,  {
     RisingStarCardEmpty,
     RisingStarCardSkeleton,
 } from '@/components/Discover/rising-star-card';
@@ -21,7 +21,7 @@ import { useLocationFilterStore, useLocationStore } from '@/stores';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Animated, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const DEFAULT_CITY_NAME = 'New Orleans';
@@ -36,6 +36,18 @@ export default function HomeScreen() {
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
     const bottomSheetRef = useRef<BottomSheetModal>(null);
+    const scrollY = useRef(new Animated.Value(0)).current;
+
+    const headerShadowOpacity = scrollY.interpolate({
+        inputRange: [0, 10],
+        outputRange: [0, 0.1],
+        extrapolate: 'clamp',
+    });
+    const headerElevation = scrollY.interpolate({
+        inputRange: [0, 10],
+        outputRange: [0, 4],
+        extrapolate: 'clamp',
+    });
 
     // Build location filter based on current filter state
     const locationFilter: DiscoverLocationFilter = useMemo(() => {
@@ -100,9 +112,30 @@ export default function HomeScreen() {
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']} >
             <ThemedView style={styles.container}>
-                <ScrollView
+                {/* Sticky header with scroll-driven shadow */}
+                <Animated.View
+                    style={[
+                        styles.stickyHeader,
+                        {
+                            shadowOpacity: headerShadowOpacity,
+                            elevation: headerElevation,
+                        },
+                    ]}
+                >
+                    <LocationHeader
+                        onLocationPress={handleLocationPress}
+                        onSearchPress={handleSearchPress}
+                    />
+                </Animated.View>
+
+                <Animated.ScrollView
                     showsVerticalScrollIndicator={false}
                     contentInsetAdjustmentBehavior="automatic"
+                    onScroll={Animated.event(
+                        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                        { useNativeDriver: false }
+                    )}
+                    scrollEventThrottle={16}
                     refreshControl={
                         <RefreshControl
                             refreshing={refreshing}
@@ -111,10 +144,6 @@ export default function HomeScreen() {
                         />
                     }
                 >
-                    <LocationHeader
-                        onLocationPress={handleLocationPress}
-                        onSearchPress={handleSearchPress}
-                    />
                     <View style={styles.heroSection}>
 
                         <RecentBattleTicker />
@@ -202,7 +231,7 @@ export default function HomeScreen() {
                     </View>
 
 
-                </ScrollView>
+                </Animated.ScrollView>
             </ThemedView>
 
             {/* Location Filter Bottom Sheet */}
@@ -222,6 +251,13 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         container: {
             flex: 1,
+        },
+        stickyHeader: {
+            backgroundColor: theme.color.bg,
+            zIndex: 10,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowRadius: 8,
         },
         headerText: {
             fontSize: 36,
