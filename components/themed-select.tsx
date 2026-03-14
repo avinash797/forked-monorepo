@@ -2,8 +2,8 @@ import { useTheme } from '@/contexts/theme-provider';
 import {
     BottomSheetBackdrop,
     BottomSheetModal,
-    BottomSheetView,
     BottomSheetScrollView,
+    BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import type { BottomSheetDefaultBackdropProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types';
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -203,7 +203,7 @@ export function ThemedSelect({
                     )}
                     <BottomSheetScrollView
                         style={styles.optionsList}
-                        contentContainerStyle={{ paddingBottom: bottom + 24 }}
+                        contentContainerStyle={{ paddingBottom: bottom * 3 }}
                     >
                         {filteredOptions.length === 0 ? (
                             <View style={styles.emptyState}>
