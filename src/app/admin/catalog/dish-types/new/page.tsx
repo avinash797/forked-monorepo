@@ -10,14 +10,14 @@ export default function NewDishTypePage() {
       <div className="mb-6">
         <Link
           href="/admin/catalog/dish-types"
-          className="flex items-center gap-1 text-sm text-[#9BA1A6] hover:text-[#ECEDEE] transition-colors mb-3"
+          className="flex items-center gap-1 text-sm text-text-tertiary hover:text-text-primary transition-colors mb-3"
         >
           <ChevronLeft className="w-4 h-4" /> Back to Dish Types
         </Link>
-        <h1 className="text-2xl font-bold text-[#ECEDEE]">New Dish Type</h1>
+        <h1 className="text-2xl font-bold text-text-primary">New Dish Type</h1>
       </div>
 
-      <div className="bg-[#342219] border border-[#4a3728] rounded-lg p-6">
+      <div className="bg-surface border border-border rounded-lg p-6">
         <DishTypeForm />
       </div>
     </div>

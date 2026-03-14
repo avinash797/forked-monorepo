@@ -262,6 +262,7 @@ All leaderboard and landing pages use `export const revalidate = 600` (10 minute
 - **Error handling** — Supabase calls should use try/catch and return empty arrays/fallback data on failure. Pages should never crash due to a Supabase error.
 - **Import aliases** — use `@/` (maps to `./src/`).
 - **File naming** — kebab-case for all files and directories.
+- **Database migrations** — never make changes to the database schema without a migration file in `supabase/migrations/`. If you need to make changes to the database schema, create a migration file in `supabase/migrations/`, I will manually apply the migration and generate the database types.
 
 ## Phase Status
 
