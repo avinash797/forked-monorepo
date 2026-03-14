@@ -19,12 +19,12 @@ const faqs: FaqItem[] = [
   {
     question: "Why are photos mandatory?",
     answer:
-      "Photos keep ratings honest. They prove you actually ate the dish, they make leaderboards visually compelling, and they help other users discover new food. A rating without a photo is just a number — a rating with a photo tells a story.",
+      "Because anyone can leave a number. Not everyone can prove they showed up. A photo means you sat down, ordered the dish, and ate it. It's the minimum bar for honesty — and it makes the leaderboard look incredible.",
   },
   {
     question: "How many battles does a dish need to be ranked?",
     answer:
-      "A dish needs a minimum number of battles before it appears on public leaderboards. This ensures rankings are statistically meaningful, not just based on one or two opinions. The more battles, the higher the confidence score.",
+      "A dish needs a minimum number of battles before it appears on public leaderboards. This ensures rankings are statistically meaningful, not just based on one or two opinions. The more battles, the higher the confidence score — and the harder it is to knock the top dish off its perch.",
   },
   {
     question: "Can restaurants pay to boost their ranking?",
@@ -34,7 +34,7 @@ const faqs: FaqItem[] = [
   {
     question: "Is Forked available in my city?",
     answer:
-      "We launched in New Orleans and are expanding to new cities based on demand. If you want Forked in your city, download the app and start rating — we prioritize cities with active user communities.",
+      "We launched in New Orleans and are expanding to new cities based on demand. We prioritize cities where the argument is already happening — where locals are already debating the best dish. Download the app and start rating. Active communities get cities first.",
   },
 ];
 
@@ -74,7 +74,7 @@ export function FaqAccordion() {
               }}
               aria-expanded={openIndex === i}
               aria-controls={`faq-answer-${i}`}
-              className="w-full flex items-center justify-between p-5 text-left hover:bg-surface-2 transition-colors"
+              className="w-full flex items-center justify-between p-5 text-left hover:bg-surface-2 transition-colors cursor-pointer"
             >
               <span className="text-sm font-bold text-text-primary pr-4">
                 {faq.question}
