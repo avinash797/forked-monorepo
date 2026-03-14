@@ -18,6 +18,8 @@ export type DishTypeDetail = {
   name: string;
   slug: string;
   emoji: string | null;
+  icon: string | null;
+  placeholder_photo_url: string | null;
   aliases: string[] | null;
   launch_order: number | null;
   is_active: boolean | null;
@@ -123,7 +125,7 @@ export async function getDishTypeById(id: string): Promise<DishTypeDetail | null
 
   const { data } = await supabase
     .from("dish_types")
-    .select("id, name, slug, emoji, aliases, launch_order, is_active, created_at")
+    .select("id, name, slug, emoji, icon, placeholder_photo_url, aliases, launch_order, is_active, created_at")
     .eq("id", id)
     .single();
 
