@@ -18,6 +18,8 @@ export type DishTypeDetail = {
   name: string;
   slug: string;
   emoji: string | null;
+  icon: string | null;
+  placeholder_photo_url: string | null;
   aliases: string[] | null;
   launch_order: number | null;
   is_active: boolean | null;
@@ -123,7 +125,7 @@ export async function getDishTypeById(id: string): Promise<DishTypeDetail | null
 
   const { data } = await supabase
     .from("dish_types")
-    .select("id, name, slug, emoji, aliases, launch_order, is_active, created_at")
+    .select("id, name, slug, emoji, icon, placeholder_photo_url, aliases, launch_order, is_active, created_at")
     .eq("id", id)
     .single();
 
@@ -235,4 +237,86 @@ export async function getAllDishTypesForPicker(): Promise<DishTypePickerItem[]> 
     .order("name", { ascending: true });
 
   return (data ?? []) as DishTypePickerItem[];
+}
+
+// ─── Badges ───────────────────────────────────────────────────────────────────
+
+export type BadgeCategory = "milestone" | "battle" | "explorer" | "dish_type";
+export type BadgeRuleType =
+  | "total_ratings"
+  | "total_comparisons"
+  | "cities_count"
+  | "dish_types_count"
+  | "dish_type_count";
+
+export type BadgeRow = {
+  id: string;
+  slug: string;
+  name: string;
+  category: BadgeCategory;
+  rule_type: BadgeRuleType;
+  threshold: number | null;
+  is_active: boolean;
+  is_featured: boolean;
+  sort_order: number;
+  earned_count: number;
+  created_at: string | null;
+};
+
+export type BadgeDetail = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  image_url: string;
+  category: BadgeCategory;
+  dish_type_id: string | null;
+  threshold: number | null;
+  rule_type: BadgeRuleType;
+  is_active: boolean;
+  is_featured: boolean;
+  sort_order: number;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+export async function getBadges(): Promise<BadgeRow[]> {
+  const supabase = await createClient();
+
+  const { data: badges } = await supabase
+    .from("badge_definitions")
+    .select(
+      "id, slug, name, category, rule_type, threshold, is_active, is_featured, sort_order, created_at"
+    )
+    .order("sort_order", { ascending: true });
+
+  if (!badges) return [];
+
+  const { data: userBadges } = await supabase
+    .from("user_badges")
+    .select("badge_id");
+
+  const earnedCounts: Record<string, number> = {};
+  for (const ub of userBadges ?? []) {
+    earnedCounts[ub.badge_id] = (earnedCounts[ub.badge_id] ?? 0) + 1;
+  }
+
+  return badges.map((b) => ({
+    ...b,
+    earned_count: earnedCounts[b.id] ?? 0,
+  })) as BadgeRow[];
+}
+
+export async function getBadgeById(id: string): Promise<BadgeDetail | null> {
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("badge_definitions")
+    .select(
+      "id, slug, name, description, image_url, category, dish_type_id, threshold, rule_type, is_active, is_featured, sort_order, created_at, updated_at"
+    )
+    .eq("id", id)
+    .single();
+
+  return data as BadgeDetail | null;
 }

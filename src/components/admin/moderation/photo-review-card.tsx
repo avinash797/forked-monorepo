@@ -9,7 +9,7 @@ export function PhotoReviewCard({ photo }: PhotoReviewCardProps) {
     <div className="bg-surface border border-border rounded-sm overflow-hidden">
       <div className="aspect-square relative">
         <img
-          src={photo.photo_url}
+          src={photo.photo_url ?? undefined}
           alt={`${photo.dish_type_name} at ${photo.restaurant_name}`}
           className="w-full h-full object-cover"
         />

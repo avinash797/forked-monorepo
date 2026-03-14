@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const tabs = [
   { label: "Dish Types", href: "/admin/catalog/dish-types" },
   { label: "Cities", href: "/admin/catalog/cities" },
+  { label: "Badges", href: "/admin/catalog/badges" },
 ];
 
 export default function CatalogLayout({

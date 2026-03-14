@@ -75,7 +75,7 @@ export async function getFlagCounts() {
 
 export type PhotoForReview = {
   id: string;
-  photo_url: string;
+  photo_url: string | null;
   derived_score: number | null;
   restaurant_name: string;
   dish_type_name: string;

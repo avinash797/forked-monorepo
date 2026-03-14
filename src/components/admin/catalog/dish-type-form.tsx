@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X } from "lucide-react";
+import { Plus, X, FolderOpen, ChevronDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { DishTypeDetail } from "@/lib/admin/catalog-queries";
 
@@ -25,6 +25,10 @@ export function DishTypeForm({
   const [slug, setSlug] = useState(dishType?.slug ?? "");
   const [autoSlug, setAutoSlug] = useState(!isEditing);
   const [emoji, setEmoji] = useState(dishType?.emoji ?? "");
+  const [icon, setIcon] = useState(dishType?.icon ?? "");
+  const [placeholderPhotoUrl, setPlaceholderPhotoUrl] = useState(
+    dishType?.placeholder_photo_url ?? "",
+  );
   const [aliases, setAliases] = useState<string[]>(dishType?.aliases ?? []);
   const [launchOrder, setLaunchOrder] = useState(
     dishType?.launch_order != null ? String(dishType.launch_order) : "",
@@ -32,6 +36,47 @@ export function DishTypeForm({
   const [isActive, setIsActive] = useState(dishType?.is_active ?? true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [bucketFiles, setBucketFiles] = useState<string[]>([]);
+  const [bucketOpen, setBucketOpen] = useState(false);
+  const [bucketLoading, setBucketLoading] = useState(false);
+  const bucketRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!bucketOpen) return;
+    const handle = (e: MouseEvent) => {
+      if (bucketRef.current && !bucketRef.current.contains(e.target as Node)) {
+        setBucketOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [bucketOpen]);
+
+  async function openBucket() {
+    setBucketOpen(true);
+    if (bucketFiles.length > 0) return;
+    setBucketLoading(true);
+    try {
+      const supabase = createClient();
+      const { data } = await supabase.storage
+        .from("dish_placeholders")
+        .list("", { limit: 200, sortBy: { column: "name", order: "asc" } });
+      console.log(data);
+      setBucketFiles((data ?? []).map((f) => f.name));
+    } finally {
+      setBucketLoading(false);
+    }
+  }
+
+  function selectBucketFile(fileName: string) {
+    const supabase = createClient();
+    const { data } = supabase.storage
+      .from("dish_placeholders")
+      .getPublicUrl(fileName);
+    setPlaceholderPhotoUrl(data.publicUrl);
+    setBucketOpen(false);
+  }
 
   useEffect(() => {
     if (autoSlug) {
@@ -61,6 +106,8 @@ export function DishTypeForm({
       name: name.trim(),
       slug: slug.trim(),
       emoji: emoji.trim() || null,
+      icon: icon.trim() || null,
+      placeholder_photo_url: placeholderPhotoUrl.trim() || null,
       aliases: aliases.filter((a) => a.trim() !== ""),
       launch_order: launchOrder ? parseInt(launchOrder, 10) : null,
       is_active: isActive,
@@ -172,6 +219,75 @@ export function DishTypeForm({
             min="1"
           />
         </div>
+
+        <div className="col-span-2">
+          <label className="block text-sm font-medium text-text-secondary mb-1">
+            Icon <span className="text-text-tertiary text-xs">(SVG markup)</span>
+          </label>
+          <textarea
+            value={icon}
+            onChange={(e) => setIcon(e.target.value)}
+            rows={5}
+            className="w-full px-3 py-2 bg-surface-2 border border-border rounded text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent font-mono text-xs resize-y"
+            placeholder="<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; ...>...</svg>"
+          />
+        </div>
+
+        <div className="col-span-2">
+          <label className="block text-sm font-medium text-text-secondary mb-1">
+            Placeholder Photo URL
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="url"
+              value={placeholderPhotoUrl}
+              onChange={(e) => setPlaceholderPhotoUrl(e.target.value)}
+              className="flex-1 px-3 py-2 bg-surface-2 border border-border rounded text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent text-sm"
+              placeholder="https://..."
+            />
+            <div className="relative" ref={bucketRef}>
+              <button
+                type="button"
+                onClick={openBucket}
+                className="flex items-center gap-1 px-3 py-2 text-xs bg-surface border border-border rounded text-text-secondary hover:text-text-primary hover:border-accent transition-colors whitespace-nowrap"
+              >
+                <FolderOpen className="w-3.5 h-3.5" />
+                Browse
+                <ChevronDown className="w-3 h-3" />
+              </button>
+              {bucketOpen && (
+                <div className="absolute right-0 top-full mt-1 z-50 w-72 bg-surface border border-border rounded shadow-lg max-h-64 overflow-y-auto">
+                  {bucketLoading ? (
+                    <p className="px-3 py-2 text-xs text-text-secondary">Loading...</p>
+                  ) : bucketFiles.length === 0 ? (
+                    <p className="px-3 py-2 text-xs text-text-secondary">No files found.</p>
+                  ) : (
+                    bucketFiles.map((file) => (
+                      <button
+                        key={file}
+                        type="button"
+                        onClick={() => selectBucketFile(file)}
+                        className="w-full text-left px-3 py-2 text-sm text-text-primary hover:bg-surface-2 transition-colors truncate"
+                      >
+                        {file}
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+          {placeholderPhotoUrl && (
+            <div className="mt-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={placeholderPhotoUrl}
+                alt="Placeholder preview"
+                className="h-20 w-20 object-cover rounded border border-border"
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       <div>
@@ -218,14 +334,12 @@ export function DishTypeForm({
         <button
           type="button"
           onClick={() => setIsActive(!isActive)}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-            isActive ? "bg-accent" : "bg-surface-3"
-          }`}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${isActive ? "bg-accent" : "bg-surface-3"
+            }`}
         >
           <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-              isActive ? "translate-x-6" : "translate-x-1"
-            }`}
+            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive ? "translate-x-6" : "translate-x-1"
+              }`}
           />
         </button>
         <span className="text-sm text-text-secondary">
