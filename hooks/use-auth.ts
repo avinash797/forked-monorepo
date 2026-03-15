@@ -102,16 +102,24 @@ export function useAuth(): UseAuthReturn {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(
             async (event: string, newSession: Session | null) => {
-                // Invalidate session query to trigger refetch
-                queryClient.invalidateQueries({
-                    queryKey: AUTH_KEYS.session,
-                });
-
-                // If session changed, invalidate profile
-                if (newSession?.user?.id) {
+                // Only react to meaningful auth changes, not routine token refreshes
+                if (
+                    event === 'SIGNED_IN' ||
+                    event === 'SIGNED_OUT' ||
+                    event === 'PASSWORD_RECOVERY'
+                ) {
                     queryClient.invalidateQueries({
-                        queryKey: AUTH_KEYS.profile(newSession.user.id),
+                        queryKey: AUTH_KEYS.session,
                     });
+
+                    if (newSession?.user?.id) {
+                        queryClient.invalidateQueries({
+                            queryKey: AUTH_KEYS.profile(newSession.user.id),
+                        });
+                    }
+                } else if (event === 'TOKEN_REFRESHED') {
+                    // Update session cache directly without refetching profile
+                    queryClient.setQueryData(AUTH_KEYS.session, newSession);
                 }
             }
         );
