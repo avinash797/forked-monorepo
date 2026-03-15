@@ -24,7 +24,7 @@ const team: TeamMember[] = [
   {
     name: "Coming Soon",
     role: "Head of Engineering",
-    bio: "We're looking for a builder who wants to scale Elo rankings to every dish in every city in the world.",
+    bio: "We're looking for a builder who wants to scale dish rankings to every city in the world.",
   },
 ];
 

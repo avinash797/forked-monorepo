@@ -8,23 +8,23 @@ import { Target, ShieldCheck, Zap, Trophy } from "lucide-react";
 const features = [
   {
     icon: Target,
-    label: "Rank the Food, Not the Vibe",
-    desc: "Rank specific items, not facades.",
+    label: "Rank the Dish. Not the Vibe.",
+    desc: "Your gumbo rating doesn't care if the waiter was slow.",
   },
   {
     icon: ShieldCheck,
-    label: "Battle-Tested Rankings",
-    desc: "No bot-spam or fake averages.",
+    label: "Not Sponsored. Not Paid.",
+    desc: "The only way to climb is to serve better food.",
   },
   {
     icon: Zap,
-    label: "Rate in Seconds",
-    desc: "Rate in 2 seconds. Eat in 2 minutes.",
+    label: "Under 30 Seconds to Vote",
+    desc: "One photo. One battle. Done before the check arrives.",
   },
   {
     icon: Trophy,
-    label: "Defend Your Favorites",
-    desc: "Defend your favorite dish's crown.",
+    label: "Hole-in-the-Wall Energy",
+    desc: "The hidden gems win here. Not the Instagram bait.",
   },
 ];
 
@@ -38,51 +38,72 @@ export function VisionSection() {
       ref={ref}
       className="py-24 md:py-32 px-6 bg-surface relative overflow-hidden"
     >
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
         {/* Text Column */}
         <div className="space-y-8">
-          <motion.h2
-            className="font-display italic font-black text-4xl md:text-6xl"
+          <motion.div
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
-            Google Reviews <br /> Are{" "}
-            <span className="text-accent">Broken.</span>
-          </motion.h2>
+            <p className="text-[10px] font-black tracking-[0.3em] uppercase text-accent mb-4">
+              THE ARGUMENT
+            </p>
+            <h2 className="font-display italic font-black text-4xl md:text-5xl lg:text-6xl leading-tight tracking-tighter">
+              Nobody Eats <br />
+              a <span className="text-accent">Restaurant.</span>
+            </h2>
+          </motion.div>
 
           <motion.div
-            className="space-y-6 text-text-secondary text-lg leading-relaxed font-light"
+            className="space-y-5 text-text-secondary text-lg leading-relaxed font-light"
             animate={isInView ? { opacity: 1 } : { opacity: 0 }}
             transition={{ delay: 0.3, duration: 1 }}
           >
             <p>
-              A 4.8-star steakhouse might serve a completely average burger.
-              Meanwhile, the city&apos;s best Carbonara is hiding at a
-              hole-in-the-wall with 3 stars because the waiter was rude once.
-              We&apos;re fixing that. We rank the food, not the valet parking.
+              The most useful food recommendation you&apos;ll ever get is not
+              &ldquo;go to this restaurant.&rdquo; It&apos;s &ldquo;order the
+              gumbo at Dooky Chase.&rdquo; But every review app gives you the
+              restaurant — the vibe, the service, the parking.
             </p>
-            <p className="border-l-2 border-accent pl-6 italic text-text-primary/80">
-              &ldquo;We&apos;re dropping the curtain on mediocre icons. We value
-              the sweat, the seasoning, and the craft — not the interior
-              design.&rdquo;
+            <p>
+              Your city&apos;s best po&apos;boy is probably at a place with 3
+              stars because the owner was rude once. The overhyped spot with 4.8
+              stars is coasting on its interior design. We only rank the dish.
+              Nothing else.
             </p>
+
+            {/* Editorial pull quote */}
+            <blockquote className="relative pl-6 py-1">
+              <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-accent to-accent/0" />
+              <p className="italic text-text-primary/80 font-medium text-base md:text-lg">
+                &ldquo;The hole-in-the-wall with the best gumbo in the city is
+                losing to a steakhouse with a valet. That&apos;s what
+                we&apos;re here to fix.&rdquo;
+              </p>
+            </blockquote>
           </motion.div>
 
-          <div className="grid grid-cols-2 gap-4">
+          {/* Feature cards: editorial left-border style */}
+          <div className="grid grid-cols-2 gap-x-6 gap-y-5">
             {features.map((item, i) => (
               <motion.div
                 key={item.label}
-                className="bg-surface-2 border border-border p-4 rounded-xl"
+                className="pl-4 border-l-2 border-border hover:border-accent transition-colors duration-300 group cursor-default"
                 animate={
                   isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
                 }
                 transition={{ delay: 0.5 + i * 0.1 }}
               >
-                <item.icon className="text-accent mb-3" size={24} />
-                <h4 className="text-text-primary font-bold text-sm mb-1">
+                <item.icon
+                  className="text-accent mb-2 group-hover:scale-110 transition-transform duration-200"
+                  size={18}
+                />
+                <h4 className="text-text-primary font-black text-sm mb-1 leading-snug">
                   {item.label}
                 </h4>
-                <p className="text-text-tertiary text-xs">{item.desc}</p>
+                <p className="text-text-tertiary text-xs leading-snug">
+                  {item.desc}
+                </p>
               </motion.div>
             ))}
           </div>
@@ -91,11 +112,11 @@ export function VisionSection() {
         {/* Image Column */}
         <div className="relative">
           <motion.div
-            className="relative z-10 aspect-square rounded-3xl overflow-hidden border-4 border-surface-2 shadow-2xl"
+            className="relative z-10 aspect-square rounded-2xl overflow-hidden border border-border shadow-2xl"
             animate={
-              isInView ? { scale: 1, rotate: 0 } : { scale: 0.8, rotate: -5 }
+              isInView ? { scale: 1, rotate: 0 } : { scale: 0.9, rotate: -3 }
             }
-            transition={{ duration: 1 }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           >
             <Image
               src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=1000"
@@ -105,29 +126,30 @@ export function VisionSection() {
               className="object-cover grayscale brightness-50 contrast-125"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
 
-            <div className="absolute bottom-8 left-8 right-8 space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="bg-accent text-accent-on text-[10px] font-black px-2 py-0.5 rounded">
+            <div className="absolute bottom-8 left-8 right-8 space-y-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="bg-accent text-accent-on text-[9px] font-black px-2 py-0.5 rounded tracking-widest uppercase">
                   HOLE IN THE WALL
                 </span>
-                <span className="text-text-tertiary text-[10px] font-bold">
+                <span className="text-white/50 text-[9px] font-black tracking-widest">
                   VS
                 </span>
-                <span className="bg-surface-2 text-text-primary text-[10px] font-black px-2 py-0.5 rounded uppercase">
-                  The Overhyped Spot
+                <span className="bg-white/10 backdrop-blur-sm text-white text-[9px] font-black px-2 py-0.5 rounded tracking-widest uppercase border border-white/20">
+                  THE 4.8-STAR TRAP
                 </span>
               </div>
-              <p className="text-2xl font-black italic">
-                SHINING LIGHT ON THE UNKNOWN GIANTS.
+              <p className="text-xl md:text-2xl font-black italic text-white leading-tight">
+                THE HOLE-IN-THE-WALL WINS HERE.
               </p>
             </div>
           </motion.div>
 
-          {/* Decorative frames */}
-          <div className="absolute -top-10 -right-10 w-full h-full border border-border rounded-3xl -z-10" />
-          <div className="absolute -bottom-6 -left-6 w-1/2 h-1/2 bg-accent/20 blur-[80px] -z-10" />
+          {/* Decorative offset frame */}
+          <div className="absolute -top-4 -right-4 w-full h-full border border-accent/20 rounded-2xl -z-10" />
+          {/* Accent glow */}
+          <div className="absolute -bottom-8 -left-8 w-2/3 h-2/3 bg-accent/15 blur-[80px] -z-10 rounded-full pointer-events-none" />
         </div>
       </div>
     </section>

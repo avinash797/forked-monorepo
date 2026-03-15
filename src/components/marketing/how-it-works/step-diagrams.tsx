@@ -47,7 +47,7 @@ function BattleCardsVisual() {
   return (
     <div className="relative w-full h-32 flex items-center justify-center gap-3">
       <div className="w-16 h-20 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
-        <span className="text-[10px] font-black text-accent">1842</span>
+        <span className="text-[10px] font-black text-accent">X</span>
       </div>
       <div className="flex flex-col items-center">
         <Swords size={16} className="text-text-tertiary" />
@@ -56,7 +56,7 @@ function BattleCardsVisual() {
         </span>
       </div>
       <div className="w-16 h-20 rounded-lg bg-surface-2 border border-border flex items-center justify-center">
-        <span className="text-[10px] font-black text-text-secondary">1756</span>
+        <span className="text-[10px] font-black text-text-secondary">Y</span>
       </div>
     </div>
   );
@@ -91,36 +91,36 @@ const steps: StepCard[] = [
     number: "01",
     icon: MapPin,
     title: "Find",
-    subtitle: "Discover dishes near you",
+    subtitle: "The specific dish, not the restaurant",
     description:
-      "Open the app, find a restaurant in your city, and order a dish worth rating. Any dish, any restaurant.",
+      "Order the dish. The specific one — not just 'dinner at this restaurant.' That's the whole point.",
     visual: <MapPinVisual />,
   },
   {
     number: "02",
     icon: Camera,
     title: "Snap",
-    subtitle: "Photo-first ratings",
+    subtitle: "Prove you were there",
     description:
-      "Every rating requires a photo. Snap a picture of your dish before you dig in. No photo, no rating.",
+      "Take a photo before you eat. Photo = higher weight. Anyone can leave a number — not everyone can prove they showed up.",
     visual: <CameraPhoneVisual />,
   },
   {
     number: "03",
     icon: Swords,
     title: "Battle",
-    subtitle: "Head-to-head matchups",
+    subtitle: "Pick the winner",
     description:
-      'After rating, we serve you a "This vs That" matchup against a similarly-rated dish. Pick the winner in 3 seconds.',
+      "We show you two dishes of the same type. Pick the winner. No scales, no sliders. Just: which one wins?",
     visual: <BattleCardsVisual />,
   },
   {
     number: "04",
     icon: Crown,
     title: "Rank",
-    subtitle: "Real-time leaderboards",
+    subtitle: "The argument is settled",
     description:
-      "Every battle updates Elo scores instantly. The best dishes rise to the top, powered by real user preferences.",
+      "The best dish earns its rank by beating everything else — not by collecting the most clicks. The argument is settled.",
     visual: <MiniLeaderboardVisual />,
   },
 ];
@@ -135,7 +135,7 @@ export function StepDiagrams() {
         {steps.map((step, i) => (
           <motion.div
             key={step.number}
-            className="bg-surface border border-border rounded-2xl p-6 group hover:bg-surface-2 transition-all"
+            className="bg-surface border border-border rounded-2xl p-6 group hover:bg-surface-2 hover:border-accent/30 transition-all"
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ delay: 0.2 + i * 0.15, duration: 0.6 }}
           >
@@ -144,7 +144,7 @@ export function StepDiagrams() {
             </span>
             {step.visual}
             <div className="mt-4">
-              <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center mb-3">
+              <div className="w-10 h-10 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mb-3">
                 <step.icon size={20} className="text-accent" />
               </div>
               <h3 className="text-xl font-black uppercase tracking-tight text-text-primary mb-1">

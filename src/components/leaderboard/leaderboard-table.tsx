@@ -1,20 +1,9 @@
 import Image from "next/image";
 import { ScoreBadge } from "@/components/ui/score-badge";
 import { Badge } from "@/components/ui/badge";
+import type { LeaderboardEntry } from "@/types/rpc.types";
 
-export interface LeaderboardEntry {
-  rank: number;
-  restaurant_id: string;
-  restaurant_name: string;
-  neighborhood_name: string;
-  global_elo: number;
-  total_battles: number;
-  win_rate: number;
-  confidence_score: number;
-  avg_raw_score: number;
-  total_ratings: number;
-  featured_photo_url: string;
-}
+export type { LeaderboardEntry };
 
 function getRankBadgeVariant(
   rank: number
@@ -99,22 +88,16 @@ export function LeaderboardTable({
             <p className="font-semibold text-text-primary truncate">
               {entry.restaurant_name}
             </p>
-            <p className="text-sm text-text-secondary">
-              {entry.neighborhood_name}
-            </p>
             <div className="mt-1 flex items-center gap-4 text-xs text-text-tertiary">
               <span>{entry.total_ratings} ratings</span>
-              <span>{entry.total_battles} battles</span>
-              {entry.win_rate > 0 && (
-                <span>{(entry.win_rate * 100).toFixed(0)}% win rate</span>
-              )}
+              <span>|</span>
+              <span>Confidence: {entry.confidence_tier}</span>
             </div>
           </div>
 
           {/* Score + Confidence */}
           <div className="flex-shrink-0 flex flex-col items-end gap-1">
-            <ScoreBadge score={entry.avg_raw_score ?? 0} />
-            <ConfidenceBar score={entry.confidence_score ?? 0} />
+            <ScoreBadge score={entry.bayesian_score ?? 0} />
           </div>
         </div>
       ))}

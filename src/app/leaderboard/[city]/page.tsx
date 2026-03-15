@@ -4,7 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { DishTypeTabs } from "@/components/leaderboard/dish-type-tabs";
-import { LeaderboardTable, type LeaderboardEntry } from "@/components/leaderboard/leaderboard-table";
+import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
+import type { LeaderboardEntry } from "@/types/rpc.types";
 import { buildMetadata } from "@/lib/seo";
 
 export const revalidate = 600;
@@ -54,7 +55,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return buildMetadata({
     title: `Best Dishes in ${city.name} — Forked Leaderboard`,
-    description: `Elo-ranked dish leaderboards for ${city.name}${city.state ? `, ${city.state}` : ""}. Find the best gumbo, po'boy, and more.`,
+    description: `Dish leaderboards for ${city.name}${city.state ? `, ${city.state}` : ""} ranked by Forked's proprietary algorithm. Find the best gumbo, po'boy, and more.`,
     canonicalPath: `/leaderboard/${city.slug}`,
   });
 }

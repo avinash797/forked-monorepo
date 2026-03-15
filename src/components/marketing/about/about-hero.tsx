@@ -14,12 +14,13 @@ export function AboutHero() {
           ABOUT FORKED
         </p>
         <h1 className="font-display italic font-black text-4xl md:text-7xl tracking-tighter text-text-primary">
-          We Rate Dishes, <span className="text-accent">Not Restaurants.</span>
+          We Rate Dishes,{" "}
+          <span className="text-accent">Not Restaurants.</span>
         </h1>
         <p className="text-text-secondary mt-6 max-w-lg mx-auto text-sm leading-relaxed">
-          Forked is a battle-tested dish ranking engine built for people who
-          care about what&apos;s on the plate — not the ambiance, not the
-          service, not the hype.
+          Because &ldquo;get the gumbo at Dooky Chase&rdquo; is infinitely more
+          useful than &ldquo;go to this restaurant.&rdquo; Dish-level rankings.
+          Zero sponsored placements.
         </p>
       </motion.div>
     </section>

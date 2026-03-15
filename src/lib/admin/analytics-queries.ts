@@ -1,11 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
+import type { DailyStat, CityBreakdown, DishTypeBreakdown } from "@/types/rpc.types";
 
-export type DailyStat = {
-  day: string;
-  new_users: number;
-  new_ratings: number;
-  new_battles: number;
-};
+export type { DailyStat, CityBreakdown, DishTypeBreakdown };
 
 export async function getDailyStats(
   startDate: string,
@@ -22,14 +18,6 @@ export async function getDailyStats(
   return data as DailyStat[];
 }
 
-export type CityBreakdown = {
-  city_id: string;
-  city_name: string;
-  total_ratings: number;
-  total_battles: number;
-  total_restaurants: number;
-};
-
 export async function getCityBreakdown(): Promise<CityBreakdown[]> {
   const supabase = await createClient();
 
@@ -38,14 +26,6 @@ export async function getCityBreakdown(): Promise<CityBreakdown[]> {
   if (error || !data) return [];
   return data as CityBreakdown[];
 }
-
-export type DishTypeBreakdown = {
-  dish_type_id: string;
-  dish_type_name: string;
-  total_ratings: number;
-  total_battles: number;
-  avg_score: number | null;
-};
 
 export async function getDishTypeBreakdown(): Promise<DishTypeBreakdown[]> {
   const supabase = await createClient();

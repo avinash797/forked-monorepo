@@ -2,68 +2,58 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { IS_WAITLIST_MODE } from "@/lib/waitlist";
 import { MapPin } from "lucide-react";
-
-interface LeaderboardEntry {
-  rank: number;
-  restaurant_name: string;
-  neighborhood_name: string;
-  global_elo: number;
-  confidence_score: number;
-  avg_raw_score: number;
-  total_ratings: number;
-  featured_photo_url: string;
-}
+import type { LeaderboardEntry } from "@/types/rpc.types";
 
 const MOCK_ENTRIES: LeaderboardEntry[] = [
   {
     rank: 1,
+    restaurant_id: "mock-1",
     restaurant_name: "Parkway Bakery & Tavern",
-    neighborhood_name: "Mid-City",
-    global_elo: 1842,
-    confidence_score: 0.94,
-    avg_raw_score: 9.1,
+    address: "Mid-City",
+    bayesian_score: 9.1,
+    confidence_tier: "high",
     total_ratings: 312,
-    featured_photo_url: "",
+    featured_photo_url: null,
   },
   {
     rank: 2,
+    restaurant_id: "mock-2",
     restaurant_name: "Domilise's Po-Boy & Bar",
-    neighborhood_name: "Uptown",
-    global_elo: 1809,
-    confidence_score: 0.91,
-    avg_raw_score: 8.8,
+    address: "Uptown",
+    bayesian_score: 8.8,
+    confidence_tier: "high",
     total_ratings: 274,
-    featured_photo_url: "",
+    featured_photo_url: null,
   },
   {
     rank: 3,
+    restaurant_id: "mock-3",
     restaurant_name: "Mahony's Po-Boy Shop",
-    neighborhood_name: "Magazine Street",
-    global_elo: 1776,
-    confidence_score: 0.88,
-    avg_raw_score: 8.6,
+    address: "Magazine Street",
+    bayesian_score: 8.6,
+    confidence_tier: "high",
     total_ratings: 198,
-    featured_photo_url: "",
+    featured_photo_url: null,
   },
   {
     rank: 4,
+    restaurant_id: "mock-4",
     restaurant_name: "Guy's Po-Boys",
-    neighborhood_name: "Uptown",
-    global_elo: 1744,
-    confidence_score: 0.85,
-    avg_raw_score: 8.3,
+    address: "Uptown",
+    bayesian_score: 8.3,
+    confidence_tier: "medium",
     total_ratings: 167,
-    featured_photo_url: "",
+    featured_photo_url: null,
   },
   {
     rank: 5,
+    restaurant_id: "mock-5",
     restaurant_name: "R&O's Restaurant",
-    neighborhood_name: "Bucktown",
-    global_elo: 1718,
-    confidence_score: 0.82,
-    avg_raw_score: 8.1,
+    address: "Bucktown",
+    bayesian_score: 8.1,
+    confidence_tier: "medium",
     total_ratings: 143,
-    featured_photo_url: "",
+    featured_photo_url: null,
   },
 ];
 
@@ -71,7 +61,6 @@ async function getLeaderboardPreview(): Promise<LeaderboardEntry[]> {
   try {
     const supabase = await createClient();
 
-    // Resolve city and dish type IDs in parallel
     const [{ data: city }, { data: dishType }] = await Promise.all([
       supabase
         .from("cities")
@@ -95,6 +84,19 @@ async function getLeaderboardPreview(): Promise<LeaderboardEntry[]> {
   }
 }
 
+function getRankStyle(rank: number): string {
+  if (rank === 1) return "text-gold";
+  if (rank === 2) return "text-silver";
+  if (rank === 3) return "text-bronze";
+  return "text-text-tertiary";
+}
+
+function getRankRowStyle(rank: number): string {
+  if (rank === 1)
+    return "bg-gradient-to-r from-gold/5 to-transparent border-gold/20 hover:border-gold/40";
+  return "bg-surface-2 border-border hover:bg-surface hover:border-text-tertiary";
+}
+
 export async function LeaderboardPreview() {
   const entries = IS_WAITLIST_MODE
     ? MOCK_ENTRIES
@@ -104,23 +106,27 @@ export async function LeaderboardPreview() {
     <section id="leaderboard" className="py-24 md:py-32 px-6 bg-bg">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-16 gap-6">
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12 gap-6">
           <div>
-            <h2 className="font-display italic font-black text-4xl md:text-6xl uppercase leading-none mb-4 tracking-tighter">
-              The <span className="text-accent">Champions</span> Wall
+            <p className="text-[10px] font-black tracking-[0.3em] uppercase text-accent mb-3">
+              LIVE RANKINGS
+            </p>
+            <h2 className="font-display italic font-black text-4xl md:text-6xl uppercase leading-none tracking-tighter">
+              The <span className="text-accent">Real</span> List.
             </h2>
-            <p className="text-text-secondary text-sm max-w-md">
-              View the live rankings for the best dishes in your city.
+            <p className="text-text-secondary text-sm max-w-md mt-3">
+              Not sponsored. Not paid. The only way to climb is to serve better
+              food.
             </p>
           </div>
           <div className="flex gap-2">
-            <span className="bg-accent border border-accent px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-accent-on shadow-[0_5px_15px_rgba(var(--color-accent),0.3)]">
+            <span className="bg-accent border border-accent px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-accent-on shadow-[0_5px_15px_rgba(238,108,43,0.25)]">
               PO&apos;BOY
             </span>
-            <span className="bg-surface-2 border border-border px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-text-secondary">
+            <span className="bg-surface-2 border border-border px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-text-secondary hover:text-text-primary transition-colors">
               GUMBO
             </span>
-            <span className="bg-surface-2 border border-border px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-text-secondary">
+            <span className="bg-surface-2 border border-border px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-text-secondary hover:text-text-primary transition-colors">
               JAMBALAYA
             </span>
           </div>
@@ -128,48 +134,35 @@ export async function LeaderboardPreview() {
 
         {/* Leaderboard Rows */}
         {entries.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {entries.map((entry) => (
               <div
                 key={`${entry.restaurant_name}-${entry.rank}`}
-                className="group flex items-center justify-between p-4 md:p-6 bg-surface-2 border border-border rounded-2xl hover:bg-surface hover:border-text-tertiary transition-all "
+                className={`group flex items-center justify-between p-4 md:p-5 border rounded-2xl transition-all ${getRankRowStyle(entry.rank)}`}
               >
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-5">
+                  {/* Rank number with medal colors */}
                   <span
-                    className={`text-2xl font-black italic ${
-                      entry.rank === 1 ? "text-accent" : "text-text-tertiary"
-                    }`}
+                    className={`text-2xl font-black italic w-8 shrink-0 text-center tabular-nums ${getRankStyle(entry.rank)}`}
                   >
-                    #{entry.rank}
+                    {entry.rank}
                   </span>
-                  <div>
-                    <h4 className="text-lg font-black tracking-tight uppercase group-hover:text-accent transition-colors">
+
+                  <div className="min-w-0">
+                    <h4 className="text-base md:text-lg font-black tracking-tight uppercase truncate group-hover:text-accent transition-colors">
                       {entry.restaurant_name}
                     </h4>
-                    <div className="flex items-center gap-2 text-text-secondary text-xs font-bold uppercase tracking-widest">
-                      <MapPin size={10} />
-                      {entry.neighborhood_name}
+                    <div className="flex items-center gap-1.5 text-text-secondary text-xs font-bold uppercase tracking-widest mt-0.5">
+                      <MapPin size={9} className="shrink-0" />
+                      <span className="truncate">{entry.address}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="text-right flex items-center gap-8">
-                  <div className="hidden sm:block">
-                    <span className="text-xl font-mono font-bold">
-                      {Math.round(entry.global_elo)}
-                    </span>
-                    <p className="text-[8px] text-text-tertiary uppercase font-black tracking-widest">
-                      ELO
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-xl font-mono font-bold">
-                      {entry.avg_raw_score?.toFixed(1) ?? "—"}
-                    </span>
-                    <p className="text-[8px] text-text-tertiary uppercase font-black tracking-widest">
-                      SCORE
-                    </p>
-                  </div>
+                <div className="text-right shrink-0">
+                  <p className="text-[10px] text-text-tertiary uppercase font-black tracking-widest">
+                    {entry.total_ratings} ratings
+                  </p>
                 </div>
               </div>
             ))}
@@ -184,14 +177,13 @@ export async function LeaderboardPreview() {
 
         {/* Bottom CTA */}
         {!IS_WAITLIST_MODE && (
-          <div className="mt-12 bg-gradient-to-r from-accent/10 to-transparent p-8 md:p-12 rounded-3xl border border-accent/20 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
+          <div className="mt-10 bg-gradient-to-r from-accent/10 to-transparent p-8 md:p-12 rounded-3xl border border-accent/20 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
             <div>
               <h3 className="font-display font-black italic text-2xl md:text-3xl mb-2">
-                Think You&apos;re a Connoisseur?
+                Disagree with this list?
               </h3>
               <p className="text-text-secondary text-sm font-light">
-                Explore the full leaderboards and see who dominates every dish
-                type.
+                Download Forked and vote. Your battles change the ranking.
               </p>
             </div>
             <Link

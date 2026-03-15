@@ -15,7 +15,6 @@ function BattleMockup() {
           <div className="w-full h-20 rounded-lg bg-accent/10 mb-3" />
           <p className="text-xs font-bold text-text-primary">Gumbo</p>
           <p className="text-[10px] text-text-tertiary">Dooky Chase&apos;s</p>
-          <p className="text-sm font-black text-gold mt-1">1842</p>
         </div>
         <div className="flex items-center">
           <Swords size={20} className="text-text-tertiary" />
@@ -24,11 +23,10 @@ function BattleMockup() {
           <div className="w-full h-20 rounded-lg bg-border mb-3" />
           <p className="text-xs font-bold text-text-primary">Gumbo</p>
           <p className="text-[10px] text-text-tertiary">Coop&apos;s Place</p>
-          <p className="text-sm font-black text-text-secondary mt-1">1756</p>
         </div>
       </div>
       <p className="text-[10px] text-text-tertiary text-center uppercase tracking-widest">
-        Tap to pick the winner
+        You already have an opinion. Pick one.
       </p>
     </div>
   );
@@ -46,7 +44,7 @@ export function StorySection() {
         transition={{ duration: 0.6 }}
       >
         <p className="text-[10px] font-black tracking-[0.3em] uppercase text-accent mb-4">
-          OUR STORY
+          HOW IT STARTED
         </p>
         <h2 className="font-display italic font-black text-3xl md:text-5xl tracking-tighter text-text-primary">
           Born in New Orleans
@@ -55,7 +53,7 @@ export function StorySection() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <motion.div
-          className="space-y-6 text-sm text-text-secondary leading-relaxed"
+          className="space-y-5 text-sm text-text-secondary leading-relaxed"
           animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
           transition={{ delay: 0.2, duration: 0.6 }}
         >
@@ -65,28 +63,29 @@ export function StorySection() {
             <span className="text-text-primary font-bold">gumbo</span>.
           </p>
           <p>
-            During the research, we found vastly different opinions on the
-            matter. Different food critics, different restaurant owners, and
-            different customers all had different opinions on the matter. We
-            realized that no platform answered this question well.
+            We asked locals, chefs, food critics, and tourists. Everyone had an
+            opinion. Nobody had a platform. The argument had been going on for
+            decades with no way to settle it.
           </p>
           <p>
             Restaurant ratings are broken. A 4.5-star restaurant might have
             mediocre gumbo but great service. A hole-in-the-wall with 3.8 stars
-            might serve the best bowl in the city. The signal is buried in the
-            noise.
+            might serve the best bowl in the city. The signal is buried under
+            valet parking reviews and ambiance complaints.
           </p>
           <p>
-            So we built Forked — a platform where every rating is about a
-            specific dish, every ranking is powered by head-to-head battles, and
-            the algorithm does the rest. No opinions. No editorial picks. Just
-            data.
+            So we built something different. Every rating is about a specific
+            dish. Every ranking comes from head-to-head battles — no star
+            scales, no editorial picks, no paid placements.{" "}
+            <span className="text-text-primary font-bold">
+              The only way to climb is to serve better food.
+            </span>
           </p>
           <p>
             We launched in New Orleans because no city takes its food more
-            seriously. If our system can rank gumbo, po&apos;boys, and crawfish
-            &eacute;touff&eacute;e to the satisfaction of locals, it can rank
-            anything, anywhere.
+            seriously. People here argue about gumbo the way other cities argue
+            about sports teams. If our system can settle that argument, it can
+            settle any argument, anywhere.
           </p>
         </motion.div>
 

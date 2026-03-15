@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { LeaderboardEntry } from "@/types/rpc.types";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://forkedapp.com";
 const SITE_NAME = "Forked";
@@ -176,13 +177,7 @@ export function buildLeaderboardJsonLd({
 }: {
   city: string;
   dishType: string;
-  entries: {
-    rank: number;
-    restaurant_name: string;
-    neighborhood_name: string;
-    avg_raw_score: number;
-    total_ratings: number;
-  }[];
+  entries: LeaderboardEntry[];
 }) {
   return {
     "@context": "https://schema.org",
@@ -199,11 +194,11 @@ export function buildLeaderboardJsonLd({
         address: {
           "@type": "PostalAddress",
           addressLocality: city,
-          addressRegion: entry.neighborhood_name,
+          addressRegion: entry.address,
         },
         aggregateRating: {
           "@type": "AggregateRating",
-          ratingValue: entry.avg_raw_score.toFixed(1),
+          ratingValue: entry.bayesian_score.toFixed(1),
           bestRating: "10",
           worstRating: "1",
           ratingCount: entry.total_ratings,
