@@ -31,7 +31,7 @@ export interface RecentBattleItem {
 export function useRecentBattles(
     options: { limit?: number; cityId?: string } = {}
 ) {
-    const { limit = 15, cityId } = options;
+    const { limit = 500, cityId } = options;
     // Used only for queryKey cache isolation — NOT for the actual DB filter,
     // because user.id from useAuth() may differ from auth.uid() stored in comparisons.
     const { user } = useAuth();
@@ -110,8 +110,6 @@ export function useRecentBattles(
 
             return battles;
         },
-        // Refetch every 30 seconds to show live activity
-        refetchInterval: 30000,
-        staleTime: 20000,
+        staleTime: 1 * 60 * 60 * 1000, // 1 hour
     });
 }
