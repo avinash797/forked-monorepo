@@ -4,10 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { DishTypeTabs } from "@/components/leaderboard/dish-type-tabs";
-import {
-  LeaderboardTable,
-  type LeaderboardEntry,
-} from "@/components/leaderboard/leaderboard-table";
+import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
+import type { LeaderboardEntry } from "@/types/rpc.types";
 import { buildMetadata, buildLeaderboardJsonLd } from "@/lib/seo";
 import { getRelatedBlogPosts } from "@/lib/blog/queries";
 import { BlogPostCard } from "@/components/blog/blog-post-card";
@@ -150,8 +148,8 @@ export default async function DishTypeLeaderboard({ params }: Props) {
               <strong className="text-text-primary">
                 {topEntry.restaurant_name}
               </strong>
-              {topEntry.neighborhood_name &&
-                ` in ${topEntry.neighborhood_name}`}
+              {topEntry.address &&
+                ` in ${topEntry.address}`}
               , based on {topEntry.total_ratings} rating
               {topEntry.total_ratings !== 1 ? "s" : ""} through Forked's proprietary ranking algorithm.
             </p>
@@ -183,8 +181,8 @@ export default async function DishTypeLeaderboard({ params }: Props) {
                     According to Forked&apos;s proprietary ranking algorithm, the
                     #1 {dishType.name.toLowerCase()} in {city.name} is at{" "}
                     {entries[0].restaurant_name}
-                    {entries[0].neighborhood_name &&
-                      ` in ${entries[0].neighborhood_name}`}
+                    {entries[0].address &&
+                      ` in ${entries[0].address}`}
                     .
                   </p>
                 </div>
@@ -225,7 +223,7 @@ export default async function DishTypeLeaderboard({ params }: Props) {
                         name: `What is the best ${dishType.name.toLowerCase()} in ${city.name}?`,
                         acceptedAnswer: {
                           "@type": "Answer",
-                          text: `According to Forked's proprietary ranking algorithm, the #1 ${dishType.name.toLowerCase()} in ${city.name} is at ${entries[0].restaurant_name}${entries[0].neighborhood_name ? ` in ${entries[0].neighborhood_name}` : ""}.`,
+                          text: `According to Forked's proprietary ranking algorithm, the #1 ${dishType.name.toLowerCase()} in ${city.name} is at ${entries[0].restaurant_name}${entries[0].address ? ` in ${entries[0].address}` : ""}.`,
                         },
                       },
                       {

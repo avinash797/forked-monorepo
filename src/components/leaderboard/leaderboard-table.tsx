@@ -1,16 +1,9 @@
 import Image from "next/image";
 import { ScoreBadge } from "@/components/ui/score-badge";
 import { Badge } from "@/components/ui/badge";
+import type { LeaderboardEntry } from "@/types/rpc.types";
 
-export interface LeaderboardEntry {
-  rank: number;
-  restaurant_id: string;
-  restaurant_name: string;
-  confidence_tier: string;
-  bayesian_score: number;
-  total_ratings: number;
-  featured_photo_url: string;
-}
+export type { LeaderboardEntry };
 
 function getRankBadgeVariant(
   rank: number

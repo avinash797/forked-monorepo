@@ -4,7 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { DishTypeTabs } from "@/components/leaderboard/dish-type-tabs";
-import { LeaderboardTable, type LeaderboardEntry } from "@/components/leaderboard/leaderboard-table";
+import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
+import type { LeaderboardEntry } from "@/types/rpc.types";
 import { buildMetadata } from "@/lib/seo";
 
 export const revalidate = 600;

@@ -2,68 +2,58 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { IS_WAITLIST_MODE } from "@/lib/waitlist";
 import { MapPin } from "lucide-react";
-
-interface LeaderboardEntry {
-  rank: number;
-  restaurant_name: string;
-  neighborhood_name: string;
-  global_elo: number;
-  confidence_score: number;
-  avg_raw_score: number;
-  total_ratings: number;
-  featured_photo_url: string;
-}
+import type { LeaderboardEntry } from "@/types/rpc.types";
 
 const MOCK_ENTRIES: LeaderboardEntry[] = [
   {
     rank: 1,
+    restaurant_id: "mock-1",
     restaurant_name: "Parkway Bakery & Tavern",
-    neighborhood_name: "Mid-City",
-    global_elo: 1842,
-    confidence_score: 0.94,
-    avg_raw_score: 9.1,
+    address: "Mid-City",
+    bayesian_score: 9.1,
+    confidence_tier: "high",
     total_ratings: 312,
-    featured_photo_url: "",
+    featured_photo_url: null,
   },
   {
     rank: 2,
+    restaurant_id: "mock-2",
     restaurant_name: "Domilise's Po-Boy & Bar",
-    neighborhood_name: "Uptown",
-    global_elo: 1809,
-    confidence_score: 0.91,
-    avg_raw_score: 8.8,
+    address: "Uptown",
+    bayesian_score: 8.8,
+    confidence_tier: "high",
     total_ratings: 274,
-    featured_photo_url: "",
+    featured_photo_url: null,
   },
   {
     rank: 3,
+    restaurant_id: "mock-3",
     restaurant_name: "Mahony's Po-Boy Shop",
-    neighborhood_name: "Magazine Street",
-    global_elo: 1776,
-    confidence_score: 0.88,
-    avg_raw_score: 8.6,
+    address: "Magazine Street",
+    bayesian_score: 8.6,
+    confidence_tier: "high",
     total_ratings: 198,
-    featured_photo_url: "",
+    featured_photo_url: null,
   },
   {
     rank: 4,
+    restaurant_id: "mock-4",
     restaurant_name: "Guy's Po-Boys",
-    neighborhood_name: "Uptown",
-    global_elo: 1744,
-    confidence_score: 0.85,
-    avg_raw_score: 8.3,
+    address: "Uptown",
+    bayesian_score: 8.3,
+    confidence_tier: "medium",
     total_ratings: 167,
-    featured_photo_url: "",
+    featured_photo_url: null,
   },
   {
     rank: 5,
+    restaurant_id: "mock-5",
     restaurant_name: "R&O's Restaurant",
-    neighborhood_name: "Bucktown",
-    global_elo: 1718,
-    confidence_score: 0.82,
-    avg_raw_score: 8.1,
+    address: "Bucktown",
+    bayesian_score: 8.1,
+    confidence_tier: "medium",
     total_ratings: 143,
-    featured_photo_url: "",
+    featured_photo_url: null,
   },
 ];
 
@@ -164,7 +154,7 @@ export async function LeaderboardPreview() {
                     </h4>
                     <div className="flex items-center gap-1.5 text-text-secondary text-xs font-bold uppercase tracking-widest mt-0.5">
                       <MapPin size={9} className="shrink-0" />
-                      <span className="truncate">{entry.neighborhood_name}</span>
+                      <span className="truncate">{entry.address}</span>
                     </div>
                   </div>
                 </div>

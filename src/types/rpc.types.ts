@@ -104,3 +104,32 @@ export interface DeleteUserAccountResponse {
     ratings_deleted: number;
     note: string;
 }
+
+// ── get_admin_daily_stats ────────────────────────────────────────────
+
+export interface DailyStat {
+    day: string;
+    new_users: number;
+    new_ratings: number;
+    new_battles: number;
+}
+
+// ── get_admin_city_breakdown ─────────────────────────────────────────
+
+export interface CityBreakdown {
+    city_id: string;
+    city_name: string;
+    total_ratings: number;
+    total_battles: number;
+    total_restaurants: number;
+}
+
+// ── get_admin_dish_type_breakdown ────────────────────────────────────
+
+export interface DishTypeBreakdown {
+    dish_type_id: string;
+    dish_type_name: string;
+    total_ratings: number;
+    total_battles: number;
+    avg_score: number | null;
+}

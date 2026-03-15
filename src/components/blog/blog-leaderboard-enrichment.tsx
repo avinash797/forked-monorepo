@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { ScoreBadge } from "@/components/ui/score-badge";
+import type { LeaderboardEntry } from "@/types/rpc.types";
 
 interface Props {
   cityId: string;
@@ -22,13 +23,7 @@ export async function BlogLeaderboardEnrichment({
   dishTypeName,
   dishTypeEmoji,
 }: Props) {
-  let entries: {
-    rank: number;
-    restaurant_name: string;
-    neighborhood_name: string;
-    avg_raw_score: number;
-    total_ratings: number;
-  }[] = [];
+  let entries: LeaderboardEntry[] = [];
 
   try {
     const supabase = await createClient();
@@ -37,7 +32,7 @@ export async function BlogLeaderboardEnrichment({
       p_dish_type_id: dishTypeId,
       p_limit: 5,
     });
-    entries = (data as unknown as typeof entries) ?? [];
+    entries = (data as unknown as LeaderboardEntry[]) ?? [];
   } catch {
     return null;
   }
@@ -64,14 +59,14 @@ export async function BlogLeaderboardEnrichment({
                 <p className="text-sm font-semibold text-text-primary truncate">
                   {entry.restaurant_name}
                 </p>
-                {entry.neighborhood_name && (
+                {entry.address && (
                   <p className="text-xs text-text-tertiary truncate">
-                    {entry.neighborhood_name}
+                    {entry.address}
                   </p>
                 )}
               </div>
             </div>
-            <ScoreBadge score={entry.avg_raw_score} />
+            <ScoreBadge score={entry.bayesian_score} />
           </div>
         ))}
       </div>
