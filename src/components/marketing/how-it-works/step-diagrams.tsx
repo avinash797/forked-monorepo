@@ -47,7 +47,7 @@ function BattleCardsVisual() {
   return (
     <div className="relative w-full h-32 flex items-center justify-center gap-3">
       <div className="w-16 h-20 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
-        <span className="text-[10px] font-black text-accent">1842</span>
+        <span className="text-[10px] font-black text-accent">X</span>
       </div>
       <div className="flex flex-col items-center">
         <Swords size={16} className="text-text-tertiary" />
@@ -56,7 +56,7 @@ function BattleCardsVisual() {
         </span>
       </div>
       <div className="w-16 h-20 rounded-lg bg-surface-2 border border-border flex items-center justify-center">
-        <span className="text-[10px] font-black text-text-secondary">1756</span>
+        <span className="text-[10px] font-black text-text-secondary">Y</span>
       </div>
     </div>
   );
@@ -102,7 +102,7 @@ const steps: StepCard[] = [
     title: "Snap",
     subtitle: "Prove you were there",
     description:
-      "Take a photo before you eat. No photo, no rating. Anyone can leave a number — not everyone can prove they showed up.",
+      "Take a photo before you eat. Photo = higher weight. Anyone can leave a number — not everyone can prove they showed up.",
     visual: <CameraPhoneVisual />,
   },
   {
