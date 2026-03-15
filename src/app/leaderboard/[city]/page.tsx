@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return buildMetadata({
     title: `Best Dishes in ${city.name} — Forked Leaderboard`,
-    description: `Elo-ranked dish leaderboards for ${city.name}${city.state ? `, ${city.state}` : ""}. Find the best gumbo, po'boy, and more.`,
+    description: `Dish leaderboards for ${city.name}${city.state ? `, ${city.state}` : ""} ranked by Forked's proprietary algorithm. Find the best gumbo, po'boy, and more.`,
     canonicalPath: `/leaderboard/${city.slug}`,
   });
 }

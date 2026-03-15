@@ -11,7 +11,7 @@ export const revalidate = 600;
 export const metadata: Metadata = buildMetadata({
   title: "Leaderboards — Forked",
   description:
-    "Browse Elo-ranked dish leaderboards across cities. Find the best gumbo, po'boy, and more.",
+    "Browse dish leaderboards ranked by Forked's proprietary algorithm across cities. Find the best gumbo, po'boy, and more.",
   canonicalPath: "/leaderboard",
 });
 
@@ -48,7 +48,7 @@ export default async function LeaderboardHub() {
             Leaderboards
           </h1>
           <p className="text-text-secondary mb-12">
-            Choose a city to explore Elo-ranked dish leaderboards.
+            Choose a city to explore dish leaderboards ranked by Forked's proprietary algorithm.
           </p>
 
           {cities.length > 0 ? (

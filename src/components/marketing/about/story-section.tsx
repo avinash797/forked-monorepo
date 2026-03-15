@@ -15,7 +15,6 @@ function BattleMockup() {
           <div className="w-full h-20 rounded-lg bg-accent/10 mb-3" />
           <p className="text-xs font-bold text-text-primary">Gumbo</p>
           <p className="text-[10px] text-text-tertiary">Dooky Chase&apos;s</p>
-          <p className="text-sm font-black text-gold mt-1">1842</p>
         </div>
         <div className="flex items-center">
           <Swords size={20} className="text-text-tertiary" />
@@ -24,7 +23,6 @@ function BattleMockup() {
           <div className="w-full h-20 rounded-lg bg-border mb-3" />
           <p className="text-xs font-bold text-text-primary">Gumbo</p>
           <p className="text-[10px] text-text-tertiary">Coop&apos;s Place</p>
-          <p className="text-sm font-black text-text-secondary mt-1">1756</p>
         </div>
       </div>
       <p className="text-[10px] text-text-tertiary text-center uppercase tracking-widest">

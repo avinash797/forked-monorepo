@@ -72,7 +72,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!city || !dishType) return {};
 
   const title = `Best ${dishType.name} in ${city.name} — Forked Leaderboard`;
-  const description = `The definitive ranking of the best ${dishType.name.toLowerCase()} in ${city.name}. Elo-ranked by real dish battles on Forked.`;
+  const description = `The definitive ranking of the best ${dishType.name.toLowerCase()} in ${city.name}. Ranked by Forked's proprietary algorithm through real dish battles.`;
 
   return buildMetadata({
     title,
@@ -152,9 +152,8 @@ export default async function DishTypeLeaderboard({ params }: Props) {
               </strong>
               {topEntry.neighborhood_name &&
                 ` in ${topEntry.neighborhood_name}`}
-              , with a Forked score of {topEntry.avg_raw_score?.toFixed(1)} based
-              on {topEntry.total_ratings} rating
-              {topEntry.total_ratings !== 1 ? "s" : ""}.
+              , based on {topEntry.total_ratings} rating
+              {topEntry.total_ratings !== 1 ? "s" : ""} through Forked's proprietary ranking algorithm.
             </p>
           )}
 
@@ -181,8 +180,8 @@ export default async function DishTypeLeaderboard({ params }: Props) {
                     {city.name}?
                   </h3>
                   <p className="text-sm text-text-secondary">
-                    According to Forked&apos;s Elo-ranked dish battles, the #1{" "}
-                    {dishType.name.toLowerCase()} in {city.name} is at{" "}
+                    According to Forked&apos;s proprietary ranking algorithm, the
+                    #1 {dishType.name.toLowerCase()} in {city.name} is at{" "}
                     {entries[0].restaurant_name}
                     {entries[0].neighborhood_name &&
                       ` in ${entries[0].neighborhood_name}`}
@@ -194,11 +193,11 @@ export default async function DishTypeLeaderboard({ params }: Props) {
                     How are {dishType.name.toLowerCase()} rankings determined?
                   </h3>
                   <p className="text-sm text-text-secondary">
-                    Rankings use an Elo rating system. Users rate individual
-                    dishes, then compare them in head-to-head &quot;This vs
-                    That&quot; battles. Winners gain Elo points, losers drop. The
-                    result is a ranking that reflects genuine taste preferences,
-                    not inflated star ratings.
+                    Rankings are powered by Forked&apos;s proprietary ranking
+                    algorithm. Users compare dishes in head-to-head &quot;This vs
+                    That&quot; battles, and the algorithm weighs every battle
+                    result to produce a ranking that reflects genuine taste
+                    preferences, not inflated star ratings.
                   </p>
                 </div>
                 <div>
@@ -226,7 +225,7 @@ export default async function DishTypeLeaderboard({ params }: Props) {
                         name: `What is the best ${dishType.name.toLowerCase()} in ${city.name}?`,
                         acceptedAnswer: {
                           "@type": "Answer",
-                          text: `According to Forked's Elo-ranked dish battles, the #1 ${dishType.name.toLowerCase()} in ${city.name} is at ${entries[0].restaurant_name}${entries[0].neighborhood_name ? ` in ${entries[0].neighborhood_name}` : ""}.`,
+                          text: `According to Forked's proprietary ranking algorithm, the #1 ${dishType.name.toLowerCase()} in ${city.name} is at ${entries[0].restaurant_name}${entries[0].neighborhood_name ? ` in ${entries[0].neighborhood_name}` : ""}.`,
                         },
                       },
                       {
@@ -234,7 +233,7 @@ export default async function DishTypeLeaderboard({ params }: Props) {
                         name: `How are ${dishType.name.toLowerCase()} rankings determined?`,
                         acceptedAnswer: {
                           "@type": "Answer",
-                          text: "Rankings use an Elo rating system. Users rate individual dishes, then compare them in head-to-head 'This vs That' battles. Winners gain Elo points, losers drop.",
+                          text: "Rankings are powered by Forked's proprietary ranking algorithm. Users compare dishes in head-to-head 'This vs That' battles, and the algorithm weighs every result to produce rankings that reflect genuine taste preferences.",
                         },
                       },
                     ],

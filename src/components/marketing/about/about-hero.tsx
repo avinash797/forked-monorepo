@@ -20,7 +20,7 @@ export function AboutHero() {
         <p className="text-text-secondary mt-6 max-w-lg mx-auto text-sm leading-relaxed">
           Because &ldquo;get the gumbo at Dooky Chase&rdquo; is infinitely more
           useful than &ldquo;go to this restaurant.&rdquo; Dish-level rankings.
-          Photo required. Zero sponsored placements.
+          Zero sponsored placements.
         </p>
       </motion.div>
     </section>

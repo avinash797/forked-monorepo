@@ -12,14 +12,14 @@ interface FaqItem {
 
 const faqs: FaqItem[] = [
   {
-    question: "Why Elo instead of a 5-point scale?",
+    question: "Why head-to-head battles instead of a 5-point scale?",
     answer:
-      "Traditional rating scales are noisy and inflated — most dishes cluster around 4.2. Elo uses head-to-head comparisons, which are faster, more intuitive, and produce much more granular rankings. You don't need to decide if something is a 3.7 or a 3.8 — you just pick which dish you liked better.",
+      "Traditional rating scales are noisy and inflated — most dishes cluster around 4.2. Head-to-head comparisons are faster, more intuitive, and produce much more granular rankings. You don't need to decide if something is a 3.7 or a 3.8 — you just pick which dish you liked better. Our proprietary algorithm does the rest.",
   },
   {
-    question: "Why are photos mandatory?",
+    question: "Why are photos recommended?",
     answer:
-      "Because anyone can leave a number. Not everyone can prove they showed up. A photo means you sat down, ordered the dish, and ate it. It's the minimum bar for honesty — and it makes the leaderboard look incredible.",
+      "Not everyone can prove they showed up. A photo means you sat down, ordered the dish, and ate it. It's the minimum bar for honesty — and it makes the leaderboard look incredible.",
   },
   {
     question: "How many battles does a dish need to be ranked?",

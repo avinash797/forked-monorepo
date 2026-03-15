@@ -7,7 +7,6 @@ import { Trophy, TrendingUp, TrendingDown } from "lucide-react";
 import { track } from "@vercel/analytics";
 
 export function EloBattleSection() {
-  const [scores, setScores] = useState({ left: 1450, right: 1442 });
   const [voted, setVoted] = useState<null | "left" | "right">(null);
   const [deltas, setDeltas] = useState<{ left: number; right: number } | null>(
     null
@@ -15,32 +14,27 @@ export function EloBattleSection() {
 
   const handleVote = (side: "left" | "right") => {
     if (voted) return;
-    track("elo_battle_vote", {
+    track("battle_vote", {
       side,
-      dish: side === "left" ? "Smash Burger" : "Truffle Brioche",
+      dish: side === "left" ? "Domelise's Shrimp Po-Boy" : "Parkway Shrimp Po-Boy",
     });
     setVoted(side);
     setTimeout(() => {
-      const leftDelta = side === "left" ? 15 : -12;
-      const rightDelta = side === "right" ? 15 : -12;
+      const leftDelta = side === "left" ? 1 : -1;
+      const rightDelta = side === "right" ? 1 : -1;
       setDeltas({ left: leftDelta, right: rightDelta });
-      setScores((prev) => ({
-        left: prev.left + leftDelta,
-        right: prev.right + rightDelta,
-      }));
     }, 400);
   };
 
   const resetBattle = () => {
-    track("elo_battle_reset");
+    track("battle_reset");
     setVoted(null);
     setDeltas(null);
-    setScores({ left: 1450, right: 1442 });
   };
 
   return (
     <section
-      id="elo"
+      id="battles"
       className="py-16 md:py-32 px-6 relative overflow-hidden bg-bg snap-start snap-always"
     >
       <div className="max-w-4xl mx-auto text-center mb-10 md:mb-20">
@@ -85,16 +79,15 @@ export function EloBattleSection() {
         <motion.div
           role="button"
           tabIndex={voted ? -1 : 0}
-          aria-label="Vote for Smash Burger from Tony's Diner"
+          aria-label="Vote for Shrimp Po-Boy from Domelise's"
           aria-pressed={voted === "left"}
           aria-disabled={!!voted}
-          className={`relative group cursor-pointer rounded-2xl overflow-hidden border-2 transition-all duration-500 ${
-            voted === "left"
+          className={`relative group cursor-pointer rounded-2xl overflow-hidden border-2 transition-all duration-500 ${voted === "left"
               ? "border-accent scale-[1.02] shadow-[0_0_40px_rgba(238,108,43,0.2)]"
               : voted === "right"
                 ? "border-border opacity-40"
                 : "border-border opacity-80 hover:opacity-100 hover:border-border"
-          }`}
+            }`}
           onClick={() => handleVote("left")}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
@@ -105,8 +98,8 @@ export function EloBattleSection() {
           whileTap={!voted ? { scale: 0.98 } : undefined}
         >
           <Image
-            src="https://images.unsplash.com/photo-1571091718767-18b5b1457add?auto=format&fit=crop&q=80&w=800"
-            alt="Smash Burger"
+            src="/images/poboy/domelises-poboy.png"
+            alt="Shrimp Po-Boy"
             width={800}
             height={1000}
             className="w-full aspect-[3/4] md:aspect-[4/5] object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
@@ -115,40 +108,28 @@ export function EloBattleSection() {
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
           <div className="absolute bottom-4 left-4 right-4 md:bottom-6 md:left-6 md:right-6">
             <h3 className="text-lg md:text-3xl font-black italic mb-1 uppercase tracking-tight text-white">
-              Smash Burger
+              Shrimp Po-Boy
             </h3>
             <div className="flex items-center justify-between">
               <p className="text-white/60 font-bold text-xs uppercase tracking-widest">
-                Tony&apos;s Diner
+                Domilise&apos;s Po-Boy & Bar
               </p>
-              <div className="text-right">
-                <span className="text-[10px] text-white/60 uppercase font-black block">
-                  ELO
-                </span>
-                <div className="flex items-center gap-1.5 justify-end">
-                  <span className="text-lg md:text-2xl font-mono font-bold text-accent tabular-nums">
-                    {scores.left}
-                  </span>
-                  <AnimatePresence>
-                    {deltas && (
-                      <motion.span
-                        initial={{ opacity: 0, y: 4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className={`text-xs font-black flex items-center gap-0.5 ${deltas.left > 0 ? "text-green-400" : "text-red-400"}`}
-                      >
-                        {deltas.left > 0 ? (
-                          <TrendingUp size={10} />
-                        ) : (
-                          <TrendingDown size={10} />
-                        )}
-                        {deltas.left > 0 ? "+" : ""}
-                        {deltas.left}
-                      </motion.span>
+              <AnimatePresence>
+                {deltas && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className={`flex items-center gap-1 text-xs font-black ${deltas.left > 0 ? "text-green-400" : "text-red-400"}`}
+                  >
+                    {deltas.left > 0 ? (
+                      <TrendingUp size={14} />
+                    ) : (
+                      <TrendingDown size={14} />
                     )}
-                  </AnimatePresence>
-                </div>
-              </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
           {voted === "left" && (
@@ -167,16 +148,15 @@ export function EloBattleSection() {
         <motion.div
           role="button"
           tabIndex={voted ? -1 : 0}
-          aria-label="Vote for Truffle Brioche from L'Avenue Grill"
+          aria-label="Vote for Shrimp Po-Boy from Parkway Bakery"
           aria-pressed={voted === "right"}
           aria-disabled={!!voted}
-          className={`relative group cursor-pointer rounded-2xl overflow-hidden border-2 transition-all duration-500 ${
-            voted === "right"
+          className={`relative group cursor-pointer rounded-2xl overflow-hidden border-2 transition-all duration-500 ${voted === "right"
               ? "border-accent scale-[1.02] shadow-[0_0_40px_rgba(238,108,43,0.2)]"
               : voted === "left"
                 ? "border-border opacity-40"
                 : "border-border opacity-80 hover:opacity-100 hover:border-border"
-          }`}
+            }`}
           onClick={() => handleVote("right")}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
@@ -187,8 +167,8 @@ export function EloBattleSection() {
           whileTap={!voted ? { scale: 0.98 } : undefined}
         >
           <Image
-            src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&q=80&w=800"
-            alt="Truffle Brioche"
+            src="/images/poboy/parkway-poboy.jpeg"
+            alt="Shrimp Po-Boy"
             width={800}
             height={1000}
             className="w-full aspect-[3/4] md:aspect-[4/5] object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
@@ -197,40 +177,28 @@ export function EloBattleSection() {
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
           <div className="absolute bottom-4 left-4 right-4 md:bottom-6 md:left-6 md:right-6">
             <h3 className="text-lg md:text-3xl font-black italic mb-1 uppercase tracking-tight text-white">
-              Truffle Brioche
+              Shrimp Po-Boy
             </h3>
             <div className="flex items-center justify-between">
               <p className="text-white/60 font-bold text-xs uppercase tracking-widest">
-                L&apos;Avenue Grill
+                Parkway Bakery & Tavern
               </p>
-              <div className="text-right">
-                <span className="text-[10px] text-white/60 uppercase font-black block">
-                  ELO
-                </span>
-                <div className="flex items-center gap-1.5 justify-end">
-                  <span className="text-lg md:text-2xl font-mono font-bold text-accent tabular-nums">
-                    {scores.right}
-                  </span>
-                  <AnimatePresence>
-                    {deltas && (
-                      <motion.span
-                        initial={{ opacity: 0, y: 4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className={`text-xs font-black flex items-center gap-0.5 ${deltas.right > 0 ? "text-green-400" : "text-red-400"}`}
-                      >
-                        {deltas.right > 0 ? (
-                          <TrendingUp size={10} />
-                        ) : (
-                          <TrendingDown size={10} />
-                        )}
-                        {deltas.right > 0 ? "+" : ""}
-                        {deltas.right}
-                      </motion.span>
+              <AnimatePresence>
+                {deltas && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className={`flex items-center gap-1 text-xs font-black ${deltas.right > 0 ? "text-green-400" : "text-red-400"}`}
+                  >
+                    {deltas.right > 0 ? (
+                      <TrendingUp size={14} />
+                    ) : (
+                      <TrendingDown size={14} />
                     )}
-                  </AnimatePresence>
-                </div>
-              </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
           {voted === "right" && (

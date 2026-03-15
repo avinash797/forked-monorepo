@@ -169,23 +169,10 @@ export async function LeaderboardPreview() {
                   </div>
                 </div>
 
-                <div className="text-right flex items-center gap-6 shrink-0">
-                  <div className="hidden sm:block text-right">
-                    <span className="text-xl font-mono font-bold tabular-nums">
-                      {Math.round(entry.global_elo)}
-                    </span>
-                    <p className="text-[8px] text-text-tertiary uppercase font-black tracking-widest">
-                      ELO
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xl font-mono font-bold tabular-nums">
-                      {entry.avg_raw_score?.toFixed(1) ?? "—"}
-                    </span>
-                    <p className="text-[8px] text-text-tertiary uppercase font-black tracking-widest">
-                      SCORE
-                    </p>
-                  </div>
+                <div className="text-right shrink-0">
+                  <p className="text-[10px] text-text-tertiary uppercase font-black tracking-widest">
+                    {entry.total_ratings} ratings
+                  </p>
                 </div>
               </div>
             ))}

@@ -9,19 +9,19 @@ const concepts = [
     icon: BarChart3,
     title: "Every dish starts equal",
     description:
-      "New dishes enter the arena at a baseline score of 1500. Nobody gets a head start. The battles determine everything.",
+      "New dishes enter on a level playing field. Nobody gets a head start. The battles determine everything.",
   },
   {
     icon: Swords,
-    title: "Battles shift the scores",
+    title: "Battles shift the rankings",
     description:
-      "When you pick a winner, the winning dish gains points and the losing dish drops. Upsets cause bigger swings — beating the #1 dish is worth more.",
+      "When you pick a winner, our algorithm updates both dishes' rankings. Upsets carry more weight — beating the #1 dish moves the needle more.",
   },
   {
     icon: TrendingUp,
     title: "Rankings stabilize over time",
     description:
-      "More battles, more confidence. A dish with 500 battles has a precise, reliable score. One with 10 is still proving itself. The real list earns its place.",
+      "More battles, more confidence. A dish with 500 battles has a precise, reliable rank. One with 10 is still proving itself. The real list earns its place.",
   },
 ];
 
@@ -74,8 +74,8 @@ export function EloExplainer() {
         animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
         transition={{ delay: 0.8, duration: 0.6 }}
       >
-        &ldquo;In chess, Elo separates grandmasters from amateurs. In Forked,
-        it separates transcendent gumbo from tourist traps.&rdquo;
+        &ldquo;You don&apos;t decide what&apos;s good. The battles do. One head-to-head
+        at a time, the real list reveals itself.&rdquo;
       </motion.blockquote>
     </section>
   );
