@@ -44,7 +44,6 @@ export function RecentBattleTicker({ cityId }: RecentBattleTickerProps) {
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
     const { data: battles, isLoading } = useRecentBattles({
-        limit: 15,
         cityId,
     });
 
