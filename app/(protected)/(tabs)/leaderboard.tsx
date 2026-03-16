@@ -219,6 +219,7 @@ export default function LeaderboardScreen() {
                         <LeaderboardRow
                             item={item}
                             onPress={() => handleRowPress(item)}
+                            variant="global"
                         />
                     </Animated.View>
                 ))}

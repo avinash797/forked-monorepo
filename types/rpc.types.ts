@@ -65,6 +65,7 @@ export interface LeaderboardEntry {
     restaurant_id: string;
     restaurant_name: string;
     address: string;
+    neighborhood_name: string | null;
     bayesian_score: number;
     total_ratings: number;
     confidence_tier: string;
@@ -85,6 +86,7 @@ export interface PersonalRankingEntry {
     comparison_count: number;
     notes: string | null;
     rated_at: string;
+    variation_name: string | null;
 }
 
 // ── get_user_stats ──────────────────────────────────────────────────

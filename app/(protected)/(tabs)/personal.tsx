@@ -168,6 +168,7 @@ const personal = () => {
                         <LeaderboardRow
                             item={item}
                             onPress={() => handleRowPress(item)}
+                            variant="personal"
                         />
                     </Animated.View>
                 ))}
