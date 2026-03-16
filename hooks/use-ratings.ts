@@ -42,14 +42,14 @@ export function useCreateRating() {
             input: CreateRatingInput
         ): Promise<CreateRatingResponse> => {
             const { data, error } = await supabase.rpc('create_rating', {
-                p_restaurant_id:      input.restaurant_id,
-                p_dish_type_id:       input.dish_type_id,
-                p_sentiment:          input.sentiment,
-                p_photo_url:          input.photo_url ?? '',
+                p_restaurant_id: input.restaurant_id,
+                p_dish_type_id: input.dish_type_id,
+                p_sentiment: input.sentiment,
+                p_photo_url: input.photo_url ?? undefined,
                 p_photo_storage_path: input.photo_storage_path ?? undefined,
-                p_variation_id:       input.variation_id ?? undefined,
-                p_notes:              input.notes ?? undefined,
-                p_taste_tag_ids:      input.taste_tag_ids ?? undefined,
+                p_variation_id: input.variation_id ?? undefined,
+                p_notes: input.notes ?? undefined,
+                p_taste_tag_ids: input.taste_tag_ids ?? undefined,
             });
 
             if (error) throw error;

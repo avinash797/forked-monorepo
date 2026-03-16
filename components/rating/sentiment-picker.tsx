@@ -1,6 +1,7 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import * as Haptics from 'expo-haptics';
+import { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '../themed-text';
 
@@ -28,6 +29,7 @@ interface SentimentPickerProps {
 
 export function SentimentPicker({ value, onChange, disabled }: SentimentPickerProps) {
     const { theme } = useTheme();
+    const styles = useMemo(() => createThemedStyles(theme), [theme]);
 
     return (
         <View style={styles.container}>
@@ -43,7 +45,7 @@ export function SentimentPicker({ value, onChange, disabled }: SentimentPickerPr
                                 backgroundColor: isSelected
                                     ? option.color + '20'
                                     : theme.color.surface,
-                                opacity: pressed || (disabled && !isSelected) ? 0.7 : 1,
+                                opacity: pressed || (disabled && !isSelected) ? theme.opacity.pressed : 1,
                             },
                         ]}
                         onPress={() => {
@@ -64,7 +66,7 @@ export function SentimentPicker({ value, onChange, disabled }: SentimentPickerPr
                                 styles.label,
                                 {
                                     color: isSelected ? option.color : theme.color.textPrimary,
-                                    fontWeight: isSelected ? '700' : '500',
+                                    fontWeight: isSelected ? theme.font.weight.bold : theme.font.weight.medium,
                                 },
                             ]}
                         >
@@ -80,30 +82,28 @@ export function SentimentPicker({ value, onChange, disabled }: SentimentPickerPr
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        gap: 12,
-    },
-    option: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 16,
-        paddingHorizontal: 20,
-        borderRadius: 14,
-        borderCurve: 'continuous',
-        borderWidth: 2,
-        gap: 12,
-    },
-    emoji: {
-        fontSize: 28,
-    },
-    label: {
-        fontSize: 17,
-        flex: 1,
-    },
-    checkDot: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
-    },
-});
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+    StyleSheet.create({
+        container: {
+            gap: theme.space.sm,
+        },
+        option: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingVertical: theme.space.md,
+            paddingHorizontal: theme.space.lg,
+            borderRadius: theme.radius.md,
+            borderCurve: 'continuous',
+            borderWidth: theme.border.thick,
+            gap: theme.space.sm,
+        },
+        label: {
+            fontSize: theme.font.size.md + 1,
+            flex: 1,
+        },
+        checkDot: {
+            width: 10,
+            height: 10,
+            borderRadius: 5,
+        },
+    });

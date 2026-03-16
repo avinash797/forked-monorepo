@@ -2,14 +2,14 @@ import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { City, useCities } from '@/hooks/use-location';
-import { useLocationFilterStore, useLocationStore } from '@/stores';
+import { useLocationFilterStore } from '@/stores';
 import {
     BottomSheetBackdrop,
     BottomSheetFlatList,
     BottomSheetModal,
 } from '@gorhom/bottom-sheet';
 import { BottomSheetDefaultBackdropProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types';
-import { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
+import { forwardRef, useCallback, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
     Pressable,
@@ -37,9 +37,6 @@ export const LocationBottomSheet = forwardRef<
         setNeighborhoodFilter,
     } = useLocationFilterStore();
 
-    // Physical location + auto-selection source
-    const { currentCity } = useLocationStore();
-
     const { data: cities = [], isLoading: isLoadingCities } = useCities();
     const [activeTab, setActiveTab] = useState<'cities' | 'neighborhoods'>(
         'cities'
@@ -47,13 +44,6 @@ export const LocationBottomSheet = forwardRef<
 
     const styles = createStyles(theme);
     const snapPoints = useMemo(() => ['40%', '60%', '80%'], []);
-
-    // Auto-select closest city if no filter is active and we have a location match
-    useEffect(() => {
-        if (!filterType && currentCity && !selectedCityId) {
-            setCityFilter(currentCity.id, currentCity.name);
-        }
-    }, [filterType, currentCity, selectedCityId, setCityFilter]);
 
     const handleCitySelect = useCallback(
         (city: City) => {

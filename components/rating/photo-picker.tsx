@@ -2,6 +2,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
+import { useMemo } from 'react';
 import {
     ActivityIndicator,
     Alert,
@@ -31,9 +32,7 @@ export function PhotoPicker({
     subtitle,
 }: PhotoPickerProps) {
     const { theme } = useTheme();
-    const primaryColor = theme.color.accent;
-    const backgroundColor = theme.color.surface;
-    const textColor = theme.color.textPrimary;
+    const styles = useMemo(() => createThemedStyles(theme), [theme]);
 
     const handleAddPress = () => {
         if (photos.length >= maxPhotos) {
@@ -82,29 +81,23 @@ export function PhotoPicker({
     return (
         <ThemedView>
             <View style={styles.header}>
-                <ThemedText type="defaultSemiBold">
+                <ThemedText type="defaultSemiBold" style={styles.title}>
                     Photos{' '}
                     {required && (
-                        <ThemedText lightColor="#ee6c2b" darkColor="#ff8c50">
+                        <ThemedText style={styles.accent}>
                             *
                         </ThemedText>
                     )}
                 </ThemedText>
                 <ThemedText
                     style={styles.count}
-                    lightColor="#666"
-                    darkColor="#999"
                 >
                     {photos.length}/{maxPhotos}
                 </ThemedText>
             </View>
 
             {subtitle && photos.length === 0 && (
-                <ThemedText
-                    style={styles.subtitle}
-                    lightColor="#666"
-                    darkColor="#999"
-                >
+                <ThemedText style={styles.subtitle}>
                     {subtitle}
                 </ThemedText>
             )}
@@ -116,8 +109,7 @@ export function PhotoPicker({
                         <Pressable
                             style={({ pressed }) => [
                                 styles.removeButton,
-                                { backgroundColor: '#ee6c2b' },
-                                pressed && { opacity: 0.8 },
+                                pressed && { opacity: theme.opacity.pressed },
                             ]}
                             onPress={() => handleRemovePress(uri)}
                             android_ripple={{
@@ -126,7 +118,7 @@ export function PhotoPicker({
                                 borderless: true,
                             }}
                         >
-                            <IconSymbol name="close" size={16} color="#fff" />
+                            <IconSymbol name="close" size={16} color={theme.color.accentOn} />
                         </Pressable>
                     </View>
                 ))}
@@ -135,20 +127,19 @@ export function PhotoPicker({
                     <Pressable
                         style={({ pressed }) => [
                             styles.addButton,
-                            { backgroundColor, borderColor: primaryColor },
-                            pressed && { opacity: 0.7 },
+                            pressed && { opacity: theme.opacity.pressed },
                         ]}
                         onPress={handleAddPress}
                         disabled={isLoading}
                         android_ripple={{ color: 'rgba(0, 0, 0, 0.1)' }}
                     >
                         {isLoading ? (
-                            <ActivityIndicator color={primaryColor} />
+                            <ActivityIndicator color={theme.color.accent} />
                         ) : (
                             <IconSymbol
                                 name="camera-outline"
                                 size={32}
-                                color={primaryColor}
+                                color={theme.color.accent}
                             />
                         )}
                     </Pressable>
@@ -156,11 +147,7 @@ export function PhotoPicker({
             </View>
 
             {required && photos.length === 0 && (
-                <ThemedText
-                    style={styles.required}
-                    lightColor="#ee6c2b"
-                    darkColor="#ff8c50"
-                >
+                <ThemedText style={styles.required}>
                     At least one photo is required
                 </ThemedText>
             )}
@@ -168,59 +155,72 @@ export function PhotoPicker({
     );
 }
 
-const styles = StyleSheet.create({
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    count: {
-        fontSize: 14,
-    },
-    grid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 12,
-    },
-    photoContainer: {
-        position: 'relative',
-        width: 100,
-        height: 100,
-    },
-    photo: {
-        width: 100,
-        height: 100,
-        borderRadius: 12,
-        borderCurve: 'continuous',
-    },
-    removeButton: {
-        position: 'absolute',
-        top: -6,
-        right: -6,
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
-    },
-    addButton: {
-        width: 100,
-        height: 100,
-        borderRadius: 12,
-        borderCurve: 'continuous',
-        borderWidth: 2,
-        borderStyle: 'dashed',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    subtitle: {
-        fontSize: 13,
-        marginBottom: 8,
-    },
-    required: {
-        fontSize: 13,
-        marginTop: 8,
-    },
-});
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+    StyleSheet.create({
+        header: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: theme.space.xxs,
+        },
+        accent: {
+            color: theme.color.accent,
+        },
+        count: {
+            fontSize: theme.font.size.sm,
+            color: theme.color.textSecondary,
+        },
+        grid: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: theme.space.sm,
+        },
+        photoContainer: {
+            position: 'relative',
+            width: 100,
+            height: 100,
+        },
+        photo: {
+            width: 100,
+            height: 100,
+            borderRadius: theme.radius.sm,
+            borderCurve: 'continuous',
+        },
+        removeButton: {
+            position: 'absolute',
+            top: -6,
+            right: -6,
+            width: 24,
+            height: 24,
+            borderRadius: 12,
+            backgroundColor: theme.color.accent,
+            justifyContent: 'center',
+            alignItems: 'center',
+            boxShadow: `0px ${theme.shadow.sm.y}px ${theme.shadow.sm.radius}px rgba(0, 0, 0, ${theme.shadow.sm.opacity})`,
+        },
+        addButton: {
+            width: 100,
+            height: 100,
+            borderRadius: theme.radius.sm,
+            borderCurve: 'continuous',
+            borderWidth: theme.border.thick,
+            borderStyle: 'dashed',
+            borderColor: theme.color.accent,
+            backgroundColor: theme.color.surface,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        title: {
+            marginBottom: 0,
+        },
+        subtitle: {
+            fontSize: theme.font.size.xs + 1,
+            color: theme.color.textSecondary,
+            marginBottom: theme.space.xs,
+        },
+        required: {
+            fontSize: theme.font.size.xs + 1,
+            color: theme.color.accent,
+            marginTop: theme.space.xs,
+        },
+    });

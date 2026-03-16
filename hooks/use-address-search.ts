@@ -48,6 +48,16 @@ interface UseAddressSearchOptions {
     } | null;
 }
 
+interface UsePlacesSearchReturn {
+    query: string;
+    setQuery: (query: string) => void;
+    suggestions: GooglePlaceSuggestion[];
+    loading: boolean;
+    error: string | null;
+    selectAddress: (placeId: string) => Promise<AddressData>;
+    clearSearch: () => void;
+}
+
 interface UseNearbyGooglePlacesOptions {
     latitude: number | null;
     longitude: number | null;
@@ -128,7 +138,7 @@ export function useNearbyGooglePlaces(options: UseNearbyGooglePlacesOptions) {
     });
 }
 
-export function useAddressSearch(options?: UseAddressSearchOptions) {
+export function usePlacesSearch(options?: UseAddressSearchOptions) {
     const [query, setQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
 
@@ -198,7 +208,7 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
 
     // Details Mutation
     const {
-        mutateAsync: selectAddress,
+        mutateAsync: selectPlace,
         isPending: isSelecting,
         error: selectError,
     } = useMutation({
@@ -287,7 +297,175 @@ export function useAddressSearch(options?: UseAddressSearchOptions) {
         suggestions,
         loading: isSearching || isSelecting,
         error,
-        selectAddress,
+        selectAddress: selectPlace,
+        clearSearch,
+    };
+}
+
+/**
+ * Hook for searching addresses specifically (not restaurants/places).
+ * Uses Google Places Autocomplete with `address` type filtering.
+ * Ideal for the create-venue flow where the user needs to enter
+ * a street address rather than search for an existing restaurant.
+ */
+export function useAddressSearch(options?: UseAddressSearchOptions): UsePlacesSearchReturn {
+    const [query, setQuery] = useState('');
+    const [debouncedQuery, setDebouncedQuery] = useState('');
+
+    // Debounce query
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedQuery(query);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [query]);
+
+    // Address Suggestions Query
+    const {
+        data: suggestions = [],
+        isLoading: isSearching,
+        error: searchError,
+    } = useQuery({
+        queryKey: ['address-autocomplete', debouncedQuery, options?.proximity],
+        queryFn: async ({ signal }) => {
+            if (!debouncedQuery.trim() || !GOOGLE_API_KEY) return [];
+
+            const requestBody: any = {
+                input: debouncedQuery,
+                includedPrimaryTypes: [
+                    'street_address',
+                    'premise',
+                    'subpremise',
+                    'geocode',
+                    'route',
+                ],
+            };
+
+            if (options?.proximity) {
+                requestBody.locationBias = {
+                    circle: {
+                        center: {
+                            latitude: options.proximity.latitude,
+                            longitude: options.proximity.longitude,
+                        },
+                        radius: 10000, // 10km bias for address search
+                    },
+                };
+            }
+
+            const response = await fetch(`${BASE_URL}/places:autocomplete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Goog-Api-Key': GOOGLE_API_KEY,
+                },
+                body: JSON.stringify(requestBody),
+                signal,
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(
+                    `Google Places API error: ${response.status} ${errorText}`
+                );
+            }
+
+            const data = await response.json();
+            return (data.suggestions || []) as GooglePlaceSuggestion[];
+        },
+        enabled: !!debouncedQuery.trim() && !!GOOGLE_API_KEY,
+    });
+
+    // Details Mutation — reuses the same Place Details logic as usePlacesSearch
+    const {
+        mutateAsync: selectPlace,
+        isPending: isSelecting,
+        error: selectError,
+    } = useMutation({
+        mutationFn: async (placeId: string): Promise<AddressData> => {
+            if (!GOOGLE_API_KEY)
+                throw new Error('Google Maps API Key not configured');
+
+            const response = await fetch(`${BASE_URL}/places/${placeId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Goog-Api-Key': GOOGLE_API_KEY,
+                    'X-Goog-FieldMask':
+                        'id,displayName,formattedAddress,addressComponents,location,websiteUri,nationalPhoneNumber,types',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Google Places API error: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            const components = data.addressComponents || [];
+
+            const getComponent = (type: string) =>
+                components.find((c: any) => c.types.includes(type))?.longText ||
+                '';
+            const getShortComponent = (type: string) =>
+                components.find((c: any) => c.types.includes(type))
+                    ?.shortText || '';
+
+            const streetNumber = getComponent('street_number');
+            const route = getComponent('route');
+            const street = [streetNumber, route]
+                .filter(Boolean)
+                .join(' ')
+                .trim();
+
+            const city =
+                getComponent('locality') ||
+                getComponent('sublocality') ||
+                getComponent('administrative_area_level_2');
+            const state = getShortComponent('administrative_area_level_1') || getComponent('administrative_area_level_1');
+            const zip = getComponent('postal_code');
+            const country = getShortComponent('country') || getComponent('country');
+            const neighborhood = getComponent('neighborhood');
+
+            const phone = data.nationalPhoneNumber;
+            const website = data.websiteUri;
+            const types = data.types;
+
+            return {
+                name: data.displayName?.text,
+                full_address: data.formattedAddress,
+                street,
+                city,
+                state,
+                zip,
+                country,
+                neighborhood,
+                latitude: data.location?.latitude || 0,
+                longitude: data.location?.longitude || 0,
+                google_place_id: data.id,
+                phone,
+                website,
+                types,
+            };
+        },
+    });
+
+    const clearSearch = useCallback(() => {
+        setQuery('');
+    }, []);
+
+    const error =
+        (searchError as Error)?.message ||
+        (selectError as Error)?.message ||
+        null;
+
+    return {
+        query,
+        setQuery,
+        suggestions,
+        loading: isSearching || isSelecting,
+        error,
+        selectAddress: selectPlace,
         clearSearch,
     };
 }

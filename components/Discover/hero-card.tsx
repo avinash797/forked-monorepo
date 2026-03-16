@@ -47,8 +47,6 @@ export default function HeroCard({
         high: 4,
         very_high: 5,
     };
-    const confidence = confidenceTierFlames[dish.confidence_tier ?? 'low'] ?? 1;
-    const flames = '🔥'.repeat(confidence);
 
     const handleHeroPress = () => {
         router.push({
@@ -99,7 +97,7 @@ export default function HeroCard({
 
                     {/* Rank Badge */}
                     <View style={styles.rankBadge}>
-                        <ThemedText style={styles.rankText}>👑 #1</ThemedText>
+                        <ThemedText style={styles.rankText}>#1</ThemedText>
                     </View>
                 </View>
 
@@ -122,7 +120,6 @@ export default function HeroCard({
                     </View>
 
                     <View style={styles.scoreRow}>
-                        <ThemedText style={styles.flames}>{flames}</ThemedText>
                         <ThemedText style={styles.confidenceLabel}>
                             High Confidence
                         </ThemedText>
@@ -155,7 +152,7 @@ export function HeroCardEmpty() {
                         />
                     </View>
                     <ThemedText style={styles.emptyIllustrationLabel}>
-                        No rankings yet
+                        You've tried them all
                     </ThemedText>
                 </View>
 

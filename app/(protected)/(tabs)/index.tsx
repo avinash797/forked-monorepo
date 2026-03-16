@@ -20,22 +20,33 @@ import { trackEvent } from '@/lib/amplitude';
 import { useLocationFilterStore, useLocationStore } from '@/stores';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
-import { useEffect, useMemo, useRef } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const DEFAULT_CITY_NAME = 'New Orleans';
 
 export default function HomeScreen() {
     const router = useRouter();
     const { currentCity, getCurrentMatchedLocation: getCurrentLocation } =
         useLocationStore();
-    const { filterType, selectedCityName, nearbyConfig } =
+    const { filterType, selectedCityId, nearbyConfig } =
         useLocationFilterStore();
 
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
     const bottomSheetRef = useRef<BottomSheetModal>(null);
+    const scrollY = useRef(new Animated.Value(0)).current;
+
+    const headerShadowOpacity = scrollY.interpolate({
+        inputRange: [0, 10],
+        outputRange: [0, 0.1],
+        extrapolate: 'clamp',
+    });
+    const headerElevation = scrollY.interpolate({
+        inputRange: [0, 10],
+        outputRange: [0, 4],
+        extrapolate: 'clamp',
+    });
 
     // Build location filter based on current filter state
     const locationFilter: DiscoverLocationFilter = useMemo(() => {
@@ -50,13 +61,23 @@ export default function HomeScreen() {
         }
 
         // City filter or fallback
-        const cityName =
-            selectedCityName || currentCity?.name || DEFAULT_CITY_NAME;
-        return { cityName };
-    }, [filterType, selectedCityName, nearbyConfig, currentCity?.name]);
+        const cityId =
+            selectedCityId || currentCity?.id;
+        return { cityId };
+    }, [filterType, selectedCityId, nearbyConfig, currentCity?.id]);
 
     // Fetch all discover data in a single batch
-    const { data: discoverData, isLoading } = useDiscoverData(locationFilter);
+    const { data: discoverData, isLoading, refetch } = useDiscoverData(locationFilter);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        try {
+            await refetch();
+        } finally {
+            setRefreshing(false);
+        }
+    }, [refetch]);
 
     // Filter dish types that have hero data
     const dishTypesWithHeroes =
@@ -90,22 +111,42 @@ export default function HomeScreen() {
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']} >
             <ThemedView style={styles.container}>
-                <ScrollView showsVerticalScrollIndicator={false} contentInsetAdjustmentBehavior="automatic">
+                {/* Sticky header with scroll-driven shadow */}
+                <Animated.View
+                    style={[
+                        styles.stickyHeader,
+                        {
+                            shadowOpacity: headerShadowOpacity,
+                            elevation: headerElevation,
+                        },
+                    ]}
+                >
                     <LocationHeader
                         onLocationPress={handleLocationPress}
                         onSearchPress={handleSearchPress}
                     />
-                    <View style={styles.headerCaptionContainer}>
-                        <ThemedText style={styles.headerText}>
-                            What are you
-                        </ThemedText>
-                        <ThemedText style={styles.headerText}>
-                            craving?
-                        </ThemedText>
-                    </View>
+                </Animated.View>
 
-                    {/* Hero Section - Popular among Users */}
+                <Animated.ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentInsetAdjustmentBehavior="automatic"
+                    onScroll={Animated.event(
+                        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                        { useNativeDriver: false }
+                    )}
+                    scrollEventThrottle={16}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            tintColor={theme.color.accent}
+                        />
+                    }
+                >
                     <View style={styles.heroSection}>
+
+                        <RecentBattleTicker />
+
                         <View style={styles.sectionContainer}>
                             <ThemedText
                                 type="subtitle"
@@ -117,7 +158,6 @@ export default function HomeScreen() {
                                 horizontal
                                 showsHorizontalScrollIndicator={false}
                                 style={styles.heroSectionWrapper}
-                                contentContainerStyle={{ paddingHorizontal: theme.space.md }}
                             >
                                 {isLoading ? (
                                     // Show skeletons during loading
@@ -144,7 +184,6 @@ export default function HomeScreen() {
                             </ScrollView>
                         </View>
 
-                        {/* Rising Stars Section */}
                         <View style={styles.sectionContainer}>
                             <View style={styles.sectionTitleContainer}>
 
@@ -162,7 +201,6 @@ export default function HomeScreen() {
                                 horizontal
                                 showsHorizontalScrollIndicator={false}
                                 style={styles.heroSectionWrapper}
-                                contentContainerStyle={{ paddingHorizontal: theme.space.md }}
                             >
                                 {isLoading ? (
                                     // Show skeletons during loading
@@ -189,9 +227,8 @@ export default function HomeScreen() {
                         </View>
                     </View>
 
-                    {/* Recent Battle Ticker */}
-                    <RecentBattleTicker />
-                </ScrollView>
+
+                </Animated.ScrollView>
             </ThemedView>
 
             {/* Location Filter Bottom Sheet */}
@@ -211,6 +248,14 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         container: {
             flex: 1,
+            overflow: 'hidden',
+        },
+        stickyHeader: {
+            backgroundColor: theme.color.bg,
+            zIndex: 10,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowRadius: 8,
         },
         headerText: {
             fontSize: 36,
@@ -222,7 +267,6 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         heroSectionWrapper: {
             gap: theme.space.md,
-            flex: 1,
         },
         heroSection: {
             marginTop: theme.space.md,
@@ -247,20 +291,5 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         loadingContainer: {
             padding: theme.space.xl,
             alignItems: 'center',
-        },
-        expandButton: {
-            alignItems: 'center',
-            padding: theme.space.md,
-        },
-        expandText: {
-            color: theme.color.textSecondary,
-            fontSize: 14,
-            fontWeight: '600',
-        },
-        runnersUpContainer: {
-            padding: theme.space.md,
-            backgroundColor: theme.color.surface,
-            marginHorizontal: theme.space.md,
-            borderRadius: theme.radius.md,
         },
     });

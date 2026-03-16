@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import type { MatchLocationResponse } from '@/types/rpc.types';
 import * as Location from 'expo-location';
 import { create } from 'zustand';
+import { useLocationFilterStore } from './use-location-filter-store';
 
 interface LocationState {
     currentLocation: Location.LocationObject | null;
@@ -79,6 +80,10 @@ export const useLocationStore = create<LocationState>((set, get) => ({
                     currentNeighborhood: data.neighborhood,
                     isLoading: false,
                 });
+                const { filterType, selectedCityId, setCityFilter } = useLocationFilterStore.getState();
+                if (!filterType && !selectedCityId && data.city) {
+                    setCityFilter(data.city.id, data.city.name);
+                }
             } else {
                 set({ isLoading: false });
             }

@@ -14,7 +14,7 @@ export interface BattleOpponent {
     restaurant_name: string;
     elo_score: number;
     derived_score: number;
-    photo_url: string;
+    photo_url: string | null;
 }
 
 // ── create_rating ───────────────────────────────────────────────────
@@ -65,6 +65,7 @@ export interface LeaderboardEntry {
     restaurant_id: string;
     restaurant_name: string;
     address: string;
+    neighborhood_name: string | null;
     bayesian_score: number;
     total_ratings: number;
     confidence_tier: string;
@@ -81,10 +82,11 @@ export interface PersonalRankingEntry {
     elo_score: number;
     derived_score: number;
     sentiment: 'liked' | 'okay' | 'disliked';
-    photo_url: string;
+    photo_url: string | null;
     comparison_count: number;
     notes: string | null;
     rated_at: string;
+    variation_name: string | null;
 }
 
 // ── get_user_stats ──────────────────────────────────────────────────

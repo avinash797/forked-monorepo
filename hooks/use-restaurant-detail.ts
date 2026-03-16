@@ -84,7 +84,7 @@ export function useRestaurantDetail(restaurantId: string | null) {
             const { data: dishesData, error: dishesError } = await supabase
                 .from('restaurant_dishes')
                 .select(
-                    `*, type:dish_types(*), variation:dish_type_variations(*)`
+                    `id, dish_type_id, total_ratings, photos, type:dish_types(id, name, emoji, icon), variation:dish_type_variations(id, name, is_active)`
                 )
                 .eq('restaurant_id', restaurantId)
                 .order('total_ratings', {
@@ -98,7 +98,7 @@ export function useRestaurantDetail(restaurantId: string | null) {
 
             const { data: ratingsData, error: ratingsError } = await supabase
                 .from('global_dish_scores')
-                .select('*')
+                .select('dish_type_id, bayesian_score')
                 .eq('restaurant_id', restaurantId);
 
             if (ratingsError) {
@@ -123,6 +123,6 @@ export function useRestaurantDetail(restaurantId: string | null) {
             return { venue, dishes };
         },
         enabled: !!restaurantId,
-        select: (data) => data, // Pass through
+        staleTime: 10 * 60 * 1000, // 10 minutes
     });
 }

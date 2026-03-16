@@ -67,7 +67,7 @@ Done → battle completed → community scores updated for all affected restaura
 - NEVER use star symbols (★) or the word "star" for ratings
 - NEVER ask users to input a numeric score
 - NEVER use `useState`/`useEffect` for server data — always React Query
-- Photo is **mandatory** for every rating (`photo_url NOT NULL`)
+- Photo is **optional** for every rating (`photo_url` nullable) — ratings with a photo carry **1.25x weight** in the Bayesian leaderboard calculation
 - Battles are **strictly isolated by dish_type** (gumbo vs gumbo only)
 - Battles occur **within the sentiment zone only**
 - Re-rating same dish replaces old entry, resets Elo to initial sentiment value, triggers fresh battles

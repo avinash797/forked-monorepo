@@ -9,17 +9,17 @@ import { usePhotoUpload } from '@/hooks/use-photo-upload';
 import { supabase } from '@/lib/supabase';
 
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useNavigation } from '@react-navigation/native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     Alert,
     Image,
-    Platform,
     Pressable,
     ScrollView,
     StyleSheet,
-    View,
+    View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -37,6 +37,8 @@ const profileSchema = z.object({
         .optional()
         .or(z.literal('')),
     bio: z.string().max(160, 'Bio must be less than 160 characters').optional(),
+    avatar_url: z.string().nullable().optional(),
+    home_city_id: z.string().nullable().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -55,45 +57,76 @@ export default function EditProfileScreen() {
         isLoading: isUploading,
     } = usePhotoUpload();
 
-    const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url);
-    const [selectedCityId, setSelectedCityId] = useState<string | null>(
-        profile?.home_city_id || null
-    );
     const [selectedCityDisplay, setSelectedCityDisplay] = useState<
         string | null
     >(null);
 
-    const cityDisplayText =
-        selectedCityDisplay ||
-        (profile?.home_city
-            ? `${profile.home_city.name}${profile.home_city.state ? `, ${profile.home_city.state}` : ''}`
-            : null);
-
-    const handleCitySelect = useCallback(
-        (result: { cityId: string; displayName: string }) => {
-            setSelectedCityId(result.cityId);
-            setSelectedCityDisplay(result.displayName);
-        },
-        []
+    const defaultCityDisplay = useMemo(
+        () =>
+            profile?.home_city
+                ? `${profile.home_city.name}${profile.home_city.state ? `, ${profile.home_city.state}` : ''}`
+                : null,
+        [profile?.home_city]
     );
-
-    const handleClearCity = useCallback(() => {
-        setSelectedCityId(null);
-        setSelectedCityDisplay(null);
-    }, []);
 
     const {
         control,
         handleSubmit,
-        formState: { errors },
+        setValue,
+        watch,
+        reset,
+        formState: { errors, isDirty },
     } = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
             display_name: profile?.display_name || '',
             username: profile?.username || '',
             bio: profile?.bio || '',
+            avatar_url: profile?.avatar_url || null,
+            home_city_id: profile?.home_city_id || null,
         },
     });
+
+    const avatarUrl = watch('avatar_url');
+    const selectedCityId = watch('home_city_id');
+    const cityDisplayText = selectedCityDisplay || defaultCityDisplay;
+
+    const handleCitySelect = useCallback(
+        (result: { cityId: string; displayName: string }) => {
+            setValue('home_city_id', result.cityId, { shouldDirty: true });
+            setSelectedCityDisplay(result.displayName);
+        },
+        [setValue]
+    );
+
+    // Warn user when navigating away with unsaved changes
+    const navigation = useNavigation();
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+            if (!isDirty) return;
+
+            // Prevent default back behavior
+            e.preventDefault();
+
+            Alert.alert(
+                'Discard changes?',
+                'You have unsaved changes. Are you sure you want to leave without saving?',
+                [
+                    {
+                        text: "Don't leave",
+                        style: 'cancel',
+                    },
+                    {
+                        text: 'Discard',
+                        style: 'destructive',
+                        onPress: () => navigation.dispatch(e.data.action),
+                    },
+                ]
+            );
+        });
+
+        return unsubscribe;
+    }, [navigation, isDirty]);
 
     const handleAvatarPress = () => {
         Alert.alert('Change Avatar', 'Choose an option', [
@@ -109,7 +142,7 @@ export default function EditProfileScreen() {
                             user.id,
                             'avatars'
                         );
-                        if (result) setAvatarUrl(result.url);
+                        if (result) setValue('avatar_url', result.url, { shouldDirty: true });
                     }
                 },
             },
@@ -124,7 +157,7 @@ export default function EditProfileScreen() {
                             user.id,
                             'avatars'
                         );
-                        if (result) setAvatarUrl(result.url);
+                        if (result) setValue('avatar_url', result.url, { shouldDirty: true });
                     }
                 },
             },
@@ -151,6 +184,7 @@ export default function EditProfileScreen() {
                 queryClient.invalidateQueries({
                     queryKey: AUTH_KEYS.profile(variables.userId),
                 });
+                reset(undefined, { keepValues: true });
                 router.back();
             },
             onError: (error: any) => {
@@ -165,8 +199,8 @@ export default function EditProfileScreen() {
             display_name: data.display_name,
             username: data.username,
             bio: data.bio,
-            avatar_url: avatarUrl,
-            home_city_id: selectedCityId,
+            avatar_url: data.avatar_url,
+            home_city_id: data.home_city_id,
             updated_at: new Date().toISOString(),
         };
 
@@ -181,6 +215,7 @@ export default function EditProfileScreen() {
                     { paddingBottom: insets.bottom > 0 ? insets.bottom + 24 : 48 },
                 ]}
                 keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
             >
                 {/* Avatar */}
                 <View style={styles.avatarContainer}>
@@ -267,28 +302,13 @@ export default function EditProfileScreen() {
                                 style={[
                                     styles.cityFieldText,
                                     !cityDisplayText &&
-                                        styles.cityFieldPlaceholder,
+                                    styles.cityFieldPlaceholder,
                                 ]}
                                 numberOfLines={1}
                             >
                                 {cityDisplayText || 'Select your city'}
                             </ThemedText>
-                            {cityDisplayText ? (
-                                <Pressable
-                                    onPress={handleClearCity}
-                                    hitSlop={8}
-                                    style={({ pressed }) => [
-                                        styles.cityClearButton,
-                                        pressed && { opacity: 0.6 },
-                                    ]}
-                                >
-                                    <IconSymbol
-                                        name="close-circle"
-                                        size={18}
-                                        color={theme.color.textTertiary}
-                                    />
-                                </Pressable>
-                            ) : (
+                            {!selectedCityId && (
                                 <IconSymbol
                                     name="chevron-forward"
                                     size={16}
@@ -331,7 +351,7 @@ export default function EditProfileScreen() {
             <CitySearchSheet
                 ref={citySheetRef}
                 onSelect={handleCitySelect}
-                onClose={() => {}}
+                onClose={() => { }}
             />
         </View>
     );

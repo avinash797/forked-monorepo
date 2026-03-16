@@ -17,7 +17,6 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import {
-    SafeAreaView,
     useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
@@ -140,168 +139,166 @@ export default function ProfileScreen() {
         : null;
 
     return (
-        <SafeAreaView style={styles.container}>
-            <ThemedView style={styles.container}>
-                {/* Settings Button (Always visible but transitions) */}
-                <View style={[styles.topControls]}>
-                    <Link href="/profile/edit" asChild>
-                        <Pressable>
-                            {({ pressed }) => (
-                                <Animated.View
-                                    style={[
-                                        styles.settingsButton,
-                                        animatedSettingsButtonStyle,
-                                        pressed && styles.settingsButtonPressed,
-                                    ]}
-                                >
-                                    <IconSymbol
-                                        name="pencil"
-                                        size={28}
-                                        color={theme.color.textPrimary}
-                                    />
-                                </Animated.View>
-                            )}
-                        </Pressable>
-                    </Link>
-                    <Link href="/profile/settings" asChild>
-                        <Pressable>
-                            {({ pressed }) => (
-                                <Animated.View
-                                    style={[
-                                        styles.settingsButton,
-                                        animatedSettingsButtonStyle,
-                                        pressed && styles.settingsButtonPressed,
-                                    ]}
-                                >
-                                    <IconSymbol
-                                        name="settings-outline"
-                                        size={28}
-                                        color={theme.color.textPrimary}
-                                    />
-                                </Animated.View>
-                            )}
-                        </Pressable>
-                    </Link>
-                </View>
+        <ThemedView style={styles.container}>
+            {/* Settings Button (Always visible but transitions) */}
+            <View style={[styles.topControls]}>
+                <Link href="/(protected)/(profile)/edit" asChild>
+                    <Pressable>
+                        {({ pressed }) => (
+                            <Animated.View
+                                style={[
+                                    styles.settingsButton,
+                                    animatedSettingsButtonStyle,
+                                    pressed && styles.settingsButtonPressed,
+                                ]}
+                            >
+                                <IconSymbol
+                                    name="pencil"
+                                    size={28}
+                                    color={theme.color.textPrimary}
+                                />
+                            </Animated.View>
+                        )}
+                    </Pressable>
+                </Link>
+                <Link href="/(protected)/(profile)/settings" asChild>
+                    <Pressable>
+                        {({ pressed }) => (
+                            <Animated.View
+                                style={[
+                                    styles.settingsButton,
+                                    animatedSettingsButtonStyle,
+                                    pressed && styles.settingsButtonPressed,
+                                ]}
+                            >
+                                <IconSymbol
+                                    name="settings-outline"
+                                    size={28}
+                                    color={theme.color.textPrimary}
+                                />
+                            </Animated.View>
+                        )}
+                    </Pressable>
+                </Link>
+            </View>
 
-                {/* Animated Sticky Header */}
+            {/* Animated Sticky Header */}
+            <Animated.View
+                style={[
+                    styles.stickyHeader,
+                    { paddingTop: insets.top },
+                    animatedHeaderStyle,
+                ]}
+            >
+                <View style={styles.headerContent}>
+                    <View style={styles.headerTitleContainer}>
+                        <ThemedText
+                            style={styles.headerTitle}
+                            numberOfLines={1}
+                        >
+                            {displayName}
+                        </ThemedText>
+                    </View>
+                </View>
+            </Animated.View>
+
+            <Animated.ScrollView
+                onScroll={onScroll}
+                scrollEventThrottle={16}
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                contentInsetAdjustmentBehavior="automatic"
+            >
+                {/* Animated Hero Section */}
                 <Animated.View
                     style={[
-                        styles.stickyHeader,
-                        { paddingTop: insets.top },
-                        animatedHeaderStyle,
+                        styles.heroSection,
+                        { backgroundColor: theme.color.bg },
+                        animatedHeroStyle,
                     ]}
                 >
-                    <View style={styles.headerContent}>
-                        <View style={styles.headerTitleContainer}>
+                    {/* Hero Content */}
+                    <Animated.View
+                        style={[
+                            styles.heroContent,
+                            animatedHeroContentStyle,
+                        ]}
+                    >
+                        <View style={styles.avatarContainer}>
+                            {avatarUrl ? (
+                                <Image
+                                    source={{ uri: avatarUrl }}
+                                    style={styles.avatar}
+                                />
+                            ) : (
+                                <ThemedView
+                                    style={[
+                                        styles.avatarPlaceholder,
+                                        {
+                                            backgroundColor:
+                                                theme.color.surface,
+                                        },
+                                    ]}
+                                >
+                                    <ThemedText
+                                        style={styles.avatarInitials}
+                                    >
+                                        {getInitials(displayName)}
+                                    </ThemedText>
+                                </ThemedView>
+                            )}
+                        </View>
+                        <View style={styles.heroUserDetailsContent}>
                             <ThemedText
-                                style={styles.headerTitle}
-                                numberOfLines={1}
+                                type="title"
+                                style={styles.displayNameHero}
+                                selectable
                             >
                                 {displayName}
                             </ThemedText>
+                            {username && (
+                                <ThemedText style={styles.usernameText}>
+                                    @{username}
+                                </ThemedText>
+                            )}
+                            {homeCity && (
+                                <View style={styles.locationRow}>
+                                    <IconSymbol
+                                        name="location-outline"
+                                        size={16}
+                                        color={theme.color.textSecondary}
+                                    />
+                                    <ThemedText style={styles.locationText}>
+                                        {homeCity}
+                                    </ThemedText>
+                                </View>
+                            )}
+                            {bio && (
+                                <ThemedText
+                                    style={styles.bioText}
+                                    numberOfLines={3}
+                                >
+                                    {bio}
+                                </ThemedText>
+                            )}
                         </View>
-                    </View>
+                    </Animated.View>
                 </Animated.View>
 
-                <Animated.ScrollView
-                    onScroll={onScroll}
-                    scrollEventThrottle={16}
-                    contentContainerStyle={styles.scrollContent}
-                    showsVerticalScrollIndicator={false}
-                    contentInsetAdjustmentBehavior="automatic"
-                >
-                    {/* Animated Hero Section */}
-                    <Animated.View
-                        style={[
-                            styles.heroSection,
-                            { backgroundColor: theme.color.bg },
-                            animatedHeroStyle,
-                        ]}
-                    >
-                        {/* Hero Content */}
-                        <Animated.View
-                            style={[
-                                styles.heroContent,
-                                animatedHeroContentStyle,
-                            ]}
-                        >
-                            <View style={styles.avatarContainer}>
-                                {avatarUrl ? (
-                                    <Image
-                                        source={{ uri: avatarUrl }}
-                                        style={styles.avatar}
-                                    />
-                                ) : (
-                                    <ThemedView
-                                        style={[
-                                            styles.avatarPlaceholder,
-                                            {
-                                                backgroundColor:
-                                                    theme.color.surface,
-                                            },
-                                        ]}
-                                    >
-                                        <ThemedText
-                                            style={styles.avatarInitials}
-                                        >
-                                            {getInitials(displayName)}
-                                        </ThemedText>
-                                    </ThemedView>
-                                )}
-                            </View>
-                            <View style={styles.heroUserDetailsContent}>
-                                <ThemedText
-                                    type="title"
-                                    style={styles.displayNameHero}
-                                    selectable
-                                >
-                                    {displayName}
-                                </ThemedText>
-                                {username && (
-                                    <ThemedText style={styles.usernameText}>
-                                        @{username}
-                                    </ThemedText>
-                                )}
-                                {homeCity && (
-                                    <View style={styles.locationRow}>
-                                        <IconSymbol
-                                            name="location-outline"
-                                            size={16}
-                                            color={theme.color.textSecondary}
-                                        />
-                                        <ThemedText style={styles.locationText}>
-                                            {homeCity}
-                                        </ThemedText>
-                                    </View>
-                                )}
-                                {bio && (
-                                    <ThemedText
-                                        style={styles.bioText}
-                                        numberOfLines={3}
-                                    >
-                                        {bio}
-                                    </ThemedText>
-                                )}
-                            </View>
-                        </Animated.View>
-                    </Animated.View>
+                {/* Stats Row */}
+                <StatsRow
+                    totalDishes={userStats?.total_ratings ?? 0}
+                    totalCities={userStats?.cities_rated_in ?? 0}
+                    totalBattles={userStats?.total_comparisons ?? 0}
+                />
 
-                    {/* Stats Row */}
-                    <StatsRow
-                        totalDishes={userStats?.total_ratings ?? 0}
-                        totalCities={userStats?.cities_rated_in ?? 0}
-                        totalBattles={userStats?.total_comparisons ?? 0}
-                    />
+                {/* Best Ever Section */}
+                <BestEverSection userId={user?.id} />
 
-                    {/* Best Ever Section */}
-                    <BestEverSection userId={user?.id} />
-
-                    {/* Badges Section */}
-                    <BadgesSection userId={user?.id} />
-                </Animated.ScrollView>
-            </ThemedView>
-        </SafeAreaView>
+                {/* Badges Section */}
+                <BadgesSection userId={user?.id} />
+            </Animated.ScrollView>
+        </ThemedView>
     );
 }
 
@@ -314,7 +311,7 @@ const createThemedStyles = (
             flex: 1,
         },
         scrollContent: {
-            paddingBottom: insets.bottom + theme.space.xl,
+            paddingBottom: theme.space.xl
         },
         topControls: {
             position: 'absolute',
@@ -323,7 +320,7 @@ const createThemedStyles = (
             width: '100%',
             justifyContent: 'space-between',
             paddingHorizontal: theme.space.md,
-            paddingTop: theme.space.sm,
+            paddingTop: insets.top + theme.space.sm,
             zIndex: 20,
         },
         settingsButton: {

@@ -1,7 +1,7 @@
 import {
     GooglePlaceSuggestion,
-    useAddressSearch,
     useNearbyGooglePlaces,
+    usePlacesSearch,
 } from '@/hooks/use-address-search';
 import { useDebounce } from '@/hooks/use-debounce';
 import {
@@ -9,10 +9,10 @@ import {
     useNearbyRestaurants,
     useSearchRestaurants,
 } from '@/hooks/use-restaurants';
+import { supabase } from '@/lib/supabase';
 import { useRatingStore } from '@/stores';
 import { useLocationStore } from '@/stores/location.store';
 import { Database } from '@/types/database.types';
-import { supabase } from '@/lib/supabase';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -39,7 +39,7 @@ export function useVenueSearch() {
         setQuery: setAddressQuery,
         loading: isSearchingAddress,
         selectAddress,
-    } = useAddressSearch({
+    } = usePlacesSearch({
         proximity: location
             ? { latitude: location.latitude, longitude: location.longitude }
             : null,
@@ -70,12 +70,13 @@ export function useVenueSearch() {
     // Idle: DB nearby + Google nearby (deduped), DB first
     // Searching: DB search + Google autocomplete (deduped), DB first
     const combinedResults: SearchResultItem[] = useMemo(() => {
-        const dbResults = searchQuery ? searchResults : nearbyRestaurants;
+        // const dbResults = searchQuery ? searchResults : nearbyRestaurants;
+        const dbResults = [] as any;
         const googleSuggestions = searchQuery
             ? addressSuggestions
             : nearbyGooglePlaces;
 
-        const restaurants: SearchResultItem[] = dbResults.map((r) => ({
+        const restaurants: SearchResultItem[] = dbResults.map((r: any) => ({
             type: 'restaurant' as const,
             data: r,
         }));

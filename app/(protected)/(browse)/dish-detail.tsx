@@ -24,8 +24,6 @@ import Animated, {
     Easing,
     Extrapolation,
     interpolate,
-    interpolateColor,
-    useAnimatedProps,
     useAnimatedScrollHandler,
     useAnimatedStyle,
     useSharedValue,
@@ -36,8 +34,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const HERO_HEIGHT = 320;
 const HEADER_HEIGHT = 60;
-
-const AnimatedIconSymbol = Animated.createAnimatedComponent(IconSymbol);
 
 // ── Skeleton placeholder with pulsing animation ─────────────────────────
 function SkeletonBlock({
@@ -166,16 +162,24 @@ export default function DishDetailScreen() {
         },
     });
 
-    // Animated props for the back button color
-    const animatedIconProps = useAnimatedProps(() => {
-        const color = interpolateColor(
+    // Cross-fade between light and dark icon as user scrolls
+    const animatedLightIconStyle = useAnimatedStyle(() => ({
+        opacity: interpolate(
             scrollY.value,
             [HERO_HEIGHT * 0.7, HERO_HEIGHT * 0.9],
-            [theme.color.textOnImage, theme.color.textPrimary]
-        );
+            [1, 0],
+            Extrapolation.CLAMP
+        ),
+    }));
 
-        return { color };
-    });
+    const animatedDarkIconStyle = useAnimatedStyle(() => ({
+        opacity: interpolate(
+            scrollY.value,
+            [HERO_HEIGHT * 0.7, HERO_HEIGHT * 0.9],
+            [0, 1],
+            Extrapolation.CLAMP
+        ),
+    }));
 
     // Animated styles for hero image
     const animatedHeroStyle = useAnimatedStyle(() => {
@@ -396,12 +400,12 @@ export default function DishDetailScreen() {
                     <Animated.View
                         style={[styles.backButton, animatedBackButtonStyle]}
                     >
-                        <AnimatedIconSymbol
-                            name="arrow-back"
-                            size={24}
-                            color={theme.color.textOnImage}
-                            animatedProps={animatedIconProps}
-                        />
+                        <Animated.View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }, animatedLightIconStyle]}>
+                            <IconSymbol name="arrow-back" size={24} color={theme.color.textOnImage} />
+                        </Animated.View>
+                        <Animated.View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }, animatedDarkIconStyle]}>
+                            <IconSymbol name="arrow-back" size={24} color={theme.color.textPrimary} />
+                        </Animated.View>
                     </Animated.View>
                 </Pressable>
             </View>
