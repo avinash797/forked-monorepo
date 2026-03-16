@@ -70,12 +70,13 @@ export function useVenueSearch() {
     // Idle: DB nearby + Google nearby (deduped), DB first
     // Searching: DB search + Google autocomplete (deduped), DB first
     const combinedResults: SearchResultItem[] = useMemo(() => {
-        const dbResults = searchQuery ? searchResults : nearbyRestaurants;
+        // const dbResults = searchQuery ? searchResults : nearbyRestaurants;
+        const dbResults = [] as any;
         const googleSuggestions = searchQuery
             ? addressSuggestions
             : nearbyGooglePlaces;
 
-        const restaurants: SearchResultItem[] = dbResults.map((r) => ({
+        const restaurants: SearchResultItem[] = dbResults.map((r: any) => ({
             type: 'restaurant' as const,
             data: r,
         }));

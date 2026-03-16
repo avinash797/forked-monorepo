@@ -11,7 +11,7 @@ import { usePhotoUpload } from '@/hooks/use-photo-upload';
 import { useCreateRating, useTasteTags } from '@/hooks/use-ratings';
 import { useRatingStore } from '@/stores';
 import { useRouter } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 export default function RatingScreen() {
@@ -45,6 +45,8 @@ export default function RatingScreen() {
     } = usePhotoUpload();
 
     const { data: tasteTags } = useTasteTags(selectedDishType?.id || null);
+
+    const styles = useMemo(() => createThemedStyles(theme), [theme]);
 
     const toggleTag = useCallback(
         (tagId: string) => {
@@ -178,8 +180,6 @@ export default function RatingScreen() {
 
                 <ThemedText
                     style={styles.restaurantText}
-                    lightColor="#666"
-                    darkColor="#999"
                 >
                     at {selectedRestaurant.name}
                 </ThemedText>
@@ -188,7 +188,7 @@ export default function RatingScreen() {
                 <ThemedView style={styles.section}>
                     <ThemedText type="defaultSemiBold" style={styles.label}>
                         How was it?{' '}
-                        <ThemedText lightColor="#ee6c2b" darkColor="#ff8c50">
+                        <ThemedText style={{ color: theme.color.accent }}>
                             *
                         </ThemedText>
                     </ThemedText>
@@ -207,6 +207,7 @@ export default function RatingScreen() {
                         onRemovePhoto={handleRemovePhoto}
                         maxPhotos={1}
                         isLoading={isUploading}
+                        subtitle='Adding a photo will add weight to your rating'
                     />
                 </ThemedView>
 
@@ -229,20 +230,17 @@ export default function RatingScreen() {
                                         key={tag.id}
                                         style={[
                                             styles.tag,
-                                            { borderColor: isSelected ? theme.color.accent : theme.color.border },
-                                            isSelected && {
-                                                backgroundColor:
-                                                    theme.color.accent,
-                                            },
+                                            isSelected
+                                                ? styles.tagSelected
+                                                : styles.tagUnselected,
                                         ]}
                                         onPress={() => toggleTag(tag.id)}
                                     >
                                         <ThemedText
                                             style={[
                                                 styles.tagText,
-                                                isSelected && {
-                                                    color: theme.color.accentOn,
-                                                },
+                                                isSelected &&
+                                                styles.tagTextSelected,
                                             ]}
                                         >
                                             {tag.name}
@@ -279,61 +277,70 @@ export default function RatingScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    content: {
-        padding: 16,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-        marginBottom: 4,
-    },
-    emoji: {
-        fontSize: 32,
-    },
-    dishTypeName: {
-        fontSize: 24,
-        fontWeight: '700',
-    },
-    restaurantText: {
-        fontSize: 16,
-        marginBottom: 20,
-    },
-    section: {
-        marginBottom: 24,
-    },
-    label: {
-        marginBottom: 12,
-    },
-    tagHint: {
-        fontSize: 13,
-        color: undefined, // uses ThemedText default
-        opacity: 0.6,
-        marginBottom: 12,
-    },
-    tagsContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-    },
-    tag: {
-        paddingHorizontal: 14,
-        paddingVertical: 8,
-        borderRadius: 20,
-        borderCurve: 'continuous',
-        borderWidth: 1,
-        backgroundColor: 'transparent',
-    },
-    tagText: {
-        fontSize: 14,
-        fontWeight: '500',
-    },
-    submitButton: {
-        marginTop: 8,
-        marginBottom: 16,
-    },
-});
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+    StyleSheet.create({
+        container: {
+            flex: 1,
+        },
+        content: {
+            padding: theme.space.md,
+        },
+        header: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.space.sm,
+            marginBottom: theme.space.xxs,
+        },
+        dishTypeName: {
+            fontSize: theme.font.size.xxl,
+            fontWeight: theme.font.weight.bold,
+        },
+        restaurantText: {
+            fontSize: theme.font.size.md,
+            color: theme.color.textSecondary,
+            marginBottom: theme.space.lg,
+        },
+        section: {
+            marginBottom: theme.space.xl,
+        },
+        label: {
+            marginBottom: theme.space.xxs,
+        },
+        tagHint: {
+            fontSize: theme.font.size.xs + 1,
+            color: theme.color.textSecondary,
+            opacity: theme.opacity.disabled + 0.15,
+            marginBottom: theme.space.sm,
+        },
+        tagsContainer: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: theme.space.xs,
+        },
+        tag: {
+            paddingHorizontal: theme.space.sm + 2,
+            paddingVertical: theme.space.xs,
+            borderRadius: theme.radius.pill,
+            borderCurve: 'continuous',
+            borderWidth: theme.border.hairline,
+        },
+        tagSelected: {
+            backgroundColor: theme.color.accent,
+            borderColor: theme.color.accent,
+        },
+        tagUnselected: {
+            backgroundColor: 'transparent',
+            borderColor: theme.color.border,
+        },
+        tagText: {
+            fontSize: theme.font.size.sm,
+            fontWeight: theme.font.weight.medium,
+        },
+        tagTextSelected: {
+            color: theme.color.accentOn,
+        },
+        submitButton: {
+            marginTop: theme.space.xs,
+            marginBottom: theme.space.md,
+        },
+    });
