@@ -36,9 +36,9 @@ export function useDishCore(
                 .from('global_dish_scores')
                 .select(
                     `
-                    *,
-                    restaurant:restaurants(*),
-                    dish_type:dish_types(*)
+                    bayesian_score, featured_photo_url, total_ratings, confidence_tier,
+                    restaurant:restaurants(id, name),
+                    dish_type:dish_types(id, name, emoji, icon)
                     `
                 )
                 .eq('dish_type_id', dishId)

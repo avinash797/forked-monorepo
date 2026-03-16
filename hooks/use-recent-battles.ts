@@ -31,7 +31,7 @@ export interface RecentBattleItem {
 export function useRecentBattles(
     options: { limit?: number; cityId?: string } = {}
 ) {
-    const { limit = 500, cityId } = options;
+    const { limit = 20, cityId } = options;
     // Used only for queryKey cache isolation — NOT for the actual DB filter,
     // because user.id from useAuth() may differ from auth.uid() stored in comparisons.
     const { user } = useAuth();

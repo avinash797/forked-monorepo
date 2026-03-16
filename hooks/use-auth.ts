@@ -56,7 +56,6 @@ export function useAuth(): UseAuthReturn {
             return data.session;
         },
         staleTime: 5 * 60 * 1000, // 5 minutes
-        refetchOnWindowFocus: true,
     });
 
     // Fetch user profile (depends on session)

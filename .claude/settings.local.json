@@ -29,7 +29,8 @@
       "mcp__XcodeBuildMCP__list_sims",
       "mcp__XcodeBuildMCP__session_set_defaults",
       "mcp__XcodeBuildMCP__screenshot",
-      "mcp__XcodeBuildMCP__snapshot_ui"
+      "mcp__XcodeBuildMCP__snapshot_ui",
+      "Bash(for file:*)"
     ]
   },
   "enabledPlugins": {

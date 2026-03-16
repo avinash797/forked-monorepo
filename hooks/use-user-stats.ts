@@ -39,6 +39,7 @@ export function useUserStats(userId?: string, enabled?: boolean) {
             return data as unknown as UserStatsResponse | null;
         },
         enabled: enabled,
+        staleTime: 10 * 60 * 1000, // 10 minutes
     });
 }
 
@@ -56,6 +57,7 @@ export function useMyBestEver(userId?: string) {
             if (error) throw error;
             return (data ?? []) as BestEverDish[];
         },
+        staleTime: 10 * 60 * 1000, // 10 minutes
     });
 }
 
@@ -92,6 +94,7 @@ export function useProfile(userId?: string) {
             if (error) throw error;
             return data;
         },
+        staleTime: 10 * 60 * 1000, // 10 minutes
     });
 }
 
@@ -166,6 +169,7 @@ export function useRatingsByDishType(userId?: string) {
                 (a, b) => b.count - a.count
             );
         },
+        staleTime: 10 * 60 * 1000, // 10 minutes
     });
 }
 
