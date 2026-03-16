@@ -143,7 +143,7 @@ export function LeaderboardShareModal({
                         <View style={styles.topHeader}>
                             {/* Branded logo box */}
                             <View style={styles.logoBox}>
-                                <ForkLogo size={20} color={theme.color.gold} />
+                                <ForkLogo size={20} color={theme.color.textOnImage} />
                             </View>
 
                             {/* Title block */}
