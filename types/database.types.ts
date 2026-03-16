@@ -1402,7 +1402,7 @@ export type Database = {
       }
       get_discover_heroes: {
         Args: {
-          p_city_name?: string
+          p_city_id?: string
           p_min_ratings?: number
           p_radius_meters?: number
           p_user_lat?: number
@@ -1425,7 +1425,7 @@ export type Database = {
       }
       get_discover_rising_stars: {
         Args: {
-          p_city_name?: string
+          p_city_id?: string
           p_max_ratings?: number
           p_min_ratings?: number
           p_min_score?: number

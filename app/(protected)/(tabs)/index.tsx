@@ -29,7 +29,7 @@ export default function HomeScreen() {
     const router = useRouter();
     const { currentCity, getCurrentMatchedLocation: getCurrentLocation } =
         useLocationStore();
-    const { filterType, selectedCityName, nearbyConfig } =
+    const { filterType, selectedCityId, nearbyConfig } =
         useLocationFilterStore();
 
     const { theme } = useTheme();
@@ -61,10 +61,10 @@ export default function HomeScreen() {
         }
 
         // City filter or fallback
-        const cityName =
-            selectedCityName || currentCity?.name;
-        return { cityName };
-    }, [filterType, selectedCityName, nearbyConfig, currentCity?.name]);
+        const cityId =
+            selectedCityId || currentCity?.id;
+        return { cityId };
+    }, [filterType, selectedCityId, nearbyConfig, currentCity?.id]);
 
     // Fetch all discover data in a single batch
     const { data: discoverData, isLoading, refetch } = useDiscoverData(locationFilter);

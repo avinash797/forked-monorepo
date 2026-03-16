@@ -55,12 +55,12 @@ export interface DishTypeWithData {
 /**
  * Location filter configuration for discover data queries.
  *
- * - cityName: filter by city name (case-insensitive)
+ * - cityId: filter by city UUID
  * - nearby: filter by user lat/long within a radius
  * - If neither is provided, all restaurants are returned.
  */
 export interface DiscoverLocationFilter {
-    cityName?: string;
+    cityId?: string;
     nearby?: {
         latitude: number;
         longitude: number;
@@ -80,7 +80,7 @@ export interface DiscoverLocationFilter {
  * Uses RPC functions to exclude restaurants where the user has already rated dishes.
  *
  * Supports two location filtering modes:
- * - City name: filters restaurants by matching city name
+ * - City ID: filters restaurants by city UUID
  * - Nearby: filters restaurants within a radius of user coordinates
  *
  * @param locationFilter - Location filter configuration
@@ -93,7 +93,7 @@ export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
         // Include user ID and filter params in query key for proper cache invalidation
         queryKey: [
             'discover-data',
-            locationFilter.cityName ?? null,
+            locationFilter.cityId ?? null,
             locationFilter.nearby?.latitude ?? null,
             locationFilter.nearby?.longitude ?? null,
             locationFilter.nearby?.radiusMeters ?? null,
@@ -102,7 +102,7 @@ export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
         queryFn: async () => {
             // Build RPC params from location filter
             const rpcLocationParams = {
-                p_city_name: locationFilter.cityName,
+                p_city_id: locationFilter.cityId,
                 p_user_lat: locationFilter.nearby?.latitude,
                 p_user_long: locationFilter.nearby?.longitude,
                 p_radius_meters: locationFilter.nearby?.radiusMeters,
@@ -205,7 +205,7 @@ export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
                 risingStarMap,
             };
         },
-        enabled: !!locationFilter.cityName || !!locationFilter.nearby,
+        enabled: !!locationFilter.cityId || !!locationFilter.nearby,
         staleTime: 5 * 60 * 1000, // 5 minutes
     });
 }
