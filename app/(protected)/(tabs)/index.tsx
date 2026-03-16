@@ -24,7 +24,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const DEFAULT_CITY_NAME = 'New Orleans';
 
 export default function HomeScreen() {
     const router = useRouter();
@@ -63,7 +62,7 @@ export default function HomeScreen() {
 
         // City filter or fallback
         const cityName =
-            selectedCityName || currentCity?.name || DEFAULT_CITY_NAME;
+            selectedCityName || currentCity?.name;
         return { cityName };
     }, [filterType, selectedCityName, nearbyConfig, currentCity?.name]);
 

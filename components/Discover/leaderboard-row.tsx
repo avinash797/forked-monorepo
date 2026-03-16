@@ -83,11 +83,11 @@ export function LeaderboardRow({ item, onPress, variant = 'global' }: Leaderboar
 
             <View style={styles.content}>
                 {/* Rank Badge */}
-                <View style={styles.rankContainer}>
+                {item.rank !== 1 && <View style={styles.rankContainer}>
                     <ThemedText style={styles.rankText}>
                         {item.rank}
                     </ThemedText>
-                </View>
+                </View>}
 
                 {/* Photo */}
                 <View style={styles.photoContainer}>
@@ -118,32 +118,29 @@ export function LeaderboardRow({ item, onPress, variant = 'global' }: Leaderboar
                     </ThemedText>
 
                     {variant === 'personal' && sentimentInfo ? (
-                        <View style={styles.personalMeta}>
-                            <IconSymbol
-                                name={sentimentInfo.icon}
-                                size={12}
-                                color={sentimentInfo.color}
-                            />
-                            <ThemedText style={[styles.metaText, { color: sentimentInfo.color }]}>
-                                {sentimentInfo.label}
-                            </ThemedText>
-                            {item.variation_name ? (
-                                <>
-                                    <ThemedText style={styles.metaDot}>·</ThemedText>
-                                    <ThemedText style={styles.metaText} numberOfLines={1}>
-                                        {item.variation_name}
-                                    </ThemedText>
-                                </>
-                            ) : null}
-                            {item.rated_at ? (
-                                <>
-                                    <ThemedText style={styles.metaDot}>·</ThemedText>
-                                    <ThemedText style={styles.metaText}>
-                                        {formatDistanceToNow(new Date(item.rated_at), { addSuffix: false })} ago
-                                    </ThemedText>
-                                </>
-                            ) : null}
-                        </View>
+                        <>
+                            {item.variation_name && <ThemedText style={styles.neighborhood} numberOfLines={1}>
+                                {item.variation_name}
+                            </ThemedText>}
+                            <View style={[styles.personalMeta, { marginTop: 0 }]}>
+                                <IconSymbol
+                                    name={sentimentInfo.icon}
+                                    size={12}
+                                    color={sentimentInfo.color}
+                                />
+                                <ThemedText style={[styles.metaText, { color: sentimentInfo.color, fontWeight: '500', flexShrink: 0 }]} numberOfLines={1}>
+                                    {sentimentInfo.label}
+                                </ThemedText>
+                                {item.rated_at ? (
+                                    <>
+                                        <ThemedText style={styles.metaDot}>·</ThemedText>
+                                        <ThemedText style={[styles.metaText, { flexShrink: 0 }]} numberOfLines={1}>
+                                            {formatDistanceToNow(new Date(item.rated_at), { addSuffix: false })} ago
+                                        </ThemedText>
+                                    </>
+                                ) : null}
+                            </View>
+                        </>
                     ) : (
                         <>
                             <ThemedText style={styles.neighborhood} numberOfLines={1}>
@@ -313,7 +310,7 @@ const createThemedStyles = (
             fontSize: 28,
         },
         rankText: {
-            fontSize: 24,
+            fontSize: 18,
             lineHeight: 24,
             fontWeight: '600',
             color: theme.color.textPrimary,

@@ -152,7 +152,7 @@ export function HeroCardEmpty() {
                         />
                     </View>
                     <ThemedText style={styles.emptyIllustrationLabel}>
-                        No rankings yet
+                        You've tried them all
                     </ThemedText>
                 </View>
 
