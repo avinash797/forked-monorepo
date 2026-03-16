@@ -51,7 +51,7 @@ export function useRecentBattles(
                     created_at,
                     result,
                     user:profiles!comparisons_user_profile_fkey (
-                        display_name
+                        username
                     ),
                     dish_type:dish_types(
                         name,
@@ -98,7 +98,7 @@ export function useRecentBattles(
                     return {
                         id: item.id,
                         username:
-                            (item.user as any)?.display_name || 'Anonymous',
+                            (item.user as any)?.username || 'Anonymous',
                         dishTypeName: (item.dish_type as any)?.name || 'Dish',
                         dishTypeEmoji: (item.dish_type as any)?.emoji || '🍽️',
                         dishTypeIcon: (item.dish_type as any)?.icon || null,

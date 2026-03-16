@@ -147,7 +147,7 @@ export function RecentBattleTicker({ cityId }: RecentBattleTickerProps) {
                                 numberOfLines={2}
                             >
                                 <ThemedText style={styles.username}>
-                                    {currentBattle.username}
+                                    @{currentBattle.username}
                                 </ThemedText>
                                 <ThemedText style={styles.action}>
                                     {' '}
