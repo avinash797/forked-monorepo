@@ -1,5 +1,6 @@
 import { DishCardWithRating } from '@/components/browse/dish-card-with-rating';
 import { EmptyState } from '@/components/browse/empty-state';
+import { ReportPhotoModal } from '@/components/browse/report-photo-modal';
 import { SectionHeader } from '@/components/browse/section-header';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
@@ -10,8 +11,8 @@ import { useRestaurantDetail } from '@/hooks/use-restaurant-detail';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useRef } from 'react';
-import { Dimensions, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Alert, Dimensions, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, {
     Easing,
@@ -126,8 +127,23 @@ export default function RestaurantDetailScreen() {
     const styles = createThemedStyles(theme, insets);
 
     const { data, isLoading, error } = useRestaurantDetail(venueId);
-    const { venue, dishes = [] } = data || {};
-    const allPhotos = dishes.flatMap((dish) => dish.photos);
+    const { venue, dishes = [], photoRatingMap = {} } = data || {};
+    const allPhotos = dishes.flatMap((dish) => dish.photos).filter((p): p is string => p != null);
+
+    // Report photo state
+    const [reportRatingId, setReportRatingId] = useState<string | null>(null);
+
+    const handleReportHeroPhoto = (photoUrl: string) => {
+        const ratingId = photoRatingMap[photoUrl];
+        if (ratingId) {
+            setReportRatingId(ratingId);
+        } else {
+            Alert.alert(
+                'Unable to Report',
+                'This photo cannot be reported at this time.'
+            );
+        }
+    };
     const scrollViewRef = useRef<ScrollView>(null);
 
     const dishTypesServed = new Set(dishes.map((dish) => dish.type.name));
@@ -522,6 +538,24 @@ export default function RestaurantDetailScreen() {
                         style={StyleSheet.absoluteFill}
                         pointerEvents="none"
                     />
+
+                    {/* Report photo button */}
+                    {allPhotos.length > 0 && (
+                        <Pressable
+                            onPress={() => handleReportHeroPhoto(allPhotos[0])}
+                            style={({ pressed }) => [
+                                styles.heroReportButton,
+                                pressed && { opacity: 0.6 },
+                            ]}
+                            hitSlop={8}
+                        >
+                            <IconSymbol
+                                name="flag-outline"
+                                size={18}
+                                color="rgba(255,255,255,0.8)"
+                            />
+                        </Pressable>
+                    )}
                 </Animated.View>
 
                 {/* Content Section */}
@@ -700,6 +734,12 @@ export default function RestaurantDetailScreen() {
                     </View>
                 </View>
             </Animated.ScrollView>
+
+            <ReportPhotoModal
+                visible={reportRatingId !== null}
+                ratingId={reportRatingId}
+                onClose={() => setReportRatingId(null)}
+            />
         </ThemedView>
     );
 }
@@ -732,6 +772,17 @@ const createThemedStyles = (
             width: '100%',
             position: 'relative',
             overflow: 'hidden',
+        },
+        heroReportButton: {
+            position: 'absolute',
+            bottom: theme.space.md,
+            right: theme.space.md,
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            alignItems: 'center',
+            justifyContent: 'center',
         },
         topControls: {
             position: 'absolute',

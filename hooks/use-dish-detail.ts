@@ -70,13 +70,33 @@ export function useDishMenu(
     return useQuery({
         queryKey: ['dish-menu', dishId, restaurantId],
         queryFn: async () => {
-            if (!dishId || !restaurantId) return { variations: [], photos: [] };
+            if (!dishId || !restaurantId)
+                return { variations: [], photos: [], photoRatingMap: {} };
 
-            const { data: restaurantDishData } = await supabase
-                .from('restaurant_dishes')
-                .select(`*, variation:dish_type_variations(name, is_active)`)
-                .eq('dish_type_id', dishId)
-                .eq('restaurant_id', restaurantId);
+            const [{ data: restaurantDishData }, { data: ratingsWithPhotos }] =
+                await Promise.all([
+                    supabase
+                        .from('restaurant_dishes')
+                        .select(
+                            `*, variation:dish_type_variations(name, is_active)`
+                        )
+                        .eq('dish_type_id', dishId)
+                        .eq('restaurant_id', restaurantId),
+                    supabase
+                        .from('personal_ratings')
+                        .select('id, photo_url')
+                        .eq('dish_type_id', dishId)
+                        .eq('restaurant_id', restaurantId)
+                        .not('photo_url', 'is', null),
+                ]);
+
+            // Build photo URL → rating ID map for reporting
+            const photoRatingMap: Record<string, string> = {};
+            ratingsWithPhotos?.forEach((r: any) => {
+                if (r.photo_url) {
+                    photoRatingMap[r.photo_url] = r.id;
+                }
+            });
 
             return {
                 variations:
@@ -87,6 +107,7 @@ export function useDishMenu(
                 photos:
                     restaurantDishData?.flatMap((v: any) => v.photos.flat()) ??
                     [],
+                photoRatingMap,
             };
         },
         enabled: !!dishId && !!restaurantId,

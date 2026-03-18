@@ -1,5 +1,6 @@
 import { EmptyState } from '@/components/browse/empty-state';
 import { PhotoGallery } from '@/components/browse/photo-gallery';
+import { ReportPhotoModal } from '@/components/browse/report-photo-modal';
 import { ScoreBadge } from '@/components/score-badge';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
@@ -12,7 +13,7 @@ import { Restaurant } from '@/types/restaurant';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Alert,
     Dimensions,
@@ -148,6 +149,21 @@ export default function DishDetailScreen() {
     // Secondary data
     const menuData = menu.data;
     const ratingsData = ratings.data;
+
+    // Report photo state
+    const [reportRatingId, setReportRatingId] = useState<string | null>(null);
+
+    const handleReportPhoto = (photoUrl: string) => {
+        const ratingId = menuData?.photoRatingMap?.[photoUrl];
+        if (ratingId) {
+            setReportRatingId(ratingId);
+        } else {
+            Alert.alert(
+                'Unable to Report',
+                'This photo cannot be reported at this time.'
+            );
+        }
+    };
 
     // Rating store for pre-populating when user wants to rate this dish
     const { setSelectedRestaurant, setSelectedDishType, resetRating } =
@@ -646,6 +662,7 @@ export default function DishDetailScreen() {
                                         </ThemedText>
                                         <PhotoGallery
                                             photos={[...menuData.photos]}
+                                            onReportPhoto={handleReportPhoto}
                                         />
                                     </>
                                 )
@@ -669,6 +686,12 @@ export default function DishDetailScreen() {
                     </View>
                 </View>
             </Animated.ScrollView>
+
+            <ReportPhotoModal
+                visible={reportRatingId !== null}
+                ratingId={reportRatingId}
+                onClose={() => setReportRatingId(null)}
+            />
         </ThemedView>
     );
 }

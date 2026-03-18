@@ -1,4 +1,5 @@
 import { ThemedText } from '@/components/themed-text';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { Image } from 'expo-image';
 import { useState } from 'react';
@@ -8,12 +9,14 @@ import ImageViewing from 'react-native-image-viewing';
 interface PhotoGalleryProps {
     photos: string[];
     onPhotoPress?: (index: number) => void;
+    onReportPhoto?: (photoUrl: string) => void;
     maxVisible?: number;
 }
 
 export function PhotoGallery({
     photos,
     onPhotoPress,
+    onReportPhoto,
     maxVisible = 6,
 }: PhotoGalleryProps) {
     const { theme } = useTheme();
@@ -30,15 +33,17 @@ export function PhotoGallery({
 
     const closeViewer = () => setViewerIndex(null);
 
-    if (!photos || photos.length === 0) {
+    const validPhotos = photos?.filter((url) => url) ?? [];
+
+    if (validPhotos.length === 0) {
         return null;
     }
 
-    const visiblePhotos = photos.slice(0, maxVisible);
-    const remainingCount = photos.length - maxVisible;
+    const visiblePhotos = validPhotos.slice(0, maxVisible);
+    const remainingCount = validPhotos.length - maxVisible;
     const hasMore = remainingCount > 0;
 
-    const images = photos.map((uri) => ({ uri }));
+    const images = validPhotos.map((uri) => ({ uri }));
 
     return (
         <View style={styles.container}>
@@ -51,6 +56,11 @@ export function PhotoGallery({
                         <Pressable
                             key={index}
                             onPress={() => openViewer(index)}
+                            onLongPress={
+                                onReportPhoto
+                                    ? () => onReportPhoto(photoUrl)
+                                    : undefined
+                            }
                             style={({ pressed }) => [
                                 styles.photoContainer,
                                 pressed && { opacity: 0.8 },
@@ -82,6 +92,35 @@ export function PhotoGallery({
                 imageIndex={viewerIndex ?? 0}
                 visible={viewerIndex !== null}
                 onRequestClose={closeViewer}
+                animationType="fade"
+                FooterComponent={
+                    onReportPhoto
+                        ? ({ imageIndex }: { imageIndex: number }) => (
+                            <View style={styles.viewerFooter}>
+                                <Pressable
+                                    onPress={() => {
+                                        closeViewer();
+                                        onReportPhoto(photos[imageIndex]);
+                                    }}
+                                    style={({ pressed }) => [
+                                        styles.reportButton,
+                                        pressed && { opacity: 0.7 },
+                                    ]}
+                                    hitSlop={8}
+                                >
+                                    <IconSymbol
+                                        name="flag-outline"
+                                        size={16}
+                                        color="#fff"
+                                    />
+                                    <ThemedText style={styles.reportText}>
+                                        Report
+                                    </ThemedText>
+                                </Pressable>
+                            </View>
+                        )
+                        : undefined
+                }
             />
         </View>
     );
@@ -118,5 +157,32 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             color: '#FFFFFF',
             fontSize: theme.font.size.md,
             fontWeight: theme.font.weight.semibold,
+        },
+        viewerHeader: {
+            alignItems: 'flex-end',
+            paddingHorizontal: 16,
+            paddingTop: 8,
+        },
+        closeButton: {
+            padding: 8,
+            borderRadius: 20,
+            backgroundColor: 'rgba(255,255,255,0.2)',
+        },
+        viewerFooter: {
+            alignItems: 'center',
+            paddingBottom: 40,
+        },
+        reportButton: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            borderRadius: 20,
+            backgroundColor: 'rgba(255,255,255,0.2)',
+        },
+        reportText: {
+            color: '#fff',
+            fontSize: theme.font.size.sm,
         },
     });
