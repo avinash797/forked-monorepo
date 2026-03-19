@@ -5,124 +5,242 @@ import { LegalPageLayout } from "@/components/marketing/legal-page-layout";
 export const metadata: Metadata = buildMetadata({
   title: "Terms of Service — Forked",
   description:
-    "Terms and conditions for using Forked, the Elo-based dish rating platform.",
+    "Terms and conditions for using Forked, the community-powered dish ranking app.",
 });
 
 export default function TermsPage() {
   return (
-    <LegalPageLayout title="Terms of Service" effectiveDate="February 17, 2026">
+    <LegalPageLayout title="Terms of Service" effectiveDate="March 18, 2026">
+      <p>
+        Welcome to Forked. These Terms of Service (&quot;Terms&quot;) govern
+        your use of the Forked mobile application (the &quot;App&quot;) operated
+        by Forked (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). By
+        creating an account or using the App, you agree to be bound by these
+        Terms.
+      </p>
+
       <section>
         <h2 className="text-lg font-bold text-text-primary mb-3">
-          1. Acceptance of Terms
+          1. Description of Service
         </h2>
         <p>
-          By accessing or using the Forked app and website
-          (&quot;Service&quot;), you agree to be bound by these Terms of
-          Service. If you do not agree, do not use the Service. We may update
-          these terms at any time, and continued use constitutes acceptance.
+          Forked is a community-powered dish ranking app. Users rate dishes at
+          restaurants by providing sentiment-based ratings and pairwise
+          comparisons. These ratings are used to generate personalized rankings
+          and aggregated community leaderboard scores using algorithmic
+          calculations (Elo scoring and Bayesian averaging). Forked does not
+          provide professional food reviews, endorsements, or guarantees about
+          food quality or safety.
         </p>
       </section>
 
       <section>
         <h2 className="text-lg font-bold text-text-primary mb-3">
-          2. Eligibility
+          2. Account Registration
         </h2>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>You must be at least 13 years old to create an account.</li>
+          <li>
+            You are responsible for maintaining the security of your account
+            credentials.
+          </li>
+          <li>
+            You must provide accurate information when creating your account.
+          </li>
+          <li>One account per person. Do not create multiple accounts.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 className="text-lg font-bold text-text-primary mb-3">
+          3. User-Generated Content
+        </h2>
+        <h3 className="text-base font-bold text-text-primary mb-2">
+          What You Submit
+        </h3>
         <p>
-          You must be at least 13 years old to use Forked. If you are under 18,
-          you must have parental or guardian consent. By using the Service, you
-          represent that you meet these age requirements.
+          When using Forked, you may submit photos of dishes, sentiment ratings,
+          taste tag selections, pairwise comparisons, and optional notes
+          (&quot;User Content&quot;).
+        </p>
+        <h3 className="text-base font-bold text-text-primary mt-4 mb-2">
+          License You Grant Us
+        </h3>
+        <p>
+          By submitting User Content, you grant Forked a worldwide,
+          non-exclusive, royalty-free, transferable license to use, display,
+          reproduce, and distribute your User Content within the App for the
+          purpose of operating the service — including displaying photos on dish
+          and restaurant pages, computing community scores, and improving the
+          App. This license continues for anonymized/aggregated data (such as
+          your contribution to community scores) even after account deletion, as
+          described in our Privacy Policy.
+        </p>
+        <h3 className="text-base font-bold text-text-primary mt-4 mb-2">
+          Your Ownership
+        </h3>
+        <p>
+          You retain ownership of your User Content. We do not claim ownership
+          of your photos or ratings.
         </p>
       </section>
 
       <section>
         <h2 className="text-lg font-bold text-text-primary mb-3">
-          3. User Accounts
+          4. Acceptable Use
+        </h2>
+        <p>You agree not to:</p>
+        <ul className="list-disc pl-5 space-y-1 mt-2">
+          <li>
+            Submit photos that are obscene, pornographic, violent, hateful,
+            discriminatory, or otherwise objectionable.
+          </li>
+          <li>
+            Upload photos that do not depict food or are unrelated to the dish
+            being rated.
+          </li>
+          <li>Submit fraudulent or intentionally misleading ratings.</li>
+          <li>
+            Attempt to manipulate community scores through fake accounts,
+            coordinated rating schemes, or automated submissions.
+          </li>
+          <li>Use the App to harass, abuse, or harm other users.</li>
+          <li>
+            Reverse-engineer, decompile, or attempt to extract the source code
+            of the App.
+          </li>
+          <li>Use the App for any illegal purpose.</li>
+          <li>
+            Interfere with or disrupt the App&apos;s infrastructure or other
+            users&apos; experience.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 className="text-lg font-bold text-text-primary mb-3">
+          5. Content Standards and Moderation
+        </h2>
+        <h3 className="text-base font-bold text-text-primary mb-2">
+          Zero Tolerance for Objectionable Content
+        </h3>
+        <p>
+          Forked has zero tolerance for objectionable content including but not
+          limited to: hate speech, explicit or sexual content, harassment,
+          violence, illegal activity, or content that exploits minors.
+        </p>
+        <h3 className="text-base font-bold text-text-primary mt-4 mb-2">
+          Reporting
+        </h3>
+        <p>
+          Users can report objectionable content (such as inappropriate photos)
+          through the reporting feature in the App. We review reports and take
+          action as appropriate, which may include content removal, account
+          warnings, or account termination.
+        </p>
+        <h3 className="text-base font-bold text-text-primary mt-4 mb-2">
+          Our Right to Remove Content and Terminate Accounts
+        </h3>
+        <p>We reserve the right, but are not obligated, to:</p>
+        <ul className="list-disc pl-5 space-y-1 mt-2">
+          <li>
+            Remove any User Content that violates these Terms or that we find
+            objectionable, at our sole discretion.
+          </li>
+          <li>
+            Suspend or permanently terminate accounts that violate these Terms.
+          </li>
+          <li>
+            Take any action we deem necessary to protect the safety and
+            integrity of the App and its users.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 className="text-lg font-bold text-text-primary mb-3">
+          6. Community Scores Disclaimer
         </h2>
         <p>
-          You are responsible for maintaining the confidentiality of your
-          account credentials. You agree to provide accurate information during
-          registration and to keep your profile information current. You are
-          responsible for all activity that occurs under your account.
+          Community leaderboard scores displayed in the App are generated
+          algorithmically based on aggregated user ratings. These scores:
+        </p>
+        <ul className="list-disc pl-5 space-y-1 mt-2">
+          <li>
+            Are <strong>not</strong> endorsements, recommendations, or
+            guarantees by Forked.
+          </li>
+          <li>
+            Are <strong>not</strong> professional food reviews or safety
+            assessments.
+          </li>
+          <li>
+            Reflect aggregated user sentiment and may not represent any
+            individual&apos;s experience.
+          </li>
+          <li>May change over time as more ratings are submitted.</li>
+        </ul>
+        <p className="mt-2">
+          You should exercise your own judgment when choosing where and what to
+          eat. Forked is not responsible for the quality, safety, or accuracy of
+          any restaurant or dish.
         </p>
       </section>
 
       <section>
         <h2 className="text-lg font-bold text-text-primary mb-3">
-          4. User Content
+          7. Intellectual Property
         </h2>
         <p>
-          You retain ownership of the dish photos and reviews you submit. By
-          uploading content, you grant Forked a non-exclusive, worldwide,
-          royalty-free license to use, display, and distribute your content in
-          connection with the Service, including on public leaderboard pages and
-          in marketing materials. You represent that you have the right to share
-          any content you upload.
+          The App, including its design, code, algorithms, branding, and
+          non-user-generated content, is owned by Forked and protected by
+          applicable intellectual property laws. You may not copy, modify, or
+          distribute any part of the App without our written permission.
         </p>
       </section>
 
       <section>
         <h2 className="text-lg font-bold text-text-primary mb-3">
-          5. Prohibited Conduct
+          8. Account Deletion
         </h2>
         <p>
-          You agree not to: upload fraudulent or misleading dish photos; submit
-          ratings for dishes you have not personally consumed; create multiple
-          accounts to manipulate rankings; harass other users; attempt to
-          reverse-engineer the Elo algorithm; scrape data from the Service
-          without permission; or use automated tools to interact with the
-          Service.
+          You may delete your account at any time from the Settings screen
+          within the App. Upon deletion:
         </p>
+        <ul className="list-disc pl-5 space-y-1 mt-2">
+          <li>
+            Your personal information is anonymized and de-identified. An
+            anonymous placeholder profile is retained for database integrity but
+            contains no identifiable information.
+          </li>
+          <li>
+            All photos you uploaded (dish photos and profile avatar) are
+            permanently deleted from our servers.
+          </li>
+          <li>
+            Your rating scores are anonymized and continue to contribute to
+            community scores, as described in our Privacy Policy. All personal
+            notes and photo metadata are permanently deleted.
+          </li>
+          <li>Your authentication account is permanently deleted.</li>
+          <li>This action is irreversible.</li>
+        </ul>
       </section>
 
       <section>
         <h2 className="text-lg font-bold text-text-primary mb-3">
-          6. Elo Rankings Disclaimer
+          9. Disclaimer of Warranties
         </h2>
         <p>
-          Forked&apos;s Elo-based rankings reflect aggregated user preferences
-          and are not editorial endorsements. Rankings are algorithmic and
-          change in real-time based on battle outcomes. Forked does not
-          guarantee the accuracy of any ranking, and a dish&apos;s position on a
-          leaderboard does not constitute a food safety recommendation.
+          THE APP IS PROVIDED &quot;AS IS&quot; AND &quot;AS AVAILABLE&quot;
+          WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
+          BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+          PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
         </p>
-      </section>
-
-      <section>
-        <h2 className="text-lg font-bold text-text-primary mb-3">
-          7. Photo Requirements
-        </h2>
-        <p>
-          All dish ratings require a photo of the actual dish consumed. Photos
-          must be original and taken by you. Stock photos, photos from the
-          internet, and photos of dishes you did not eat are prohibited. We
-          reserve the right to remove photos that violate these requirements and
-          to adjust associated ratings.
-        </p>
-      </section>
-
-      <section>
-        <h2 className="text-lg font-bold text-text-primary mb-3">
-          8. Termination
-        </h2>
-        <p>
-          We reserve the right to suspend or terminate your account at any time
-          for violations of these Terms, including ranking manipulation,
-          fraudulent content, or abusive behavior. Upon termination, your right
-          to use the Service ceases immediately, though anonymized rating data
-          may be retained for leaderboard integrity.
-        </p>
-      </section>
-
-      <section>
-        <h2 className="text-lg font-bold text-text-primary mb-3">
-          9. Disclaimers
-        </h2>
-        <p>
-          The Service is provided &quot;as is&quot; and &quot;as available&quot;
-          without warranties of any kind. We do not warrant that the Service
-          will be uninterrupted, error-free, or that leaderboard data will be
-          completely accurate. We are not responsible for the quality, safety,
-          or legality of any food establishment appearing on our platform.
+        <p className="mt-2">
+          We do not warrant that the App will be uninterrupted, error-free, or
+          free of harmful components, or that any content (including community
+          scores) is accurate, reliable, or complete.
         </p>
       </section>
 
@@ -131,45 +249,97 @@ export default function TermsPage() {
           10. Limitation of Liability
         </h2>
         <p>
-          To the maximum extent permitted by law, Forked shall not be liable for
-          any indirect, incidental, special, consequential, or punitive damages,
-          including but not limited to loss of profits, data, or goodwill,
-          arising from your use of the Service. Our total liability shall not
-          exceed the amount you paid to Forked in the twelve months preceding
-          the claim.
+          TO THE MAXIMUM EXTENT PERMITTED BY LAW, FORKED AND ITS OFFICERS,
+          DIRECTORS, EMPLOYEES, AND AGENTS SHALL NOT BE LIABLE FOR ANY INDIRECT,
+          INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT
+          NOT LIMITED TO LOSS OF PROFITS, DATA, OR GOODWILL, ARISING OUT OF OR
+          IN CONNECTION WITH YOUR USE OF THE APP.
+        </p>
+        <p className="mt-2">
+          OUR TOTAL LIABILITY FOR ANY CLAIM ARISING FROM OR RELATED TO THESE
+          TERMS OR THE APP SHALL NOT EXCEED THE AMOUNT YOU PAID US IN THE TWELVE
+          (12) MONTHS PRECEDING THE CLAIM, OR $100, WHICHEVER IS GREATER.
         </p>
       </section>
 
       <section>
         <h2 className="text-lg font-bold text-text-primary mb-3">
-          11. Governing Law
+          11. Indemnification
+        </h2>
+        <p>
+          You agree to indemnify and hold harmless Forked and its officers,
+          directors, employees, and agents from any claims, damages, losses, or
+          expenses (including reasonable attorneys&apos; fees) arising out of
+          your use of the App, your User Content, or your violation of these
+          Terms.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-lg font-bold text-text-primary mb-3">
+          12. Governing Law and Dispute Resolution
         </h2>
         <p>
           These Terms shall be governed by the laws of the State of Louisiana,
-          without regard to conflict of law principles. Any disputes shall be
-          resolved in the courts of Orleans Parish, Louisiana.
+          United States, without regard to conflict of law principles.
+        </p>
+        <p className="mt-2">
+          Any dispute arising from these Terms or your use of the App shall
+          first be attempted to be resolved through informal negotiation. If
+          unresolved within 30 days, either party may pursue resolution through
+          binding arbitration administered under the rules of the American
+          Arbitration Association, with arbitration taking place in New Orleans,
+          Louisiana.
+        </p>
+        <p className="mt-2">
+          You agree to resolve disputes on an individual basis and waive any
+          right to participate in a class action lawsuit or class-wide
+          arbitration.
         </p>
       </section>
 
       <section>
         <h2 className="text-lg font-bold text-text-primary mb-3">
-          12. Changes to Terms
+          13. Changes to These Terms
         </h2>
         <p>
-          We reserve the right to modify these Terms at any time. Material
-          changes will be communicated via in-app notification or email at least
-          14 days before taking effect. Your continued use of the Service after
-          changes become effective constitutes acceptance of the revised Terms.
+          We may update these Terms from time to time. We will notify you of
+          material changes by posting the updated Terms within the App or by
+          other reasonable means. Continued use of the App after changes take
+          effect constitutes acceptance of the revised Terms.
         </p>
       </section>
 
       <section>
         <h2 className="text-lg font-bold text-text-primary mb-3">
-          13. Contact Us
+          14. Severability
         </h2>
         <p>
-          For questions about these Terms of Service, contact us at
-          legal@forkedapp.com or write to Forked Inc., New Orleans, LA.
+          If any provision of these Terms is found to be unenforceable, the
+          remaining provisions will continue in full force and effect.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-lg font-bold text-text-primary mb-3">
+          15. Contact Us
+        </h2>
+        <p>
+          If you have questions about these Terms, contact us at{" "}
+          <a
+            href="mailto:support@forkedapp.com"
+            className="text-accent hover:underline"
+          >
+            support@forkedapp.com
+          </a>{" "}
+          or visit{" "}
+          <a
+            href="https://www.forkedapp.com"
+            className="text-accent hover:underline"
+          >
+            www.forkedapp.com
+          </a>
+          .
         </p>
       </section>
     </LegalPageLayout>
