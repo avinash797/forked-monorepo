@@ -4,7 +4,6 @@
         "slug": "forked",
         "version": "0.1.0",
         "orientation": "portrait",
-        "icon": "./assets/images/icon.png",
         "scheme": "forked",
         "userInterfaceStyle": "automatic",
         "ios": {
@@ -13,14 +12,18 @@
             "supportsTablet": true,
             "config": {
                 "googleMapsApiKey": "${process.env.GOOGLE_MAPS_API_KEY}"
+            },
+            "icon": {
+                "dark": "./assets/ios-dark.png",
+                "light": "./assets/ios-light.png",
+                "tinted": "./assets/ios-tinted.png"
             }
         },
         "android": {
             "adaptiveIcon": {
-                "backgroundColor": "#E6F4FE",
-                "foregroundImage": "./assets/images/android-icon-foreground.png",
-                "backgroundImage": "./assets/images/android-icon-background.png",
-                "monochromeImage": "./assets/images/android-icon-monochrome.png"
+                "backgroundColor": "#ffffff",
+                "foregroundImage": "./assets/adaptive-icon.png",
+                "monochromeImage": "./assets/adaptive-icon.png"
             },
             "config": {
                 "googleMaps": {
@@ -41,11 +44,12 @@
             [
                 "expo-splash-screen",
                 {
-                    "image": "./assets/images/splash-icon.png",
+                    "image": "./assets/splash-icon-dark.png",
                     "imageWidth": 200,
                     "resizeMode": "contain",
                     "backgroundColor": "#ffffff",
                     "dark": {
+                        "image": "./assets/splash-icon-light.png",
                         "backgroundColor": "#000000"
                     }
                 }
