@@ -77,7 +77,8 @@ export default function SignupScreen() {
             resizeMode="cover"
         >
             <LinearGradient
-                colors={['rgba(0,0,0,0.4)', 'rgba(0,0,0,0.7)']}
+                colors={['rgba(0,0,0,0.4)', 'rgba(0, 0, 0, 0.4)', 'rgba(0, 0, 0, 0.8)', 'rgba(0, 0, 0, 1)']}
+                locations={[0, 0.2, 0.5, 1]}
                 style={styles.gradient}
             >
                 <View style={styles.container}>
@@ -94,24 +95,19 @@ export default function SignupScreen() {
                                     style={{ marginVertical: 20 }}
                                 />
 
-                                <ThemedText lightColor="#FFFFFF" type="title">
+                                <ThemedText lightColor={theme.color.textOnImage} type="title">
                                     Create Account
                                 </ThemedText>
                                 <ThemedText
-                                    lightColor="#FFFFFF"
+                                    lightColor={theme.color.textOnImage}
                                     style={styles.subtitle}
                                 >
                                     Sign up to get started
                                 </ThemedText>
                             </View>
 
-                            <LinearGradient
-                                colors={[
-                                    'rgba(0,0,0,0.5)',
-                                    'rgba(0,0,0,0.6)',
-                                    'rgba(0,0,0,0.8)',
-                                    theme.color.bg,
-                                ]}
+                            <View
+
                                 style={styles.form}
                             >
                                 <ThemedTextInput
@@ -174,7 +170,7 @@ export default function SignupScreen() {
                                         </Pressable>
                                     </Link>
                                 </View>
-                            </LinearGradient>
+                            </View>
                         </ScrollView>
                     </KeyboardAvoidingView>
                 </View>
