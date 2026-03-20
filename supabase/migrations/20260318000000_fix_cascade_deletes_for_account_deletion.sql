@@ -156,8 +156,8 @@ BEGIN
 
     -- Anonymize profile (keep the row as a tombstone)
     UPDATE public.profiles
-    SET username = 'deleted_' || SUBSTRING(id::TEXT, 1, 8),
-        display_name = 'Deleted User',
+    SET username = 'anon_' || SUBSTRING(id::TEXT, 1, 8),
+        display_name = 'Anonymous',
         avatar_url = NULL,
         bio = NULL,
         expo_push_token = NULL,
