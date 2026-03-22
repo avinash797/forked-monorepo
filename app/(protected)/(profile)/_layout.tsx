@@ -1,6 +1,7 @@
 import { useTheme } from '@/contexts/theme-provider';
 import { HeaderBackButton } from '@react-navigation/elements';
 import { Stack, useRouter } from 'expo-router';
+import { Platform } from 'react-native';
 
 export default function ProfileGroupLayout() {
     const router = useRouter();
@@ -9,12 +10,15 @@ export default function ProfileGroupLayout() {
     return (
         <Stack
             screenOptions={{
-                headerLeft: () => (
-                    <HeaderBackButton
-                        onPress={() => router.back()}
-                        tintColor={theme.color.textPrimary}
-                    />
-                ),
+                headerLeft:
+                    Platform.OS === 'ios'
+                        ? () => (
+                              <HeaderBackButton
+                                  onPress={() => router.back()}
+                                  tintColor={theme.color.textPrimary}
+                              />
+                          )
+                        : undefined,
             }}
         >
             <Stack.Screen
