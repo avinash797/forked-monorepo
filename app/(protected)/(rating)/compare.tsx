@@ -5,6 +5,7 @@ import { useTheme } from '@/contexts/theme-provider';
 import { useProcessBattle, useSkipBattle } from '@/hooks/use-comparisons';
 import { useStoreReview } from '@/hooks/use-store-review';
 import { useRatingStore } from '@/stores';
+import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -15,7 +16,6 @@ import {
     StyleSheet,
     View,
 } from 'react-native';
-import * as Haptics from 'expo-haptics';
 import Animated, {
     FadeIn,
     FadeInDown,
@@ -51,6 +51,30 @@ export default function CompareScreen() {
     const { mutateAsync: skipBattle } = useSkipBattle();
     const { maybeRequestReview } = useStoreReview();
 
+    // Clash haptic on first battle only
+    useEffect(() => {
+        if (battleState?.currentStep === 1) {
+            // Loud thunder-like custom vibration sequence
+            const sequence = [
+                { style: Haptics.ImpactFeedbackStyle.Heavy, delay: 0 },
+                { style: Haptics.ImpactFeedbackStyle.Heavy, delay: 50 },
+                { style: Haptics.ImpactFeedbackStyle.Rigid, delay: 100 },
+                { style: Haptics.ImpactFeedbackStyle.Heavy, delay: 150 },
+                { style: Haptics.ImpactFeedbackStyle.Heavy, delay: 200 },
+                { style: Haptics.ImpactFeedbackStyle.Medium, delay: 300 },
+                { style: Haptics.ImpactFeedbackStyle.Light, delay: 450 },
+            ];
+
+            const timeouts = sequence.map(({ style, delay }) =>
+                setTimeout(() => {
+                    Haptics.impactAsync(style);
+                }, delay)
+            );
+
+            return () => timeouts.forEach(clearTimeout);
+        }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
     // If battleState is gone (cleared externally), navigate away
     useEffect(() => {
         if (!battleState) {
@@ -62,9 +86,7 @@ export default function CompareScreen() {
         async (winnerId: string) => {
             if (isProcessing || !battleState) return;
 
-            if (process.env.EXPO_OS === 'ios') {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            }
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             setIsProcessing(true);
             try {
                 const result = await processBattle({
@@ -101,7 +123,6 @@ export default function CompareScreen() {
     const handleSkip = useCallback(
         async () => {
             if (isProcessing || !battleState) return;
-
             setIsProcessing(true);
 
             try {
