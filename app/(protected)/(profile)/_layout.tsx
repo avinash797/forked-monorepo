@@ -25,6 +25,10 @@ export default function ProfileGroupLayout() {
                 name="edit"
                 options={{ title: 'Edit Profile' }}
             />
+            <Stack.Screen
+                name="account"
+                options={{ title: 'Account' }}
+            />
         </Stack>
     );
 }
