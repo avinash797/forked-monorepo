@@ -1,5 +1,4 @@
 import { ThemedButton } from '@/components/themed-button';
-import { ThemedSelect } from '@/components/themed-select';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
@@ -16,19 +15,6 @@ import {
     View,
 } from 'react-native';
 
-const THEME_OPTIONS = [
-    { label: 'Default (Warm Orange)', value: 'default' },
-    { label: 'Gen Z (Bold Red)', value: 'genZ' },
-    { label: 'Foodies (Premium)', value: 'foodies' },
-    { label: 'Critics (Editorial)', value: 'critics' },
-] as const;
-
-const COLOR_SCHEME_OPTIONS = [
-    { label: 'System Default', value: 'system' },
-    { label: 'Light', value: 'light' },
-    { label: 'Dark', value: 'dark' },
-] as const;
-
 const LEGAL_LINKS = [
     {
         label: 'Privacy Policy',
@@ -42,12 +28,49 @@ const LEGAL_LINKS = [
     },
 ];
 
+function SettingsRow({
+    icon,
+    label,
+    onPress,
+    styles,
+    theme,
+}: {
+    icon: React.ComponentProps<typeof IconSymbol>['name'];
+    label: string;
+    onPress: () => void;
+    styles: ReturnType<typeof createThemedStyles>;
+    theme: ReturnType<typeof useTheme>['theme'];
+}) {
+    return (
+        <Pressable
+            onPress={onPress}
+            style={({ pressed }) => [
+                styles.row,
+                { opacity: pressed ? theme.opacity.pressed : 1 },
+            ]}
+        >
+            <IconSymbol
+                name={icon}
+                size={20}
+                color={theme.color.textSecondary}
+                style={styles.rowIcon}
+            />
+            <ThemedText style={styles.rowLabel}>{label}</ThemedText>
+            <IconSymbol
+                name="chevron-forward"
+                size={18}
+                color={theme.color.textTertiary}
+            />
+        </Pressable>
+    );
+}
+
 export default function SettingsScreen() {
     const { logout } = useAuth();
-    const { theme, themeName, setThemeName, themePreference, setThemePreference } =
-        useTheme();
+    const { theme } = useTheme();
     const router = useRouter();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const styles = createThemedStyles(theme);
 
     const handleLogout = () => {
         Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -80,165 +103,53 @@ export default function SettingsScreen() {
             contentContainerStyle={styles.scrollContent}
             contentInsetAdjustmentBehavior="automatic"
         >
-            <View style={styles.section}>
-                <ThemedText type="subtitle" style={styles.sectionTitle}>
-                    Appearance
-                </ThemedText>
-
-                <ThemedSelect
-                    label="Theme"
-                    placeholder="Select a theme"
-                    value={themeName}
-                    options={THEME_OPTIONS}
-                    onValueChange={(value) => setThemeName(value as any)}
+            <View>
+                <SettingsRow
+                    icon="person-circle-outline"
+                    label="Account Settings"
+                    onPress={() =>
+                        router.push('/(protected)/(profile)/account')
+                    }
+                    styles={styles}
+                    theme={theme}
+                />
+                <SettingsRow
+                    icon="color-palette-outline"
+                    label="Appearance"
+                    onPress={() =>
+                        router.push('/(protected)/(profile)/appearance')
+                    }
+                    styles={styles}
+                    theme={theme}
                 />
 
-                <View style={{ height: 16 }} />
-
-                <ThemedSelect
-                    label="Color Scheme"
-                    placeholder="Select color scheme"
-                    value={themePreference}
-                    options={COLOR_SCHEME_OPTIONS}
-                    onValueChange={(value) => setThemePreference(value as any)}
-                />
-            </View>
-
-            <View style={styles.section}>
-                <ThemedText type="subtitle" style={styles.sectionTitle}>
-                    Legal
-                </ThemedText>
                 {LEGAL_LINKS.map((link) => (
-                    <Pressable
+                    <SettingsRow
                         key={link.url}
+                        icon={link.icon}
+                        label={link.label}
                         onPress={() => Linking.openURL(link.url)}
-                        style={({ pressed }) => [
-                            {
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                paddingVertical: 14,
-                                paddingHorizontal: 4,
-                                borderBottomWidth: StyleSheet.hairlineWidth,
-                                borderBottomColor: theme.color.border,
-                                opacity: pressed ? 0.6 : 1,
-                            },
-                        ]}
-                    >
-                        <IconSymbol
-                            name={link.icon}
-                            size={20}
-                            color={theme.color.textSecondary}
-                            style={{ marginRight: 12 }}
-                        />
-                        <ThemedText style={{ flex: 1, fontSize: 16 }}>
-                            {link.label}
-                        </ThemedText>
-                        <IconSymbol
-                            name="chevron-forward"
-                            size={18}
-                            color={theme.color.textTertiary}
-                        />
-                    </Pressable>
+                        styles={styles}
+                        theme={theme}
+                    />
                 ))}
-            </View>
 
-            <View style={styles.section}>
-                <ThemedText type="subtitle" style={styles.sectionTitle}>
-                    Support
-                </ThemedText>
-                <Pressable
+                <SettingsRow
+                    icon="mail-outline"
+                    label="Contact Support"
                     onPress={() =>
                         Linking.openURL('mailto:support@forkedapp.com')
                     }
-                    style={({ pressed }) => [
-                        {
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            paddingVertical: 14,
-                            paddingHorizontal: 4,
-                            borderBottomWidth: StyleSheet.hairlineWidth,
-                            borderBottomColor: theme.color.border,
-                            opacity: pressed ? 0.6 : 1,
-                        },
-                    ]}
-                >
-                    <IconSymbol
-                        name="mail-outline"
-                        size={20}
-                        color={theme.color.textSecondary}
-                        style={{ marginRight: 12 }}
-                    />
-                    <ThemedText style={{ flex: 1, fontSize: 16 }}>
-                        Contact Support
-                    </ThemedText>
-                    <IconSymbol
-                        name="chevron-forward"
-                        size={18}
-                        color={theme.color.textTertiary}
-                    />
-                </Pressable>
-            </View>
+                    styles={styles}
+                    theme={theme}
+                />
 
-            <View style={styles.section}>
-                <ThemedText type="subtitle" style={styles.sectionTitle}>
-                    About
-                </ThemedText>
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        paddingVertical: 14,
-                        paddingHorizontal: 4,
-                    }}
-                >
-                    <ThemedText style={{ fontSize: 16 }}>
-                        App Version
-                    </ThemedText>
-                    <ThemedText
-                        style={{
-                            fontSize: 16,
-                            color: theme.color.textSecondary,
-                        }}
-                    >
+                <View style={styles.versionRow}>
+                    <ThemedText style={styles.rowLabel}>App Version</ThemedText>
+                    <ThemedText style={styles.versionValue}>
                         {Constants.expoConfig?.version ?? 'Unknown'}
                     </ThemedText>
                 </View>
-            </View>
-
-            <View style={styles.section}>
-                <ThemedText type="subtitle" style={styles.sectionTitle}>
-                    Account
-                </ThemedText>
-                <Pressable
-                    onPress={() => router.push('/(protected)/(profile)/account')}
-                    style={({ pressed }) => [
-                        {
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            paddingVertical: 14,
-                            paddingHorizontal: 4,
-                            borderBottomWidth: StyleSheet.hairlineWidth,
-                            borderBottomColor: theme.color.border,
-                            opacity: pressed ? 0.6 : 1,
-                        },
-                    ]}
-                >
-                    <IconSymbol
-                        name="person-circle-outline"
-                        size={20}
-                        color={theme.color.textSecondary}
-                        style={{ marginRight: 12 }}
-                    />
-                    <ThemedText style={{ flex: 1, fontSize: 16 }}>
-                        Email, Password & Delete Account
-                    </ThemedText>
-                    <IconSymbol
-                        name="chevron-forward"
-                        size={18}
-                        color={theme.color.textTertiary}
-                    />
-                </Pressable>
             </View>
 
             <View style={styles.logoutSection}>
@@ -254,26 +165,41 @@ export default function SettingsScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    scrollContent: {
-        padding: 24,
-        justifyContent: 'space-between',
-        flexGrow: 1,
-    },
-    header: {
-        marginBottom: 32,
-    },
-    section: {
-        marginBottom: 32,
-    },
-    sectionTitle: {
-        marginBottom: 16,
-    },
-    logoutSection: {
-        marginTop: 16,
-        marginBottom: 32,
-    },
-});
+const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+    StyleSheet.create({
+        scrollContent: {
+            paddingHorizontal: theme.space.xl,
+            paddingVertical: theme.space.md,
+            flexGrow: 1,
+            justifyContent: 'space-between',
+        },
+        row: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingVertical: theme.space.md,
+            paddingHorizontal: theme.space.xxs,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            borderBottomColor: theme.color.border,
+        },
+        rowIcon: {
+            marginRight: theme.space.sm,
+        },
+        rowLabel: {
+            flex: 1,
+            fontSize: theme.font.size.md,
+        },
+        versionRow: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingVertical: theme.space.md,
+            paddingHorizontal: theme.space.xxs,
+        },
+        versionValue: {
+            fontSize: theme.font.size.md,
+            color: theme.color.textSecondary,
+        },
+        logoutSection: {
+            marginBottom: theme.space.xxl,
+        },
+    });

@@ -26,6 +26,10 @@ export default function ProfileGroupLayout() {
                 options={{ title: 'Edit Profile' }}
             />
             <Stack.Screen
+                name="appearance"
+                options={{ title: 'Appearance' }}
+            />
+            <Stack.Screen
                 name="account"
                 options={{ title: 'Account' }}
             />
