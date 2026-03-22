@@ -5,6 +5,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
 import { useDeleteAccount } from '@/hooks/use-delete-account';
+import Constants from 'expo-constants';
 import { useState } from 'react';
 import {
     Alert,
@@ -184,12 +185,75 @@ export default function SettingsScreen() {
                 ))}
             </View>
 
+            <View style={styles.section}>
+                <ThemedText type="subtitle" style={styles.sectionTitle}>
+                    Support
+                </ThemedText>
+                <Pressable
+                    onPress={() =>
+                        Linking.openURL('mailto:support@forkedapp.com')
+                    }
+                    style={({ pressed }) => [
+                        {
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            paddingVertical: 14,
+                            paddingHorizontal: 4,
+                            borderBottomWidth: StyleSheet.hairlineWidth,
+                            borderBottomColor: theme.color.border,
+                            opacity: pressed ? 0.6 : 1,
+                        },
+                    ]}
+                >
+                    <IconSymbol
+                        name="mail-outline"
+                        size={20}
+                        color={theme.color.textSecondary}
+                        style={{ marginRight: 12 }}
+                    />
+                    <ThemedText style={{ flex: 1, fontSize: 16 }}>
+                        Contact Support
+                    </ThemedText>
+                    <IconSymbol
+                        name="chevron-forward"
+                        size={18}
+                        color={theme.color.textTertiary}
+                    />
+                </Pressable>
+            </View>
+
+            <View style={styles.section}>
+                <ThemedText type="subtitle" style={styles.sectionTitle}>
+                    About
+                </ThemedText>
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        paddingVertical: 14,
+                        paddingHorizontal: 4,
+                    }}
+                >
+                    <ThemedText style={{ fontSize: 16 }}>
+                        App Version
+                    </ThemedText>
+                    <ThemedText
+                        style={{
+                            fontSize: 16,
+                            color: theme.color.textSecondary,
+                        }}
+                    >
+                        {Constants.expoConfig?.version ?? 'Unknown'}
+                    </ThemedText>
+                </View>
+            </View>
+
             <View style={styles.logoutSection}>
                 <ThemedButton
                     onPress={handleLogout}
                     loading={isLoggingOut}
                     variant="secondary"
-                    destructive
                 >
                     Logout
                 </ThemedButton>

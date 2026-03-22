@@ -3,6 +3,7 @@ import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useProcessBattle, useSkipBattle } from '@/hooks/use-comparisons';
+import { useStoreReview } from '@/hooks/use-store-review';
 import { useRatingStore } from '@/stores';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -48,6 +49,7 @@ export default function CompareScreen() {
 
     const { mutateAsync: processBattle } = useProcessBattle();
     const { mutateAsync: skipBattle } = useSkipBattle();
+    const { maybeRequestReview } = useStoreReview();
 
     // If battleState is gone (cleared externally), navigate away
     useEffect(() => {
@@ -75,6 +77,7 @@ export default function CompareScreen() {
                 if (result.battle_complete) {
                     clearBattleState();
                     resetRating();
+                    maybeRequestReview();
                     router.dismissAll();
                     router.replace('/(protected)/(tabs)');
                 } else {
@@ -110,6 +113,7 @@ export default function CompareScreen() {
                 // Skip always ends the battle immediately
                 clearBattleState();
                 resetRating();
+                maybeRequestReview();
                 router.dismissAll();
                 router.replace('/(protected)/(tabs)');
             } catch (error) {
