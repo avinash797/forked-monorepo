@@ -1,8 +1,8 @@
 import { ScoreBadge } from '@/components/score-badge';
 import { BestEverShareModal } from '@/components/share/best-ever-share-modal';
 import { ThemedText } from '@/components/themed-text';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { DishTypeIcon } from '@/components/ui/dish-type-icon';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
 import { BestEverDish } from '@/hooks/use-user-stats';
@@ -34,6 +34,7 @@ export function BestEverCard({ item, index, onPress }: BestEverCardProps) {
                 onClose={() => setShareModalVisible(false)}
                 item={item}
                 username={user?.display_name ?? ''}
+                displayName={user?.display_name ?? ''}
             />
             <Pressable
                 style={({ pressed }) => [

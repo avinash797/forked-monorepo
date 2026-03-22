@@ -23,6 +23,7 @@ interface BestEverShareModalProps {
     onClose: () => void;
     item: BestEverDish;
     username: string;
+    displayName: string;
 }
 
 export function BestEverShareModal({
@@ -30,6 +31,7 @@ export function BestEverShareModal({
     onClose,
     item,
     username,
+    displayName,
 }: BestEverShareModalProps) {
     const insets = useSafeAreaInsets();
     const cardRef = useRef<View>(null);
@@ -133,10 +135,7 @@ export function BestEverShareModal({
                             <View style={styles.cardHeader}>
                                 <View style={styles.userInfo}>
                                     <Text style={styles.displayName}>
-                                        {username || 'My'}
-                                    </Text>
-                                    <Text style={styles.usernameHandle}>
-                                        {username ? `@${username}` : ''}
+                                        {`${displayName || 'My'}'s Best ${item.dish_type_name} Ever`}
                                     </Text>
                                 </View>
                                 <ForkLogo size={32} color={theme.color.gold} />
@@ -167,7 +166,7 @@ export function BestEverShareModal({
                                                 />
                                             )}
                                         <Text style={styles.dishLabel}>
-                                            Best {item.dish_type_name}
+                                            {item.variation_name ?? item.dish_type_name}
                                         </Text>
                                     </View>
                                     <Text
@@ -177,7 +176,8 @@ export function BestEverShareModal({
                                         {item.restaurant_name}
                                     </Text>
                                     <Text style={styles.cityName}>
-                                        {item.city_name}
+                                        <IconSymbol name="pin" size={16} color={theme.color.textPrimary} />
+                                        {item.neighborhood_name ? `${item.neighborhood_name}, ` : ''}{item.city_name}
                                     </Text>
                                 </View>
                                 <View

@@ -18,6 +18,8 @@ export interface BestEverDish {
     restaurant_id: string;
     restaurant_name: string;
     city_name: string;
+    neighborhood_name?: string | null;
+    variation_name?: string | null;
     photo_url: string;
     derived_score: number;
     sentiment: 'liked' | 'okay' | 'disliked';
