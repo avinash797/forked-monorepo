@@ -14,6 +14,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Dimensions, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import ImageViewing from 'react-native-image-viewing';
 import Animated, {
     Easing,
     Extrapolation,
@@ -132,6 +133,8 @@ export default function RestaurantDetailScreen() {
 
     // Report photo state
     const [reportRatingId, setReportRatingId] = useState<string | null>(null);
+    // Fullscreen photo viewer state
+    const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
     const handleReportHeroPhoto = (photoUrl: string) => {
         const ratingId = photoRatingMap[photoUrl];
@@ -507,15 +510,19 @@ export default function RestaurantDetailScreen() {
                             style={StyleSheet.absoluteFill}
                         >
                             {allPhotos.map((photoUrl, index) => (
-                                <Image
+                                <Pressable
                                     key={index}
-                                    source={{ uri: photoUrl! }}
-                                    style={{
-                                        width: width,
-                                        height: HERO_HEIGHT,
-                                    }}
-                                    contentFit="cover"
-                                />
+                                    onPress={() => setViewerIndex(index)}
+                                >
+                                    <Image
+                                        source={{ uri: photoUrl! }}
+                                        style={{
+                                            width: width,
+                                            height: HERO_HEIGHT,
+                                        }}
+                                        contentFit="cover"
+                                    />
+                                </Pressable>
                             ))}
                         </ScrollView>
                     ) : (
@@ -539,23 +546,6 @@ export default function RestaurantDetailScreen() {
                         pointerEvents="none"
                     />
 
-                    {/* Report photo button */}
-                    {allPhotos.length > 0 && (
-                        <Pressable
-                            onPress={() => handleReportHeroPhoto(allPhotos[0])}
-                            style={({ pressed }) => [
-                                styles.heroReportButton,
-                                pressed && { opacity: 0.6 },
-                            ]}
-                            hitSlop={8}
-                        >
-                            <IconSymbol
-                                name="flag-outline"
-                                size={18}
-                                color="rgba(255,255,255,0.8)"
-                            />
-                        </Pressable>
-                    )}
                 </Animated.View>
 
                 {/* Content Section */}
@@ -735,6 +725,38 @@ export default function RestaurantDetailScreen() {
                 </View>
             </Animated.ScrollView>
 
+            <ImageViewing
+                images={allPhotos.map((uri) => ({ uri }))}
+                imageIndex={viewerIndex ?? 0}
+                visible={viewerIndex !== null}
+                onRequestClose={() => setViewerIndex(null)}
+                animationType="fade"
+                FooterComponent={({ imageIndex }: { imageIndex: number }) => (
+                    <View style={styles.viewerFooter}>
+                        <Pressable
+                            onPress={() => {
+                                setViewerIndex(null);
+                                handleReportHeroPhoto(allPhotos[imageIndex]);
+                            }}
+                            style={({ pressed }) => [
+                                styles.reportButton,
+                                pressed && { opacity: 0.7 },
+                            ]}
+                            hitSlop={8}
+                        >
+                            <IconSymbol
+                                name="flag-outline"
+                                size={16}
+                                color="#fff"
+                            />
+                            <ThemedText style={styles.reportText}>
+                                Report
+                            </ThemedText>
+                        </Pressable>
+                    </View>
+                )}
+            />
+
             <ReportPhotoModal
                 visible={reportRatingId !== null}
                 ratingId={reportRatingId}
@@ -772,17 +794,6 @@ const createThemedStyles = (
             width: '100%',
             position: 'relative',
             overflow: 'hidden',
-        },
-        heroReportButton: {
-            position: 'absolute',
-            bottom: theme.space.md,
-            right: theme.space.md,
-            width: 36,
-            height: 36,
-            borderRadius: 18,
-            backgroundColor: 'rgba(0,0,0,0.4)',
-            alignItems: 'center',
-            justifyContent: 'center',
         },
         topControls: {
             position: 'absolute',
@@ -978,5 +989,22 @@ const createThemedStyles = (
         },
         emptyDishes: {
             paddingVertical: theme.space.xxl,
+        },
+        viewerFooter: {
+            alignItems: 'center',
+            paddingBottom: 40,
+        },
+        reportButton: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            borderRadius: 20,
+            backgroundColor: 'rgba(255,255,255,0.2)',
+        },
+        reportText: {
+            color: '#fff',
+            fontSize: theme.font.size.sm,
         },
     });
