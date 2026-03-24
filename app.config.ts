@@ -1,4 +1,4 @@
-import { ExpoConfig, ConfigContext } from "expo/config";
+import { ConfigContext, ExpoConfig } from "expo/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -23,6 +23,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
+      NSLocationWhenInUseUsageDescription: "Allow Forked permission to use your location to show nearby food.",
+      NSLocationAlwaysUsageDescription: "Allow Forked permission to use your location to show nearby food."
     },
   },
   android: {
@@ -64,7 +66,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "expo-location",
       {
         locationAlwaysAndWhenInUsePermission:
-          "Allow Forked to use your location to verify you're at the restaurant.",
+          "Allow Forked permission to use your location to show nearby food.",
       },
     ],
     [

@@ -144,12 +144,6 @@ export default function SettingsScreen() {
                     theme={theme}
                 />
 
-                <View style={styles.versionRow}>
-                    <ThemedText style={styles.rowLabel}>App Version</ThemedText>
-                    <ThemedText style={styles.versionValue}>
-                        {Constants.expoConfig?.version ?? 'Unknown'}
-                    </ThemedText>
-                </View>
             </View>
 
             <View style={styles.logoutSection}>
@@ -160,6 +154,12 @@ export default function SettingsScreen() {
                 >
                     Logout
                 </ThemedButton>
+                <View style={styles.versionRow}>
+                    <ThemedText style={styles.versionRowLabel}>App Version</ThemedText>
+                    <ThemedText style={styles.versionValue}>
+                        {Constants.expoConfig?.version ?? 'Unknown'}
+                    </ThemedText>
+                </View>
             </View>
         </ScrollView>
     );
@@ -188,6 +188,11 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             flex: 1,
             fontSize: theme.font.size.md,
         },
+        versionRowLabel: {
+            flex: 1,
+            fontSize: theme.font.size.md,
+            color: theme.color.textTertiary,
+        },
         versionRow: {
             flexDirection: 'row',
             justifyContent: 'space-between',
@@ -197,7 +202,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         versionValue: {
             fontSize: theme.font.size.md,
-            color: theme.color.textSecondary,
+            color: theme.color.textTertiary,
         },
         logoutSection: {
             marginBottom: theme.space.xxl,
