@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import type { UserBadge } from '@/types/badge.types';
+import type { UserBadgeWithDefinition } from '@/types/badge.types';
 import { useQuery } from '@tanstack/react-query';
 
 /**
@@ -17,7 +17,7 @@ export function useUserBadges(userId?: string) {
             );
 
             if (error) throw error;
-            return (data ?? []) as UserBadge[];
+            return (data ?? []) as UserBadgeWithDefinition[];
         },
     });
 }

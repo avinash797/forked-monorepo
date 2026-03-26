@@ -17,7 +17,7 @@ export type Database = {
       admin_actions: {
         Row: {
           action_type: string
-          admin_id: string
+          admin_id: string | null
           created_at: string
           details: Json | null
           id: string
@@ -26,7 +26,7 @@ export type Database = {
         }
         Insert: {
           action_type: string
-          admin_id: string
+          admin_id?: string | null
           created_at?: string
           details?: Json | null
           id?: string
@@ -35,14 +35,22 @@ export type Database = {
         }
         Update: {
           action_type?: string
-          admin_id?: string
+          admin_id?: string | null
           created_at?: string
           details?: Json | null
           id?: string
           target_id?: string
           target_type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "admin_actions_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       app_constants: {
         Row: {
@@ -177,6 +185,13 @@ export type Database = {
             columns: ["rating_id"]
             isOneToOne: false
             referencedRelation: "personal_ratings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "battle_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -528,6 +543,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "comparisons_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "comparisons_user_profile_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -573,7 +595,67 @@ export type Database = {
           target_id?: string
           target_type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "content_flags_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_flags_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_reports: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          reason: Database["public"]["Enums"]["report_reason"]
+          reported_rating_id: string
+          reporter_id: string | null
+          status: Database["public"]["Enums"]["report_status"]
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason: Database["public"]["Enums"]["report_reason"]
+          reported_rating_id: string
+          reporter_id?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason?: Database["public"]["Enums"]["report_reason"]
+          reported_rating_id?: string
+          reporter_id?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_reports_reported_rating_id_fkey"
+            columns: ["reported_rating_id"]
+            isOneToOne: false
+            referencedRelation: "personal_ratings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       dish_type_variations: {
         Row: {
@@ -974,6 +1056,13 @@ export type Database = {
             columns: ["restaurant_id"]
             isOneToOne: false
             referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "personal_ratings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -1477,12 +1566,14 @@ export type Database = {
           dish_type_icon: string
           dish_type_id: string
           dish_type_name: string
+          neighborhood_name: string
           photo_url: string
           rated_at: string
           rating_id: string
           restaurant_id: string
           restaurant_name: string
           sentiment: string
+          variation_name: string
         }[]
       }
       get_nearby_leaderboard: {
@@ -1538,6 +1629,14 @@ export type Database = {
       get_user_stats: { Args: { p_user_id?: string }; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
       match_location: { Args: { lat: number; long: number }; Returns: Json }
+      report_content: {
+        Args: {
+          p_description?: string
+          p_reason: string
+          p_reported_rating_id: string
+        }
+        Returns: Json
+      }
       search_dish_types: {
         Args: { search_term: string }
         Returns: {
@@ -1654,7 +1753,8 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      report_reason: "inappropriate_photo" | "offensive" | "spam" | "other"
+      report_status: "pending" | "reviewed" | "dismissed" | "actioned"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1781,6 +1881,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      report_reason: ["inappropriate_photo", "offensive", "spam", "other"],
+      report_status: ["pending", "reviewed", "dismissed", "actioned"],
+    },
   },
 } as const
