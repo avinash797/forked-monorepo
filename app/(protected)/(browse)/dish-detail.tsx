@@ -13,7 +13,7 @@ import { Restaurant } from '@/types/restaurant';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Alert,
     Dimensions,
@@ -326,6 +326,64 @@ export default function DishDetailScreen() {
         }
     };
 
+    // Build dynamic user rating summary as rich text
+    const userRating = ratingsData?.userRatingData;
+    const buildRatingSummary = (): React.ReactNode | null => {
+        if (!userRating || !coreData) return null;
+
+        const sentimentVerb =
+            userRating.sentiment === 'liked'
+                ? 'liked'
+                : userRating.sentiment === 'disliked'
+                    ? "didn't like"
+                    : 'thought was okay';
+
+        const dishName = coreData.dish_type.name.toLowerCase();
+
+        const tagNames = userRating.tags
+            ?.map((t: any) => t.taste_tags?.name)
+            .filter(Boolean) as string[];
+
+        const bold = (text: string) => (
+            <ThemedText style={styles.ratingSummaryBold}>{text}</ThemedText>
+        );
+
+        const hasTagNames = tagNames && tagNames.length > 0;
+        const formattedTags = hasTagNames
+            ? tagNames.length === 1
+                ? tagNames[0]
+                : tagNames.length === 2
+                    ? `${tagNames[0]} and ${tagNames[1]}`
+                    : `${tagNames.slice(0, -1).join(', ')}, and ${tagNames[tagNames.length - 1]}`
+            : null;
+
+        return (
+            <ThemedText style={styles.ratingSummaryText}>
+                {'You '}
+                {userRating.sentiment !== 'okay' ? bold(sentimentVerb) : 'thought'}
+                {` this `}
+                {bold(dishName)}
+                {userRating.sentiment === 'okay' && ' was '} {userRating.sentiment === 'okay' && bold('just okay')}
+                {formattedTags && (
+                    <>
+                        {', and described it as '}
+                        {bold(formattedTags)}
+                    </>
+                )}
+                {'.'}
+                {userRating.notes && (
+                    <>
+                        {' You noted: "'}
+                        {bold(userRating.notes)}
+                        {'"'}
+                    </>
+                )}
+            </ThemedText>
+        );
+    };
+
+    const ratingSummary = buildRatingSummary();
+
     const heroPhoto = coreData?.featured_photo_url;
 
     // Primary loading state — only block on core data
@@ -576,18 +634,35 @@ export default function DishDetailScreen() {
                                 </View>
                             </View>
 
-                            <View style={styles.rateButtonContainer}>
+                            <View
+                                style={[
+                                    styles.rateButtonContainer,
+                                    userRating &&
+                                    styles.rateButtonContainerRated,
+                                ]}
+                            >
                                 {ratings.isLoading ? (
                                     <ButtonSkeleton />
                                 ) : (
-                                    <ThemedButton
-                                        onPress={handleRateDishPress}
-                                        style={styles.rateButton}
-                                    >
-                                        {ratingsData?.userRatingData
-                                            ? 'Update Rating'
-                                            : 'Rate This Dish'}
-                                    </ThemedButton>
+                                    <>
+                                        {ratingSummary && (
+                                            <View
+                                                style={
+                                                    styles.ratingSummaryContainer
+                                                }
+                                            >
+                                                {ratingSummary}
+                                            </View>
+                                        )}
+                                        <ThemedButton
+                                            onPress={handleRateDishPress}
+                                            style={styles.rateButton}
+                                        >
+                                            {userRating
+                                                ? 'Update Rating'
+                                                : 'Rate This Dish'}
+                                        </ThemedButton>
+                                    </>
                                 )}
                             </View>
 
@@ -966,7 +1041,40 @@ const createThemedStyles = (
         },
         rateButtonContainer: {
             paddingHorizontal: theme.space.md,
+            paddingVertical: theme.space.md,
             marginVertical: theme.space.md,
+            borderRadius: theme.radius.lg,
+            borderCurve: 'continuous',
+        },
+        rateButtonContainerRated: {
+            borderWidth: 1,
+            borderColor:
+                theme.mode === 'dark'
+                    ? 'rgba(255,255,255,0.15)'
+                    : 'rgba(0,0,0,0.08)',
+            backgroundColor:
+                theme.mode === 'dark'
+                    ? 'rgba(255,255,255,0.03)'
+                    : 'rgba(0,0,0,0.01)',
+            boxShadow:
+                theme.mode === 'dark'
+                    ? '0px 0px 12px rgba(255,255,255,0.06)'
+                    : '0px 0px 12px rgba(0,0,0,0.04)',
+        },
+        ratingSummaryContainer: {
+            marginBottom: theme.space.sm,
+        },
+        ratingSummaryText: {
+            fontSize: theme.font.size.sm + 2,
+            color: theme.color.textSecondary,
+            lineHeight: theme.font.line.sm + 4,
+        },
+        ratingSummaryBold: {
+            fontSize: theme.font.size.sm + 2,
+            color: theme.color.textSecondary,
+            lineHeight: theme.font.line.sm + 4,
+            fontWeight: theme.font.weight.bold,
+            fontStyle: 'italic',
         },
         rateButton: {
             borderRadius: theme.radius.lg,
