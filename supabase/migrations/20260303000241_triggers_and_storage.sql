@@ -144,9 +144,9 @@ CREATE TRIGGER auto_populate_restaurant_dish_on_rating
     FOR EACH ROW EXECUTE FUNCTION public.auto_populate_restaurant_dish();
 
 -- Enrich city dish types via Edge Function on city INSERT
-CREATE TRIGGER on_city_created_enrich_dish_types
-    AFTER INSERT ON public.cities
-    FOR EACH ROW EXECUTE FUNCTION public.trigger_enrich_city_dish_types();
+-- CREATE TRIGGER on_city_created_enrich_dish_types
+--     AFTER INSERT ON public.cities
+--     FOR EACH ROW EXECUTE FUNCTION public.trigger_enrich_city_dish_types();
 
 -- ============================================================
 -- STORAGE BUCKETS

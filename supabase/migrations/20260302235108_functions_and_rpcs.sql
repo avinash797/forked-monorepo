@@ -961,7 +961,7 @@ FROM (
                 'address',
                 r.address,
                 'bayesian_score',
-                ROUND(gds.bayesian_score, 1),
+                FLOOR(gds.bayesian_score * 10) / 10,
                 'total_ratings',
                 gds.total_ratings,
                 'confidence_tier',

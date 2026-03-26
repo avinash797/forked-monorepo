@@ -576,6 +576,21 @@ export default function DishDetailScreen() {
                                 </View>
                             </View>
 
+                            <View style={styles.rateButtonContainer}>
+                                {ratings.isLoading ? (
+                                    <ButtonSkeleton />
+                                ) : (
+                                    <ThemedButton
+                                        onPress={handleRateDishPress}
+                                        style={styles.rateButton}
+                                    >
+                                        {ratingsData?.userRatingData
+                                            ? 'Update Rating'
+                                            : 'Rate This Dish'}
+                                    </ThemedButton>
+                                )}
+                            </View>
+
                             {menu.isLoading ? (
                                 <TagsSkeleton />
                             ) : (
@@ -670,20 +685,7 @@ export default function DishDetailScreen() {
                         </View>
                     </View>
 
-                    <View style={styles.rateButtonContainer}>
-                        {ratings.isLoading ? (
-                            <ButtonSkeleton />
-                        ) : (
-                            <ThemedButton
-                                onPress={handleRateDishPress}
-                                style={styles.rateButton}
-                            >
-                                {ratingsData?.userRatingData
-                                    ? 'Update Rating'
-                                    : 'Rate This Dish'}
-                            </ThemedButton>
-                        )}
-                    </View>
+
                 </View>
             </Animated.ScrollView>
 
@@ -835,7 +837,7 @@ const createThemedStyles = (
             borderCurve: 'continuous',
             paddingVertical: theme.space.md,
             paddingHorizontal: theme.space.sm,
-            marginBottom: theme.space.lg,
+            marginBottom: theme.space.xxs,
             justifyContent: 'space-around',
             alignItems: 'center',
             borderWidth: 1,
@@ -850,13 +852,13 @@ const createThemedStyles = (
             flex: 1,
         },
         statValue: {
-            fontSize: theme.font.size.sm + 1,
+            fontSize: theme.font.size.lg,
             fontWeight: theme.font.weight.bold,
             color: theme.color.textPrimary,
             fontVariant: ['tabular-nums'] as any,
         },
         statLabel: {
-            fontSize: 9,
+            fontSize: 10,
             color: theme.color.textSecondary,
             textTransform: 'uppercase',
             marginTop: 2,
@@ -964,7 +966,7 @@ const createThemedStyles = (
         },
         rateButtonContainer: {
             paddingHorizontal: theme.space.md,
-            marginTop: theme.space.md,
+            marginVertical: theme.space.md,
         },
         rateButton: {
             borderRadius: theme.radius.lg,

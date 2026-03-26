@@ -119,7 +119,7 @@ BEGIN
         jsonb_build_object(
             'snapshot_date',  snapshot_date,
             'rank_position',  rank_position,
-            'bayesian_score', ROUND(bayesian_score, 1),
+            'bayesian_score', FLOOR(bayesian_score * 10) / 10,
             'total_ratings',  total_ratings,
             'confidence_tier', confidence_tier
         )
