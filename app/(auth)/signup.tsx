@@ -1,4 +1,3 @@
-import ForkedBrandingHeader from '@/components/forked-branding-header';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-text-input';
@@ -9,16 +8,14 @@ import {
     validateEmail,
     validatePassword,
 } from '@/lib/validators';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-    ImageBackground,
     KeyboardAvoidingView,
     Pressable,
     ScrollView,
     StyleSheet,
-    View,
+    View
 } from 'react-native';
 
 export default function SignupScreen() {
@@ -71,127 +68,90 @@ export default function SignupScreen() {
     };
 
     return (
-        <ImageBackground
-            source={require('@/assets/images/auth/auth-bg.jpg')}
-            style={styles.background}
-            resizeMode="cover"
-        >
-            <LinearGradient
-                colors={['rgba(0,0,0,0.4)', 'rgba(0,0,0,0.7)']}
-                style={styles.gradient}
+        <View style={styles.container}>
+            <KeyboardAvoidingView
+                behavior={process.env.EXPO_OS === 'ios' ? 'padding' : 'height'}
+                style={styles.keyboardView}
             >
-                <View style={styles.container}>
-                    <KeyboardAvoidingView
-                        behavior={process.env.EXPO_OS === 'ios' ? 'padding' : 'height'}
-                        style={styles.keyboardView}
+                <ScrollView
+                    contentContainerStyle={styles.scrollContent}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={styles.header}>
+                        <ThemedText type="title">
+                            Sign Up
+                        </ThemedText>
+                    </View>
+
+                    <View
+
+                        style={styles.form}
                     >
-                        <ScrollView
-                            contentContainerStyle={styles.scrollContent}
-                            keyboardShouldPersistTaps="handled"
+                        <ThemedTextInput
+                            label="Name"
+                            placeholder="Your name"
+                            value={displayName}
+                            onChangeText={setDisplayName}
+                            autoComplete="name"
+                            error={errors.displayName}
+                        />
+
+                        <ThemedTextInput
+                            label="Email"
+                            placeholder="your@email.com"
+                            value={email}
+                            onChangeText={setEmail}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                            autoComplete="email"
+                            error={errors.email}
+                        />
+
+                        <ThemedTextInput
+                            label="Password"
+                            placeholder="At least 8 characters"
+                            value={password}
+                            onChangeText={setPassword}
+                            showPasswordToggle
+                            autoCapitalize="none"
+                            autoComplete="password-new"
+                            error={errors.password}
+                        />
+
+                        {errors.general && (
+                            <ThemedText style={styles.generalError}>
+                                {errors.general}
+                            </ThemedText>
+                        )}
+
+                        <ThemedButton
+                            onPress={handleSignup}
+                            loading={isLoading}
+                            style={styles.signupButton}
                         >
-                            <View style={styles.header}>
-                                <ForkedBrandingHeader
-                                    style={{ marginVertical: 20 }}
-                                />
+                            Sign Up
+                        </ThemedButton>
 
-                                <ThemedText lightColor="#FFFFFF" type="title">
-                                    Create Account
-                                </ThemedText>
-                                <ThemedText
-                                    lightColor="#FFFFFF"
-                                    style={styles.subtitle}
-                                >
-                                    Sign up to get started
-                                </ThemedText>
-                            </View>
-
-                            <LinearGradient
-                                colors={[
-                                    'rgba(0,0,0,0.5)',
-                                    'rgba(0,0,0,0.6)',
-                                    'rgba(0,0,0,0.8)',
-                                    theme.color.bg,
-                                ]}
-                                style={styles.form}
-                            >
-                                <ThemedTextInput
-                                    label="Display Name"
-                                    placeholder="Your name"
-                                    value={displayName}
-                                    onChangeText={setDisplayName}
-                                    autoComplete="name"
-                                    error={errors.displayName}
-                                    lightLabelColor="#FFFFFF"
-                                />
-
-                                <ThemedTextInput
-                                    label="Email"
-                                    placeholder="your@email.com"
-                                    value={email}
-                                    onChangeText={setEmail}
-                                    keyboardType="email-address"
-                                    autoCapitalize="none"
-                                    autoComplete="email"
-                                    error={errors.email}
-                                    lightLabelColor="#FFFFFF"
-                                />
-
-                                <ThemedTextInput
-                                    label="Password"
-                                    placeholder="At least 8 characters"
-                                    value={password}
-                                    onChangeText={setPassword}
-                                    showPasswordToggle
-                                    autoCapitalize="none"
-                                    autoComplete="password-new"
-                                    error={errors.password}
-                                    lightLabelColor="#FFFFFF"
-                                />
-
-                                {errors.general && (
-                                    <ThemedText style={styles.generalError}>
-                                        {errors.general}
+                        <View style={styles.loginContainer}>
+                            <ThemedText >
+                                Already have an account?{' '}
+                            </ThemedText>
+                            <Link href="/(auth)/login" asChild>
+                                <Pressable>
+                                    <ThemedText type="link">
+                                        Login
                                     </ThemedText>
-                                )}
-
-                                <ThemedButton
-                                    onPress={handleSignup}
-                                    loading={isLoading}
-                                    style={styles.signupButton}
-                                >
-                                    Sign Up
-                                </ThemedButton>
-
-                                <View style={styles.loginContainer}>
-                                    <ThemedText lightColor="#FFFFFF">
-                                        Already have an account?{' '}
-                                    </ThemedText>
-                                    <Link href="/(auth)/login" asChild>
-                                        <Pressable>
-                                            <ThemedText type="link">
-                                                Login
-                                            </ThemedText>
-                                        </Pressable>
-                                    </Link>
-                                </View>
-                            </LinearGradient>
-                        </ScrollView>
-                    </KeyboardAvoidingView>
-                </View>
-            </LinearGradient>
-        </ImageBackground>
+                                </Pressable>
+                            </Link>
+                        </View>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    background: {
-        flex: 1,
-        width: '100%',
-        height: '100%',
-    },
-    gradient: {
-        flex: 1,
-    },
     container: {
         flex: 1,
     },
@@ -200,16 +160,12 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         flexGrow: 1,
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         paddingTop: 24,
     },
     header: {
         alignItems: 'center',
         marginBottom: 40,
-    },
-    subtitle: {
-        marginTop: 8,
-        fontSize: 16,
     },
     form: {
         width: '100%',

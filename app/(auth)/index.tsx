@@ -2,7 +2,7 @@ import { ThemedButton } from '@/components/themed-button';
 import { useTheme } from '@/contexts/theme-provider';
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import Animated, {
     Extrapolation,
     interpolate,
@@ -16,25 +16,37 @@ const { width } = Dimensions.get('window');
 
 const slides = [
     {
-        emoji: '🍲',
-        title: 'Rate Dishes,\nNot Restaurants',
-        subtitle: 'Because the best gumbo deserves its own crown.',
+        title: {
+            before: 'Rank ',
+            highlighted: 'Dishes',
+            after: ', Not Restaurants',
+        },
+        subtitle: 'Because a 3-star dive can have the best po\'boy in the city.',
     },
     {
-        emoji: '⚔️',
-        title: 'This vs That',
-        subtitle: 'Settle the debate. Which burger actually wins?',
+        title: {
+            before: 'Ditch the ',
+            highlighted: 'Stars',
+            after: ', Choose the Winner',
+        },
+        subtitle: 'Play a fast, head-to-head game. Which dish actually wins?',
     },
     {
-        emoji: '👑',
-        title: 'Find the Best',
-        subtitle: 'The #1 gumbo in New Orleans. Ranked by locals.',
+        title: {
+            before: 'Snap a ',
+            highlighted: 'Photo',
+            after: ' to Prove It',
+        },
+        subtitle: 'No fake ratings. If you didn\'t take a picture, you weren\'t there.',
     },
     {
-        emoji: '🔥',
-        title: 'Trust the Locals',
-        subtitle: 'No tourists. No sponsors. Just truth.',
-    },
+        title: {
+            before: 'Find the ',
+            highlighted: 'Definitive',
+            after: ' List',
+        },
+        subtitle: 'See the #1 ranked dishes near you in under 30 seconds.',
+    }
 ];
 
 export default function OnboardingScreen() {
@@ -70,10 +82,6 @@ export default function OnboardingScreen() {
 
     return (
         <View style={styles.container}>
-            <Pressable onPress={handleSkip} style={styles.skipButton}>
-                <Text style={styles.skipText}>Skip</Text>
-            </Pressable>
-
             <Animated.FlatList
                 ref={flatListRef}
                 data={slides}
@@ -99,12 +107,18 @@ export default function OnboardingScreen() {
                         />
                     ))}
                 </View>
-
-                <ThemedButton onPress={handleNext}>
-                    {currentIndex === slides.length - 1
-                        ? 'Get Started'
-                        : 'Next'}
-                </ThemedButton>
+                <View>
+                    <ThemedButton onPress={handleNext}>
+                        {currentIndex === 0
+                            ? 'Get Started'
+                            : 'Continue'}
+                    </ThemedButton>
+                    {currentIndex === 0 && (
+                        <ThemedButton variant='text' onPress={handleSkip} style={styles.skipButton}>
+                            I already have an account
+                        </ThemedButton>
+                    )}
+                </View>
             </View>
         </View>
     );
@@ -151,8 +165,11 @@ function SlideItem({
     return (
         <View style={styles.slide}>
             <Animated.View style={[styles.slideContent, animatedStyle]}>
-                <Text style={styles.emoji}>{item.emoji}</Text>
-                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.title}>
+                    <Text style={styles.titleBefore}>{item.title.before}</Text>
+                    <Text style={styles.titleHighlighted}>{item.title.highlighted}</Text>
+                    <Text style={styles.titleAfter}>{item.title.after}</Text>
+                </Text>
                 <Text style={styles.subtitle}>{item.subtitle}</Text>
             </Animated.View>
         </View>
@@ -205,10 +222,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             backgroundColor: theme.color.bg,
         },
         skipButton: {
-            position: 'absolute',
-            top: 60,
-            right: theme.space.xl,
-            zIndex: 1,
+            marginTop: theme.space.sm,
         },
         skipText: {
             fontFamily: theme.font.family.regular,
@@ -224,16 +238,23 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         slideContent: {
             alignItems: 'center',
         },
-        emoji: {
-            fontSize: 100,
-            marginBottom: theme.space.xxl,
-        },
         title: {
             fontSize: theme.font.size.xxl,
-            color: theme.color.textPrimary,
             textAlign: 'center',
             marginBottom: theme.space.lg,
             lineHeight: 42,
+        },
+        titleBefore: {
+            color: theme.color.textPrimary,
+        },
+        titleHighlighted: {
+            color: theme.color.accent,
+            textDecorationLine: 'underline',
+            fontStyle: 'italic',
+            fontWeight: '600',
+        },
+        titleAfter: {
+            color: theme.color.textPrimary,
         },
         subtitle: {
             fontSize: theme.font.size.lg,

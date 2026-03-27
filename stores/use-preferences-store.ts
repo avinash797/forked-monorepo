@@ -8,11 +8,17 @@ interface PreferencesState {
   notificationsEnabled: boolean;
   showGPSWarning: boolean;
 
+  // Store review tracking
+  ratingsCompletedSinceReview: number;
+  lastReviewPromptDate: number | null;
+
   // Actions
   setHasCompletedOnboarding: (completed: boolean) => void;
   setPreferredDishTypes: (types: string[]) => void;
   setNotificationsEnabled: (enabled: boolean) => void;
   setShowGPSWarning: (show: boolean) => void;
+  incrementRatingsCompleted: () => void;
+  setLastReviewPromptDate: (date: number) => void;
   resetPreferences: () => void;
 }
 
@@ -21,6 +27,8 @@ const initialState = {
   preferredDishTypes: [],
   notificationsEnabled: true,
   showGPSWarning: true,
+  ratingsCompletedSinceReview: 0,
+  lastReviewPromptDate: null,
 };
 
 /**
@@ -48,6 +56,14 @@ export const usePreferencesStore = create<PreferencesState>()(
         set({ notificationsEnabled: enabled }),
 
       setShowGPSWarning: (show) => set({ showGPSWarning: show }),
+
+      incrementRatingsCompleted: () =>
+        set((state) => ({
+          ratingsCompletedSinceReview: state.ratingsCompletedSinceReview + 1,
+        })),
+
+      setLastReviewPromptDate: (date) =>
+        set({ ratingsCompletedSinceReview: 0, lastReviewPromptDate: date }),
 
       resetPreferences: () => set(initialState),
     }),

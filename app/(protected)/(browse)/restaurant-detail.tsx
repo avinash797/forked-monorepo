@@ -1,5 +1,6 @@
 import { DishCardWithRating } from '@/components/browse/dish-card-with-rating';
 import { EmptyState } from '@/components/browse/empty-state';
+import { ReportPhotoModal } from '@/components/browse/report-photo-modal';
 import { SectionHeader } from '@/components/browse/section-header';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
@@ -10,9 +11,10 @@ import { useRestaurantDetail } from '@/hooks/use-restaurant-detail';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useRef } from 'react';
-import { Dimensions, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Alert, Dimensions, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import ImageViewing from 'react-native-image-viewing';
 import Animated, {
     Easing,
     Extrapolation,
@@ -126,8 +128,25 @@ export default function RestaurantDetailScreen() {
     const styles = createThemedStyles(theme, insets);
 
     const { data, isLoading, error } = useRestaurantDetail(venueId);
-    const { venue, dishes = [] } = data || {};
-    const allPhotos = dishes.flatMap((dish) => dish.photos);
+    const { venue, dishes = [], photoRatingMap = {} } = data || {};
+    const allPhotos = dishes.flatMap((dish) => dish.photos).filter((p): p is string => p != null);
+
+    // Report photo state
+    const [reportRatingId, setReportRatingId] = useState<string | null>(null);
+    // Fullscreen photo viewer state
+    const [viewerIndex, setViewerIndex] = useState<number | null>(null);
+
+    const handleReportHeroPhoto = (photoUrl: string) => {
+        const ratingId = photoRatingMap[photoUrl];
+        if (ratingId) {
+            setReportRatingId(ratingId);
+        } else {
+            Alert.alert(
+                'Unable to Report',
+                'This photo cannot be reported at this time.'
+            );
+        }
+    };
     const scrollViewRef = useRef<ScrollView>(null);
 
     const dishTypesServed = new Set(dishes.map((dish) => dish.type.name));
@@ -491,15 +510,19 @@ export default function RestaurantDetailScreen() {
                             style={StyleSheet.absoluteFill}
                         >
                             {allPhotos.map((photoUrl, index) => (
-                                <Image
+                                <Pressable
                                     key={index}
-                                    source={{ uri: photoUrl! }}
-                                    style={{
-                                        width: width,
-                                        height: HERO_HEIGHT,
-                                    }}
-                                    contentFit="cover"
-                                />
+                                    onPress={() => setViewerIndex(index)}
+                                >
+                                    <Image
+                                        source={{ uri: photoUrl! }}
+                                        style={{
+                                            width: width,
+                                            height: HERO_HEIGHT,
+                                        }}
+                                        contentFit="cover"
+                                    />
+                                </Pressable>
                             ))}
                         </ScrollView>
                     ) : (
@@ -522,6 +545,7 @@ export default function RestaurantDetailScreen() {
                         style={StyleSheet.absoluteFill}
                         pointerEvents="none"
                     />
+
                 </Animated.View>
 
                 {/* Content Section */}
@@ -700,6 +724,44 @@ export default function RestaurantDetailScreen() {
                     </View>
                 </View>
             </Animated.ScrollView>
+
+            <ImageViewing
+                images={allPhotos.map((uri) => ({ uri }))}
+                imageIndex={viewerIndex ?? 0}
+                visible={viewerIndex !== null}
+                onRequestClose={() => setViewerIndex(null)}
+                animationType="fade"
+                FooterComponent={({ imageIndex }: { imageIndex: number }) => (
+                    <View style={styles.viewerFooter}>
+                        <Pressable
+                            onPress={() => {
+                                setViewerIndex(null);
+                                handleReportHeroPhoto(allPhotos[imageIndex]);
+                            }}
+                            style={({ pressed }) => [
+                                styles.reportButton,
+                                pressed && { opacity: 0.7 },
+                            ]}
+                            hitSlop={8}
+                        >
+                            <IconSymbol
+                                name="flag-outline"
+                                size={16}
+                                color="#fff"
+                            />
+                            <ThemedText style={styles.reportText}>
+                                Report
+                            </ThemedText>
+                        </Pressable>
+                    </View>
+                )}
+            />
+
+            <ReportPhotoModal
+                visible={reportRatingId !== null}
+                ratingId={reportRatingId}
+                onClose={() => setReportRatingId(null)}
+            />
         </ThemedView>
     );
 }
@@ -927,5 +989,22 @@ const createThemedStyles = (
         },
         emptyDishes: {
             paddingVertical: theme.space.xxl,
+        },
+        viewerFooter: {
+            alignItems: 'center',
+            paddingBottom: 40,
+        },
+        reportButton: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            borderRadius: 20,
+            backgroundColor: 'rgba(255,255,255,0.2)',
+        },
+        reportText: {
+            color: '#fff',
+            fontSize: theme.font.size.sm,
         },
     });

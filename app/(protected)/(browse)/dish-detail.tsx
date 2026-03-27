@@ -1,5 +1,6 @@
 import { EmptyState } from '@/components/browse/empty-state';
 import { PhotoGallery } from '@/components/browse/photo-gallery';
+import { ReportPhotoModal } from '@/components/browse/report-photo-modal';
 import { ScoreBadge } from '@/components/score-badge';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
@@ -12,7 +13,7 @@ import { Restaurant } from '@/types/restaurant';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Alert,
     Dimensions,
@@ -148,6 +149,21 @@ export default function DishDetailScreen() {
     // Secondary data
     const menuData = menu.data;
     const ratingsData = ratings.data;
+
+    // Report photo state
+    const [reportRatingId, setReportRatingId] = useState<string | null>(null);
+
+    const handleReportPhoto = (photoUrl: string) => {
+        const ratingId = menuData?.photoRatingMap?.[photoUrl];
+        if (ratingId) {
+            setReportRatingId(ratingId);
+        } else {
+            Alert.alert(
+                'Unable to Report',
+                'This photo cannot be reported at this time.'
+            );
+        }
+    };
 
     // Rating store for pre-populating when user wants to rate this dish
     const { setSelectedRestaurant, setSelectedDishType, resetRating } =
@@ -309,6 +325,64 @@ export default function DishDetailScreen() {
             }
         }
     };
+
+    // Build dynamic user rating summary as rich text
+    const userRating = ratingsData?.userRatingData;
+    const buildRatingSummary = (): React.ReactNode | null => {
+        if (!userRating || !coreData) return null;
+
+        const sentimentVerb =
+            userRating.sentiment === 'liked'
+                ? 'liked'
+                : userRating.sentiment === 'disliked'
+                    ? "didn't like"
+                    : 'thought was okay';
+
+        const dishName = coreData.dish_type.name.toLowerCase();
+
+        const tagNames = userRating.tags
+            ?.map((t: any) => t.taste_tags?.name)
+            .filter(Boolean) as string[];
+
+        const bold = (text: string) => (
+            <ThemedText style={styles.ratingSummaryBold}>{text}</ThemedText>
+        );
+
+        const hasTagNames = tagNames && tagNames.length > 0;
+        const formattedTags = hasTagNames
+            ? tagNames.length === 1
+                ? tagNames[0]
+                : tagNames.length === 2
+                    ? `${tagNames[0]} and ${tagNames[1]}`
+                    : `${tagNames.slice(0, -1).join(', ')}, and ${tagNames[tagNames.length - 1]}`
+            : null;
+
+        return (
+            <ThemedText style={styles.ratingSummaryText}>
+                {'You '}
+                {userRating.sentiment !== 'okay' ? bold(sentimentVerb) : 'thought'}
+                {` this `}
+                {bold(dishName)}
+                {userRating.sentiment === 'okay' && ' was '} {userRating.sentiment === 'okay' && bold('just okay')}
+                {formattedTags && (
+                    <>
+                        {', and described it as '}
+                        {bold(formattedTags)}
+                    </>
+                )}
+                {'.'}
+                {userRating.notes && (
+                    <>
+                        {' You noted: "'}
+                        {bold(userRating.notes)}
+                        {'"'}
+                    </>
+                )}
+            </ThemedText>
+        );
+    };
+
+    const ratingSummary = buildRatingSummary();
 
     const heroPhoto = coreData?.featured_photo_url;
 
@@ -560,6 +634,38 @@ export default function DishDetailScreen() {
                                 </View>
                             </View>
 
+                            <View
+                                style={[
+                                    styles.rateButtonContainer,
+                                    userRating &&
+                                    styles.rateButtonContainerRated,
+                                ]}
+                            >
+                                {ratings.isLoading ? (
+                                    <ButtonSkeleton />
+                                ) : (
+                                    <>
+                                        {ratingSummary && (
+                                            <View
+                                                style={
+                                                    styles.ratingSummaryContainer
+                                                }
+                                            >
+                                                {ratingSummary}
+                                            </View>
+                                        )}
+                                        <ThemedButton
+                                            onPress={handleRateDishPress}
+                                            style={styles.rateButton}
+                                        >
+                                            {userRating
+                                                ? 'Update Rating'
+                                                : 'Rate This Dish'}
+                                        </ThemedButton>
+                                    </>
+                                )}
+                            </View>
+
                             {menu.isLoading ? (
                                 <TagsSkeleton />
                             ) : (
@@ -646,6 +752,7 @@ export default function DishDetailScreen() {
                                         </ThemedText>
                                         <PhotoGallery
                                             photos={[...menuData.photos]}
+                                            onReportPhoto={handleReportPhoto}
                                         />
                                     </>
                                 )
@@ -653,22 +760,15 @@ export default function DishDetailScreen() {
                         </View>
                     </View>
 
-                    <View style={styles.rateButtonContainer}>
-                        {ratings.isLoading ? (
-                            <ButtonSkeleton />
-                        ) : (
-                            <ThemedButton
-                                onPress={handleRateDishPress}
-                                style={styles.rateButton}
-                            >
-                                {ratingsData?.userRatingData
-                                    ? 'Update Rating'
-                                    : 'Rate This Dish'}
-                            </ThemedButton>
-                        )}
-                    </View>
+
                 </View>
             </Animated.ScrollView>
+
+            <ReportPhotoModal
+                visible={reportRatingId !== null}
+                ratingId={reportRatingId}
+                onClose={() => setReportRatingId(null)}
+            />
         </ThemedView>
     );
 }
@@ -812,7 +912,7 @@ const createThemedStyles = (
             borderCurve: 'continuous',
             paddingVertical: theme.space.md,
             paddingHorizontal: theme.space.sm,
-            marginBottom: theme.space.lg,
+            marginBottom: theme.space.xxs,
             justifyContent: 'space-around',
             alignItems: 'center',
             borderWidth: 1,
@@ -827,13 +927,13 @@ const createThemedStyles = (
             flex: 1,
         },
         statValue: {
-            fontSize: theme.font.size.sm + 1,
+            fontSize: theme.font.size.lg,
             fontWeight: theme.font.weight.bold,
             color: theme.color.textPrimary,
             fontVariant: ['tabular-nums'] as any,
         },
         statLabel: {
-            fontSize: 9,
+            fontSize: 10,
             color: theme.color.textSecondary,
             textTransform: 'uppercase',
             marginTop: 2,
@@ -941,7 +1041,40 @@ const createThemedStyles = (
         },
         rateButtonContainer: {
             paddingHorizontal: theme.space.md,
-            marginTop: theme.space.md,
+            paddingVertical: theme.space.md,
+            marginVertical: theme.space.md,
+            borderRadius: theme.radius.lg,
+            borderCurve: 'continuous',
+        },
+        rateButtonContainerRated: {
+            borderWidth: 1,
+            borderColor:
+                theme.mode === 'dark'
+                    ? 'rgba(255,255,255,0.15)'
+                    : 'rgba(0,0,0,0.08)',
+            backgroundColor:
+                theme.mode === 'dark'
+                    ? 'rgba(255,255,255,0.03)'
+                    : 'rgba(0,0,0,0.01)',
+            boxShadow:
+                theme.mode === 'dark'
+                    ? '0px 0px 12px rgba(255,255,255,0.06)'
+                    : '0px 0px 12px rgba(0,0,0,0.04)',
+        },
+        ratingSummaryContainer: {
+            marginBottom: theme.space.sm,
+        },
+        ratingSummaryText: {
+            fontSize: theme.font.size.sm + 2,
+            color: theme.color.textSecondary,
+            lineHeight: theme.font.line.sm + 4,
+        },
+        ratingSummaryBold: {
+            fontSize: theme.font.size.sm + 2,
+            color: theme.color.textSecondary,
+            lineHeight: theme.font.line.sm + 4,
+            fontWeight: theme.font.weight.bold,
+            fontStyle: 'italic',
         },
         rateButton: {
             borderRadius: theme.radius.lg,

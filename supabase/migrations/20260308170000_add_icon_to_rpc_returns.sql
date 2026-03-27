@@ -18,6 +18,8 @@ CREATE OR REPLACE FUNCTION public.get_my_best_ever(p_user_id UUID DEFAULT NULL) 
         restaurant_id UUID,
         restaurant_name TEXT,
         city_name TEXT,
+        neighborhood_name TEXT,
+        variation_name TEXT, 
         sentiment TEXT,
         derived_score NUMERIC,
         photo_url TEXT,
@@ -37,6 +39,8 @@ SELECT DISTINCT ON (pr.dish_type_id) pr.dish_type_id,
     pr.restaurant_id,
     r.name AS restaurant_name,
     c.name AS city_name,
+    n.name AS neighborhood_name,
+    dtv.name AS variation_name,
     pr.sentiment,
     pr.derived_score,
     pr.photo_url,
@@ -45,6 +49,8 @@ FROM public.personal_ratings pr
     JOIN public.dish_types dt ON dt.id = pr.dish_type_id
     JOIN public.restaurants r ON r.id = pr.restaurant_id
     LEFT JOIN public.cities c ON c.id = r.city_id
+    LEFT JOIN public.neighborhoods n ON n.id = r.neighborhood_id
+    LEFT JOIN public.dish_type_variations dtv ON dtv.id = pr.variation_id
 WHERE pr.user_id = v_user_id
     AND pr.derived_score IS NOT NULL
 ORDER BY pr.dish_type_id,

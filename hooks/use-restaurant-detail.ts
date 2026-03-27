@@ -120,7 +120,21 @@ export function useRestaurantDetail(restaurantId: string | null) {
                 };
             }) as GroupedRestaurantDish[];
 
-            return { venue, dishes };
+            // Fetch photo → rating ID map for reporting
+            const { data: ratingsWithPhotos } = await supabase
+                .from('personal_ratings')
+                .select('id, photo_url')
+                .eq('restaurant_id', restaurantId)
+                .not('photo_url', 'is', null);
+
+            const photoRatingMap: Record<string, string> = {};
+            ratingsWithPhotos?.forEach((r: any) => {
+                if (r.photo_url) {
+                    photoRatingMap[r.photo_url] = r.id;
+                }
+            });
+
+            return { venue, dishes, photoRatingMap };
         },
         enabled: !!restaurantId,
         staleTime: 10 * 60 * 1000, // 10 minutes

@@ -13,7 +13,8 @@ export type DishWithRestaurant = GlobalDishScore & {
         user_id: string;
         sentiment: 'liked' | 'okay' | 'disliked';
         derived_score: number | null;
-        tags: (TasteTag & { count: number })[];
+        notes: string | null;
+        tags: { taste_tags: TasteTag }[];
     };
     menuData: {
         variations: string[];
@@ -70,13 +71,33 @@ export function useDishMenu(
     return useQuery({
         queryKey: ['dish-menu', dishId, restaurantId],
         queryFn: async () => {
-            if (!dishId || !restaurantId) return { variations: [], photos: [] };
+            if (!dishId || !restaurantId)
+                return { variations: [], photos: [], photoRatingMap: {} };
 
-            const { data: restaurantDishData } = await supabase
-                .from('restaurant_dishes')
-                .select(`*, variation:dish_type_variations(name, is_active)`)
-                .eq('dish_type_id', dishId)
-                .eq('restaurant_id', restaurantId);
+            const [{ data: restaurantDishData }, { data: ratingsWithPhotos }] =
+                await Promise.all([
+                    supabase
+                        .from('restaurant_dishes')
+                        .select(
+                            `*, variation:dish_type_variations(name, is_active)`
+                        )
+                        .eq('dish_type_id', dishId)
+                        .eq('restaurant_id', restaurantId),
+                    supabase
+                        .from('personal_ratings')
+                        .select('id, photo_url')
+                        .eq('dish_type_id', dishId)
+                        .eq('restaurant_id', restaurantId)
+                        .not('photo_url', 'is', null),
+                ]);
+
+            // Build photo URL → rating ID map for reporting
+            const photoRatingMap: Record<string, string> = {};
+            ratingsWithPhotos?.forEach((r: any) => {
+                if (r.photo_url) {
+                    photoRatingMap[r.photo_url] = r.id;
+                }
+            });
 
             return {
                 variations:
@@ -87,6 +108,7 @@ export function useDishMenu(
                 photos:
                     restaurantDishData?.flatMap((v: any) => v.photos.flat()) ??
                     [],
+                photoRatingMap,
             };
         },
         enabled: !!dishId && !!restaurantId,
@@ -109,7 +131,7 @@ export function useDishRatings(
             const { data: personalRatingData } = await supabase
                 .from('personal_ratings')
                 .select(
-                    `user_id, sentiment, derived_score, tags:personal_rating_tags(taste_tags(*))`
+                    `user_id, sentiment, derived_score, notes, tags:personal_rating_tags(taste_tags(*))`
                 )
                 .eq('dish_type_id', dishId)
                 .eq('restaurant_id', restaurantId);
@@ -143,7 +165,8 @@ export function useDishRatings(
                         user_id: string;
                         sentiment: 'liked' | 'okay' | 'disliked';
                         derived_score: number | null;
-                        tags: (TasteTag & { count: number })[];
+                        notes: string | null;
+                        tags: { taste_tags: TasteTag }[];
                     }
                     | undefined,
             };

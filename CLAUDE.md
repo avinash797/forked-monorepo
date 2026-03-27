@@ -134,6 +134,7 @@ Battle opponent data flows via `useRatingStore().battleState` (Zustand), not URL
 - Bottom sheets over modals
 - `_layout.tsx` = navigation only, no business logic
 - Always use theme tokens (`theme.color.*`, `theme.space.*`, `theme.font.*`)
+- Theme-aware styles: define a `createThemedStyles(theme)` function that returns `StyleSheet.create({...})`, then call `const styles = createThemedStyles(theme)` inside the component. This keeps all styles in one place and avoids scattered inline theme references.
 - Import alias: `@/*` maps to project root
 - PostGIS for all geospatial queries
 - `score-badge.tsx`: green ≥7.0 / yellow 4.0–6.9 / red <4.0

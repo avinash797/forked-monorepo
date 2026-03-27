@@ -9,6 +9,7 @@ import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
 import { usePhotoUpload } from '@/hooks/use-photo-upload';
 import { useCreateRating, useTasteTags } from '@/hooks/use-ratings';
+import { useStoreReview } from '@/hooks/use-store-review';
 import { useRatingStore } from '@/stores';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
@@ -36,6 +37,7 @@ export default function RatingScreen() {
 
     const { mutateAsync: createRating, isPending: isSubmitting } =
         useCreateRating();
+    const { maybeRequestReview } = useStoreReview();
     const {
         pickImage,
         takePhoto,
@@ -142,6 +144,7 @@ export default function RatingScreen() {
                 });
             } else {
                 resetRating();
+                maybeRequestReview();
                 router.dismissAll();
                 router.replace('/(protected)/(tabs)');
             }

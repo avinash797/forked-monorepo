@@ -1,4 +1,4 @@
-import DEFAULT_ACHIEVEMENT from '@/assets/images/default-achievement.png';
+import DEFAULT_ACHIEVEMENT from '@/assets/images/fork-logo/fork-gold.png';
 import { useTheme } from '@/contexts/theme-provider';
 import { useCharm } from '@/hooks/use-charms';
 import { Charm as CharmType } from '@/types/auth';

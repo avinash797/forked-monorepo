@@ -157,6 +157,7 @@ v_first_opponent JSONB := NULL;
 v_mid_idx INTEGER;
 v_opponent_rating RECORD;
 v_dish_type_placeholder_url TEXT;
+v_new_badges JSONB := '[]'::JSONB;
 BEGIN -- -------------------------------------------------------
 -- 1. Resolve initial Elo from sentiment
 -- -------------------------------------------------------
@@ -301,6 +302,8 @@ WHERE id = v_rating_id;
 PERFORM _update_profile_stats(v_user_id);
 -- Update leaderboard
 PERFORM _update_global_dish_score(p_restaurant_id, p_dish_type_id);
+-- Evaluate and award any newly earned badges
+v_new_badges := public.evaluate_badges(v_user_id);
 RETURN jsonb_build_object(
     'rating_id',
     v_rating_id,
@@ -315,7 +318,9 @@ RETURN jsonb_build_object(
     'elo_score',
     v_initial_elo,
     'derived_score',
-    ROUND(((v_initial_elo - 1000) / 1000.0) * 10.0, 1)
+    ROUND(((v_initial_elo - 1000) / 1000.0) * 10.0, 1),
+    'new_badges',
+    v_new_badges
 );
 END IF;
 -- -------------------------------------------------------
