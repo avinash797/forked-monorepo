@@ -11,6 +11,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   icon: "./assets/adaptive-icon.png",
   ios: {
     bundleIdentifier: "com.forked.forked",
+    appStoreUrl: "https://apps.apple.com/app/id6740587828",
     buildNumber: "1",
     supportsTablet: true,
     config: {
@@ -28,6 +29,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   android: {
+    playStoreUrl: "https://play.google.com/store/apps/details?id=com.forked.forked",
     adaptiveIcon: {
       backgroundColor: "#ffffff",
       foregroundImage: "./assets/adaptive-icon.png",
