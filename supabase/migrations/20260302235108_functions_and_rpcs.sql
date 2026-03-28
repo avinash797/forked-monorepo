@@ -1403,9 +1403,6 @@ FROM public.cities
 WHERE is_active = true
 ORDER BY coordinates::extensions.geometry <->_point
 LIMIT 1;
-IF _city_record IS NOT NULL
-AND st_distance(_city_record.coordinates, _point::geography) > 50000 THEN _city_record := NULL;
-END IF;
 END IF;
 IF _city_record IS NOT NULL THEN
 SELECT * INTO _neighborhood_record
