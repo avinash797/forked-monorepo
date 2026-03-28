@@ -5,7 +5,7 @@ import { useUserBadges } from '@/hooks/use-badges';
 import type { UserBadgeWithDefinition } from '@/types/badge.types';
 import { Image } from 'expo-image';
 import { useState } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { BounceIn, FadeInDown } from 'react-native-reanimated';
 
 interface BadgesSectionProps {
@@ -18,8 +18,8 @@ export function BadgesSection({ userId }: BadgesSectionProps) {
     const styles = createThemedStyles(theme);
     const [selectedBadge, setSelectedBadge] = useState<UserBadgeWithDefinition | null>(null);
 
-    const earnedBadges = badges?.filter((b) => b.earned_at !== null) ?? [];
-    const totalBadges = badges?.filter((b) => b.is_active).length ?? 0;
+    const allBadges = badges?.filter((b) => b.is_active) ?? [];
+    const earnedCount = allBadges.filter((b) => b.earned_at !== null).length;
 
     if (isLoading) {
         return (
@@ -37,7 +37,7 @@ export function BadgesSection({ userId }: BadgesSectionProps) {
         );
     }
 
-    if (earnedBadges.length === 0) {
+    if (allBadges.length === 0) {
         return (
             <Animated.View
                 entering={FadeInDown.delay(200).duration(400)}
@@ -48,7 +48,7 @@ export function BadgesSection({ userId }: BadgesSectionProps) {
                 </View>
                 <View style={styles.emptyContainer}>
                     <ThemedText style={styles.emptyText}>
-                        Keep rating and battling to earn badges!
+                        No badges available yet!
                     </ThemedText>
                 </View>
             </Animated.View>
@@ -61,39 +61,46 @@ export function BadgesSection({ userId }: BadgesSectionProps) {
     }: {
         item: UserBadgeWithDefinition;
         index: number;
-    }) => (
-        <Animated.View entering={FadeInDown.delay(index * 50).duration(300)}>
-            <Pressable
-                style={({ pressed }) => [
-                    styles.badgeItem,
-                    pressed && styles.badgeItemPressed,
-                ]}
-                onPress={() => setSelectedBadge(item)}
-            >
-                <ThemedView
-                    style={[
-                        styles.badgeImageContainer,
-                        item.is_featured && styles.badgeImageFeatured,
+    }) => {
+        const isEarned = item.earned_at !== null;
+        return (
+            <Animated.View key={item.id} entering={FadeInDown.delay(index * 50).duration(300)} style={styles.badgeWrapper}>
+                <Pressable
+                    style={({ pressed }) => [
+                        styles.badgeItem,
+                        pressed && styles.badgeItemPressed,
                     ]}
+                    onPress={() => setSelectedBadge(item)}
                 >
-                    {item.image_url ? (
-                        <Image
-                            source={{ uri: item.image_url }}
-                            style={styles.badgeImage}
-                            contentFit="contain"
-                        />
-                    ) : (
-                        <ThemedText style={styles.placeholderEmoji}>
-                            🏅
-                        </ThemedText>
-                    )}
-                </ThemedView>
-                <ThemedText style={styles.badgeName} numberOfLines={2}>
-                    {item.name}
-                </ThemedText>
-            </Pressable>
-        </Animated.View>
-    );
+                    <ThemedView
+                        style={[
+                            styles.badgeImageContainer,
+                            item.is_featured && isEarned && styles.badgeImageFeatured,
+                            !isEarned && styles.badgeImageUnearned,
+                        ]}
+                    >
+                        {item.image_url ? (
+                            <Image
+                                source={{ uri: item.image_url }}
+                                style={[
+                                    styles.badgeImage,
+                                    !isEarned && styles.unearnedImage,
+                                ]}
+                                contentFit="contain"
+                            />
+                        ) : (
+                            <ThemedText style={[styles.placeholderEmoji, !isEarned && styles.unearnedImage]}>
+                                🏅
+                            </ThemedText>
+                        )}
+                    </ThemedView>
+                    <ThemedText style={[styles.badgeName, !isEarned && styles.unearnedText]} numberOfLines={1}>
+                        {item.name}
+                    </ThemedText>
+                </Pressable>
+            </Animated.View>
+        );
+    };
 
     return (
         <Animated.View
@@ -103,17 +110,12 @@ export function BadgesSection({ userId }: BadgesSectionProps) {
             <View style={styles.header}>
                 <ThemedText style={styles.title}>Badges</ThemedText>
                 <ThemedText style={styles.badgeCount}>
-                    {earnedBadges.length} of {totalBadges} earned
+                    {earnedCount} of {allBadges.length} earned
                 </ThemedText>
             </View>
-            <FlatList
-                data={earnedBadges}
-                renderItem={renderBadge}
-                keyExtractor={(item) => item.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.listContent}
-            />
+            <View style={styles.listContent}>
+                {allBadges.map((item, index) => renderBadge({ item, index }))}
+            </View>
             <BadgeDetailModal
                 badge={selectedBadge}
                 onClose={() => setSelectedBadge(null)}
@@ -167,16 +169,27 @@ function BadgeDetailModal({
                         <ThemedText style={styles.modalBadgeName}>
                             {badge?.name}
                         </ThemedText>
+                        {badge?.is_featured && (
+                            <View style={styles.featuredTag}>
+                                <ThemedText style={styles.featuredTagText}>
+                                    Featured
+                                </ThemedText>
+                            </View>
+                        )}
                         <ThemedText style={styles.modalBadgeDescription}>
                             {badge?.description}
                         </ThemedText>
-                        {badge?.earned_at && (
+                        {badge?.earned_at ? (
                             <ThemedText style={styles.modalEarnedDate}>
                                 Earned{' '}
                                 {new Date(badge.earned_at).toLocaleDateString(
                                     undefined,
                                     { month: 'long', day: 'numeric', year: 'numeric' }
                                 )}
+                            </ThemedText>
+                        ) : (
+                            <ThemedText style={styles.modalUnearnedText}>
+                                Not yet earned
                             </ThemedText>
                         )}
                         <Pressable
@@ -220,25 +233,33 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             color: theme.color.textSecondary,
         },
         listContent: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
             paddingHorizontal: theme.space.md,
-            gap: theme.space.sm,
+            rowGap: theme.space.lg,
+        },
+        badgeWrapper: {
+            width: '25%',
         },
         badgeItem: {
             alignItems: 'center',
-            width: 80,
-            padding: theme.space.sm,
+            width: '100%',
+            paddingHorizontal: theme.space.xxs,
         },
         badgeItemPressed: {
             opacity: 0.7,
         },
         badgeImageContainer: {
-            width: 56,
-            height: 56,
-            borderRadius: 28,
+            width: 76,
+            height: 76,
+            borderRadius: '100%',
             backgroundColor: theme.color.surface,
             justifyContent: 'center',
             alignItems: 'center',
             marginBottom: theme.space.xs,
+        },
+        badgeImageUnearned: {
+            opacity: 0.35,
         },
         badgeImageFeatured: {
             borderWidth: 2,
@@ -250,8 +271,11 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             elevation: 4,
         },
         badgeImage: {
-            width: 40,
-            height: 40,
+            width: 60,
+            height: 60,
+        },
+        unearnedImage: {
+            opacity: 0.4,
         },
         placeholderEmoji: {
             fontSize: 24,
@@ -261,6 +285,9 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             color: theme.color.textSecondary,
             textAlign: 'center',
             fontWeight: theme.font.weight.medium,
+        },
+        unearnedText: {
+            opacity: 0.4,
         },
         loadingContainer: {
             paddingHorizontal: theme.space.md,
@@ -327,9 +354,27 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             lineHeight: theme.font.size.sm * 1.5,
             marginBottom: theme.space.md,
         },
+        featuredTag: {
+            backgroundColor: '#F5C842',
+            borderRadius: theme.radius.pill,
+            paddingVertical: theme.space.xxs,
+            paddingHorizontal: theme.space.md,
+            marginBottom: theme.space.sm,
+        },
+        featuredTagText: {
+            fontSize: theme.font.size.xs,
+            fontWeight: theme.font.weight.bold,
+            color: '#1a1a1a',
+        },
         modalEarnedDate: {
             fontSize: theme.font.size.xs,
             color: theme.color.textSecondary,
+            marginBottom: theme.space.xl,
+        },
+        modalUnearnedText: {
+            fontSize: theme.font.size.xs,
+            color: theme.color.textSecondary,
+            opacity: 0.6,
             marginBottom: theme.space.xl,
         },
         modalButton: {

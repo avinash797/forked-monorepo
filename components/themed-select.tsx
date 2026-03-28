@@ -8,6 +8,7 @@ import {
 import type { BottomSheetDefaultBackdropProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
+    Dimensions,
     Pressable,
     StyleSheet,
     TextInput,
@@ -18,6 +19,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from './themed-text';
 import { IconSymbol } from './ui/icon-symbol';
+
+type Theme = ReturnType<typeof useTheme>['theme'];
 
 export type SelectOption = {
     readonly label: string;
@@ -58,16 +61,34 @@ export function ThemedSelect({
     const bottomSheetRef = useRef<BottomSheetModal>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const { theme, colorScheme } = useTheme();
+    const styles = useMemo(() => createThemedStyles(theme), [theme]);
     const { bottom } = useSafeAreaInsets();
+    const screenHeight = Dimensions.get('window').height;
 
-    const backgroundColor =
-        colorScheme === 'light' ? lightColor : darkColor || theme.color.inputBg;
+    // Calculate snap point based on content height
+    // Each option row ~53px, header ~57px, handle ~24px, search ~60px
+    const OPTION_HEIGHT = 53;
+    const HEADER_HEIGHT = 57;
+    const HANDLE_HEIGHT = 24;
+    const SEARCH_HEIGHT = searchable ? 60 : 0;
+    const BOTTOM_PADDING = bottom * 3;
 
-    const textColor = theme.color.textPrimary;
-    const errorColor = theme.color.danger;
-    const mutedColor = theme.color.textSecondary;
-    const surfaceColor = theme.color.surface;
-    const borderColor = error ? errorColor : 'transparent';
+    const snapPoints = useMemo(() => {
+        const contentHeight =
+            HANDLE_HEIGHT +
+            HEADER_HEIGHT +
+            SEARCH_HEIGHT +
+            options.length * OPTION_HEIGHT +
+            BOTTOM_PADDING;
+        const maxHeight = screenHeight * 0.9;
+        const snappedHeight = Math.min(contentHeight, maxHeight);
+        const percentage = Math.round((snappedHeight / screenHeight) * 100);
+        return [`${percentage}%`];
+    }, [options.length, screenHeight, SEARCH_HEIGHT, BOTTOM_PADDING]);
+
+    const backgroundColor = theme.color.inputBg;
+
+    const borderColor = error ? theme.color.danger : theme.color.inputBorder;
 
     const selectedOption = options.find((opt) => opt.value === value);
     const displayText = selectedOption?.label || placeholder;
@@ -122,7 +143,7 @@ export function ThemedSelect({
                 style={({ pressed }) => [
                     styles.selectButton,
                     { backgroundColor, borderColor },
-                    pressed && { opacity: 0.7 },
+                    pressed && { opacity: theme.opacity.pressed },
                     style,
                 ]}
                 android_ripple={{ color: 'rgba(0, 0, 0, 0.1)' }}
@@ -130,18 +151,18 @@ export function ThemedSelect({
                 <ThemedText
                     style={[
                         styles.selectText,
-                        !selectedOption && { color: mutedColor },
+                        !selectedOption && { color: theme.color.textSecondary },
                     ]}
                 >
                     {displayText}
                 </ThemedText>
-                <IconSymbol name="chevron-down" size={20} color={mutedColor} />
+                <IconSymbol name="chevron-down" size={20} color={theme.color.textSecondary} />
             </Pressable>
             {error && (
                 <ThemedText
                     lightColor={lightLabelColor}
                     darkColor={darkLabelColor}
-                    style={[styles.error, { color: errorColor }]}
+                    style={[styles.error, { color: theme.color.danger }]}
                 >
                     {error}
                 </ThemedText>
@@ -149,12 +170,13 @@ export function ThemedSelect({
 
             <BottomSheetModal
                 ref={bottomSheetRef}
-                snapPoints={['70%', '90%']}
+                snapPoints={snapPoints}
+                enableDynamicSizing={false}
                 backdropComponent={renderBackdrop}
                 onDismiss={handleClose}
                 enablePanDownToClose
-                backgroundStyle={{ backgroundColor: surfaceColor }}
-                handleIndicatorStyle={{ backgroundColor: mutedColor }}
+                backgroundStyle={{ backgroundColor: theme.color.surface }}
+                handleIndicatorStyle={{ backgroundColor: theme.color.textSecondary }}
             >
                 <BottomSheetView style={styles.bottomSheetContent}>
                     <View style={styles.modalHeader}>
@@ -178,7 +200,7 @@ export function ThemedSelect({
                             <IconSymbol
                                 name="close"
                                 size={24}
-                                color={textColor}
+                                color={theme.color.textPrimary}
                             />
                         </Pressable>
                     </View>
@@ -189,12 +211,12 @@ export function ThemedSelect({
                                     styles.searchInput,
                                     {
                                         backgroundColor,
-                                        color: textColor,
-                                        borderColor: mutedColor,
+                                        color: theme.color.textPrimary,
+                                        borderColor: theme.color.inputBorder,
                                     },
                                 ]}
                                 placeholder={searchPlaceholder}
-                                placeholderTextColor={mutedColor}
+                                placeholderTextColor={theme.color.placeholder}
                                 value={searchQuery}
                                 onChangeText={setSearchQuery}
                                 autoFocus
@@ -210,7 +232,7 @@ export function ThemedSelect({
                                 <ThemedText
                                     style={[
                                         styles.emptyText,
-                                        { color: mutedColor },
+                                        { color: theme.color.textSecondary },
                                     ]}
                                 >
                                     No options found
@@ -225,7 +247,7 @@ export function ThemedSelect({
                                         option.value === value && {
                                             backgroundColor,
                                         },
-                                        pressed && { opacity: 0.7 },
+                                        pressed && { opacity: theme.opacity.pressed },
                                     ]}
                                     onPress={() => handleSelect(option.value)}
                                     android_ripple={{
@@ -239,7 +261,7 @@ export function ThemedSelect({
                                         <IconSymbol
                                             name="checkmark"
                                             size={20}
-                                            color={textColor}
+                                            color={theme.color.textPrimary}
                                         />
                                     )}
                                 </Pressable>
@@ -252,78 +274,74 @@ export function ThemedSelect({
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        marginBottom: 16,
-    },
-    label: {
-        fontSize: 14,
-        fontWeight: '600',
-        marginBottom: 8,
-    },
-    selectButton: {
-        height: 50,
-        borderRadius: 8,
-        paddingHorizontal: 16,
-        fontSize: 16,
-        borderWidth: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    selectText: {
-        fontSize: 16,
-    },
-    error: {
-        fontSize: 12,
-        marginTop: 4,
-    },
-    bottomSheetContent: {
-        flex: 1,
-    },
-    modalHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(0, 0, 0, 0.1)',
-    },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-    },
-    optionsList: {
-        maxHeight: 400,
-    },
-    option: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(0, 0, 0, 0.05)',
-    },
-    optionText: {
-        fontSize: 16,
-    },
-    searchContainer: {
-        padding: 16,
-        paddingTop: 8,
-        paddingBottom: 8,
-    },
-    searchInput: {
-        height: 44,
-        borderRadius: 8,
-        paddingHorizontal: 16,
-        fontSize: 16,
-        borderWidth: 1,
-    },
-    emptyState: {
-        padding: 32,
-        alignItems: 'center',
-    },
-    emptyText: {
-        fontSize: 14,
-    },
-});
+const createThemedStyles = (theme: Theme) =>
+    StyleSheet.create({
+        container: {
+            marginBottom: theme.space.md,
+        },
+        label: {
+            fontSize: theme.font.size.sm,
+            fontFamily: theme.font.family.semibold,
+            marginBottom: theme.space.xs,
+        },
+        selectButton: {
+            height: 50,
+            borderRadius: theme.radius.sm,
+            paddingHorizontal: theme.space.md,
+            borderWidth: theme.border.hairline,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+        },
+        selectText: {
+            fontSize: theme.font.size.md,
+        },
+        error: {
+            fontSize: theme.font.size.xs,
+            marginTop: theme.space.xxs,
+        },
+        bottomSheetContent: {},
+        modalHeader: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: theme.space.md,
+            borderBottomWidth: theme.border.hairline,
+            borderBottomColor: theme.color.divider,
+        },
+        modalTitle: {
+            fontSize: theme.font.size.lg,
+            fontFamily: theme.font.family.semibold,
+        },
+        optionsList: {},
+        option: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: theme.space.md,
+            borderBottomWidth: theme.border.hairline,
+            borderBottomColor: theme.color.divider,
+        },
+        optionText: {
+            fontSize: theme.font.size.md,
+        },
+        searchContainer: {
+            padding: theme.space.md,
+            paddingTop: theme.space.xs,
+            paddingBottom: theme.space.xs,
+        },
+        searchInput: {
+            height: 44,
+            borderRadius: theme.radius.sm,
+            paddingHorizontal: theme.space.md,
+            fontSize: theme.font.size.md,
+            borderWidth: theme.border.hairline,
+        },
+        emptyState: {
+            padding: theme.space.xxl,
+            alignItems: 'center',
+        },
+        emptyText: {
+            fontSize: theme.font.size.sm,
+        },
+    });

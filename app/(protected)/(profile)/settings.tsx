@@ -1,10 +1,13 @@
-import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
+import {
+    openBrowserAsync,
+    WebBrowserPresentationStyle,
+} from 'expo-web-browser';
 import { useState } from 'react';
 import {
     Alert,
@@ -128,7 +131,12 @@ export default function SettingsScreen() {
                         key={link.url}
                         icon={link.icon}
                         label={link.label}
-                        onPress={() => Linking.openURL(link.url)}
+                        onPress={() =>
+                            openBrowserAsync(link.url, {
+                                presentationStyle:
+                                    WebBrowserPresentationStyle.AUTOMATIC,
+                            })
+                        }
                         styles={styles}
                         theme={theme}
                     />
@@ -143,19 +151,21 @@ export default function SettingsScreen() {
                     styles={styles}
                     theme={theme}
                 />
+                <SettingsRow
+                    icon="log-out-outline"
+                    label="Logout"
+                    onPress={() =>
+                        handleLogout()
+                    }
+                    styles={styles}
+                    theme={theme}
+                />
 
             </View>
 
             <View style={styles.logoutSection}>
-                <ThemedButton
-                    onPress={handleLogout}
-                    loading={isLoggingOut}
-                    variant="secondary"
-                >
-                    Logout
-                </ThemedButton>
                 <View style={styles.versionRow}>
-                    <ThemedText style={styles.versionRowLabel}>App Version</ThemedText>
+                    <ThemedText style={styles.versionRowLabel}>Version</ThemedText>
                     <ThemedText style={styles.versionValue}>
                         {Constants.expoConfig?.version ?? 'Unknown'}
                     </ThemedText>
