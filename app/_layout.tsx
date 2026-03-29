@@ -3,8 +3,9 @@ import {
     ThemeProvider as NavigationThemeProvider,
     type Theme as NavigationTheme,
 } from '@react-navigation/native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { QueryClient } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { Stack, useNavigationContainerRef, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
@@ -17,6 +18,11 @@ import { ThemedView } from '@/components/themed-view';
 import { ThemeProvider, useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
 import { initAmplitude } from '@/lib/amplitude';
+import {
+    asyncStoragePersister,
+    PERSIST_MAX_AGE,
+    shouldDehydrateQuery,
+} from '@/lib/query-persister';
 
 if (__DEV__) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -28,7 +34,20 @@ function RootLayoutNav() {
     const { theme, isDark } = useTheme();
     const segments = useSegments();
     const router = useRouter();
+    const navigationRef = useNavigationContainerRef();
+    const [isNavigationReady, setIsNavigationReady] = useState(false);
     initAmplitude();
+
+    useEffect(() => {
+        const unsubscribe = navigationRef.addListener('state', () => {
+            setIsNavigationReady(true);
+        });
+        // If already ready (e.g. navigation state already exists)
+        if (navigationRef.isReady()) {
+            setIsNavigationReady(true);
+        }
+        return unsubscribe;
+    }, [navigationRef]);
 
     // Create React Navigation theme from our active theme
     const navigationTheme: NavigationTheme = useMemo(
@@ -66,18 +85,16 @@ function RootLayoutNav() {
     );
 
     useEffect(() => {
-        if (isLoading) return;
+        if (isLoading || !isNavigationReady) return;
 
         const inAuthGroup = segments[0] === '(auth)';
 
         if (!isAuthenticated && !inAuthGroup) {
-            // Redirect to onboarding if not authenticated
             router.replace('/(auth)');
         } else if (isAuthenticated && inAuthGroup) {
-            // Redirect to tabs if authenticated
             router.replace('/(protected)/(tabs)');
         }
-    }, [isAuthenticated, isLoading, segments]);
+    }, [isAuthenticated, isLoading, isNavigationReady, segments]);
 
     // Show loading screen while checking auth state
     if (isLoading) {
@@ -109,12 +126,14 @@ export default function RootLayout() {
                 defaultOptions: {
                     queries: {
                         staleTime: 1000 * 60 * 5, // 5 minutes
-                        gcTime: 1000 * 60 * 30, // 30 minutes (formerly cacheTime)
+                        gcTime: PERSIST_MAX_AGE, // 24 hours — must match persistence maxAge
                         retry: 2,
                         refetchOnWindowFocus: false,
+                        networkMode: 'offlineFirst',
                     },
                     mutations: {
                         retry: 1,
+                        networkMode: 'online',
                     },
                 },
             })
@@ -122,7 +141,16 @@ export default function RootLayout() {
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <QueryClientProvider client={queryClient}>
+            <PersistQueryClientProvider
+                client={queryClient}
+                persistOptions={{
+                    persister: asyncStoragePersister,
+                    maxAge: PERSIST_MAX_AGE,
+                    dehydrateOptions: {
+                        shouldDehydrateQuery,
+                    },
+                }}
+            >
                 <SafeAreaProvider>
                     <ThemeProvider>
                         <BottomSheetModalProvider>
@@ -131,7 +159,7 @@ export default function RootLayout() {
                         </BottomSheetModalProvider>
                     </ThemeProvider>
                 </SafeAreaProvider>
-            </QueryClientProvider>
+            </PersistQueryClientProvider>
         </GestureHandlerRootView>
     );
 }

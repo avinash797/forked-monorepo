@@ -1,12 +1,23 @@
 import { useTheme } from '@/contexts/theme-provider';
 import { HeaderBackButton } from '@react-navigation/elements';
 import { Stack, useRouter } from 'expo-router';
+import { Platform } from 'react-native';
 
 export default function RatingLayout() {
     const router = useRouter();
     const { theme } = useTheme();
     return (
-        <Stack screenOptions={{ headerLeft: () => <HeaderBackButton onPress={() => router.back()} tintColor={theme.color.textPrimary} /> }}>
+        <Stack screenOptions={{
+            headerLeft:
+                Platform.OS === 'ios'
+                    ? () => (
+                        <HeaderBackButton
+                            onPress={() => router.back()}
+                            tintColor={theme.color.textPrimary}
+                        />
+                    )
+                    : undefined,
+        }}>
             <Stack.Screen
                 name="index"
                 options={{

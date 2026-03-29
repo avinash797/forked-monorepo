@@ -363,7 +363,7 @@ export default function DishDetailScreen() {
                 {userRating.sentiment !== 'okay' ? bold(sentimentVerb) : 'thought'}
                 {` this `}
                 {bold(dishName)}
-                {userRating.sentiment === 'okay' && ' was '} {userRating.sentiment === 'okay' && bold('just okay')}
+                {userRating.sentiment === 'okay' && ' was '}{userRating.sentiment === 'okay' && bold('just okay')}
                 {formattedTags && (
                     <>
                         {', and described it as '}

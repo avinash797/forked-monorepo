@@ -86,7 +86,7 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="personal"
                 options={{
-                    title: 'Personal',
+                    title: 'Your Dishes',
                     tabBarIcon: ({ color, focused }) => (
                         <IconSymbol
                             size={24}

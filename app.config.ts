@@ -10,7 +10,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   userInterfaceStyle: "automatic",
   icon: "./assets/adaptive-icon.png",
   ios: {
-    bundleIdentifier: "com.forked.forked",
+    bundleIdentifier: "com.forked.prod",
     appStoreUrl: "https://apps.apple.com/app/id6740587828",
     buildNumber: "1",
     supportsTablet: true,
@@ -29,7 +29,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   android: {
-    playStoreUrl: "https://play.google.com/store/apps/details?id=com.forked.forked",
+    playStoreUrl: "https://play.google.com/store/apps/details?id=com.forked.prod",
     adaptiveIcon: {
       backgroundColor: "#ffffff",
       foregroundImage: "./assets/adaptive-icon.png",
@@ -42,7 +42,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     predictiveBackGestureEnabled: false,
     softwareKeyboardLayoutMode: "pan",
-    package: "com.forked.forked",
+    package: "com.forked.prod",
     versionCode: 1,
   },
   web: {
