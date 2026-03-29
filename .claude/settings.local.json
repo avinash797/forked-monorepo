@@ -30,7 +30,8 @@
       "mcp__XcodeBuildMCP__session_set_defaults",
       "mcp__XcodeBuildMCP__screenshot",
       "mcp__XcodeBuildMCP__snapshot_ui",
-      "Bash(for file:*)"
+      "Bash(for file:*)",
+      "Bash(xargs -I {} basename {})"
     ]
   },
   "enabledPlugins": {

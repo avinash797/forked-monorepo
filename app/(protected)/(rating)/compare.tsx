@@ -3,6 +3,7 @@ import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useProcessBattle, useSkipBattle } from '@/hooks/use-comparisons';
+import { useOnlineStatus } from '@/hooks/use-online-status';
 import { useStoreReview } from '@/hooks/use-store-review';
 import { useRatingStore } from '@/stores';
 import * as Haptics from 'expo-haptics';
@@ -42,6 +43,7 @@ export default function CompareScreen() {
         dishTypeId: string;
     }>();
 
+    const isOnline = useOnlineStatus();
     const [isProcessing, setIsProcessing] = useState(false);
 
     const { battleState, setBattleState, clearBattleState, resetRating } =
@@ -207,7 +209,7 @@ export default function CompareScreen() {
                             pressed && styles.cardPressed,
                         ]}
                         onPress={() => handleVote(ratingId)}
-                        disabled={isProcessing}
+                        disabled={isProcessing || !isOnline}
                     >
                         {params.yourPhoto ? (
                             <Image
@@ -259,7 +261,7 @@ export default function CompareScreen() {
                             pressed && styles.cardPressed,
                         ]}
                         onPress={() => handleVote(opponent.rating_id)}
-                        disabled={isProcessing}
+                        disabled={isProcessing || !isOnline}
                     >
                         {opponent.photo_url ? (
                             <Image
@@ -285,6 +287,24 @@ export default function CompareScreen() {
                     </Pressable>
                 </Animated.View>
             </View>
+
+            {/* Offline notice */}
+            {!isOnline && (
+                <Animated.View
+                    entering={FadeIn.duration(200)}
+                    exiting={FadeOut.duration(200)}
+                    style={styles.offlineNotice}
+                >
+                    <IconSymbol
+                        name="cloud-offline-outline"
+                        size={16}
+                        color={theme.color.warning}
+                    />
+                    <ThemedText style={styles.offlineText}>
+                        Battles require an internet connection
+                    </ThemedText>
+                </Animated.View>
+            )}
 
             {/* Processing Overlay */}
             {isProcessing && (
@@ -452,5 +472,18 @@ const createThemedStyles = (
             fontSize: theme.font.size.lg,
             fontWeight: '600',
             color: theme.color.textOnImage,
+        },
+        offlineNotice: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: theme.space.xs,
+            paddingVertical: theme.space.sm,
+            paddingHorizontal: theme.space.md,
+        },
+        offlineText: {
+            fontSize: theme.font.size.sm,
+            color: theme.color.warning,
+            fontWeight: theme.font.weight.medium,
         },
     });

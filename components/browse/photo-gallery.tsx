@@ -93,6 +93,7 @@ export function PhotoGallery({
                 visible={viewerIndex !== null}
                 onRequestClose={closeViewer}
                 animationType="fade"
+                swipeToCloseEnabled
                 FooterComponent={
                     onReportPhoto
                         ? ({ imageIndex }: { imageIndex: number }) => (

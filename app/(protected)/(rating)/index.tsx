@@ -5,6 +5,7 @@ import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { GooglePlaceSuggestion } from '@/hooks/use-address-search';
+import { useOnlineStatus } from '@/hooks/use-online-status';
 import { SearchResultItem, useVenueSearch } from '@/hooks/use-venue-search';
 import { Database } from '@/types/database.types';
 import { useRouter } from 'expo-router';
@@ -16,6 +17,7 @@ type Restaurant = Database['public']['Tables']['restaurants']['Row'];
 export default function VenueSearchScreen() {
     const router = useRouter();
     const { theme } = useTheme();
+    const isOnline = useOnlineStatus();
     const styles = createThemedStyles(theme);
 
     const {
@@ -129,6 +131,15 @@ export default function VenueSearchScreen() {
                 isLoading={isSearching || isSelecting}
             />
 
+            {!isOnline && (
+                <View style={styles.offlineBanner}>
+                    <IconSymbol name="cloud-offline-outline" size={16} color="#7A6B2E" />
+                    <ThemedText style={styles.offlineText} lightColor="#7A6B2E" darkColor="#7A6B2E">
+                        You're offline — showing saved results only
+                    </ThemedText>
+                </View>
+            )}
+
             {combinedResults.length > 0 && !searchQuery && (
                 <View style={styles.sectionHeader}>
                     <ThemedText style={styles.emptyHint}>
@@ -230,5 +241,19 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             fontSize: theme.font.size.sm,
             color: theme.color.textSecondary,
             marginTop: 2,
+        },
+        offlineBanner: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.space.xs,
+            paddingVertical: theme.space.xs,
+            paddingHorizontal: theme.space.sm,
+            marginTop: theme.space.sm,
+            backgroundColor: '#FFF8E1',
+            borderRadius: theme.radius.md,
+        },
+        offlineText: {
+            fontSize: theme.font.size.xs,
+            fontWeight: theme.font.weight.medium,
         },
     });

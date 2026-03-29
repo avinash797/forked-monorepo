@@ -9,6 +9,7 @@ import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
 import { usePhotoUpload } from '@/hooks/use-photo-upload';
 import { useCreateRating, useTasteTags } from '@/hooks/use-ratings';
+import { useOnlineStatus } from '@/hooks/use-online-status';
 import { useStoreReview } from '@/hooks/use-store-review';
 import { useRatingStore } from '@/stores';
 import { useRouter } from 'expo-router';
@@ -46,6 +47,7 @@ export default function RatingScreen() {
         isLoading: isUploading,
     } = usePhotoUpload();
 
+    const isOnline = useOnlineStatus();
     const { data: tasteTags } = useTasteTags(selectedDishType?.id || null);
 
     const styles = useMemo(() => createThemedStyles(theme), [theme]);
@@ -169,7 +171,8 @@ export default function RatingScreen() {
         }
     };
 
-    const canSubmit = sentiment !== null && !isSubmitting && !isUploading;
+    const canSubmit =
+        sentiment !== null && !isSubmitting && !isUploading && isOnline;
 
     return (
         <ScrollView style={styles.container} contentInsetAdjustmentBehavior="automatic">
@@ -275,6 +278,11 @@ export default function RatingScreen() {
                 >
                     {isUploading ? 'Uploading Photo...' : 'Submit Rating'}
                 </ThemedButton>
+                {!isOnline && (
+                    <ThemedText style={styles.offlineHint}>
+                        Rating requires an internet connection
+                    </ThemedText>
+                )}
             </ThemedView>
         </ScrollView>
     );
@@ -345,5 +353,11 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         submitButton: {
             marginTop: theme.space.xs,
             marginBottom: theme.space.md,
+        },
+        offlineHint: {
+            fontSize: theme.font.size.xs,
+            color: theme.color.warning,
+            textAlign: 'center',
+            marginTop: theme.space.xs,
         },
     });

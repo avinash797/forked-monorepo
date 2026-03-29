@@ -1,5 +1,6 @@
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
+import { useOnlineStatus } from '@/hooks/use-online-status';
 import { useLocationFilterStore } from '@/stores';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { ForkLogo } from '../fork-logo';
@@ -16,6 +17,7 @@ export function LocationHeader({
     onSearchPress,
 }: LocationHeaderProps) {
     const { theme } = useTheme();
+    const isOnline = useOnlineStatus();
     // Subscribe to the actual state values for reactivity
     const displayText = useLocationFilterStore((state) => {
         if (
@@ -78,6 +80,23 @@ export function LocationHeader({
                     isLoading={false}
                 />
             </View>
+
+            {!isOnline && (
+                <View style={styles.offlineBanner}>
+                    <IconSymbol
+                        name="cloud-offline-outline"
+                        size={16}
+                        color="#7A6B2E"
+                    />
+                    <ThemedText
+                        style={styles.offlineText}
+                        lightColor="#7A6B2E"
+                        darkColor="#7A6B2E"
+                    >
+                        You're offline — showing saved data
+                    </ThemedText>
+                </View>
+            )}
         </View>
     );
 }
@@ -113,5 +132,18 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         searchWrapper: {
             width: '100%',
+        },
+        offlineBanner: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.space.xs,
+            paddingVertical: theme.space.xs,
+            paddingHorizontal: theme.space.sm,
+            backgroundColor: '#FFF8E1',
+            borderRadius: theme.radius.md,
+        },
+        offlineText: {
+            fontSize: theme.font.size.xs,
+            fontWeight: theme.font.weight.medium,
         },
     });
