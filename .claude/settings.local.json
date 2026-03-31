@@ -31,7 +31,8 @@
       "mcp__XcodeBuildMCP__screenshot",
       "mcp__XcodeBuildMCP__snapshot_ui",
       "Bash(for file:*)",
-      "Bash(xargs -I {} basename {})"
+      "Bash(xargs -I {} basename {})",
+      "Bash(cat /Users/avi/workspace/forked-all/forked/app/\\\\\\(protected\\\\\\)/\\\\\\(tabs\\\\\\)/leaderboard.tsx)"
     ]
   },
   "enabledPlugins": {

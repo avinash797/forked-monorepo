@@ -426,13 +426,26 @@ export default function DishDetailScreen() {
                             borderRadius={6}
                             style={{ marginBottom: 16 }}
                         />
-                        <TagsSkeleton />
                         <SkeletonBlock
                             width="100%"
                             height={60}
                             borderRadius={12}
                             style={{ marginBottom: 16 }}
                         />
+                        <SkeletonBlock
+                            width="30%"
+                            height={18}
+                            borderRadius={6}
+                            style={{ marginBottom: 16 }}
+                        />
+                        <TagsSkeleton />
+                        <SkeletonBlock
+                            width="30%"
+                            height={18}
+                            borderRadius={6}
+                            style={{ marginBottom: 16 }}
+                        />
+                        <TagsSkeleton />
                         <PhotoGallerySkeleton />
                     </View>
                     <View style={styles.rateButtonContainer}>
@@ -453,7 +466,7 @@ export default function DishDetailScreen() {
                     icon="alert-circle-outline"
                     title="Unable to load dish"
                     message={
-                        core.error?.message ||
+                        (core.error instanceof Error ? core.error.message : core.error) ||
                         'This dish may no longer be available.'
                     }
                     actionLabel="Go Back"
@@ -984,6 +997,7 @@ const createThemedStyles = (
             flexDirection: 'row',
             flexWrap: 'wrap',
             gap: theme.space.xs,
+            marginTop: theme.space.xxs,
             marginBottom: theme.space.md,
         },
         tag: {

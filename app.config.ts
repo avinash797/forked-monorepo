@@ -98,6 +98,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-secure-store",
     "expo-font",
     "expo-web-browser",
+    [
+      "@sentry/react-native/expo",
+      {
+        organization: "forked-57",
+        project: "react-native",
+      },
+    ],
   ],
   experiments: {
     typedRoutes: true,

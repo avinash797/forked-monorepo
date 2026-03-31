@@ -328,17 +328,18 @@ export default function RestaurantDetailScreen() {
                     {/* Venue name – two large lines */}
                     <View style={styles.venueHeader}>
                         <SkeletonBlock
+                            width={80}
+                            height={25}
+                            borderRadius={20}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <SkeletonBlock
                             width="80%"
                             height={38}
                             borderRadius={6}
                             style={{ marginBottom: 8 }}
                         />
-                        <SkeletonBlock
-                            width="55%"
-                            height={38}
-                            borderRadius={6}
-                            style={{ marginBottom: 12 }}
-                        />
+
 
                         {/* Place types row  e.g. "Steak House • Fine Dining • Bar" */}
                         <View
@@ -384,31 +385,22 @@ export default function RestaurantDetailScreen() {
                             style={{ marginBottom: 8 }}
                         />
 
-                        {/* Dish type pill */}
-                        <SkeletonBlock
-                            width={68}
-                            height={26}
-                            borderRadius={6}
-                        />
+
                     </View>
 
                     {/* Action icon buttons (globe / phone / location) */}
                     <View style={[styles.infoBox, { gap: theme.space.xs }]}>
                         <SkeletonBlock
-                            width={40}
-                            height={40}
+                            width={80}
+                            height={35}
                             borderRadius={20}
                         />
                         <SkeletonBlock
-                            width={40}
-                            height={40}
+                            width={80}
+                            height={35}
                             borderRadius={20}
                         />
-                        <SkeletonBlock
-                            width={40}
-                            height={40}
-                            borderRadius={20}
-                        />
+
                     </View>
 
                     {/* Menu section */}
@@ -441,7 +433,7 @@ export default function RestaurantDetailScreen() {
                     icon="alert-circle-outline"
                     title="Unable to load venue"
                     message={
-                        error?.message ||
+                        (error instanceof Error ? error.message : error) ||
                         'This venue may no longer be available.'
                     }
                     actionLabel="Go Back"

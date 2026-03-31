@@ -403,7 +403,7 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             gap: 4,
         },
         restaurantName: {
-            fontSize: theme.font.size.lg,
+            fontSize: theme.font.size.lg + 2,
             fontFamily: 'GeistMono_800ExtraBold',
             color: theme.color.textOnImage,
         },
@@ -424,6 +424,7 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             fontSize: theme.font.size.md - 1,
             fontFamily: 'GeistMono_800ExtraBold',
             letterSpacing: -0.3,
+            fontWeight: 'bold',
         },
         // ─── Footer ───
         footer: {
