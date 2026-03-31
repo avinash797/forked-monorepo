@@ -72,9 +72,7 @@ export function SentimentPicker({ value, onChange, disabled }: SentimentPickerPr
                         >
                             {option.label}
                         </ThemedText>
-                        {isSelected && (
-                            <View style={[styles.checkDot, { backgroundColor: option.color }]} />
-                        )}
+
                     </Pressable>
                 );
             })}
@@ -85,25 +83,21 @@ export function SentimentPicker({ value, onChange, disabled }: SentimentPickerPr
 const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     StyleSheet.create({
         container: {
-            gap: theme.space.sm,
+            gap: theme.space.xs,
+            flexDirection: 'row',
         },
         option: {
-            flexDirection: 'row',
             alignItems: 'center',
-            paddingVertical: theme.space.md,
-            paddingHorizontal: theme.space.lg,
+            paddingVertical: theme.space.sm,
+            paddingHorizontal: theme.space.xs,
             borderRadius: theme.radius.md,
             borderCurve: 'continuous',
             borderWidth: theme.border.thick,
-            gap: theme.space.sm,
+            gap: theme.space.xs,
+            flex: 1,
         },
         label: {
             fontSize: theme.font.size.md + 1,
-            flex: 1,
         },
-        checkDot: {
-            width: 10,
-            height: 10,
-            borderRadius: 5,
-        },
+
     });
