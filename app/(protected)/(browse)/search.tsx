@@ -5,17 +5,21 @@ import { ThemedView } from '@/components/themed-view';
 import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
+import { GooglePlaceSuggestion } from '@/hooks/use-address-search';
 import {
     RestaurantDishSearchResult,
+    RestaurantSearchItem,
     SearchResults,
     useSearch,
 } from '@/hooks/use-search';
+import { supabase } from '@/lib/supabase';
 import { DishType } from '@/types/dishes';
-import { Restaurant } from '@/types/restaurant';
+import { LocationProperties } from '@/types/restaurant';
+import { Database } from '@/types/database.types';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type SearchTab = 'dishes' | 'restaurants';
@@ -35,6 +39,7 @@ export default function SearchScreen() {
         data: results,
         isFetching: isLoading,
         error: searchError,
+        selectAddress,
     } = useSearch(query);
     const error = searchError ? (searchError as Error).message : null;
 
@@ -58,11 +63,81 @@ export default function SearchScreen() {
         });
     };
 
-    const handleRestaurantPress = (restaurant: Restaurant) => {
+    const handleDbRestaurantPress = (
+        restaurant: Database['public']['Tables']['restaurants']['Row']
+    ) => {
         router.push({
             pathname: '/(protected)/(browse)/restaurant-detail',
-            params: { venueId: restaurant.id },
+            params: { venueId: restaurant.id, source: 'search' },
         });
+    };
+
+    const handleGoogleRestaurantPress = async (
+        suggestion: GooglePlaceSuggestion
+    ) => {
+        try {
+            const placeId = suggestion.placePrediction.placeId;
+            const addressData = await selectAddress(placeId);
+
+            if (!addressData) {
+                Alert.alert('Error', 'Could not retrieve restaurant details');
+                return;
+            }
+
+            const { data: result, error: rpcError } = await supabase.rpc(
+                'upsert_restaurant_from_google',
+                {
+                    p_google_place_id: addressData.google_place_id,
+                    p_name: addressData.name,
+                    p_address: addressData.full_address,
+                    p_city_name: addressData.city,
+                    p_state: addressData.state,
+                    p_country: addressData.country,
+                    p_neighborhood_name:
+                        addressData.neighborhood || undefined,
+                    p_lat: addressData.latitude,
+                    p_lng: addressData.longitude,
+                    p_phone: addressData.phone || undefined,
+                    p_website: addressData.website || undefined,
+                    p_types: addressData.types,
+                    p_location_properties: {
+                        name: addressData.name,
+                        full_address: addressData.full_address,
+                        street: addressData.street,
+                        city: addressData.city,
+                        state: addressData.state,
+                        zip: addressData.zip,
+                        country: addressData.country,
+                        neighborhood: addressData.neighborhood,
+                        lat: addressData.latitude,
+                        lng: addressData.longitude,
+                        phone: addressData.phone,
+                        website: addressData.website,
+                        types: addressData.types,
+                    },
+                }
+            );
+
+            if (rpcError) {
+                Alert.alert('Error', rpcError.message);
+                return;
+            }
+
+            if (!result || !result[0]) {
+                Alert.alert('Error', 'Failed to create restaurant');
+                return;
+            }
+
+            router.push({
+                pathname: '/(protected)/(browse)/restaurant-detail',
+                params: { venueId: result[0].id, source: 'search' },
+            });
+        } catch (err) {
+            Alert.alert(
+                'Error',
+                err instanceof Error ? err.message : 'Something went wrong'
+            );
+        }
     };
 
     const handleFoodItemPress = (item: RestaurantDishSearchResult) => {
@@ -124,42 +199,66 @@ export default function SearchScreen() {
     );
 
     const renderRestaurantRow = ({
-        item: restaurant,
+        item,
     }: {
-        item: Restaurant;
-    }) => (
-        <Pressable
-            onPress={() => handleRestaurantPress(restaurant)}
-            style={({ pressed }) => [
-                styles.resultRow,
-                pressed && { opacity: 0.7 },
-            ]}
-            android_ripple={{ color: 'rgba(0, 0, 0, 0.1)' }}
-        >
-            <View style={styles.iconContainer}>
-                <IconSymbol
-                    name="location-sharp"
-                    size={20}
-                    color={theme.color.accent}
-                />
-            </View>
-            <View style={styles.resultTextContainer}>
-                <ThemedText style={styles.resultTitle} numberOfLines={1}>
-                    {restaurant.name}
-                </ThemedText>
-                {restaurant.address && (
-                    <ThemedText style={styles.resultSubtitle} numberOfLines={1}>
-                        {restaurant.address}
+        item: RestaurantSearchItem;
+    }) => {
+        let name: string;
+        let subtitle: string | undefined;
+        let handlePress: () => void;
+
+        if (item.type === 'restaurant') {
+            const locationProperties =
+                item.data.location_properties as LocationProperties;
+            name = item.data.name;
+            subtitle = locationProperties
+                ? `${locationProperties.street?.split(' ').slice(1).join(' ')}, ${locationProperties.city}, ${locationProperties.state}`
+                : item.data.address || undefined;
+            handlePress = () => handleDbRestaurantPress(item.data);
+        } else {
+            const { structuredFormat } = item.data.placePrediction;
+            name = structuredFormat.mainText.text;
+            subtitle = structuredFormat.secondaryText?.text;
+            handlePress = () => handleGoogleRestaurantPress(item.data);
+        }
+
+        return (
+            <Pressable
+                onPress={handlePress}
+                style={({ pressed }) => [
+                    styles.resultRow,
+                    pressed && { opacity: 0.7 },
+                ]}
+                android_ripple={{ color: 'rgba(0, 0, 0, 0.1)' }}
+            >
+                <View style={styles.iconContainer}>
+                    <IconSymbol
+                        name="restaurant"
+                        size={20}
+                        color={theme.color.accent}
+                    />
+                </View>
+                <View style={styles.resultTextContainer}>
+                    <ThemedText style={styles.resultTitle} numberOfLines={1}>
+                        {name}
                     </ThemedText>
-                )}
-            </View>
-            <IconSymbol
-                name="chevron-forward"
-                size={18}
-                color={theme.color.textTertiary}
-            />
-        </Pressable>
-    );
+                    {subtitle && (
+                        <ThemedText
+                            style={styles.resultSubtitle}
+                            numberOfLines={1}
+                        >
+                            {subtitle}
+                        </ThemedText>
+                    )}
+                </View>
+                <IconSymbol
+                    name="chevron-forward"
+                    size={18}
+                    color={theme.color.textTertiary}
+                />
+            </Pressable>
+        );
+    };
 
     const renderFoodItemRow = ({
         item,
@@ -299,7 +398,11 @@ export default function SearchScreen() {
         return (
             <FlatList
                 data={restaurants}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) =>
+                    item.type === 'restaurant'
+                        ? `db-${item.data.id}`
+                        : `google-${item.data.placePrediction.placeId}`
+                }
                 renderItem={renderRestaurantRow}
                 contentContainerStyle={styles.listContent}
                 keyboardShouldPersistTaps="handled"
@@ -381,7 +484,7 @@ export default function SearchScreen() {
                                             style={[
                                                 styles.tabBadgeText,
                                                 isActive &&
-                                                    styles.tabBadgeTextActive,
+                                                styles.tabBadgeTextActive,
                                             ]}
                                         >
                                             {tab.count}

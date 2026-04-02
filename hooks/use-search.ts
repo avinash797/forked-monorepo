@@ -1,8 +1,16 @@
+import {
+    GooglePlaceSuggestion,
+    usePlacesSearch,
+} from '@/hooks/use-address-search';
+import {
+    RestaurantWithDistance,
+    useSearchRestaurants,
+} from '@/hooks/use-restaurants';
 import { supabase } from '@/lib/supabase';
+import { useLocationStore } from '@/stores/location.store';
 import { DishType } from '@/types/dishes';
-import { Restaurant } from '@/types/restaurant';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 /** Shape returned by the search_restaurant_dishes RPC */
 export interface RestaurantDishSearchResult {
@@ -17,10 +25,14 @@ export interface RestaurantDishSearchResult {
     total_ratings: number;
 }
 
+export type RestaurantSearchItem =
+    | { type: 'restaurant'; data: RestaurantWithDistance }
+    | { type: 'google'; data: GooglePlaceSuggestion };
+
 /** Combined search results across all three categories */
 export interface SearchResults {
     dishTypes: DishType[];
-    restaurants: Restaurant[];
+    restaurants: RestaurantSearchItem[];
     restaurantDishes: RestaurantDishSearchResult[];
 }
 
@@ -45,11 +57,13 @@ function dedupeByRestaurant(
 
 /**
  * Hook to cross-search restaurants, dish types, and restaurant dishes
- * Uses Supabase RPC functions with pg_trgm fuzzy matching
+ * Uses Supabase RPC for dishes + Google Places for restaurants
  * Used in: Search screen
  */
 export function useSearch(query: string) {
     const [debouncedQuery, setDebouncedQuery] = useState(query);
+    const { currentLocation } = useLocationStore();
+    const location = currentLocation?.coords || null;
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -61,19 +75,62 @@ export function useSearch(query: string) {
         };
     }, [query]);
 
-    return useQuery({
-        queryKey: ['search', debouncedQuery],
-        queryFn: async (): Promise<SearchResults> => {
+    // Google Places search for restaurants (has internal 300ms debounce)
+    const {
+        suggestions: placeSuggestions,
+        setQuery: setPlacesQuery,
+        loading: isSearchingPlaces,
+        selectAddress,
+    } = usePlacesSearch({
+        proximity: location
+            ? { latitude: location.latitude, longitude: location.longitude }
+            : null,
+    });
+
+    // Sync query to Google Places search
+    useEffect(() => {
+        setPlacesQuery(query);
+    }, [query, setPlacesQuery]);
+
+    // DB restaurant search by name (debounced)
+    const { data: dbRestaurants = [], isFetching: isSearchingDbRestaurants } =
+        useSearchRestaurants(debouncedQuery);
+
+    // Combine DB + Google results with deduplication (DB first, then Google minus dupes)
+    const combinedRestaurants: RestaurantSearchItem[] = useMemo(() => {
+        const restaurants: RestaurantSearchItem[] = dbRestaurants.map((r) => ({
+            type: 'restaurant' as const,
+            data: r as RestaurantWithDistance,
+        }));
+
+        const dbGooglePlaceIds = new Set<string>();
+        for (const r of dbRestaurants) {
+            if (r.google_place_id) {
+                dbGooglePlaceIds.add(r.google_place_id);
+            }
+        }
+
+        const dedupedGoogle: RestaurantSearchItem[] = placeSuggestions
+            .filter((s) => !dbGooglePlaceIds.has(s.placePrediction.placeId))
+            .map((s) => ({
+                type: 'google' as const,
+                data: s,
+            }));
+
+        return [...restaurants, ...dedupedGoogle];
+    }, [dbRestaurants, placeSuggestions]);
+
+    // Supabase RPC search for dish types and restaurant dishes
+    const dishQuery = useQuery({
+        queryKey: ['search-dishes', debouncedQuery],
+        queryFn: async () => {
             if (debouncedQuery.length < 2) {
-                return EMPTY_RESULTS;
+                return { dishTypes: [] as DishType[], restaurantDishes: [] as RestaurantDishSearchResult[] };
             }
 
-            const [dishTypesResult, restaurantsResult, restaurantDishesResult] =
+            const [dishTypesResult, restaurantDishesResult] =
                 await Promise.all([
                     supabase.rpc('search_dish_types', {
-                        search_term: debouncedQuery,
-                    }),
-                    supabase.rpc('search_restaurants', {
                         search_term: debouncedQuery,
                     }),
                     supabase.rpc('search_restaurant_dishes', {
@@ -82,13 +139,11 @@ export function useSearch(query: string) {
                 ]);
 
             if (dishTypesResult.error) throw dishTypesResult.error;
-            if (restaurantsResult.error) throw restaurantsResult.error;
             if (restaurantDishesResult.error)
                 throw restaurantDishesResult.error;
 
             return {
                 dishTypes: (dishTypesResult.data ?? []) as DishType[],
-                restaurants: (restaurantsResult.data ?? []) as Restaurant[],
                 restaurantDishes: dedupeByRestaurant(
                     (restaurantDishesResult.data ?? []) as RestaurantDishSearchResult[]
                 ),
@@ -97,4 +152,25 @@ export function useSearch(query: string) {
         enabled: debouncedQuery.length >= 2,
         placeholderData: (previousData) => previousData,
     });
+
+    // Combine into a single shape that matches the original return type
+    const data: SearchResults | undefined = dishQuery.data
+        ? {
+              dishTypes: dishQuery.data.dishTypes,
+              restaurants: combinedRestaurants,
+              restaurantDishes: dishQuery.data.restaurantDishes,
+          }
+        : debouncedQuery.length >= 2
+          ? undefined
+          : { ...EMPTY_RESULTS, restaurants: combinedRestaurants };
+
+    return {
+        data,
+        isFetching:
+            dishQuery.isFetching ||
+            isSearchingPlaces ||
+            isSearchingDbRestaurants,
+        error: dishQuery.error,
+        selectAddress,
+    };
 }

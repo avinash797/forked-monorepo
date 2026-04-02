@@ -70,8 +70,7 @@ export function useVenueSearch() {
     // Idle: DB nearby + Google nearby (deduped), DB first
     // Searching: DB search + Google autocomplete (deduped), DB first
     const combinedResults: SearchResultItem[] = useMemo(() => {
-        // const dbResults = searchQuery ? searchResults : nearbyRestaurants;
-        const dbResults = [] as any;
+        const dbResults = searchQuery ? searchResults : nearbyRestaurants;
         const googleSuggestions = searchQuery
             ? addressSuggestions
             : nearbyGooglePlaces;

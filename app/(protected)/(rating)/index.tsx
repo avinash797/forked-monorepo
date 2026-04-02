@@ -8,6 +8,7 @@ import { GooglePlaceSuggestion } from '@/hooks/use-address-search';
 import { useOnlineStatus } from '@/hooks/use-online-status';
 import { SearchResultItem, useVenueSearch } from '@/hooks/use-venue-search';
 import { Database } from '@/types/database.types';
+import { LocationProperties } from '@/types/restaurant';
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
@@ -70,14 +71,15 @@ export default function VenueSearchScreen() {
             let distance: number | undefined;
 
             if (isRestaurant) {
+                const location_properties = item.data.location_properties as LocationProperties;
                 name = item.data.name;
-                address = item.data.address || undefined;
+                address = `${location_properties.street?.split(' ').slice(1).join(' ')}, ${location_properties.city}, ${location_properties.state}` || undefined;
                 handlePress = () => handleRestaurantSelect(item.data);
                 distance = item.data.distance_meters;
             } else {
                 const { structuredFormat } = item.data.placePrediction;
                 name = structuredFormat.mainText.text;
-                address = structuredFormat.secondaryText?.text;
+                address = structuredFormat.secondaryText?.text.split(',').slice(0, 3).join(',');
                 handlePress = () => handleAddressSelect(item.data);
             }
 

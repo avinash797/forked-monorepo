@@ -707,17 +707,7 @@ export default function RestaurantDetailScreen() {
                             }
                         />
 
-                        {dishes.length === 0 ? (
-                            <View style={styles.emptyDishes}>
-                                <EmptyState
-                                    icon="restaurant-outline"
-                                    title="No dishes yet"
-                                    message="Be the first to rate a dish here!"
-                                    actionLabel="Add a Dish"
-                                    onActionPress={handleAddDishPress}
-                                />
-                            </View>
-                        ) : (
+                        {dishes.length !== 0 && (
                             <View style={styles.dishesList}>
                                 {dishes.map((dish) => (
                                     <DishCardWithRating
@@ -997,6 +987,8 @@ const createThemedStyles = (
         },
         dishesSection: {
             marginTop: theme.space.xs,
+            width: '100%',
+            paddingHorizontal: theme.space.md,
         },
         dishesList: {
             paddingHorizontal: theme.space.md,
