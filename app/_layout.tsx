@@ -7,15 +7,16 @@ import * as Sentry from '@sentry/react-native';
 import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { Stack, useNavigationContainerRef, useRouter, useSegments } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { BadgeCelebrationModal } from '@/components/badges/badge-celebration-modal';
-import { ThemedView } from '@/components/themed-view';
+
 import { ThemeProvider, useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
 import { initAmplitude } from '@/lib/amplitude';
@@ -71,6 +72,8 @@ Sentry.init({
     profilesSampleRate: 0.2,
 });
 
+SplashScreen.preventAutoHideAsync();
+
 if (__DEV__) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('../reactotronConfig');
@@ -83,6 +86,7 @@ function RootLayoutNav() {
     const router = useRouter();
     const navigationRef = useNavigationContainerRef();
     const [isNavigationReady, setIsNavigationReady] = useState(false);
+    const hasNavigated = useRef(false);
     initAmplitude();
 
     // Identify user in Sentry for crash/error correlation
@@ -159,15 +163,18 @@ function RootLayoutNav() {
         } else if (isAuthenticated && inAuthGroup) {
             router.replace('/(protected)/(tabs)');
         }
+
+        // Auth resolved and correct route is active (or redirect queued).
+        // Hide splash after a short delay to let router.replace() commit.
+        if (!hasNavigated.current) {
+            hasNavigated.current = true;
+            setTimeout(() => SplashScreen.hideAsync(), 50);
+        }
     }, [isAuthenticated, isLoading, isNavigationReady, segments]);
 
-    // Show loading screen while checking auth state
+    // Keep native splash screen visible while auth state resolves
     if (isLoading) {
-        return (
-            <ThemedView style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={theme.color.accent} />
-            </ThemedView>
-        );
+        return null;
     }
 
     return (
@@ -230,11 +237,3 @@ function RootLayout() {
 }
 
 export default Sentry.wrap(RootLayout);
-
-const styles = StyleSheet.create({
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-});

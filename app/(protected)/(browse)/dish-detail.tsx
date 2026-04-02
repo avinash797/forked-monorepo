@@ -669,7 +669,6 @@ export default function DishDetailScreen() {
                                         )}
                                         <ThemedButton
                                             onPress={handleRateDishPress}
-                                            style={styles.rateButton}
                                         >
                                             {userRating
                                                 ? 'Update Rating'
@@ -1089,8 +1088,5 @@ const createThemedStyles = (
             lineHeight: theme.font.line.sm + 4,
             fontWeight: theme.font.weight.bold,
             fontStyle: 'italic',
-        },
-        rateButton: {
-            borderRadius: theme.radius.lg,
         },
     });

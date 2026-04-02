@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useRestaurantDetail } from '@/hooks/use-restaurant-detail';
+import { useRatingStore } from '@/stores';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -274,6 +275,13 @@ export default function RestaurantDetailScreen() {
     // Navigate to rating flow
     const handleAddDishPress = () => {
         router.push('/(protected)/(rating)');
+    };
+
+    // Navigate to dish selection with restaurant pre-selected
+    const handleRateHerePress = () => {
+        useRatingStore.getState().resetRating();
+        useRatingStore.getState().setSelectedRestaurant(venue!);
+        router.push('/(protected)/(rating)/dish-selection');
     };
 
     const handleAddressPress = () => {
@@ -678,6 +686,16 @@ export default function RestaurantDetailScreen() {
                         )}
                     </View>
 
+                    {/* Rate a Dish Button */}
+                    <View style={styles.rateHereContainer}>
+                        <ThemedButton
+                            variant="primary"
+                            onPress={handleRateHerePress}
+                        >
+                            Rate a Dish Here
+                        </ThemedButton>
+                    </View>
+
                     {/* Dishes Section */}
                     <View style={styles.dishesSection}>
                         <SectionHeader
@@ -971,6 +989,11 @@ const createThemedStyles = (
             flex: 1,
             fontSize: theme.font.size.sm,
             color: theme.color.textSecondary,
+        },
+        rateHereContainer: {
+            alignSelf: 'stretch',
+            paddingHorizontal: theme.space.md,
+            marginVertical: theme.space.sm,
         },
         dishesSection: {
             marginTop: theme.space.xs,
