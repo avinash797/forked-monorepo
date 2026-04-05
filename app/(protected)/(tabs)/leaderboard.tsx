@@ -1,10 +1,9 @@
 import { EmptyState } from '@/components/browse/empty-state';
 import DishTypePills from '@/components/Discover/dish-type-pills';
 import {
-    LeaderboardEntry,
-    LeaderboardRow,
-    LeaderboardRowSkeleton,
-} from '@/components/Discover/leaderboard-row';
+    GlobalLeaderboardRow,
+    GlobalLeaderboardRowSkeleton,
+} from '@/components/Discover/global-leaderboard-row';
 import { LeaderboardShareModal } from '@/components/share/leaderboard-share-modal';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -13,6 +12,7 @@ import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
 import { useCityDishTypes } from '@/hooks/use-dish-types';
 import { useGetLeaderboardByDishType, useLeaderboardDishTypeCounts } from '@/hooks/use-leaderboard';
+import type { LeaderboardEntry } from '@/types/rpc.types';
 import { useLocationFilterStore } from '@/stores';
 import { DishType } from '@/types/dishes';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -191,7 +191,7 @@ export default function LeaderboardScreen() {
             >
                 {(isCityDishTypesPending || isDishTypeCountsPending || (selectedDishType && isPending)) ? (
                     [0, 1, 2, 3, 4].map((i) => (
-                        <LeaderboardRowSkeleton key={i} />
+                        <GlobalLeaderboardRowSkeleton key={i} />
                     ))
                 ) : null}
 
@@ -216,10 +216,9 @@ export default function LeaderboardScreen() {
                         )}
                         key={`${item.restaurant_id}-${item.rank}`}
                     >
-                        <LeaderboardRow
+                        <GlobalLeaderboardRow
                             item={item}
                             onPress={() => handleRowPress(item)}
-                            variant="global"
                         />
                     </Animated.View>
                 ))}

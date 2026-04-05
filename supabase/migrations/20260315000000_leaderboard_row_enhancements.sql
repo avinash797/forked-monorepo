@@ -106,7 +106,9 @@ FROM (
                 'variation_name',
                 dtv.name,
                 'neighborhood_name',
-                n.name
+                n.name,
+                'city_name',
+                c.name
             ) AS row_data,
             ROW_NUMBER() OVER (
                 ORDER BY pr.elo_score DESC
@@ -115,6 +117,7 @@ FROM (
             JOIN restaurants r ON r.id = pr.restaurant_id
             LEFT JOIN public.dish_type_variations dtv ON dtv.id = pr.variation_id
             LEFT JOIN public.neighborhoods n ON n.id = r.neighborhood_id
+            LEFT JOIN public.cities c ON c.id = r.city_id
         WHERE pr.user_id = v_user_id
             AND pr.dish_type_id = p_dish_type_id
             AND pr.battle_status = 'completed'

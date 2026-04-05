@@ -88,6 +88,7 @@ export interface PersonalRankingEntry {
     rated_at: string;
     variation_name: string | null;
     neighborhood_name: string | null;
+    city_name: string | null;
 }
 
 // ── get_user_stats ──────────────────────────────────────────────────
