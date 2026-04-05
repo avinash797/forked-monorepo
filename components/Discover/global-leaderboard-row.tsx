@@ -13,6 +13,7 @@ import Animated, {
     withRepeat,
     withTiming,
 } from 'react-native-reanimated';
+import Svg, { Text as SvgText } from 'react-native-svg';
 
 interface GlobalLeaderboardRowProps {
     item: LeaderboardEntry;
@@ -28,8 +29,7 @@ type Medal = 'gold' | 'silver' | 'bronze';
 export function GlobalLeaderboardRow({ item, onPress }: GlobalLeaderboardRowProps) {
     const { theme } = useTheme();
     const medal = getMedal(item.rank);
-    const isHero = item.rank === 1;
-    const styles = createThemedStyles(theme, medal, isHero);
+    const styles = createThemedStyles(theme, medal);
 
     return (
         <Pressable
@@ -52,11 +52,38 @@ export function GlobalLeaderboardRow({ item, onPress }: GlobalLeaderboardRowProp
             )}
 
             <View style={styles.content}>
-                {item.rank !== 1 && (
-                    <View style={styles.rankContainer}>
-                        <ThemedText style={styles.rankText}>{item.rank}</ThemedText>
-                    </View>
-                )}
+                <View style={{ position: 'absolute', left: 0, top: 0, zIndex: 10 }}>
+                    <Svg width="40" height="70" >
+                        {/* Stroke layer */}
+                        <SvgText
+                            x="20"
+                            y="30%"
+                            textAnchor="middle"
+                            alignmentBaseline="central"
+                            stroke={theme.color.accent}
+                            strokeWidth="6"
+                            strokeLinejoin="round"
+                            fontSize={40}
+                            fontWeight="900"
+                        >
+                            {item.rank}
+                        </SvgText>
+                        {/* Fill layer */}
+                        <SvgText
+                            x="20"
+                            y="30%"
+                            textAnchor="middle"
+                            alignmentBaseline="central"
+                            fill={"#fff"}
+                            fontSize={40}
+                            fontWeight="900"
+                            strokeWidth={0}
+                        >
+                            {item.rank}
+                        </SvgText>
+                    </Svg>
+                </View>
+
 
                 <View style={styles.photoContainer}>
                     {item.featured_photo_url ? (
@@ -70,7 +97,7 @@ export function GlobalLeaderboardRow({ item, onPress }: GlobalLeaderboardRowProp
                         <View style={[styles.photo, styles.photoPlaceholder]}>
                             <IconSymbol
                                 name="image-outline"
-                                size={isHero ? 32 : 24}
+                                size={24}
                                 color={theme.color.textSecondary}
                             />
                         </View>
@@ -81,19 +108,26 @@ export function GlobalLeaderboardRow({ item, onPress }: GlobalLeaderboardRowProp
                     <ThemedText style={styles.restaurantName} numberOfLines={1}>
                         {item.restaurant_name}
                     </ThemedText>
+
                     <ThemedText style={styles.neighborhood} numberOfLines={1}>
+                        <IconSymbol name="pin" size={14} color={theme.color.textSecondary} />
                         {item.neighborhood_name ?? item.address?.split(',')[1]}
                     </ThemedText>
+
                     {(item.confidence_tier || item.total_ratings != null) && (
-                        <View style={styles.confidenceRow}>
-                            <ThemedText style={styles.ratingCount}>
-                                {item.total_ratings} ratings | Confidence: {item.confidence_tier}
+                        <View style={styles.personalMeta}>
+                            <ThemedText style={styles.metaText} numberOfLines={1}>
+                                {item.total_ratings} ratings
                             </ThemedText>
+                            <ThemedText style={styles.metaDot}>·</ThemedText>
+                            <ThemedText style={styles.metaText} numberOfLines={1}>
+                                Confidence: {item.confidence_tier}
+                            </ThemedText>
+                            <ScoreBadge score={item.bayesian_score ?? 0} style={styles.scoreBadge} />
                         </View>
                     )}
                 </View>
 
-                <ScoreBadge score={item.bayesian_score ?? 0} style={styles.scoreBadge} />
             </View>
         </Pressable>
     );
@@ -191,7 +225,6 @@ const skeletonStyles = StyleSheet.create({
 const createThemedStyles = (
     theme: ReturnType<typeof useTheme>['theme'],
     medal?: Medal,
-    isHero?: boolean
 ) =>
     StyleSheet.create({
         container: {
@@ -216,17 +249,16 @@ const createThemedStyles = (
         content: {
             flexDirection: 'row',
             alignItems: 'center',
-            paddingVertical: theme.space.md,
-            paddingHorizontal: theme.space.md,
             backgroundColor: theme.color.surface,
             borderRadius: theme.radius.lg,
             borderCurve: 'continuous',
             gap: theme.space.sm,
+            position: 'relative',
+            paddingLeft: theme.space.xs,
+            paddingVertical: theme.space.xs,
         },
-        rankContainer: {
-            alignItems: 'center',
-            justifyContent: 'center',
-            minWidth: 20,
+        photoContainer: {
+            zIndex: 1,
         },
         rankText: {
             fontSize: 18,
@@ -235,10 +267,9 @@ const createThemedStyles = (
             color: theme.color.textPrimary,
             fontVariant: ['tabular-nums'] as any,
         },
-        photoContainer: {},
         photo: {
-            width: isHero ? 96 : 68,
-            height: isHero ? 96 : 68,
+            width: 90,
+            height: 90,
             borderRadius: theme.radius.sm,
             borderCurve: 'continuous',
             backgroundColor: theme.color.surface2,
@@ -250,28 +281,33 @@ const createThemedStyles = (
         infoContainer: {
             flex: 1,
             justifyContent: 'center',
-            gap: 4,
+            paddingVertical: theme.space.xxs,
+            paddingRight: theme.space.xs,
         },
         restaurantName: {
-            fontSize: isHero ? theme.font.size.lg : theme.font.size.md + 1,
-            fontWeight: isHero ? '800' : '700',
+            fontSize: theme.font.size.md + 1,
+            fontWeight: '700',
             color: theme.color.textPrimary,
             letterSpacing: -0.3,
         },
         neighborhood: {
             fontSize: theme.font.size.sm,
-            color: theme.color.textSecondary,
+            color: theme.color.textTertiary,
             fontWeight: '500',
         },
-        confidenceRow: {
+        personalMeta: {
             flexDirection: 'row',
             alignItems: 'center',
-            gap: theme.space.xs,
+            gap: 4,
         },
-        ratingCount: {
-            fontSize: theme.font.size.xs,
+        metaText: {
+            fontSize: theme.font.size.sm - 1,
+            color: theme.color.textSecondary,
+            flexShrink: 1,
+        },
+        metaDot: {
+            fontSize: theme.font.size.sm - 1,
             color: theme.color.textTertiary,
-            fontVariant: ['tabular-nums'] as any,
         },
         scoreBadge: {
             marginLeft: 'auto',

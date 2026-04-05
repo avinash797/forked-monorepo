@@ -70,7 +70,7 @@ export function PersonalLeaderboardRow({ item, onPress }: PersonalLeaderboardRow
                             y="30%"
                             textAnchor="middle"
                             alignmentBaseline="central"
-                            stroke={theme.color.textPrimary}
+                            stroke={theme.color.accent}
                             strokeWidth="6"
                             strokeLinejoin="round"
                             fontSize={40}
@@ -84,7 +84,7 @@ export function PersonalLeaderboardRow({ item, onPress }: PersonalLeaderboardRow
                             y="30%"
                             textAnchor="middle"
                             alignmentBaseline="central"
-                            fill={theme.color.bg}
+                            fill={"#fff"}
                             fontSize={40}
                             fontWeight="900"
                             strokeWidth={0}

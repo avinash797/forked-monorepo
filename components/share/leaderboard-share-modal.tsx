@@ -23,6 +23,7 @@ interface ShareableLeaderboardEntry {
     restaurant_id: string;
     restaurant_name: string;
     neighborhood_name?: string | null;
+    city_name?: string | null;
     featured_photo_url?: string | null;
     photo_url?: string | null;
     bayesian_score?: number;
@@ -229,7 +230,7 @@ export function LeaderboardShareModal({
                                                 style={styles.neighborhoodText}
                                                 numberOfLines={1}
                                             >
-                                                {(entry.neighborhood_name ?? '').toUpperCase()}
+                                                <IconSymbol name="pin" size={12} color={'rgba(255,255,255,0.50)'} />{(entry.neighborhood_name && entry.city_name ? (entry.neighborhood_name + ', ' + entry.city_name) : entry.neighborhood_name ?? entry.city_name ?? '').toUpperCase()}
                                             </Text>
                                         </View>
 
@@ -414,10 +415,11 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             color: theme.color.textOnImage,
         },
         neighborhoodText: {
-            fontSize: 11,
+            fontSize: theme.font.size.sm,
             fontFamily: 'GeistMono_500Medium',
+            fontWeight: theme.font.weight.semibold,
             color: 'rgba(255,255,255,0.50)',
-            letterSpacing: 1.2,
+            letterSpacing: 1,
         },
         scorePill: {
             width: 48,
