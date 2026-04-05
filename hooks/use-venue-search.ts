@@ -9,6 +9,7 @@ import {
     useNearbyRestaurants,
     useSearchRestaurants,
 } from '@/hooks/use-restaurants';
+import { buildUpsertRestaurantParams } from '@/lib/restaurant-params';
 import { supabase } from '@/lib/supabase';
 import { useRatingStore } from '@/stores';
 import { useLocationStore } from '@/stores/location.store';
@@ -70,8 +71,7 @@ export function useVenueSearch() {
     // Idle: DB nearby + Google nearby (deduped), DB first
     // Searching: DB search + Google autocomplete (deduped), DB first
     const combinedResults: SearchResultItem[] = useMemo(() => {
-        // const dbResults = searchQuery ? searchResults : nearbyRestaurants;
-        const dbResults = [] as any;
+        const dbResults = searchQuery ? searchResults : nearbyRestaurants;
         const googleSuggestions = searchQuery
             ? addressSuggestions
             : nearbyGooglePlaces;
@@ -134,36 +134,7 @@ export function useVenueSearch() {
                 // Use RPC to atomically finding/creating City, Neighborhood and Restaurant
                 const { data: newRestaurant, error } = await supabase.rpc(
                     'upsert_restaurant_from_google',
-                    {
-                        p_google_place_id: addressData.google_place_id,
-                        p_name: addressData.name,
-                        p_address: addressData.full_address,
-                        p_city_name: addressData.city,
-                        p_state: addressData.state,
-                        p_country: addressData.country,
-                        p_neighborhood_name:
-                            addressData.neighborhood || undefined,
-                        p_lat: addressData.latitude,
-                        p_lng: addressData.longitude,
-                        p_phone: addressData.phone || undefined,
-                        p_website: addressData.website || undefined,
-                        p_types: addressData.types,
-                        p_location_properties: {
-                            name: addressData.name,
-                            full_address: addressData.full_address,
-                            street: addressData.street,
-                            city: addressData.city,
-                            state: addressData.state,
-                            zip: addressData.zip,
-                            country: addressData.country,
-                            neighborhood: addressData.neighborhood,
-                            lat: addressData.latitude,
-                            lng: addressData.longitude,
-                            phone: addressData.phone,
-                            website: addressData.website,
-                            types: addressData.types,
-                        },
-                    }
+                    buildUpsertRestaurantParams(addressData)
                 );
 
                 if (error) {

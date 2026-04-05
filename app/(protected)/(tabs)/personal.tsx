@@ -1,10 +1,9 @@
 import { EmptyState } from '@/components/browse/empty-state';
 import DishTypePills from '@/components/Discover/dish-type-pills';
 import {
-    LeaderboardEntry,
-    LeaderboardRow,
-    LeaderboardRowSkeleton,
-} from '@/components/Discover/leaderboard-row';
+    PersonalLeaderboardRow,
+    PersonalLeaderboardRowSkeleton,
+} from '@/components/Discover/personal-leaderboard-row';
 import { LeaderboardShareModal } from '@/components/share/leaderboard-share-modal';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -14,6 +13,7 @@ import { useDishTypes } from '@/hooks/use-dish-types';
 import { useMyDishRankings } from '@/hooks/use-ratings';
 import { useUserStats } from '@/hooks/use-user-stats';
 import { DishType } from '@/types/dishes';
+import type { PersonalRankingEntry } from '@/types/rpc.types';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
@@ -59,7 +59,7 @@ const personal = () => {
 
     const canShare = dishRankings.length > 0 && !!selectedDishType;
 
-    const handleRowPress = (item: LeaderboardEntry) => {
+    const handleRowPress = (item: PersonalRankingEntry) => {
         router.push({
             pathname: '/(protected)/(browse)/dish-detail',
             params: {
@@ -68,6 +68,7 @@ const personal = () => {
             },
         });
     };
+
 
     return (
         <View style={styles.container}>
@@ -86,7 +87,8 @@ const personal = () => {
                 <View style={styles.titleSection}>
                     <View style={styles.titleRow}>
                         <ThemedText style={styles.mainTitle}>
-                            Your Best {selectedDishType?.name || 'Dishes'}
+                            {`Your Best ${selectedDishType?.name || 'Dishes'}`}
+                            {/* {`Your Best ${selectedDishType?.name || 'Dishes'}`} */}
                         </ThemedText>
                         {canShare && (
                             <Pressable
@@ -126,25 +128,11 @@ const personal = () => {
             >
                 {(isDishTypesPending || isUserStatsPending || (selectedDishType && isDishRankingsPending)) ? (
                     [0, 1, 2, 3, 4].map((i) => (
-                        <LeaderboardRowSkeleton key={i} />
+                        <PersonalLeaderboardRowSkeleton key={i} />
                     ))
                 ) : null}
 
-                {selectedDishType && !isDishRankingsPending && dishRankings.length === 0 ? (
-                    <View style={styles.emptyContainer}>
-                        <EmptyState
-                            icon="restaurant-outline"
-                            title="No Rankings Yet"
-                            message={`You don't seem to have rated any ${selectedDishType.name} yet. Start by rating one!`}
-                            actionLabel="Rate a Dish"
-                            onActionPress={() =>
-                                router.push('/(protected)/(rating)')
-                            }
-                        />
-                    </View>
-                ) : null}
-
-                {!selectedDishType && !isDishRankingsPending && dishRankings.length === 0 ? (
+                {!selectedDishType && isDishRankingsPending && dishRankings.length === 0 ? (
                     <View style={styles.emptyContainer}>
                         <EmptyState
                             icon="restaurant-outline"
@@ -165,10 +153,9 @@ const personal = () => {
                         )}
                         key={`${item.restaurant_id}-${item.rank}`}
                     >
-                        <LeaderboardRow
+                        <PersonalLeaderboardRow
                             item={item}
                             onPress={() => handleRowPress(item)}
-                            variant="personal"
                         />
                     </Animated.View>
                 ))}
@@ -215,6 +202,9 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme'], insets:
             color: theme.color.textPrimary,
             letterSpacing: -0.5,
             lineHeight: theme.font.size.xxl + 6,
+            flex: 1,
+            flexGrow: 1,
+            flexWrap: 'wrap'
         },
         mainSubtitle: {
             fontSize: theme.font.size.lg,

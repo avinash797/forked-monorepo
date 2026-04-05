@@ -178,7 +178,7 @@ export function usePlacesSearch(options?: UseAddressSearchOptions) {
                             latitude: options.proximity.latitude,
                             longitude: options.proximity.longitude,
                         },
-                        radius: 5000, // 5km bias
+                        radius: 15000, // 15km bias
                     },
                 };
             }

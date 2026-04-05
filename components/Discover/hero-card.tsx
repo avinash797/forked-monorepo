@@ -13,6 +13,7 @@ import { trackEvent } from '@/lib/amplitude';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
+import { ForkLogo } from '../fork-logo';
 import { ThemedText } from '../themed-text';
 import { IconSymbol } from '../ui/icon-symbol';
 
@@ -171,11 +172,7 @@ export function HeroCardEmpty() {
                             pressed && styles.emptyCtaButtonPressed,
                         ]}
                     >
-                        <IconSymbol
-                            name="camera-outline"
-                            size={14}
-                            color={theme.color.bg}
-                        />
+                        <ForkLogo color={theme.color.bg} size={theme.font.size.md} />
                         <ThemedText style={styles.emptyCtaButtonText}>
                             Rate a Dish
                         </ThemedText>
@@ -375,12 +372,14 @@ const createStyles = (theme: any, windowWidth: number) =>
         emptyCtaButton: {
             flexDirection: 'row',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: theme.space.xs,
             backgroundColor: theme.color.accent,
             paddingHorizontal: theme.space.md,
             paddingVertical: theme.space.sm,
-            borderRadius: theme.radius.pill,
+            borderRadius: theme.radius.sm,
             alignSelf: 'flex-start',
+            width: '100%',
         },
         emptyCtaButtonPressed: {
             opacity: theme.opacity.pressed,

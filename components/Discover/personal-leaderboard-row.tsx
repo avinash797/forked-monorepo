@@ -1,7 +1,6 @@
-import { ScoreBadge } from '@/components/score-badge';
-import { ThemedText } from '@/components/themed-text';
 import { IconSymbol, IconSymbolName } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
+import type { PersonalRankingEntry } from '@/types/rpc.types';
 import { formatDistanceToNow } from 'date-fns';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,35 +12,17 @@ import Animated, {
     withRepeat,
     withTiming,
 } from 'react-native-reanimated';
+import Svg, { Text as SvgText } from 'react-native-svg';
+import { ScoreBadge } from '../score-badge';
+import { ThemedText } from '../themed-text';
 
-/**
- * Row display type that accepts both leaderboard and personal ranking data.
- * All fields beyond the shared core are optional so both RPC shapes work.
- */
-export type LeaderboardEntry = {
-    rank: number;
-    restaurant_id: string;
-    restaurant_name: string;
-    neighborhood_name?: string | null;
-    city_name?: string;
-    address?: string;
-    bayesian_score?: number;
-    confidence_tier?: string;
-    raw_weighted_avg?: number;
-    derived_score?: number;
-    total_ratings?: number;
-    featured_photo_url?: string | null;
-    photo_url?: string | null;
-    sentiment?: 'liked' | 'okay' | 'disliked';
-    variation_name?: string | null;
-    rated_at?: string;
-};
 
-interface LeaderboardRowProps {
-    item: LeaderboardEntry;
+interface PersonalLeaderboardRowProps {
+    item: PersonalRankingEntry;
     onPress: () => void;
-    variant?: 'global' | 'personal';
 }
+
+type Medal = 'gold' | 'silver' | 'bronze';
 
 const SENTIMENT_CONFIG: Record<string, { icon: IconSymbolName; color: string; label: string }> = {
     liked: { icon: 'heart', color: '#22c55e', label: 'Liked' },
@@ -50,13 +31,13 @@ const SENTIMENT_CONFIG: Record<string, { icon: IconSymbolName; color: string; la
 };
 
 /**
- * Leaderboard row with variant support for global vs personal views
+ * Row for the user's personal ranking — ranks by Elo-derived score
+ * and shows sentiment + when rated.
  */
-export function LeaderboardRow({ item, onPress, variant = 'global' }: LeaderboardRowProps) {
+export function PersonalLeaderboardRow({ item, onPress }: PersonalLeaderboardRowProps) {
     const { theme } = useTheme();
     const medal = getMedal(item.rank);
-    const isHero = item.rank === 1;
-    const styles = createThemedStyles(theme, medal, isHero);
+    const styles = createThemedStyles(theme, medal);
 
     const sentimentInfo = item.sentiment ? SENTIMENT_CONFIG[item.sentiment] : null;
 
@@ -69,7 +50,6 @@ export function LeaderboardRow({ item, onPress, variant = 'global' }: Leaderboar
             ]}
             android_ripple={{ color: 'rgba(0, 0, 0, 0.05)' }}
         >
-            {/* Medal Border for Top 3 */}
             {medal && (
                 <View style={styles.medalBorder}>
                     <LinearGradient
@@ -82,20 +62,43 @@ export function LeaderboardRow({ item, onPress, variant = 'global' }: Leaderboar
             )}
 
             <View style={styles.content}>
-                {/* Rank Badge */}
-                {item.rank !== 1 && <View style={styles.rankContainer}>
-                    <ThemedText style={styles.rankText}>
-                        {item.rank}
-                    </ThemedText>
-                </View>}
+                <View style={{ position: 'absolute', left: 0, top: 0, zIndex: 10 }}>
+                    <Svg width="40" height="70" >
+                        {/* Stroke layer */}
+                        <SvgText
+                            x="20"
+                            y="30%"
+                            textAnchor="middle"
+                            alignmentBaseline="central"
+                            stroke={theme.color.accent}
+                            strokeWidth="6"
+                            strokeLinejoin="round"
+                            fontSize={40}
+                            fontWeight="900"
+                        >
+                            {item.rank}
+                        </SvgText>
+                        {/* Fill layer */}
+                        <SvgText
+                            x="20"
+                            y="30%"
+                            textAnchor="middle"
+                            alignmentBaseline="central"
+                            fill={"#fff"}
+                            fontSize={40}
+                            fontWeight="900"
+                            strokeWidth={0}
+                        >
+                            {item.rank}
+                        </SvgText>
+                    </Svg>
+                </View>
 
-                {/* Photo */}
+
                 <View style={styles.photoContainer}>
-                    {item.featured_photo_url || item.photo_url ? (
+                    {item.photo_url ? (
                         <Image
-                            source={{
-                                uri: item.featured_photo_url ?? item.photo_url ?? undefined,
-                            }}
+                            source={{ uri: item.photo_url }}
                             style={styles.photo}
                             contentFit="cover"
                             transition={150}
@@ -104,70 +107,60 @@ export function LeaderboardRow({ item, onPress, variant = 'global' }: Leaderboar
                         <View style={[styles.photo, styles.photoPlaceholder]}>
                             <IconSymbol
                                 name="image-outline"
-                                size={isHero ? 32 : 24}
+                                size={24}
                                 color={theme.color.textSecondary}
                             />
                         </View>
                     )}
                 </View>
 
-                {/* Restaurant Info */}
                 <View style={styles.infoContainer}>
                     <ThemedText style={styles.restaurantName} numberOfLines={1}>
                         {item.restaurant_name}
                     </ThemedText>
 
-                    {variant === 'personal' && sentimentInfo ? (
-                        <>
-                            {item.variation_name && <ThemedText style={styles.neighborhood} numberOfLines={1}>
-                                {item.variation_name}
-                            </ThemedText>}
-                            <View style={[styles.personalMeta, { marginTop: 0 }]}>
-                                <IconSymbol
-                                    name={sentimentInfo.icon}
-                                    size={12}
-                                    color={sentimentInfo.color}
-                                />
-                                <ThemedText style={[styles.metaText, { color: sentimentInfo.color, fontWeight: '500', flexShrink: 0 }]} numberOfLines={1}>
-                                    {sentimentInfo.label}
-                                </ThemedText>
-                                {item.rated_at ? (
-                                    <>
-                                        <ThemedText style={styles.metaDot}>·</ThemedText>
-                                        <ThemedText style={[styles.metaText, { flexShrink: 0 }]} numberOfLines={1}>
-                                            {formatDistanceToNow(new Date(item.rated_at), { addSuffix: false })} ago
-                                        </ThemedText>
-                                    </>
-                                ) : null}
-                            </View>
-                        </>
-                    ) : (
-                        <>
-                            <ThemedText style={styles.neighborhood} numberOfLines={1}>
-                                {item.neighborhood_name ?? item.city_name ?? item.address?.split(',')[1]}
+                    {item.variation_name && (
+                        <ThemedText style={styles.variant} numberOfLines={1}>
+                            {item.variation_name}
+                        </ThemedText>
+                    )}
+                    <ThemedText style={styles.neighborhood} numberOfLines={1}>
+                        <IconSymbol name="pin" size={14} color={theme.color.textSecondary} />
+                        {item.neighborhood_name ? `${item.neighborhood_name}, ${item.city_name}` : item.city_name}
+                    </ThemedText>
+
+                    {sentimentInfo && (
+                        <View style={styles.personalMeta}>
+                            <IconSymbol
+                                name={sentimentInfo.icon}
+                                size={14}
+                                color={sentimentInfo.color}
+                            />
+                            <ThemedText
+                                style={[styles.metaText, { color: sentimentInfo.color, fontWeight: '600' }]}
+                                numberOfLines={1}
+                            >
+                                {sentimentInfo.label}
                             </ThemedText>
-                            {(item.confidence_tier || item.total_ratings != null) && (
-                                <View style={styles.confidenceRow}>
-                                    <ThemedText style={styles.ratingCount}>
-                                        {item.total_ratings} ratings | Confidence: {item.confidence_tier}
+                            {item.rated_at ? (
+                                <>
+                                    <ThemedText style={styles.metaDot}>·</ThemedText>
+                                    <ThemedText style={styles.metaText} numberOfLines={1}>
+                                        {formatDistanceToNow(new Date(item.rated_at), { addSuffix: true })}
                                     </ThemedText>
-                                </View>
-                            )}
-                        </>
+                                </>
+                            ) : null}
+                            <ScoreBadge score={item.derived_score ?? 0} style={styles.scoreBadge} />
+                        </View>
                     )}
                 </View>
 
-                {/* Score Badge */}
-                <ScoreBadge
-                    score={item.bayesian_score ?? item.derived_score ?? item.raw_weighted_avg ?? 0}
-                    style={styles.scoreBadge}
-                />
             </View>
         </Pressable>
     );
 }
 
-export function LeaderboardRowSkeleton() {
+export function PersonalLeaderboardRowSkeleton() {
     const { theme } = useTheme();
     const opacity = useSharedValue(1);
 
@@ -191,6 +184,30 @@ export function LeaderboardRowSkeleton() {
             </View>
         </Animated.View>
     );
+}
+
+function getMedal(rank: number): Medal | undefined {
+    if (rank === 1) return 'gold';
+    if (rank === 2) return 'silver';
+    if (rank === 3) return 'bronze';
+    return undefined;
+}
+
+function getMedalGradient(medal: Medal, theme: any): [string, string] {
+    const colors = {
+        gold: theme.color.gold ?? '#FFD700',
+        silver: theme.color.silver ?? '#C0C0C0',
+        bronze: theme.color.bronze ?? '#CD7F32',
+    };
+    return [colors[medal], adjustBrightness(colors[medal], 1.2)];
+}
+
+function adjustBrightness(color: string, factor: number): string {
+    const hex = color?.replace('#', '') || '000000';
+    const r = Math.min(255, Math.round(parseInt(hex.substring(0, 2), 16) * factor));
+    const g = Math.min(255, Math.round(parseInt(hex.substring(2, 4), 16) * factor));
+    const b = Math.min(255, Math.round(parseInt(hex.substring(4, 6), 16) * factor));
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
 const skeletonStyles = StyleSheet.create({
@@ -232,46 +249,9 @@ const skeletonStyles = StyleSheet.create({
     },
 });
 
-function getMedal(rank: number): 'gold' | 'silver' | 'bronze' | undefined {
-    if (rank === 1) return 'gold';
-    if (rank === 2) return 'silver';
-    if (rank === 3) return 'bronze';
-    return undefined;
-}
-
-function getMedalGradient(
-    medal: 'gold' | 'silver' | 'bronze',
-    theme: any
-): [string, string] {
-    const colors = {
-        gold: theme.color.gold ?? '#FFD700',
-        silver: theme.color.silver ?? '#C0C0C0',
-        bronze: theme.color.bronze ?? '#CD7F32',
-    };
-    return [colors[medal], adjustBrightness(colors[medal], 1.2)];
-}
-
-function adjustBrightness(color: string, factor: number): string {
-    const hex = color?.replace('#', '') || '000000';
-    const r = Math.min(
-        255,
-        Math.round(parseInt(hex.substring(0, 2), 16) * factor)
-    );
-    const g = Math.min(
-        255,
-        Math.round(parseInt(hex.substring(2, 4), 16) * factor)
-    );
-    const b = Math.min(
-        255,
-        Math.round(parseInt(hex.substring(4, 6), 16) * factor)
-    );
-    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-}
-
 const createThemedStyles = (
     theme: ReturnType<typeof useTheme>['theme'],
-    medal?: 'gold' | 'silver' | 'bronze',
-    isHero?: boolean
+    medal?: Medal,
 ) =>
     StyleSheet.create({
         container: {
@@ -296,18 +276,16 @@ const createThemedStyles = (
         content: {
             flexDirection: 'row',
             alignItems: 'center',
-            padding: isHero ? theme.space.md : theme.space.sm,
             backgroundColor: theme.color.surface,
             borderRadius: theme.radius.lg,
             borderCurve: 'continuous',
+            gap: theme.space.sm,
+            position: 'relative',
+            paddingLeft: theme.space.xs,
+            paddingVertical: theme.space.xxs,
         },
-        rankContainer: {
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginRight: theme.space.sm,
-        },
-        crown: {
-            fontSize: 28,
+        photoContainer: {
+            zIndex: 1,
         },
         rankText: {
             fontSize: 18,
@@ -316,12 +294,9 @@ const createThemedStyles = (
             color: theme.color.textPrimary,
             fontVariant: ['tabular-nums'] as any,
         },
-        photoContainer: {
-            marginRight: theme.space.sm,
-        },
         photo: {
-            width: isHero ? 96 : 68,
-            height: isHero ? 96 : 68,
+            width: 90,
+            height: 90,
             borderRadius: theme.radius.sm,
             borderCurve: 'continuous',
             backgroundColor: theme.color.surface2,
@@ -333,47 +308,38 @@ const createThemedStyles = (
         infoContainer: {
             flex: 1,
             justifyContent: 'center',
-            marginRight: theme.space.xs,
+            paddingVertical: theme.space.xs,
+            paddingRight: theme.space.xs,
         },
         restaurantName: {
-            fontSize: isHero ? theme.font.size.lg : theme.font.size.md,
-            fontWeight: isHero ? '800' : '700',
+            fontSize: theme.font.size.md + 1,
+            fontWeight: '700',
             color: theme.color.textPrimary,
-            marginBottom: 2,
+            letterSpacing: -0.3,
+        },
+        variant: {
+            fontSize: theme.font.size.sm,
+            color: theme.color.textSecondary,
+            fontWeight: '500',
         },
         neighborhood: {
             fontSize: theme.font.size.sm,
-            color: theme.color.textSecondary,
-            marginBottom: 4,
-        },
-        confidenceRow: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: theme.space.xs,
+            color: theme.color.textTertiary,
+            fontWeight: '500',
         },
         personalMeta: {
             flexDirection: 'row',
             alignItems: 'center',
             gap: 4,
-            marginTop: 2,
         },
         metaText: {
-            fontSize: theme.font.size.xs,
+            fontSize: theme.font.size.sm - 1,
             color: theme.color.textSecondary,
             flexShrink: 1,
         },
         metaDot: {
-            fontSize: theme.font.size.xs,
+            fontSize: theme.font.size.sm - 1,
             color: theme.color.textTertiary,
-        },
-        flames: {
-            fontSize: 12,
-            letterSpacing: 1,
-        },
-        ratingCount: {
-            fontSize: theme.font.size.xs,
-            color: theme.color.textTertiary,
-            fontVariant: ['tabular-nums'] as any,
         },
         scoreBadge: {
             marginLeft: 'auto',

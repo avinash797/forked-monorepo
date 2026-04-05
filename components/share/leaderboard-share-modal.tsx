@@ -1,4 +1,3 @@
-import type { LeaderboardEntry } from '@/components/Discover/leaderboard-row';
 import { ForkLogo } from '@/components/fork-logo';
 import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -19,6 +18,18 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
 
+/** Minimal entry shape the share modal needs — satisfied by both global and personal leaderboard entries. */
+interface ShareableLeaderboardEntry {
+    restaurant_id: string;
+    restaurant_name: string;
+    neighborhood_name?: string | null;
+    city_name?: string | null;
+    featured_photo_url?: string | null;
+    photo_url?: string | null;
+    bayesian_score?: number;
+    derived_score?: number;
+}
+
 interface LeaderboardShareModalProps {
     visible: boolean;
     onClose: () => void;
@@ -29,7 +40,7 @@ interface LeaderboardShareModalProps {
     dishTypeEmoji?: string | null;
     cityName: string;
     username: string;
-    entries: LeaderboardEntry[];
+    entries: ShareableLeaderboardEntry[];
     /** When true, shows personal framing ("My Top 5") instead of city framing */
     isPersonal?: boolean;
 }
@@ -219,11 +230,7 @@ export function LeaderboardShareModal({
                                                 style={styles.neighborhoodText}
                                                 numberOfLines={1}
                                             >
-                                                {(
-                                                    entry.neighborhood_name ??
-                                                    entry.city_name ??
-                                                    ''
-                                                ).toUpperCase()}
+                                                <IconSymbol name="pin" size={12} color={'rgba(255,255,255,0.50)'} />{(entry.neighborhood_name && entry.city_name ? (entry.neighborhood_name + ', ' + entry.city_name) : entry.neighborhood_name ?? entry.city_name ?? '').toUpperCase()}
                                             </Text>
                                         </View>
 
@@ -408,10 +415,11 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             color: theme.color.textOnImage,
         },
         neighborhoodText: {
-            fontSize: 11,
+            fontSize: theme.font.size.sm,
             fontFamily: 'GeistMono_500Medium',
+            fontWeight: theme.font.weight.semibold,
             color: 'rgba(255,255,255,0.50)',
-            letterSpacing: 1.2,
+            letterSpacing: 1,
         },
         scorePill: {
             width: 48,

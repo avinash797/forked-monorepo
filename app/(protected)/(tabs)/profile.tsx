@@ -386,9 +386,9 @@ const createThemedStyles = (
             borderColor: theme.color.border,
         },
         avatarPlaceholder: {
-            width: 120,
-            height: 120,
-            borderRadius: 60,
+            width: 100,
+            height: 100,
+            borderRadius: 100,
             justifyContent: 'center',
             alignItems: 'center',
             borderWidth: 3,

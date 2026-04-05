@@ -103,7 +103,7 @@ export default function CompareScreen() {
                     resetRating();
                     maybeRequestReview();
                     router.dismissAll();
-                    router.replace('/(protected)/(tabs)');
+                    router.replace('/(protected)/(tabs)/personal');
                 } else {
                     setBattleState({
                         battleId: battleState.battleId,
