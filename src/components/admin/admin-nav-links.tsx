@@ -2,11 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ReportNotificationBadge } from "./report-notification-badge";
 
 type NavItem = {
   label: string;
   href: string;
   icon: React.ReactNode;
+};
+
+type AdminNavLinksProps = {
+  pendingReportCount: number;
 };
 
 const navItems: NavItem[] = [
@@ -131,7 +136,7 @@ const navItems: NavItem[] = [
   },
 ];
 
-export function AdminNavLinks() {
+export function AdminNavLinks({ pendingReportCount }: AdminNavLinksProps) {
   const pathname = usePathname();
 
   return (
@@ -141,6 +146,7 @@ export function AdminNavLinks() {
           item.href === "/admin"
             ? pathname === "/admin"
             : pathname.startsWith(item.href);
+        const isModeration = item.href === "/admin/moderation";
 
         return (
           <li key={item.href}>
@@ -154,6 +160,11 @@ export function AdminNavLinks() {
             >
               {item.icon}
               {item.label}
+              {isModeration && (
+                <ReportNotificationBadge
+                  initialCount={pendingReportCount}
+                />
+              )}
             </Link>
           </li>
         );

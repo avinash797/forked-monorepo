@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { getFlagCounts, getContentFlags } from "@/lib/admin/moderation-queries";
+import { getPendingReportCount } from "@/lib/admin/report-queries";
 import { FlagList } from "@/components/admin/moderation/flag-list";
 import { MetricCard } from "@/components/admin/metric-card";
+import { PendingReportsBanner } from "@/components/admin/pending-reports-banner";
 
 type SearchParams = Promise<{
   status?: string;
@@ -15,9 +17,10 @@ export default async function ModerationPage({
   const params = await searchParams;
   const status = params.status ?? "pending";
 
-  const [counts, { flags }] = await Promise.all([
+  const [counts, { flags }, pendingReportCount] = await Promise.all([
     getFlagCounts(),
     getContentFlags({ status }),
+    getPendingReportCount(),
   ]);
 
   const statuses = ["pending", "reviewed", "dismissed", "all"];
@@ -27,6 +30,12 @@ export default async function ModerationPage({
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-text-primary">Moderation</h1>
         <div className="flex gap-3">
+          <Link
+            href="/admin/moderation/reports"
+            className="px-4 py-2 rounded-sm text-sm font-medium bg-surface-2 text-text-primary hover:bg-surface-2/80 transition-colors"
+          >
+            Reports
+          </Link>
           <Link
             href="/admin/moderation/photos"
             className="px-4 py-2 rounded-sm text-sm font-medium bg-surface-2 text-text-primary hover:bg-surface-3 transition-colors"
@@ -42,7 +51,10 @@ export default async function ModerationPage({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <PendingReportsBanner count={pendingReportCount} />
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricCard title="Pending Reports" value={pendingReportCount} />
         <MetricCard title="Pending Flags" value={counts.pending} />
         <MetricCard title="Reviewed" value={counts.reviewed} />
         <MetricCard title="Dismissed" value={counts.dismissed} />

@@ -3,18 +3,24 @@ import {
   getRecentRatings,
   getRecentBlogPosts,
 } from "@/lib/admin/queries";
+import { getPendingReportCount } from "@/lib/admin/report-queries";
 import { MetricCard } from "@/components/admin/metric-card";
+import { PendingReportsBanner } from "@/components/admin/pending-reports-banner";
 
 export default async function AdminDashboard() {
-  const [stats, recentRatings, recentPosts] = await Promise.all([
-    getAdminDashboardStats(),
-    getRecentRatings(5),
-    getRecentBlogPosts(5),
-  ]);
+  const [stats, recentRatings, recentPosts, pendingReportCount] =
+    await Promise.all([
+      getAdminDashboardStats(),
+      getRecentRatings(5),
+      getRecentBlogPosts(5),
+      getPendingReportCount(),
+    ]);
 
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-bold text-text-primary">Dashboard</h1>
+
+      <PendingReportsBanner count={pendingReportCount} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard title="Total Users" value={stats.totalUsers} />
