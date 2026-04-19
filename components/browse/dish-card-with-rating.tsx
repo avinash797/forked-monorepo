@@ -93,8 +93,8 @@ export function DishCardWithRating({
                         {dish.variations.length > 1
                             ? `${dish.variations.length} variations`
                             : dish.variations[0]?.name
-                              ? `${dish.variations[0].name}`
-                              : ''}
+                                ? `${dish.variations[0].name}`
+                                : ''}
                     </ThemedText>
                 </View>
             </View>
@@ -120,9 +120,10 @@ const createThemedStyles = (
             width: '100%', // Allow container to control width
         },
         horizontalCard: {
-            marginRight: theme.space.sm,
             height: 200,
-            width: windowWidth - 0.12 * windowWidth,
+            width: '100%',
+            flex: 1,
+            flexGrow: 1,
         },
         cardContent: {
             flex: 1,

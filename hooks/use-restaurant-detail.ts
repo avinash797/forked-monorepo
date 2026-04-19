@@ -123,18 +123,20 @@ export function useRestaurantDetail(restaurantId: string | null) {
             // Fetch photo → rating ID map for reporting
             const { data: ratingsWithPhotos } = await supabase
                 .from('personal_ratings')
-                .select('id, photo_url')
+                .select('id, user_id, photo_url')
                 .eq('restaurant_id', restaurantId)
                 .not('photo_url', 'is', null);
 
             const photoRatingMap: Record<string, string> = {};
+            const photoUserMap: Record<string, string> = {};
             ratingsWithPhotos?.forEach((r: any) => {
                 if (r.photo_url) {
                     photoRatingMap[r.photo_url] = r.id;
+                    photoUserMap[r.photo_url] = r.user_id;
                 }
             });
 
-            return { venue, dishes, photoRatingMap };
+            return { venue, dishes, photoRatingMap, photoUserMap };
         },
         enabled: !!restaurantId,
         staleTime: 10 * 60 * 1000, // 10 minutes

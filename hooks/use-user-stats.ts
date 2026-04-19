@@ -20,7 +20,7 @@ export interface BestEverDish {
     city_name: string;
     neighborhood_name?: string | null;
     variation_name?: string | null;
-    photo_url: string;
+    photo_url: string | null;
     derived_score: number;
     sentiment: 'liked' | 'okay' | 'disliked';
     rated_at: string;
