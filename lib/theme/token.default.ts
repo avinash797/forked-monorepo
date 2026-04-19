@@ -4,117 +4,99 @@ export const defaultTheme = {
     mode: {
         dark: {
             color: {
-                // Brand - using existing orange (#ee6c2b)
-                accent: '#ee6c2b',
-                accentOn: '#FFFFFF',
-                accentSoft: '#2A1813',
+                accent: '#C0392B', // brick red (premium)
+                accentOn: '#0F0F10',
+                accentSoft: '#24110F',
 
-                // Backgrounds
-                bg: '#221610',
-                surface: '#342219',
-                surface2: '#3d2a1f',
-                overlay: 'rgba(0,0,0,0.60)',
+                bg: '#0F0F10',
+                surface: '#171719',
+                surface2: '#1E1E21',
+                overlay: 'rgba(0,0,0,0.62)',
 
-                // Text
-                textPrimary: '#ECEDEE',
-                textSecondary: '#c9a492',
-                textTertiary: '#9BA1A6',
+                textPrimary: '#F3F1EE',
+                textSecondary: '#B8B1A8',
+                textTertiary: '#8E877F',
                 textOnImage: '#FFFFFF',
 
-                // Borders / dividers
-                border: 'rgba(236,237,238,0.10)',
-                divider: 'rgba(236,237,238,0.08)',
+                border: 'rgba(255,255,255,0.10)',
+                divider: 'rgba(255,255,255,0.08)',
 
-                // Inputs
-                inputBg: '#482f23',
-                inputBorder: 'rgba(236,237,238,0.12)',
-                placeholder: '#9CA3AF',
+                inputBg: '#171719',
+                inputBorder: 'rgba(255,255,255,0.12)',
+                placeholder: '#8E877F',
 
-                // States
-                success: '#34D399',
-                warning: '#FBBF24',
-                danger: '#F87171',
+                success: '#2ECC71',
+                warning: '#E67E22',
+                danger: '#E74C3C',
                 error: '#ff0000',
-                info: '#60A5FA',
+                info: '#4AA3DF',
 
-                // Focus / highlight
-                focusRing: 'rgba(238,108,43,0.40)',
-                selection: 'rgba(238,108,43,0.18)',
+                focusRing: 'rgba(192,57,43,0.40)',
+                selection: 'rgba(192,57,43,0.18)',
 
                 // Medals / Boarders
                 gold: '#FBBF24',
                 silver: '#D1D5DB',
                 bronze: '#CD7F32',
 
-                // Badges
-                badgeBg: '#342219',
-                badgeText: '#ECEDEE',
+                badgeBg: '#1E1E21',
+                badgeText: '#F3F1EE',
             },
-
             rating: {
-                starFilled: '#FBBF24',
-                starEmpty: 'rgba(236,237,238,0.22)',
-                top1: '#FBBF24',
-                top2: '#D1D5DB',
-                top3: '#CD7F32',
+                starFilled: '#F4C430', // warm gold
+                starEmpty: 'rgba(255,255,255,0.22)',
+                top1: '#F4C430',
+                top2: '#C0C6CF',
+                top3: '#C9895B',
             },
         },
 
         light: {
             color: {
-                // Brand
-                accent: '#ee6c2b',
+                accent: '#B83227',
                 accentOn: '#FFFFFF',
-                accentSoft: '#FEE8DF',
+                accentSoft: '#FFE6E2',
 
-                // Backgrounds
-                bg: '#f8f6f6',
-                surface: '#ffffff',
-                surface2: '#F3F4F6',
+                bg: '#FFFFFF',
+                surface: '#FBF7F2', // warm off-white
+                surface2: '#FFFFFF',
                 overlay: 'rgba(0,0,0,0.45)',
 
-                // Text
-                textPrimary: '#221610',
-                textSecondary: '#4B5563',
-                textTertiary: '#687076',
+                textPrimary: '#1A1714',
+                textSecondary: '#4A443D',
+                textTertiary: '#6D665E',
                 textOnImage: '#FFFFFF',
 
-                // Borders / dividers
-                border: 'rgba(34,22,16,0.10)',
-                divider: 'rgba(34,22,16,0.08)',
+                border: 'rgba(26,23,20,0.10)',
+                divider: 'rgba(26,23,20,0.08)',
 
-                // Inputs
-                inputBg: '#ffffff',
-                inputBorder: '#E5E7EB',
-                placeholder: '#9CA3AF',
+                inputBg: '#FFFFFF',
+                inputBorder: 'rgba(26,23,20,0.14)',
+                placeholder: '#6D665E',
 
-                // States
-                success: '#10B981',
-                warning: '#F59E0B',
-                danger: '#EF4444',
+                success: '#1F8A4C',
+                warning: '#B35C00',
+                danger: '#C81E1E',
                 error: '#ff0000',
-                info: '#3B82F6',
+                info: '#1A73E8',
 
-                // Focus / highlight
-                focusRing: 'rgba(238,108,43,0.28)',
-                selection: 'rgba(238,108,43,0.14)',
+                focusRing: 'rgba(184,50,39,0.28)',
+                selection: 'rgba(184,50,39,0.14)',
 
                 // Medals / Boarders
                 gold: '#F59E0B',
                 silver: '#9CA3AF',
                 bronze: '#B45309',
 
-                // Badges
-                badgeBg: '#ffffff',
-                badgeText: '#221610',
+                badgeBg: '#FFFFFF',
+                badgeText: '#1A1714',
             },
-
             rating: {
-                starFilled: '#F59E0B',
-                starEmpty: 'rgba(34,22,16,0.22)',
-                top1: '#F59E0B',
-                top2: '#6B7280',
-                top3: '#CD7F32',
+                starFilled: '#B88700',
+                starEmpty: 'rgba(26,23,20,0.22)',
+                top1: '#B88700',
+                top2: '#7B8794',
+                top3: '#9A5E3A',
             },
         },
     },
@@ -137,10 +119,10 @@ export const defaultTheme = {
     },
 
     shadow: {
-        sm: { opacity: 0.12, radius: 6, y: 3 },
-        md: { opacity: 0.16, radius: 10, y: 6 },
-        lg: { opacity: 0.2, radius: 16, y: 10 },
+        sm: { opacity: 0.1, radius: 6, y: 3 },
+        md: { opacity: 0.14, radius: 10, y: 6 },
+        lg: { opacity: 0.18, radius: 16, y: 10 },
     },
 
-    opacity: { disabled: 0.45, pressed: 0.8, subtle: 0.1 },
+    opacity: { disabled: 0.45, pressed: 0.82, subtle: 0.1 },
 } as const;

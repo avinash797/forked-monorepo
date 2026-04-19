@@ -150,7 +150,7 @@ export function useTheme(): ThemeContextValue {
 }
 
 function isValidThemeName(name: string): name is ThemeName {
-    return ['default', 'genZ', 'foodies', 'critics'].includes(name);
+    return ['default'].includes(name);
 }
 
 function isValidThemePreference(pref: string): pref is ThemePreference {
