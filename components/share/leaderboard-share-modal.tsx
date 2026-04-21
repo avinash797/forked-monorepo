@@ -9,6 +9,7 @@ import * as Sharing from 'expo-sharing';
 import { useRef, useState } from 'react';
 import {
     ActivityIndicator,
+    Alert,
     Modal,
     Pressable,
     StyleSheet,
@@ -94,6 +95,7 @@ export function LeaderboardShareModal({
             }
         } catch {
             // user cancelled or error
+            Alert.alert('Error sharing', 'Could not share leaderboard');
         } finally {
             setIsSharing(false);
         }
@@ -235,7 +237,7 @@ export function LeaderboardShareModal({
                                         </View>
 
                                         {/* Score pill */}
-                                        <View
+                                        {/* <View
                                             style={[
                                                 styles.scorePill,
                                                 {
@@ -252,7 +254,7 @@ export function LeaderboardShareModal({
                                             >
                                                 {score.toFixed(1)}
                                             </Text>
-                                        </View>
+                                        </View> */}
                                     </View>
                                 );
                             })}
@@ -330,7 +332,7 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         },
         contentWrapper: {
             flex: 1,
-            paddingHorizontal: 28,
+            paddingHorizontal: theme.space.md,
         },
         flex1: {
             flex: 1,
