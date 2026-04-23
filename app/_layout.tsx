@@ -3,7 +3,6 @@ import {
     ThemeProvider as NavigationThemeProvider,
     type Theme as NavigationTheme,
 } from '@react-navigation/native';
-import * as Sentry from '@sentry/react-native';
 import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { Stack, useNavigationContainerRef, useRouter, useSegments } from 'expo-router';
@@ -26,52 +25,6 @@ import {
     shouldDehydrateQuery,
 } from '@/lib/query-persister';
 
-const navigationIntegration = Sentry.reactNavigationIntegration({
-    enableTimeToInitialDisplay: true,
-});
-
-Sentry.init({
-    dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
-    debug: false,
-    enabled: !__DEV__,
-    environment: __DEV__ ? 'development' : 'production',
-
-    // Performance: 20% of transactions — enough to spot issues, won't blow quota
-    tracesSampleRate: 0.2,
-    enableAutoPerformanceTracing: true,
-    enableAppStartTracking: true,
-    enableNativeFramesTracking: true,
-    enableStallTracking: true,
-
-    // Session replay: 10% of normal sessions, 100% of sessions with errors
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1.0,
-
-    // Attach a screenshot to every crash report
-    attachScreenshot: true,
-
-    // Strip PII before sending
-    beforeSend: (event) => {
-        if (event.user) {
-            delete event.user.email;
-            delete event.user.ip_address;
-        }
-        return event;
-    },
-
-    integrations: [
-        Sentry.reactNativeTracingIntegration(),
-        navigationIntegration,
-        Sentry.mobileReplayIntegration({
-            maskAllText: true,
-            maskAllImages: true,
-        }),
-    ],
-
-    // Profiling: 20% of traced transactions
-    profilesSampleRate: 0.2,
-});
-
 SplashScreen.preventAutoHideAsync();
 
 if (__DEV__) {
@@ -80,7 +33,7 @@ if (__DEV__) {
 }
 
 function RootLayoutNav() {
-    const { isAuthenticated, isLoading, user } = useAuth();
+    const { isAuthenticated, isLoading } = useAuth();
     const { theme, isDark } = useTheme();
     const segments = useSegments();
     const router = useRouter();
@@ -88,24 +41,6 @@ function RootLayoutNav() {
     const [isNavigationReady, setIsNavigationReady] = useState(false);
     const hasNavigated = useRef(false);
     initAmplitude();
-
-    // Identify user in Sentry for crash/error correlation
-    useEffect(() => {
-        if (isAuthenticated && user) {
-            Sentry.setUser({
-                id: user.id,
-                username: user.display_name,
-            });
-        } else {
-            Sentry.setUser(null);
-        }
-    }, [isAuthenticated, user]);
-
-    useEffect(() => {
-        if (navigationRef.current) {
-            navigationIntegration.registerNavigationContainer(navigationRef);
-        }
-    }, [navigationRef]);
 
     useEffect(() => {
         const unsubscribe = navigationRef.addListener('state', () => {
@@ -236,4 +171,4 @@ function RootLayout() {
     );
 }
 
-export default Sentry.wrap(RootLayout);
+export default RootLayout;
