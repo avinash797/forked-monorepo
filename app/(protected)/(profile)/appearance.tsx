@@ -2,13 +2,6 @@ import { ThemedSelect } from '@/components/themed-select';
 import { useTheme } from '@/contexts/theme-provider';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
-const THEME_OPTIONS = [
-    { label: 'Default (Warm Orange)', value: 'default' },
-    { label: 'Gen Z (Bold Red)', value: 'genZ' },
-    { label: 'Foodies (Premium)', value: 'foodies' },
-    { label: 'Critics (Editorial)', value: 'critics' },
-] as const;
-
 const COLOR_SCHEME_OPTIONS = [
     { label: 'System Default', value: 'system' },
     { label: 'Light', value: 'light' },
@@ -26,16 +19,6 @@ export default function AppearanceScreen() {
             contentContainerStyle={styles.scrollContent}
             contentInsetAdjustmentBehavior="automatic"
         >
-            <View style={styles.section}>
-                <ThemedSelect
-                    label="Theme"
-                    placeholder="Select a theme"
-                    value={themeName}
-                    options={THEME_OPTIONS}
-                    onValueChange={(value) => setThemeName(value as any)}
-                />
-            </View>
-
             <View style={styles.section}>
                 <ThemedSelect
                     label="Color Scheme"

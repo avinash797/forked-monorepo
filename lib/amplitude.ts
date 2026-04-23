@@ -10,7 +10,6 @@ export const initAmplitude = async () => {
         await amplitude.init(amplitudeApiKey, userId ?? undefined, {
             disableCookies: true,
         }).promise;
-        // await amplitude.add(new SessionReplayPlugin()).promise;
     } catch (error) {
         console.error('Error initializing Amplitude:', error);
     }

@@ -2,12 +2,14 @@ import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
+import { useBlockUser } from '@/hooks/use-block-user';
 import {
     type ReportReason,
     useReportContent,
 } from '@/hooks/use-report-content';
 import { useState } from 'react';
 import {
+    Alert,
     Modal,
     Pressable,
     StyleSheet,
@@ -26,12 +28,16 @@ interface ReportPhotoModalProps {
     visible: boolean;
     ratingId: string | null;
     onClose: () => void;
+    dishId?: string;
+    restaurantId?: string;
 }
 
 export function ReportPhotoModal({
     visible,
     ratingId,
     onClose,
+    dishId,
+    restaurantId,
 }: ReportPhotoModalProps) {
     const { theme } = useTheme();
     const styles = createThemedStyles(theme);
@@ -40,6 +46,7 @@ export function ReportPhotoModal({
     );
     const [description, setDescription] = useState('');
     const reportMutation = useReportContent();
+    const blockMutation = useBlockUser();
 
     const handleSubmit = () => {
         if (!ratingId || !selectedReason) return;
@@ -58,6 +65,25 @@ export function ReportPhotoModal({
         );
     };
 
+    const handleBlock = () => {
+        if (!ratingId) return;
+        Alert.alert(
+            'Block User?',
+            "You won't see this user's photos or ratings anymore.",
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Block',
+                    style: 'destructive',
+                    onPress: () => {
+                        handleClose();
+                        blockMutation.mutate({ ratingId, dishId, restaurantId });
+                    },
+                },
+            ]
+        );
+    };
+
     const handleClose = () => {
         setSelectedReason(null);
         setDescription('');
@@ -73,7 +99,7 @@ export function ReportPhotoModal({
             onRequestClose={handleClose}
         >
             <Pressable style={styles.overlay} onPress={handleClose}>
-                <Pressable style={styles.content} onPress={() => {}}>
+                <Pressable style={styles.content} onPress={() => { }}>
                     <View style={styles.header}>
                         <ThemedText type="subtitle" style={styles.title}>
                             Report Photo
@@ -140,6 +166,21 @@ export function ReportPhotoModal({
                         style={styles.textInput}
                     />
 
+                    <ThemedButton
+                        onPress={handleBlock}
+                        loading={blockMutation.isPending}
+                        variant="secondary"
+                        style={styles.blockButton}
+                        icon={
+                            <IconSymbol
+                                name="person-remove-outline"
+                                size={16}
+                                color={theme.color.error}
+                            />
+                        }
+                    >
+                        Block content from this user
+                    </ThemedButton>
                     <ThemedButton
                         onPress={handleSubmit}
                         disabled={!selectedReason}
@@ -236,5 +277,10 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             minHeight: 80,
             textAlignVertical: 'top',
             marginBottom: theme.space.md,
+        },
+
+        blockButton: {
+            color: theme.color.error,
+            marginBottom: theme.space.sm,
         },
     });

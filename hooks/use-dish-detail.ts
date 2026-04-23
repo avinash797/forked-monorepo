@@ -72,7 +72,7 @@ export function useDishMenu(
         queryKey: ['dish-menu', dishId, restaurantId],
         queryFn: async () => {
             if (!dishId || !restaurantId)
-                return { variations: [], photos: [], photoRatingMap: {} };
+                return { variations: [], photos: [], photoRatingMap: {} as Record<string, string>, photoUserMap: {} as Record<string, string> };
 
             const [{ data: restaurantDishData }, { data: ratingsWithPhotos }] =
                 await Promise.all([
@@ -85,17 +85,19 @@ export function useDishMenu(
                         .eq('restaurant_id', restaurantId),
                     supabase
                         .from('personal_ratings')
-                        .select('id, photo_url')
+                        .select('id, user_id, photo_url')
                         .eq('dish_type_id', dishId)
                         .eq('restaurant_id', restaurantId)
                         .not('photo_url', 'is', null),
                 ]);
 
-            // Build photo URL → rating ID map for reporting
+            // Build photo URL → rating ID and photo URL → user ID maps
             const photoRatingMap: Record<string, string> = {};
+            const photoUserMap: Record<string, string> = {};
             ratingsWithPhotos?.forEach((r: any) => {
                 if (r.photo_url) {
                     photoRatingMap[r.photo_url] = r.id;
+                    photoUserMap[r.photo_url] = r.user_id;
                 }
             });
 
@@ -106,9 +108,11 @@ export function useDishMenu(
                         .filter((v: any) => v !== null)
                         .map((v: any) => v.name) ?? [],
                 photos:
-                    restaurantDishData?.flatMap((v: any) => v.photos.flat()) ??
-                    [],
+                    ratingsWithPhotos
+                        ?.map((r: any) => r.photo_url)
+                        .filter(Boolean) ?? [],
                 photoRatingMap,
+                photoUserMap,
             };
         },
         enabled: !!dishId && !!restaurantId,

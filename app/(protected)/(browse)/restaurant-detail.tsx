@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
+import { useAuth } from '@/hooks/use-auth';
 import { useRestaurantDetail } from '@/hooks/use-restaurant-detail';
 import { useRatingStore } from '@/stores';
 import { Image } from 'expo-image';
@@ -127,10 +128,11 @@ export default function RestaurantDetailScreen() {
     }>();
     const { theme } = useTheme();
     const styles = createThemedStyles(theme, insets);
+    const { user } = useAuth();
 
     const { data, isLoading, error } = useRestaurantDetail(venueId);
-    const { venue, dishes = [], photoRatingMap = {} } = data || {};
-    const allPhotos = dishes.flatMap((dish) => dish.photos).filter((p): p is string => p != null);
+    const { venue, dishes = [], photoRatingMap = {}, photoUserMap = {} } = data || {};
+    const allPhotos = Object.keys(photoRatingMap);
 
     // Report photo state
     const [reportRatingId, setReportRatingId] = useState<string | null>(null);
@@ -138,6 +140,7 @@ export default function RestaurantDetailScreen() {
     const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
     const handleReportHeroPhoto = (photoUrl: string) => {
+        if (photoUserMap[photoUrl] === user?.id) return;
         const ratingId = photoRatingMap[photoUrl];
         if (ratingId) {
             setReportRatingId(ratingId);
@@ -148,6 +151,7 @@ export default function RestaurantDetailScreen() {
             );
         }
     };
+
     const scrollViewRef = useRef<ScrollView>(null);
 
     const dishTypesServed = new Set(dishes.map((dish) => dish.type.name));
@@ -761,6 +765,7 @@ export default function RestaurantDetailScreen() {
                 visible={reportRatingId !== null}
                 ratingId={reportRatingId}
                 onClose={() => setReportRatingId(null)}
+                restaurantId={venueId ?? undefined}
             />
         </ThemedView>
     );
@@ -988,11 +993,12 @@ const createThemedStyles = (
         dishesSection: {
             marginTop: theme.space.xs,
             width: '100%',
-            paddingHorizontal: theme.space.md,
+            paddingHorizontal: theme.space.xs,
         },
         dishesList: {
-            paddingHorizontal: theme.space.md,
+            paddingHorizontal: theme.space.xs,
             gap: theme.space.md,
+            alignItems: 'center',
         },
         emptyDishes: {
             paddingVertical: theme.space.xxl,

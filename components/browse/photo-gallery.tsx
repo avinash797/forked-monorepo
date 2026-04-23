@@ -89,6 +89,7 @@ export function PhotoGallery({
 
             <ImageViewing
                 images={images}
+                keyExtractor={(item, index) => index.toString() + item}
                 imageIndex={viewerIndex ?? 0}
                 visible={viewerIndex !== null}
                 onRequestClose={closeViewer}

@@ -25,7 +25,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
       NSLocationWhenInUseUsageDescription: "Allow Forked permission to use your location to show nearby food.",
-      NSLocationAlwaysUsageDescription: "Allow Forked permission to use your location to show nearby food."
     },
   },
   android: {
@@ -67,7 +66,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       "expo-location",
       {
-        locationAlwaysAndWhenInUsePermission:
+        locationWhenInUsePermission:
           "Allow Forked permission to use your location to show nearby food.",
       },
     ],
@@ -95,16 +94,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         launchMode: "most-recent",
       },
     ],
-    "expo-secure-store",
     "expo-font",
     "expo-web-browser",
-    [
-      "@sentry/react-native/expo",
-      {
-        organization: "forked-57",
-        project: "react-native",
-      },
-    ],
   ],
   experiments: {
     typedRoutes: true,

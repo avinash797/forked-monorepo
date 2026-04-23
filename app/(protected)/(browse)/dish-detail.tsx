@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
+import { useAuth } from '@/hooks/use-auth';
 import { useDishDetail } from '@/hooks/use-dish-detail';
 import { useRatingStore } from '@/stores';
 import { Restaurant } from '@/types/restaurant';
@@ -139,6 +140,7 @@ export default function DishDetailScreen() {
     }>();
     const { theme } = useTheme();
     const styles = createThemedStyles(theme, insets);
+    const { user } = useAuth();
 
     // Split hooks – core loads first, menu & ratings load independently
     const { core, menu, ratings } = useDishDetail(dishTypeId, restaurantId);
@@ -154,6 +156,7 @@ export default function DishDetailScreen() {
     const [reportRatingId, setReportRatingId] = useState<string | null>(null);
 
     const handleReportPhoto = (photoUrl: string) => {
+        if (menuData?.photoUserMap?.[photoUrl] === user?.id) return;
         const ratingId = menuData?.photoRatingMap?.[photoUrl];
         if (ratingId) {
             setReportRatingId(ratingId);
@@ -164,6 +167,7 @@ export default function DishDetailScreen() {
             );
         }
     };
+
 
     // Rating store for pre-populating when user wants to rate this dish
     const { setSelectedRestaurant, setSelectedDishType, resetRating } =
@@ -780,6 +784,8 @@ export default function DishDetailScreen() {
                 visible={reportRatingId !== null}
                 ratingId={reportRatingId}
                 onClose={() => setReportRatingId(null)}
+                dishId={dishTypeId ?? undefined}
+                restaurantId={restaurantId ?? undefined}
             />
         </ThemedView>
     );
