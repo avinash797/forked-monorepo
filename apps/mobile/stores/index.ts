@@ -1,0 +1,31 @@
+/**
+ * Zustand Stores
+ *
+ * Global state management using Zustand.
+ *
+ * NOTE: For authentication, use `useAuth()` from '@/hooks/use-auth' instead of useAuthStore.
+ * The auth hook uses React Query and requires no provider.
+ *
+ * Usage:
+ * ```tsx
+ * import { useRatingStore, useUIStore, usePreferencesStore } from '@/stores';
+ * import { useAuth } from '@/hooks/use-auth';
+ *
+ * function MyComponent() {
+ *   const { photoUri, setPhotoUri } = useRatingStore();
+ *   const { user, isAuthenticated, logout } = useAuth(); // Auth uses React Query hook
+ *   const { showToast } = useUIStore();
+ *   const { hasCompletedOnboarding } = usePreferencesStore();
+ *
+ *   return <View>...</View>;
+ * }
+ * ```
+ */
+
+export { useAuthStore } from './auth.store'; // Optional - auth uses useAuth() hook
+export { useBadgeStore } from './use-badge-store';
+export { useLocationStore } from './location.store';
+export { useLocationFilterStore } from './use-location-filter-store';
+export { usePreferencesStore } from './use-preferences-store';
+export { useRatingStore } from './use-rating-store';
+export { useUIStore } from './use-ui-store';

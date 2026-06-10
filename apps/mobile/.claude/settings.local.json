@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(cat:*)",
+      "Bash(npx expo install:*)",
+      "Bash(npx @context7/mcp-server:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm install:*)",
+      "Bash(dir:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm run lint)",
+      "mcp__plugin_supabase_supabase__list_projects",
+      "mcp__plugin_supabase_supabase__list_tables",
+      "mcp__plugin_supabase_supabase__execute_sql",
+      "mcp__plugin_supabase_supabase__apply_migration",
+      "Bash(find:*)",
+      "Bash(npx expo lint:*)",
+      "Bash(powershell -Command \"Get-Content ''C:\\\\Users\\\\Avi\\\\workspace\\\\Forked-all\\\\forked\\\\types\\\\database.types.ts'' -Encoding Byte | Select-Object -First 10 | ForEach-Object { ''{0:X2}'' -f $_}\")",
+      "Bash(powershell -Command:*)",
+      "mcp__plugin_supabase_supabase__search_docs",
+      "Bash(grep:*)",
+      "mcp__plugin_supabase_supabase__get_advisors",
+      "mcp__plugin_supabase_supabase__list_migrations",
+      "Bash(npx eslint:*)",
+      "mcp__XcodeBuildMCP__session_show_defaults",
+      "mcp__XcodeBuildMCP__discover_projs",
+      "mcp__XcodeBuildMCP__list_sims",
+      "mcp__XcodeBuildMCP__session_set_defaults",
+      "mcp__XcodeBuildMCP__screenshot",
+      "mcp__XcodeBuildMCP__snapshot_ui",
+      "Bash(for file:*)",
+      "Bash(xargs -I {} basename {})",
+      "Bash(cat /Users/avi/workspace/forked-all/forked/app/\\\\\\(protected\\\\\\)/\\\\\\(tabs\\\\\\)/leaderboard.tsx)",
+      "Bash(head:*)"
+    ]
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true
+  },
+  "outputStyle": "default"
+}
