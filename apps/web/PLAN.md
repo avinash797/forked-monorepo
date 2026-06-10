@@ -1,0 +1,270 @@
+# Forked Web — Implementation Plan
+
+## Status Legend
+
+- [x] Complete
+- [ ] Not started
+- [~] In progress
+
+---
+
+## Phase 1: Foundation + Landing Page + Leaderboards (COMPLETE)
+
+**Branch:** `p1/foundation-and-landing` → merged to `development`
+
+### Step 1: Scaffold Next.js Project [x]
+
+- [x] `create-next-app` with TypeScript, Tailwind v4, App Router, src directory
+- [x] Install dependencies: `@supabase/ssr`, `@supabase/supabase-js`, `@tanstack/react-query`, `next-sitemap`, `schema-dts`
+- [x] Configure `next.config.ts` with Supabase image remote patterns
+- [x] Create `.env.example` and `.env.local`
+- [x] Set up git branch strategy (`main` → `development` → `p1/foundation-and-landing`)
+- [x] Create `CLAUDE.md`
+
+### Step 2: Design System [x]
+
+- [x] Create `globals.css` with CSS custom properties from `token.default.ts` (light + dark mode)
+- [x] Map all tokens to Tailwind via `@theme inline`
+- [x] Create `src/lib/theme/tokens.ts` TypeScript reference
+
+### Step 3: Supabase Integration [x]
+
+- [x] Browser client (`src/lib/supabase/client.ts`) — cookie-based via `@supabase/ssr`
+- [x] Server client (`src/lib/supabase/server.ts`) — reads `next/headers` cookies
+- [x] Static client (`src/lib/supabase/static.ts`) — for `generateStaticParams` (no cookies)
+- [x] Copy `database.types.ts` from Supabase generated types
+
+### Step 4: Shared UI Components [x]
+
+- [x] `ForkLogo` — web SVG adaptation of `forked/components/fork-logo.tsx`
+- [x] `Button` — primary, secondary, ghost variants; sm/md/lg sizes
+- [x] `Card` — surface, surface2, dark variants
+- [x] `Badge` — default, accent, gold, silver, bronze variants
+- [x] `ScoreBadge` — color-coded score display (green/yellow/red gradient)
+- [x] `Skeleton` — animated loading placeholder
+- [x] `Navbar` — fixed top nav with logo, links, CTA
+- [x] `Footer` — 4-column layout with links, app store buttons, tagline
+
+### Step 5: Landing Page [x]
+
+- [x] **Hero** — animated dish type rotation, CTAs, app store badges, dark gradient bg
+- [x] **Problem** — three problem cards (Google reviews, critics, hidden gems)
+- [x] **How It Works** — 4-step flow (Eat, Snap, Compare, Rank)
+- [x] **Leaderboard Preview** — live top-5 gumbo data from Supabase via server component
+- [x] **Mission** — large typography statements on dark background
+- [x] **Stats** — live counters from Supabase aggregate queries
+- [x] **Download CTA** — app store badges with gradient background
+- [x] Root layout with `WebSite` + `Organization` JSON-LD
+- [x] SEO helpers (`src/lib/seo.ts`) for metadata and JSON-LD builders
+- [x] ISR revalidation every 10 minutes
+
+### Step 6: Public Leaderboard Pages [x]
+
+- [x] Hub page (`/leaderboard`) — lists active cities
+- [x] City page (`/leaderboard/[city]`) — overview of all dish types with top-5 previews
+- [x] Dish type page (`/leaderboard/[city]/[dishType]`) — full ranked leaderboard (25 entries)
+- [x] `LeaderboardTable` component with rank badges, photos, ScoreBadge, confidence bars
+- [x] `DishTypeTabs` component for dish type filtering
+- [x] `generateStaticParams` pre-renders all city x dishType combinations
+- [x] `ItemList` JSON-LD with `Restaurant` + `AggregateRating` structured data
+- [x] `FAQPage` JSON-LD on dish type pages
+- [x] LLM-friendly direct-answer text ("The best gumbo in New Orleans is at...")
+
+### Step 7: SEO Infrastructure [x]
+
+- [x] `next-sitemap.config.js` for auto-generated sitemap
+- [x] `robots.txt` — allow all, disallow `/admin/*`, `/auth/*`, `/api/*`
+- [x] `llms.txt` — AI crawler description file
+- [x] Dynamic OG image generation (`/api/og`) with fork logo and branding
+- [x] On-demand ISR webhook (`/api/revalidate`) with bearer token auth
+- [x] Fork logo PNGs copied to `public/images/fork-logo/`
+
+### Step 8: Marketing Pages [x]
+
+- [x] `(marketing)` route group with shared Navbar + Footer layout
+- [x] About page — product description
+- [x] How It Works page — 4-step explanation
+- [x] Cleaned up default scaffold files
+
+---
+
+## Phase 2: Blog System (COMPLETE)
+
+**Branch:** `p2/blog-system` → merged to `development`
+
+### Database Migration
+
+- [x] Create `blog_posts` table (title, slug, JSONB content, excerpt, published_at, author_id, category_id, featured_image, seo_title, seo_description, status)
+- [x] Create `blog_categories` table (name, slug, description, display_order)
+- [x] Create `blog_authors` table (name, slug, bio, avatar, social handles)
+- [x] Create `blog_tags` + `blog_post_tags` junction table
+- [x] RLS policies for public read (published-only for posts)
+- [x] Seed data: 1 author, 3 categories, 3 tags, 2 published posts
+
+### Blog Pages
+
+- [x] Blog listing page (`/blog`) with pagination and category filtering
+- [x] Blog post page (`/blog/[slug]`) with `Article` JSON-LD
+- [x] Category filtering via `BlogCategoryFilter` client component
+- [x] "Best X in Y" posts auto-enriched with live leaderboard data via `BlogLeaderboardEnrichment`
+- [x] `generateStaticParams` for all published post slugs
+- [x] ISR revalidation (10 minutes)
+- [x] TipTap JSONB renderer (headings, paragraphs, lists, blockquotes, code, images, marks)
+
+### Blog SEO
+
+- [x] `BlogPosting` JSON-LD on blog post pages
+- [x] `ItemList` JSON-LD on blog listing page
+- [x] Internal linking between leaderboard pages and blog posts (Related Articles)
+- [x] Open Graph images per blog post via existing `/api/og?title=...`
+- [x] Blog added to navbar, footer, and `llms.txt`
+
+---
+
+## Phase 3: Admin Dashboard (COMPLETE)
+
+**Branch:** `p3/admin-dashboard` → merged to `development`
+
+### Auth
+
+- [x] Admin login page (`/auth/login`)
+- [x] Auth callback route (`/auth/callback`)
+- [x] Middleware for protected `/admin/*` routes
+- [x] Add `role` column to `profiles` table with `is_admin()` SQL function
+- [x] Admin RLS policies for blog tables and storage bucket
+
+### Admin Layout
+
+- [x] Admin sidebar navigation with active state highlighting
+- [x] Dashboard overview page (`/admin`) with metric cards and recent activity
+
+### Blog Editor
+
+- [x] Rich text editor for blog posts (`/admin/blog`) using TipTap
+- [x] Blog post CRUD (create, edit, publish, unpublish, delete)
+- [x] Image upload to Supabase Storage (`blog-images` bucket)
+- [x] Draft/publish workflow with SEO fields
+
+### User Management
+
+- [x] User list with search and filters (`/admin/users`)
+- [x] User detail view with activity history
+- [x] Moderation actions (ban, unban, warn, role change) with audit logging
+
+### Moderation Queue
+
+- [x] Flagged content review (`/admin/moderation`) with resolve/dismiss
+- [x] Photo review grid (`/admin/moderation/photos`)
+- [x] Restaurant management tools (`/admin/moderation/restaurants`) with verify/close
+
+### Analytics
+
+- [x] Dashboard with key metrics (ratings, battles, users, cities)
+- [x] Activity line chart with date range selector (7d/14d/30d/90d)
+- [x] City and dish type breakdown bar charts
+- [x] Leaderboard health confidence distribution
+
+---
+
+## Phase 4: Supporting Content (COMPLETE)
+
+**Branch:** `p4/supporting-content` (create from `development`)
+
+- [x] Expanded About page with team, story, investors section
+- [x] Expanded How It Works with visual diagrams and animations
+- [x] Privacy Policy page
+- [x] Terms of Service page
+- [x] QR code generation for direct mobile download
+
+---
+
+## Phase 5: Performance & Polish (COMPLETE)
+
+**Branch:** `p5/performance-polish` → merged to `development`
+
+- [x] Error boundary components (global, app, marketing, leaderboard, admin)
+- [x] 404 custom page (branded with fork logo)
+- [x] 500 custom error page (global-error with inline styles)
+- [x] Loading states for all async components (10 loading.tsx skeletons)
+- [x] Image optimization audit (removed unoptimized flags, added sizes attributes)
+- [x] Core Web Vitals optimization (LCP h1 animation fix, CLS navbar min-height, theme-color)
+- [x] Analytics integration (Vercel Analytics + Speed Insights)
+- [x] Mobile responsive audit — added hamburger mobile nav menu
+- [x] Lighthouse audit — contrast fixes in footer and CTA section
+
+---
+
+## Phase 6: Admin CRUD Features (NOT STARTED)
+
+**Branch:** `p6/admin-crud-features` → merged to `development`
+
+Abstract: We want to allow admins to manage the data in the database. Create new dish types, add foreign relations to the cities, mark it city_known_dishe for specific cities, etc. Also allow adding new taste tags, and dish type variations, etc. Cities are being added automatically from Google Places API, so we don't need to add them manually. We can add a button in the city page to add a city to the database if it's not already there.
+
+- [ ] Allow Admins to add/edit/delete necessary rows in the database.
+
+---
+
+## Key Reference Files (Mobile App)
+
+These files in `../forked/` inform the web app's implementation:
+
+| File                                                           | Purpose                                                 |
+| -------------------------------------------------------------- | ------------------------------------------------------- |
+| `lib/theme/token.default.ts`                                   | All design tokens (colors, spacing, radius, typography) |
+| `types/database.types.ts`                                      | Auto-generated Supabase types                           |
+| `components/fork-logo.tsx`                                     | SVG paths for fork logo                                 |
+| `hooks/use-leaderboard.ts`                                     | Leaderboard data fetching pattern via RPC               |
+| `lib/supabase.ts`                                              | Supabase client config reference                        |
+| `supabase/migrations/20260117230624_v-0-1-0-init.sql`          | Full database schema                                    |
+| `supabase/migrations/20260117231311_initial-rpc-functions.sql` | RPC functions                                           |
+| `docs/forked_v0.1_spec.md`                                     | Product philosophy, mantra, core loop                   |
+
+---
+
+## Database Context
+
+**Supabase Project:** Forked (`bqxhinoabxmpsvzntrlq`)
+
+**Key RPC functions used by web:**
+
+- `get_leaderboard(p_city_id, p_dish_type_id, p_limit, p_neighborhood_id, p_offset)`
+- `get_leaderboard_with_tiebreakers(p_city_id, p_dish_type_id, p_limit)`
+
+**Key tables queried directly:**
+
+- `cities` (slug, name, state, is_active)
+- `dish_types` (slug, name, emoji, is_active, launch_order)
+- `personal_ratings` (count for stats)
+- `comparisons` (count for stats)
+
+**City slugs in DB:** `new-orleans-louisiana`, `washington-district-of-columbia`
+
+**Dish type slugs in DB:** `gumbo`, `po-boy`, `crawfish-touff-e`, `muffuletta`, `jambalaya`
+
+---
+
+## Ad Hoc Tasks
+
+- [x] **Add Vercel Analytics custom event tracking** — (Ad hoc: `@vercel/analytics` was already installed with page-view tracking via `<Analytics />`, but no custom events were wired up. Added `track()` calls across 8 client components: `hero_download_cta_click`, `hero_leaderboards_click`, `nav_link_click`, `nav_cta_click`, `nav_mobile_menu`, `elo_battle_vote`, `elo_battle_reset`, `faq_open`, `leaderboard_dish_tab`, `blog_category_filter`, `blog_page_navigate`, `admin_login_attempt/success/failed`. Also converted `dish-type-tabs` and `blog-pagination` from server to client components to enable onClick tracking.)
+- [x] **Fix stop hook infinite loop** — (Ad hoc: the `update-todo.sh` stop hook was firing on every response, creating an infinite loop. Added a `-mmin -5` check so the hook exits 0 immediately if PLAN.md was modified in the last 5 minutes.)
+- [x] **Waitlist mode — env-based dynamic rendering** — (Ad hoc: Add `NEXT_PUBLIC_WAITLIST_MODE` flag to hide leaderboards/blog/app CTAs and replace hero + CTA section with an email waitlist form; includes `user_waitlist` Supabase migration and server action)
+- [x] **Fix waitlist form bugs** — (Ad hoc: `database.types.ts` was regenerated with UTF-16 encoding on Windows causing TypeScript compilation failure; fixed by piping through Node to write UTF-8. Footer COMPANY column was accidentally removed and About/How It Works merged into EXPLORE; restored original 3-column structure)
+- [x] **Fix waitlist 403 for authenticated users** — (Ad hoc: RLS policy only allowed `anon` inserts; logged-in users (e.g. admin) got a 403 because their session JWT caused the request to run as `authenticated` role. Added `authenticated` insert policy to migration file and applied it to the live database)
+- [x] **Leaderboard preview always renders with mock data in waitlist mode** — (Ad hoc: `LeaderboardPreview` was conditionally omitted when `IS_WAITLIST_MODE` was true; refactored to always render using a `MOCK_ENTRIES` array of realistic New Orleans po'boy data when in waitlist mode, and fetch live Supabase data otherwise)
+- [x] **Theme toggler in footer using next-themes** — (Ad hoc: installed `next-themes`, defined `:root` as light mode tokens and `.dark` as dark mode tokens in `globals.css`, created `ThemeProvider` client wrapper with `attribute="class" defaultTheme="dark" enableSystem`, added `suppressHydrationWarning` to `<html>`, and added a `ThemeToggle` button in the footer bottom bar using `useTheme()` with mounted guard to prevent hydration mismatch)
+- [x] **Admin waitlist view under Users** — (Ad hoc: added a "Waitlisted" filter tab to `/admin/users` that queries `user_waitlist`, shows email/source/signup date, supports search and pagination, and provides per-row Remove action plus Export CSV and Copy All Emails bulk actions)
+- [x] **Fix admin users page returning 0 results** — (Ad hoc: `profiles` table column is `total_comparisons` but code queried `total_battles`; Supabase returned an error which was silently swallowed. Fixed column name in `user-queries.ts`, `user-list-table.tsx`, and `[id]/page.tsx`)
+- [x] **Fix database type mismatches after schema update** — (Ad hoc: `personal_ratings.raw_score` was renamed to `derived_score` and `get_leaderboard` RPC removed `p_min_battles`/`p_min_ratings` params. Fixed 3 query files, 3 admin components, and 4 leaderboard/marketing files. Also fixed RPC return type casts to go through `unknown`.)
+- [x] **Add `icon` and `placeholder_photo_url` fields to dish type creation form** — (Ad hoc: schema added `icon` (SVG text) and `placeholder_photo_url` columns to `dish_types`; updated `DishTypeDetail` type and `getDishTypeById` query, added SVG textarea and URL input with `placeholder_photo_url` storage bucket browser + image preview to `DishTypeForm`)
+- [x] **Admin badge management (CRUD for `badge_definitions`)** — (Ad hoc: app added badge support with `badge_definitions` and `user_badges` tables; implemented full admin controls under `/admin/catalog/badges` matching the dish-types/cities pattern: list table with sortable columns, inline active toggle, earned count, category color chips; create/edit form with all fields including category, rule_type, threshold, dish_type picker, sort_order, featured toggle; added Badges tab to catalog layout)
+- [x] **Fix hardcoded hex colors in new dish-type and badge pages** — (Ad hoc: dish-types/new, badges/new, and badges/[id] pages used raw hex values (`#342219`, `#4a3728`, `#ECEDEE`, `#9BA1A6`, `#c9a492`) instead of design token classes; replaced with `bg-surface`, `border-border`, `text-text-primary`, `text-text-tertiary`, `text-text-secondary`)
+- [x] **Marketing page UI redesign** — (Ad hoc: applied ui-ux-pro-max design intelligence to all 7 marketing sections. Hero: community stats strip, animated pulse badge dot, noise texture overlay, larger glow blobs. Vision: left-border editorial feature cards, gradient blockquote divider, "THE PROBLEM" eyebrow label. How It Works: large ghost step numbers in card backgrounds, circular icon containers, accent border on hover. Battle: ELO delta animations (+15/-12), loser card dimming, contextual hint text, spring trophy animation. Leaderboard: medal colors for top 3, gold gradient champion row, "LIVE RANKINGS" label, tabular-nums. Mission: numbered statements with horizontal dividers, left-aligned layout, hover accent on text. CTA: App Store/Google Play branded buttons with SVG logos, social proof stats strip. Created DESIGN_DECISIONS.md documenting all rationale.)
+- [x] **About + How It Works page brand voice & copy overhaul** — (Ad hoc: updated /about and /how-it-works pages to match product_description.md brand voice. Fixed broken token names (bg-background→bg-bg, text-primary→text-text-primary, text-tertiary→text-text-tertiary) in both page.tsx files. About: hero subheadline → founding insight quote, download CTA → "Settle Your Own Argument", story section label → "HOW IT STARTED", paragraphs rewritten to match opinionated brand voice with "The only way to climb is to serve better food." bolded inline. BattleMockup hint → "You already have an opinion. Pick one." How It Works: page headline → "EAT. SNAP. BATTLE. RANK.", subtitle → "Under 30 seconds. No star scales." StepDiagrams: subtitles and descriptions rewritten with photo-as-proof and "the argument is settled" framing; icon containers → rounded-full to match landing page. EloExplainer: headline → "Why No Star Ratings", intro sub removes chess analogy, concept descriptions sharpened; Elo concepts renamed to "Every dish starts equal" / "Battles shift the scores" / "Rankings stabilize over time". FAQ: photo answer → "Because anyone can leave a number. Not everyone can prove they showed up." city answer → controversy/demand framing.)
+- [x] **Marketing page brand voice & copy overhaul** — (Ad hoc: aligned all section copy to product_description.md brand pillars. Key changes: Hero subheadline → "Not 'go to this restaurant.' Get the gumbo at Dooky Chase. Under 30 seconds to vote." Secondary CTA → "SEE WHO'S WINNING". Scroll hint → "Settle the argument". Stats → "Cities Fighting" + "Battles Decided". Vision headline → "Nobody Eats a Restaurant." with founding-insight body copy, pull quote about the hole-in-the-wall vs. steakhouse, feature cards rewritten with "Not Sponsored. Not Paid." and "Under 30 Seconds" trust/speed signals. How It Works steps rewritten to include photo-as-proof framing and "The argument is settled" payoff; headline updated to "EAT. SNAP. BATTLE. RANK." Battle headline → "You Have An Opinion. Prove It." with plain-language Elo explanation; hint text → "You already have an opinion. Pick one." / "That's your vote. It counts."; reset button → "FIGHT AGAIN". Leaderboard headline → "The Real List." with "Not sponsored. Not paid." sub; inline CTA → "Disagree with this list?" with controversy-as-download hook. Mission label → "WHY WE BUILT THIS"; all 4 statements rewritten with founding insight + hole-in-the-wall + trust signal + empowerment. CTA headline → "The Argument's Not Over." with "Someone in your city is wrong about the best dish" hook.)
+- [x] **Remove "elo" and score numbers from all public-facing pages** — (Ad hoc: replaced all "Elo-ranked" / "Elo rating system" / "Elo points" references with "Forked's proprietary ranking algorithm" across the battle section, leaderboard preview, leaderboard hub/city/dish-type pages, FAQ text, and JSON-LD structured data; removed raw score numbers from the battle card UI and leaderboard preview rows)
+- [x] **Remove remaining Elo references from About and How It Works pages** — (Ad hoc: missed occurrences in `faq-accordion.tsx` ("Why Elo instead of a 5-point scale?"), `elo-explainer.tsx` ("baseline score of 1500", chess/Elo blockquote), `about/page.tsx` metadata ("Elo-based dish rating platform"), and `team-section.tsx` ("scale Elo rankings"); replaced with proprietary algorithm / head-to-head battle framing)
+- [x] **Build-time route gating via middleware for waitlist mode** — (Ad hoc: routes like `/leaderboard` and `/blog` were hidden from navbar in waitlist mode but still accessible by typing the URL directly. Extended `proxy.ts` middleware to intercept these paths and redirect to `/` before any page renders; `NEXT_PUBLIC_WAITLIST_MODE` is a build-time env var so the behavior is baked into the edge function. Also scoped `updateSession` (Supabase call) to only run for `/admin` and `/auth` routes to avoid unnecessary overhead on leaderboard/blog paths.)
+- [x] **Centralize RPC return types in `src/types/rpc.types.ts`** — (Ad hoc: multiple files defined local `LeaderboardEntry` types and admin RPC types inline or in query files, causing drift between definitions. Moved `DailyStat`, `CityBreakdown`, `DishTypeBreakdown` into `rpc.types.ts`; removed local `LeaderboardEntry` from `leaderboard-table.tsx`, `leaderboard-preview.tsx`, `blog-leaderboard-enrichment.tsx`, and `seo.ts`; all files now import from the canonical type file. Also fixed stale field names across the codebase: `neighborhood_name` → `address`, `avg_raw_score` → `bayesian_score`.)
+- [x] **Update Terms of Service and Privacy Policy pages from docs** — (Ad hoc: web pages had placeholder legal content that diverged from the authoritative `docs/terms-of-service.md` and `docs/privacy-policy.md`. Updated both pages to match docs exactly: Terms expanded from 13 to 15 sections with app-specific language (sentiment ratings, pairwise comparisons, content moderation, account deletion, indemnification, severability, arbitration); Privacy expanded from 9 to 10 sections with detailed data collection (GPS, EXIF, Amplitude), third-party services table, data security, and granular rights/choices. Updated effective dates to March 18, 2026 and contact emails to match docs.)
+- [x] **Admin content reports moderation (Apple 1.2)** — (Ad hoc: mobile app shipped a user-facing "Report" feature writing to `content_reports` (photos on `personal_ratings`), but web admin had no UI to review them — blocking App Store launch per Apple guideline 1.2. Added migration augmenting `content_reports` with `reviewed_by`/`reviewed_at`/`resolution_action`/`admin_notes` + indexes. Built server queries (`report-queries.ts`: pending count, list with status/reason filters, detail, prior-offense history). Built `/admin/moderation/reports` queue + `/admin/moderation/reports/[id]` detail page with photo preview, reporter + reported-user context, and `RepeatOffenderBadge`. Built `ReportActionsPanel` with 6 actions: take-down photo (nulls `photo_url`/`photo_storage_path`, deletes from `ratings` storage bucket), warn user, **ban + anonymize** (calls `anonymize_user_data` RPC to strip PII while preserving rating scores, then flips `is_banned` — treated as forced account deletion), delete rating, dismiss, mark reviewed. Every action logs to `admin_actions`. Added "blaring" notification: red pulsing badge next to Moderation nav item (polls `/api/admin/pending-reports` every 30s) + red alert banner on dashboard and moderation pages. Migration `20260405000000_content_reports_review_fields.sql` requires manual apply + type regen.)
+- [x] **Fix content_reports admin RLS policies** — (Ad hoc: report actions silently failed because `content_reports` had RLS enabled with only user-facing INSERT/SELECT policies (`reporter_id = auth.uid()`). Admins couldn't read all reports or update them — Supabase returns 0 rows instead of erroring on RLS-blocked updates. Added migration `20260405000001_content_reports_admin_rls.sql` with `is_admin()` SELECT and UPDATE policies matching the pattern used on `admin_actions` and other admin-managed tables.)

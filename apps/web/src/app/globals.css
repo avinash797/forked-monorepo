@@ -1,0 +1,187 @@
+@import "tailwindcss";
+
+/* ==============================
+   Light Mode (default)
+   ============================== */
+
+:root,
+.light {
+  /* Brand */
+  --accent: #ee6c2b;
+  --accent-on: #FFFFFF;
+  --accent-soft: #FEE8DF;
+
+  /* Backgrounds */
+  --bg: #f8f6f6;
+  --surface: #ffffff;
+  --surface-2: #F3F4F6;
+  --overlay: rgba(0, 0, 0, 0.45);
+
+  /* Text */
+  --text-primary: #221610;
+  --text-secondary: #4B5563;
+  --text-tertiary: #687076;
+  --text-on-image: #FFFFFF;
+
+  /* Borders */
+  --border: rgba(34, 22, 16, 0.10);
+  --divider: rgba(34, 22, 16, 0.08);
+
+  /* Inputs */
+  --input-bg: #ffffff;
+  --input-border: #E5E7EB;
+  --placeholder: #9CA3AF;
+
+  /* States */
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --info: #3B82F6;
+
+  /* Focus */
+  --focus-ring: rgba(238, 107, 43, 0.28);
+  --selection: rgba(238, 107, 43, 0.14);
+
+  /* Medals */
+  --gold: #F59E0B;
+  --silver: #9CA3AF;
+  --bronze: #B45309;
+
+  /* Badge */
+  --badge-bg: #ffffff;
+  --badge-text: #221610;
+}
+
+
+/* ==============================
+   Dark Mode
+   ============================== */
+
+.dark {
+  /* Brand */
+  --accent: #FF4D00;
+  --accent-on: #FFFFFF;
+  --accent-soft: #2A1813;
+
+  /* Backgrounds */
+  --bg: #050505;
+  --surface: #0a0a0a;
+  --surface-2: #111111;
+  --overlay: rgba(0, 0, 0, 0.60);
+
+  /* Text */
+  --text-primary: #ECEDEE;
+  --text-secondary: rgba(255, 255, 255, 0.50);
+  --text-tertiary: rgba(255, 255, 255, 0.30);
+  --text-on-image: #FFFFFF;
+
+  /* Borders */
+  --border: rgba(255, 255, 255, 0.10);
+  --divider: rgba(255, 255, 255, 0.05);
+
+  /* Inputs */
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-border: rgba(255, 255, 255, 0.10);
+  --placeholder: rgba(255, 255, 255, 0.30);
+
+  /* States */
+  --success: #34D399;
+  --warning: #FBBF24;
+  --danger: #F87171;
+  --info: #60A5FA;
+
+  /* Focus */
+  --focus-ring: rgba(255, 77, 0, 0.40);
+  --selection: rgba(255, 77, 0, 0.18);
+
+  /* Medals */
+  --gold: #FBBF24;
+  --silver: #D1D5DB;
+  --bronze: #CD7F32;
+
+  /* Badge */
+  --badge-bg: rgba(255, 255, 255, 0.05);
+  --badge-text: #ECEDEE;
+}
+
+/* ==============================
+   Tailwind Theme Extension
+   ============================== */
+
+@theme inline {
+  --color-accent: var(--accent);
+  --color-accent-on: var(--accent-on);
+  --color-accent-soft: var(--accent-soft);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-overlay: var(--overlay);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-on-image: var(--text-on-image);
+  --color-border: var(--border);
+  --color-divider: var(--divider);
+  --color-input-bg: var(--input-bg);
+  --color-input-border: var(--input-border);
+  --color-placeholder: var(--placeholder);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-focus-ring: var(--focus-ring);
+  --color-selection: var(--selection);
+  --color-gold: var(--gold);
+  --color-silver: var(--silver);
+  --color-bronze: var(--bronze);
+  --color-badge-bg: var(--badge-bg);
+  --color-badge-text: var(--badge-text);
+
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-body);
+  --font-display: var(--font-display);
+
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+}
+
+/* ==============================
+   Base Styles
+   ============================== */
+
+html {
+  scroll-snap-type: y proximity;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+::selection {
+  background: var(--selection);
+  color: var(--text-primary);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}

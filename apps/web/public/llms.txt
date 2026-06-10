@@ -1,0 +1,50 @@
+# Forked — Dish Rating & Ranking Platform
+
+## What is Forked?
+Forked is a dish-specific rating and ranking platform. Unlike traditional restaurant review sites that rate entire restaurants, Forked rates individual dishes using an Elo rating system powered by head-to-head comparisons.
+
+## How it works
+1. Users eat a dish and take a mandatory photo
+2. They rate it on a 1-10 scale
+3. The system triggers "This vs That" battles between similar dishes
+4. Winners gain Elo points, creating accurate community-driven rankings
+
+## Content available on this site
+
+### Leaderboard pages
+- URL pattern: /leaderboard/{city-slug}/{dish-type-slug}
+- Example: /leaderboard/new-orleans-louisiana/gumbo
+- Contains: Ranked list of restaurants for a specific dish in a specific city
+- Data: Restaurant name, neighborhood, Elo score, confidence score, win rate, number of ratings
+
+### Currently active cities
+- New Orleans, Louisiana
+
+### Currently active dish types
+- Gumbo
+- Po'boy
+- Crawfish Étouffée
+- Muffuletta
+- Jambalaya
+
+### Blog
+- URL pattern: /blog (listing with pagination and category filtering)
+- URL pattern: /blog/{post-slug} (individual article)
+- Example: /blog/ultimate-guide-gumbo-new-orleans
+- Contains: Articles about food rankings, city guides, dish deep dives, and product updates
+- Data: Title, author, category, tags, rich content, and optional live leaderboard data for city/dish-specific posts
+- Categories: City Guides, Dish Deep Dives, News & Updates
+
+## Data freshness
+Leaderboard and blog data is revalidated every 10 minutes via ISR.
+
+## Structured data
+All leaderboard pages include JSON-LD structured data:
+- ItemList schema with Restaurant items and AggregateRating
+- FAQPage schema with common questions about rankings
+- BlogPosting schema on individual blog posts
+- ItemList schema on the blog listing page
+
+## Contact
+Website: https://forkedapp.com
+Made in New Orleans, Louisiana
