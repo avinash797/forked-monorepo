@@ -123,7 +123,7 @@ src/
 │       └── tokens.ts              # TypeScript reference of all design tokens
 │
 └── types/
-    └── database.types.ts          # Supabase auto-generated types (Tables, Functions, etc.)
+    └── database.types.ts          # Re-exports shared types from @forked/supabase (packages/supabase)
 ```
 
 ## Git Workflow Rules
@@ -262,7 +262,7 @@ All leaderboard and landing pages use `export const revalidate = 600` (10 minute
 - **Error handling** — Supabase calls should use try/catch and return empty arrays/fallback data on failure. Pages should never crash due to a Supabase error.
 - **Import aliases** — use `@/` (maps to `./src/`).
 - **File naming** — kebab-case for all files and directories.
-- **Database migrations** — never make changes to the database schema without a migration file in `supabase/migrations/`. If you need to make changes to the database schema, create a migration file in `supabase/migrations/`, I will manually apply the migration and generate the database types.
+- **Database migrations** — never make changes to the database schema without a migration file in `supabase/migrations/` at the monorepo root. If you need to make changes to the database schema, create a migration file in `supabase/migrations/` at the monorepo root (shared with the mobile app), I will manually apply the migration and generate the database types via `npm run gen:types`.
 
 ## Phase Status
 

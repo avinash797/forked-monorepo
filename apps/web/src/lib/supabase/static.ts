@@ -1,5 +1,4 @@
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/types/database.types";
+import { createStaticSupabaseClient } from "@forked/supabase/web";
 
 /**
  * Supabase client for static generation (build time).
@@ -7,12 +6,8 @@ import type { Database } from "@/types/database.types";
  * Returns null if env vars are not configured.
  */
 export function createStaticClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!url || !key || !url.startsWith("http")) {
-    return null;
-  }
-
-  return createSupabaseClient<Database>(url, key);
+  return createStaticSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
 }

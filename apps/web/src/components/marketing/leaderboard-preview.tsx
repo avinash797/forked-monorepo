@@ -14,6 +14,7 @@ const MOCK_ENTRIES: LeaderboardEntry[] = [
     confidence_tier: "high",
     total_ratings: 312,
     featured_photo_url: null,
+    neighborhood_name: null,
   },
   {
     rank: 2,
@@ -24,6 +25,7 @@ const MOCK_ENTRIES: LeaderboardEntry[] = [
     confidence_tier: "high",
     total_ratings: 274,
     featured_photo_url: null,
+    neighborhood_name: null,
   },
   {
     rank: 3,
@@ -34,6 +36,7 @@ const MOCK_ENTRIES: LeaderboardEntry[] = [
     confidence_tier: "high",
     total_ratings: 198,
     featured_photo_url: null,
+    neighborhood_name: null,
   },
   {
     rank: 4,
@@ -44,6 +47,7 @@ const MOCK_ENTRIES: LeaderboardEntry[] = [
     confidence_tier: "medium",
     total_ratings: 167,
     featured_photo_url: null,
+    neighborhood_name: null,
   },
   {
     rank: 5,
@@ -54,6 +58,7 @@ const MOCK_ENTRIES: LeaderboardEntry[] = [
     confidence_tier: "medium",
     total_ratings: 143,
     featured_photo_url: null,
+    neighborhood_name: null,
   },
 ];
 

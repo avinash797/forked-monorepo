@@ -8,11 +8,13 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@amplitude/analytics-react-native": "^1.5.35",
     "@expo/vector-icons": "^15.0.3",
+    "@forked/supabase": "*",
     "@gorhom/bottom-sheet": "^5.2.8",
     "@hookform/resolvers": "^5.2.2",
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -77,8 +79,5 @@
     "reactotron-react-query": "^2.0.2",
     "typescript": "~5.9.2"
   },
-  "private": true,
-  "overrides": {
-    "@react-native-async-storage/async-storage": "2.2.0"
-  }
+  "private": true
 }
