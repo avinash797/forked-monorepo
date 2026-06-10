@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# env files
+.env
+.env.local
+.env.*.local
+.env*.prod
+
+# macOS
+.DS_Store
+
+# typescript
+*.tsbuildinfo
+
+# supabase local dev artifacts
+supabase/.temp
+supabase/.branches
+
+# logs
+npm-debug.log*
