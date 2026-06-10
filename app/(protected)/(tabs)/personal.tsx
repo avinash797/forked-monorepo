@@ -132,7 +132,7 @@ const personal = () => {
                     ))
                 ) : null}
 
-                {!selectedDishType && isDishRankingsPending && dishRankings.length === 0 ? (
+                {!isDishTypesPending && !isUserStatsPending && !selectedDishType && personalDishTypes.length === 0 ? (
                     <View style={styles.emptyContainer}>
                         <EmptyState
                             icon="restaurant-outline"

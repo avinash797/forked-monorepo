@@ -195,6 +195,20 @@ export default function LeaderboardScreen() {
                     ))
                 ) : null}
 
+                {!isCityDishTypesPending && !isDishTypeCountsPending && sortedDishTypes.length === 0 ? (
+                    <View style={styles.emptyContainer}>
+                        <EmptyState
+                            icon="restaurant-outline"
+                            title="No Dish Types Yet"
+                            message={`No dish types are available in ${selectedCityName ?? 'this area'} yet. \nBe the first to rate a dish!`}
+                            actionLabel="Rate a Dish"
+                            onActionPress={() =>
+                                router.push('/(protected)/(rating)')
+                            }
+                        />
+                    </View>
+                ) : null}
+
                 {selectedDishType && !isPending && leaderboardItems.length === 0 ? (
                     <View style={styles.emptyContainer}>
                         <EmptyState

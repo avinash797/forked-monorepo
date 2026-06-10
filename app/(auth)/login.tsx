@@ -1,3 +1,4 @@
+import { SSOButtons } from '@/components/sso-buttons';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-text-input';
@@ -121,6 +122,14 @@ export default function LoginScreen() {
                         >
                             Login
                         </ThemedButton>
+
+                        <SSOButtons
+                            mode="login"
+                            onError={(message) =>
+                                setErrors({ general: message })
+                            }
+                            onStart={() => setErrors({})}
+                        />
 
                         <View style={styles.signupContainer}>
                             <ThemedText >

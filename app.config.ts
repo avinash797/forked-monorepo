@@ -26,6 +26,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       ITSAppUsesNonExemptEncryption: false,
       NSLocationWhenInUseUsageDescription: "Allow Forked permission to use your location to show nearby food.",
     },
+    usesAppleSignIn: true,
   },
   android: {
     playStoreUrl: "https://play.google.com/store/apps/details?id=com.forked.prod",
@@ -96,6 +97,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     "expo-font",
     "expo-web-browser",
+    "expo-apple-authentication",
+    [
+      "@react-native-google-signin/google-signin",
+      {
+        iosUrlScheme: process.env.EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME ?? "com.googleusercontent.apps.REPLACE_WITH_REVERSED_IOS_CLIENT_ID",
+      },
+    ],
   ],
   experiments: {
     typedRoutes: true,

@@ -1,8 +1,26 @@
+import { randomNonce, sha256Hex } from '@/lib/nonce';
 import { supabase } from '@/lib/supabase';
 import type { AuthState, UserProfile } from '@/types/auth';
+import {
+    GoogleSignin,
+    statusCodes,
+} from '@react-native-google-signin/google-signin';
 import type { Session } from '@supabase/supabase-js';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { useEffect, useMemo } from 'react';
+
+export class AuthCancelledError extends Error {
+    constructor() {
+        super('Sign-in cancelled');
+        this.name = 'AuthCancelledError';
+    }
+}
+
+GoogleSignin.configure({
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+});
 
 // Query key constants
 export const AUTH_KEYS = {
@@ -19,6 +37,8 @@ interface UseAuthReturn extends AuthState {
     ) => Promise<void>;
     logout: () => Promise<void>;
     resetPassword: (email: string) => Promise<void>;
+    signInWithApple: () => Promise<void>;
+    signInWithGoogle: () => Promise<void>;
 }
 
 /**
@@ -191,6 +211,90 @@ export function useAuth(): UseAuthReturn {
         },
     });
 
+    // Sign in with Apple (iOS only)
+    const { mutateAsync: signInWithApple } = useMutation({
+        mutationFn: async () => {
+            const rawNonce = await randomNonce();
+            const hashedNonce = await sha256Hex(rawNonce);
+
+            let credential: AppleAuthentication.AppleAuthenticationCredential;
+            try {
+                credential = await AppleAuthentication.signInAsync({
+                    requestedScopes: [
+                        AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+                        AppleAuthentication.AppleAuthenticationScope.EMAIL,
+                    ],
+                    nonce: hashedNonce,
+                });
+            } catch (e: any) {
+                if (e?.code === 'ERR_REQUEST_CANCELED') {
+                    throw new AuthCancelledError();
+                }
+                throw e;
+            }
+
+            if (!credential.identityToken) {
+                throw new Error('Apple sign-in did not return an identity token');
+            }
+
+            const { data, error } = await supabase.auth.signInWithIdToken({
+                provider: 'apple',
+                token: credential.identityToken,
+                nonce: rawNonce,
+            });
+            if (error) throw error;
+
+            const fullName = [
+                credential.fullName?.givenName,
+                credential.fullName?.familyName,
+            ]
+                .filter(Boolean)
+                .join(' ')
+                .trim();
+
+            if (fullName && data.user) {
+                await supabase
+                    .from('profiles')
+                    .update({ display_name: fullName })
+                    .eq('id', data.user.id)
+                    .is('display_name', null);
+            }
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: AUTH_KEYS.session });
+        },
+    });
+
+    // Sign in with Google
+    const { mutateAsync: signInWithGoogle } = useMutation({
+        mutationFn: async () => {
+            try {
+                await GoogleSignin.hasPlayServices();
+                const res = await GoogleSignin.signIn();
+                const idToken = (res as any)?.data?.idToken ?? (res as any)?.idToken;
+                if (!idToken) {
+                    throw new Error('Google sign-in did not return an id token');
+                }
+                const { error } = await supabase.auth.signInWithIdToken({
+                    provider: 'google',
+                    token: idToken,
+                });
+                if (error) throw error;
+            } catch (e: any) {
+                if (
+                    e?.code === statusCodes.SIGN_IN_CANCELLED ||
+                    e?.code === statusCodes.IN_PROGRESS
+                ) {
+                    throw new AuthCancelledError();
+                }
+                throw e;
+            }
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: AUTH_KEYS.session });
+        },
+    });
+
     // Derive auth state from queries
     const state: AuthState = useMemo(() => {
         const isLoading = isSessionLoading || isProfileLoading;
@@ -239,7 +343,17 @@ export function useAuth(): UseAuthReturn {
                 signup({ email, password, displayName }),
             logout: () => logout(),
             resetPassword: (email: string) => resetPassword(email),
+            signInWithApple: () => signInWithApple(),
+            signInWithGoogle: () => signInWithGoogle(),
         }),
-        [state, login, signup, logout, resetPassword]
+        [
+            state,
+            login,
+            signup,
+            logout,
+            resetPassword,
+            signInWithApple,
+            signInWithGoogle,
+        ]
     );
 }
