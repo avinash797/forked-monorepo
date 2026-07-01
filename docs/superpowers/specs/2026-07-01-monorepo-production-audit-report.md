@@ -5,7 +5,27 @@ _Audit of the forked-monorepo prior to production launch. See design doc:
 
 ## Summary
 
-<!-- filled in last: counts by severity, top 3-5 blockers -->
+**41 findings: 3 Critical, 6 High, 19 Medium, 13 Low.**
+
+| Area | Critical | High | Medium | Low |
+|---|---|---|---|---|
+| 1. Shared Packages | 0 | 0 | 2 | 1 |
+| 2. Migrations, Schema & Security | 2 | 1 | 0 | 0 |
+| 3a. Web App | 0 | 2 | 5 | 5 |
+| 3b. Mobile App | 0 | 1 | 8 | 5 |
+| 4. CI/CD & Build | 1 | 2 | 4 | 2 |
+
+**Top blockers before production:**
+
+1. **Unauthenticated edge function with service-role DB access and unmetered paid-API cost exposure** — `enrich-city-dish-types` (Area 2) has no auth check at all, so anyone can trigger it to burn Gemini API budget and write arbitrary rows (bypassing RLS via the service-role key) or activate any city. Fix before launch — this is the single most exploitable issue found.
+
+2. **Fully-open `restaurants` UPDATE policy** — any authenticated user can currently flip a restaurant's `is_verified`/`is_closed` moderation flags or edit its name/address directly via RLS, bypassing the admin-only UI entirely (Area 2). Needs an `is_admin()` or ownership check before launch.
+
+3. **No CI build step** — the pipeline only runs lint + typecheck, so a change that breaks `next build` can merge to `main` and fail only when Vercel tries to deploy it (Area 4).
+
+4. **Zero automated test coverage anywhere in the monorepo** — flagged independently in Area 3a, Area 3b, and Area 4, this is one root gap spanning the whole codebase. It's most consequential where it intersects the admin ban/role-escalation mutations (Area 3a) and the moderation/Elo-scoring logic (Area 3b), both of which currently have nothing to catch a regression before it ships.
+
+5. **Type drift on a compliance-required feature** — the `blocked_users` table and `block_user` RPC (added for App Store Guideline 1.2 compliance) are missing from the generated `database.types.ts`, forcing an `(supabase.rpc as any)` cast in the mobile app (Area 2 / Area 3b). A one-line `npm run gen:types` fixes this along with cleaning up copy-pasted `any` casts on RPCs that already have real types.
 
 ## Area 1: Shared Packages
 
@@ -29,6 +49,86 @@ _Audit of the forked-monorepo prior to production launch. See design doc:
 
 ## Area 3a: Web App
 
+_Audited by subagent. `npm run lint -w forked-web`: 15 warnings, 0 errors. `npm run typecheck -w forked-web`: clean, 0 errors._
+
+- [HIGH] Admin query layer has almost no Supabase error handling, violating the explicit CLAUDE.md rule — `apps/web/src/lib/admin/queries.ts`, `apps/web/src/lib/admin/catalog-queries.ts`, `apps/web/src/lib/admin/analytics-queries.ts`, `apps/web/src/lib/admin/report-queries.ts`. Zero `try/catch` blocks and zero `if (error)` checks across these four files (22 exported functions combined), e.g. `getAdminDashboardStats()` in `queries.ts:13` does an unwrapped `Promise.all` of 7 Supabase count queries. By contrast, `apps/web/src/lib/blog/queries.ts` (public-facing) correctly wraps all 5 of its functions in try/catch. CLAUDE.md states "Supabase calls should use try/catch and return empty arrays/fallback data on failure. Pages should never crash due to a Supabase error" — this is the largest rule violation found in the web app. Recommend wrapping all admin query functions consistently, matching the `blog/queries.ts` pattern.
+
+- [HIGH] Widespread hard-coded hex colors outside the CLAUDE.md-approved dark-only sections (Navbar/Footer/Hero/Mission/CTA) — `apps/web/src/app/admin/catalog/layout.tsx:21,30-31`, `apps/web/src/app/admin/catalog/dish-types/[id]/page.tsx:34-57`, `apps/web/src/app/admin/catalog/cities/[id]/page.tsx:33-56`, `apps/web/src/app/admin/blog/loading.tsx`, `apps/web/src/app/admin/blog/new/page.tsx:21`, `apps/web/src/app/admin/blog/[id]/edit/page.tsx:37`, `apps/web/src/app/admin/analytics/page.tsx:42`, `apps/web/src/app/admin/moderation/photos/page.tsx:9-15`, `apps/web/src/app/api/og/route.tsx`, `apps/web/src/components/auth/login-form.tsx:77`, `apps/web/src/components/marketing/qr-code-download.tsx:12-13`. These use raw values like `text-[#9BA1A6]`, `bg-[#342219]`, `border-[#4a3728]` instead of the token classes (`text-text-tertiary`, `bg-surface`, `border-border`) that exist for exactly this purpose. The admin catalog/blog/moderation/analytics pages appear to have been built without following the convention documented for the rest of the app — recommend migrating them to token classes.
+
+- [MEDIUM] Client-side admin mutations (ban/unban/warn/role-change) rely entirely on RLS with no server-side gate — `apps/web/src/components/admin/users/user-moderation-panel.tsx:33-97`. `make_admin`/`remove_admin`/`ban`/`unban` all call the browser Supabase client directly from a client component. Verified against Area 2's RLS findings: this is actually safe today — the `profiles` table's "Admins can update any profile" policy (`supabase/migrations/20260302235036_rls_and_indexes.sql:130-131`) requires `is_admin()`, and the self-update policy explicitly blocks non-admins from changing their own `role`/ban fields (same file, lines 98-129). So there's no active vulnerability, but there's also no defense-in-depth — a single RLS regression here would be an immediate privilege-escalation bug with nothing else catching it, and (per the test-coverage finding below) nothing would catch a regression before it ships. Consider a server action wrapping these mutations with an explicit `requireAdmin()` check as a second gate.
+
+- [MEDIUM] No test infrastructure exists anywhere in `apps/web` — no `jest`/`vitest`/`playwright`/`@testing-library/*` in `package.json`, no `*.test.*`/`*.spec.*` files, no test script. See the cross-area note on this in the Summary — it's the same root gap noted independently in Area 3b and Area 4. Given the admin dashboard ships user ban/unban/role-change/moderation actions with zero automated coverage, this is a real production-readiness gap.
+
+- [MEDIUM] `react-hooks/purity` and `react-hooks/set-state-in-effect` are still firing despite being downgraded to warnings — `apps/web/src/app/admin/analytics/page.tsx:27` (purity: `Date.now()` in render), and set-state-in-effect at `components/admin/catalog/add-city-form.tsx:28`, `badge-form.tsx:103`, `dish-type-form.tsx:83`, `components/admin/report-notification-badge.tsx:16`, `components/ui/theme-toggle.tsx:12`. The root README's note that these were "downgraded to warnings until the flagged components are restructured" is accurate — they were never actually fixed, just silenced from CI failure. Pre-existing, not a new regression, but still unresolved debt.
+
+- [MEDIUM] Dead code: 4 marketing components never imported anywhere — `apps/web/src/components/marketing/stats-section.tsx`, `problem-section.tsx`, `about/team-section.tsx`, `about/investors-section.tsx`. Confirmed via grep across `src/` and by checking `app/page.tsx` and `app/(marketing)/about/page.tsx` — neither references these. Likely superseded during a redesign. Recommend deleting, or wiring them in if still intended.
+
+- [MEDIUM] Dead code: an orphaned function plus an unused param — `apps/web/src/components/leaderboard/leaderboard-table.tsx:24` (`ConfidenceBar` defined but never rendered anywhere), `apps/web/src/components/blog/tiptap-renderer.tsx:64` (unused `index` param).
+
+- [LOW] `react-hooks/incompatible-library` warnings for TanStack Table (informational, React Compiler skips memoization for `useReactTable()`) — `apps/web/src/components/admin/catalog/badge-list-table.tsx:147`, `city-list-table.tsx:93`, `dish-type-list-table.tsx:117`.
+
+- [LOW] 4 `@next/next/no-img-element` warnings — `apps/web/src/app/admin/users/[id]/page.tsx:35`, `components/admin/blog/blog-post-editor.tsx:388`, `components/admin/moderation/photo-review-card.tsx:11`, `components/admin/users/user-list-table.tsx:54`. Should use `next/image` for avatar/content thumbnails.
+
+- [LOW] Duplicate documentation files left over from the git-subtree import, byte-for-byte identical — `apps/web/DESIGN_DECISIONS.md` / `apps/web/docs/DESIGN_DECISIONS.md`, `apps/web/product_description.md` / `apps/web/docs/product_description.md`. Both added in the same `46a82cf chore: import forked-web into apps/web` commit and never deduplicated. Keep the `docs/` copies, remove the root-level duplicates.
+
+- [LOW] Stale references to the pre-monorepo standalone-repo layout in `apps/web/README.md` — line 16 says the mobile app "lives in a separate repository" (it's now `apps/mobile` in this same monorepo); line 50 instructs `git clone https://github.com/avinash797/forked-web.git`, no longer the correct clone target.
+
+- [LOW] Stale `.claude/` automation and settings leftover from the standalone-repo era — `apps/web/.claude/hooks/validate-branch.sh` blocks commits unless on a `p<N>/...` branch, and `apps/web/.claude/hooks/update-todo.sh` blocks session-stop until `PLAN.md` is updated; both assume the old `development`/`main` + priority-branch workflow, but the monorepo only has `main` and recent commits don't follow the `P<N>: ...` format. `apps/web/.claude/settings.local.json:` also has a permission entry referencing an unrelated `fastcalorie-temp` project, suggesting copy-pasted local settings never cleaned up.
+
+- No other findings for Area 3a: `apps/web/package-lock.json` is confirmed removed from the working tree (present as of `46a82cf`, gone as of `70be23c`), matching the root README's claim that only the root lockfile is tracked.
+
 ## Area 3b: Mobile App
 
+_Audited by subagent. `npm run lint -w forked`: 0 errors, 38 warnings (all `no-unused-vars` / `react-hooks/exhaustive-deps`, one `no-require-imports`). No test command exists to run._
+
+- [HIGH] No test suite at all, and the app has real moderation + scoring-integrity surface area — repo-wide, 0 test files, no jest config. CLAUDE.md's own "No test suite configured" is still accurate. Given the app handles user-generated content moderation (report/block, `components/browse/report-photo-modal.tsx`, `hooks/use-block-user.ts`) and a scoring algorithm with hard-coded boundary invariants (sentiment floors/ceilings, Elo clamps), zero automated coverage is a real production risk. Recommend at minimum unit tests for the Elo/Bayesian math (or its `@forked/utils` equivalent) and the moderation mutations. (See Summary — same root gap as Area 3a and Area 4.)
+
+- [MEDIUM] Two fully-built numeric score-input components exist, unused, directly contradicting the "no numeric score" hard rule — `apps/mobile/components/ui/slider.tsx` (`SliderInput`, range 0.1–10.0, step 0.1) and `apps/mobile/components/rating/rating-input.tsx` (`RatingInput`, range 1.0–10.0, step 0.1, draggable thumb + value label). Confirmed dead via import-path search (verified independently — zero references outside their own files). A landmine if anyone wires one in later; recommend deleting both, or moving them out of the shipped component tree if kept as reference.
+
+- [MEDIUM] Widespread hardcoded colors instead of theme tokens, including in the file CLAUDE.md cites as the canonical token example — ~80 hex/rgba literals across `app/` and `components/`; most notably `apps/mobile/components/score-badge.tsx:26,31-32,39,44-45,51,56-57` (hardcodes `#10B981`/`#059669`, `#F59E0B`/`#D97706`, `#EF4444`/`#DC2626` gradient shades plus rgba borders, alongside the correctly-used `theme.color.success/warning/danger` — confirmed by direct read), and `apps/mobile/app/(protected)/(rating)/index.tsx:147-152,268` (`#7A6B2E`, `#FFF8E1` for the offline banner). These gradient/shadow shades should be added to `@forked/theme` as proper tokens rather than inlined.
+
+- [MEDIUM] FlatList-over-ScrollView rule violated on core, unbounded list screens — `apps/mobile/app/(protected)/(tabs)/personal.tsx:128-182` (`dishRankings.map(...)` inside a `ScrollView`) and `apps/mobile/app/(protected)/(tabs)/leaderboard.tsx:190-256` (`leaderboardItems.map(...)` inside a `ScrollView`). Both render collections that grow with usage, unlike `(rating)/index.tsx`'s venue search which correctly uses `FlatList`. A real perf risk as data grows, not just a style nit.
+
+- [MEDIUM] `city-onboarding.tsx` drives a server call through `useState`/`useEffect` instead of React Query — `apps/mobile/app/(protected)/(rating)/city-onboarding.tsx:37-86` (`useEffect` triggers `enrichCity()`, which calls `supabase.functions.invoke('enrich-city-dish-types', ...)` directly, setting `error` via local `useState`). This is the exact pattern the "NEVER use useState/useEffect for server data" hard rule targets — should be a `useMutation`. Note: this calls the same edge function flagged Critical in Area 2 for having no auth check — fixing that function's auth should account for this being its only caller in the app today.
+
+- [MEDIUM] `_layout.tsx` root layout contains more than navigation — `apps/mobile/app/_layout.tsx:48` (`initAmplitude()` call) and `:170` (`<BadgeCelebrationModal />` mounted in the layout tree), contradicting "`_layout.tsx` = navigation only, no business logic." Consider moving both into a dedicated app-shell/provider component.
+
+- [MEDIUM] CLAUDE.md's documented "Rating Flow (Screen Order)" no longer matches the code — `apps/mobile/CLAUDE.md:122-124` says step 1 is `(rating)/index.tsx` "photo capture (mandatory)" and step 2 is a separate `venue-search.tsx`; the actual `apps/mobile/app/(protected)/(rating)/index.tsx` is a `VenueSearchScreen` with no photo logic, and no `venue-search.tsx` exists — photo capture is actually in `rating.tsx` (step 4). Recommend correcting the screen-order table; this is the canonical onboarding reference for the rating flow.
+
+- [MEDIUM] Additional dead files never imported anywhere — `apps/mobile/hooks/use-rising-stars.ts`, `use-charms.ts`, `apps/mobile/lib/location-verification.ts`, `apps/mobile/components/ui/collapsible.tsx`, `apps/mobile/components/rating/location-status-banner.tsx`, `apps/mobile/components/rating/venue-card.tsx`. `use-charms.ts`'s `useCharm` was superseded by `use-badges.ts`'s `useUserBadges`; `venue-card.tsx`/`location-status-banner.tsx` look orphaned after venue search was folded into `(rating)/index.tsx`. Note: `use-rising-stars.ts`'s `useRisingStars` is still listed in CLAUDE.md's "Key Hooks" section, but `use-discover-data.ts` now builds its own inline rising-star map — doc and code have diverged here too.
+
+- [MEDIUM] Leftover `.claude/settings.local.json` permission entries hardcode paths to the pre-monorepo standalone repo — one entry references `forked-all/forked/app/(protected)/(tabs)/leaderboard.tsx`, another `C:\Users\Avi\workspace\Forked-all\forked\types\database.types.ts` — both point at the old standalone `forked` repo rather than `apps/mobile`. Harmless (just an allowlist) but confirms this wasn't scrubbed during the 2026-06-10 import.
+
+- [LOW] IDE/agent tooling directories are committed to git with a gitignore typo blocking cleanup — `apps/mobile/.idea/`, `.vscode/`, `.agent/workflows/`, `.claude/` are all tracked (confirmed via `git ls-files`), while `apps/mobile/.gitignore` lists `.agents` (plural) instead of the actual `.agent` (singular) directory. Recommend `git rm -r --cached` for these plus fixing the typo.
+
+- [LOW] Stale internal docs reference the removed `venue-search.tsx` route — `apps/mobile/stores/README.md:27` and `EXAMPLES.md:19,32`.
+
+- [LOW] Forbidden word "star" appears in shipped onboarding copy — `apps/mobile/app/(auth)/index.tsx:26-31` (slide 2: "Ditch the Stars, Choose the Winner"). Almost certainly intentional contrast messaging, but worth an explicit sign-off since it's a literal instance of the word the hard rule forbids in user-facing copy.
+
+- [LOW] RPC calls habitually cast to `any` even where generated types already exist — `apps/mobile/hooks/use-report-content.ts:30`, `use-badges.ts:13` both cast `(supabase.rpc as any)(...)` despite `report_content` and `get_user_badges` already being present in `database.types.ts` — unnecessary workarounds rather than genuine gaps, suggesting the pattern was copy-pasted from the genuinely-untyped `block_user` call (see Area 2) rather than fixed at the source.
+
+- [LOW] Leftover commented-out dead code — `apps/mobile/app/(protected)/(tabs)/personal.tsx:102`.
+
+- No other findings for Area 3b: no regression of the previously-fixed lint/hook-order/casing issues (verified `dish-selection.tsx:374-376` still has the guard, `personal.tsx:29` still exports `PersonalScreen` correctly capitalized); no `TouchableOpacity` usage found (all `Pressable`); no star *symbols* (★) found; `.env*` secrets correctly gitignored and untracked.
+
 ## Area 4: CI/CD & Build
+
+_Audited by subagent._
+
+- [CRITICAL] CI has no build step — broken production builds can merge to `main` — `.github/workflows/ci.yml` (full file: only `lint` and `typecheck` steps). `tsc --noEmit` does not catch Next.js build-time failures (invalid `next.config.ts`, route/type errors surfaced only during `next build`, edge-runtime incompatibilities, static export issues), so a PR can pass CI and still fail to deploy on Vercel. Add a `build` step (at minimum `turbo run build --filter=forked-web`) gated on the same triggers, using placeholder env vars for the `NEXT_PUBLIC_*`/`EXPO_PUBLIC_*` vars `turbo.json:6` already marks as build inputs.
+
+- [HIGH] No automated test step or test suite anywhere in the monorepo — confirmed no `test` script in any `package.json` and no `*.test.*`/`*.spec.*` files repo-wide. This is the same root gap flagged independently in Area 3a and Area 3b — see Summary. Recommend at minimum unit tests for `@forked/utils` (pure logic, easiest to start with) wired into a `turbo.json` `test` task and CI.
+
+- [HIGH] `packageManager` (npm@11.11.0) declared in `package.json:5` but never enforced in CI — `.github/workflows/ci.yml` uses `actions/setup-node@v4` with `node-version: 22` and whatever npm ships bundled with that runner image (typically npm 10.x, not 11.11.0); Corepack doesn't manage npm the way it manages Yarn/pnpm, so this field isn't honored here. Vercel does read and honor `packageManager`, so CI and the actual deploy target can diverge. Add `corepack enable && corepack prepare npm@11.11.0 --activate` (or `npm i -g npm@11.11.0`) before `npm ci`.
+
+- [MEDIUM] Node version pinned to major only, not the `engines.node` floor — `.github/workflows/ci.yml` (`node-version: 22`) vs `package.json:6-8` (`"node": ">=22.18"`). Satisfies the floor today only because the runner's latest 22.x happens to qualify; nothing keeps them in sync if the floor changes later. Consider an exact pin or a shared `.nvmrc`.
+
+- [MEDIUM] `turbo.json` has no `test` task and no `globalDependencies` — beyond the missing test task, there's no cache-invalidation entry for shared config changes (root `tsconfig.json`, env schemas). Low risk at current scale, worth tightening as caching is relied on more.
+
+- [MEDIUM] No `vercel.json` — Root Directory / "include source files outside Root Directory" settings live only in the Vercel dashboard, unversioned. Not strictly a defect (Vercel doesn't support setting Root Directory via `vercel.json`), and cross-checked against Area 1: `apps/web/next.config.ts`'s `transpilePackages` is confirmed correct and consistent with this deploy setup. But a critical piece of the deploy pipeline has no git trail — recommend documenting the exact dashboard settings so they're recoverable.
+
+- [MEDIUM] `eas.json` build profiles have no `env`/`environment` wiring despite the README's `.env.local`/`.env.prod` convention — `apps/mobile/eas.json` (all 3 profiles), `apps/mobile/app.config.ts` reads `process.env.EXPO_PUBLIC_*` directly. Since local dotfiles never reach EAS's cloud build service, it's unclear from the repo how these values reach cloud builds — presumably via EAS's own dashboard-managed Environment Variables, which is undocumented in-repo. Recommend documenting this explicitly to avoid a build silently shipping with empty API keys.
+
+- [LOW] EAS `preview` and `production` profiles share the same bundle identifier (`com.forked.prod`) — `apps/mobile/eas.json`, `apps/mobile/app.config.ts`. Can cause install conflicts on a device that has both installed. Consider a distinct identifier for preview builds.
+
+- [LOW] CI is a single monolithic job with no path filtering — every push runs lint+typecheck across all workspaces regardless of what changed; no `actions/cache` step for Turborepo's `.turbo` cache and no Vercel Remote Cache token, so Turborepo's caching provides no benefit in CI today. Not a correctness issue, a missed performance/cost optimization.
