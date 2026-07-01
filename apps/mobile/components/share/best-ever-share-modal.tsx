@@ -158,15 +158,16 @@ export function BestEverShareModal({
                                     <View style={styles.dishLabelRow}>
                                         {(item.dish_type_icon ||
                                             item.dish_type_emoji) && (
-                                                <DishTypeIcon
-                                                    icon={item.dish_type_icon}
-                                                    emoji={item.dish_type_emoji}
-                                                    size={16}
-                                                    color={theme.color.textPrimary}
-                                                />
-                                            )}
+                                            <DishTypeIcon
+                                                icon={item.dish_type_icon}
+                                                emoji={item.dish_type_emoji}
+                                                size={16}
+                                                color={theme.color.textPrimary}
+                                            />
+                                        )}
                                         <Text style={styles.dishLabel}>
-                                            {item.variation_name ?? item.dish_type_name}
+                                            {item.variation_name ??
+                                                item.dish_type_name}
                                         </Text>
                                     </View>
                                     <Text
@@ -176,8 +177,15 @@ export function BestEverShareModal({
                                         {item.restaurant_name}
                                     </Text>
                                     <Text style={styles.cityName}>
-                                        <IconSymbol name="pin" size={16} color={theme.color.textPrimary} />
-                                        {item.neighborhood_name ? `${item.neighborhood_name}, ` : ''}{item.city_name}
+                                        <IconSymbol
+                                            name="pin"
+                                            size={16}
+                                            color={theme.color.textPrimary}
+                                        />
+                                        {item.neighborhood_name
+                                            ? `${item.neighborhood_name}, `
+                                            : ''}
+                                        {item.city_name}
                                     </Text>
                                 </View>
                                 <View

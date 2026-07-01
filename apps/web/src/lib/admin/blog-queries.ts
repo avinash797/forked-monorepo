@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Tables } from "@/types/database.types";
+import type { Tables } from "@forked/supabase";
 
 export type AdminBlogPost = Tables<"blog_posts"> & {
   blog_authors: { name: string } | null;

@@ -105,8 +105,8 @@ export default function CityOnboardingScreen() {
                         Welcome to {newCityInfo.cityName}!
                     </ThemedText>
                     <ThemedText style={styles.subtitle}>
-                        Looks like you're the first here. Setting up the food
-                        scene for {newCityInfo.cityName}.
+                        Looks like you&apos;re the first here. Setting up the
+                        food scene for {newCityInfo.cityName}.
                     </ThemedText>
                 </Animated.View>
 

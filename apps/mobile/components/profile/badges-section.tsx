@@ -1,7 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/contexts/theme-provider';
 import { useUserBadges } from '@/hooks/use-badges';
-import type { UserBadgeWithDefinition } from '@/types/badge.types';
+import type { UserBadgeWithDefinition } from '@forked/supabase';
 import { useState } from 'react';
 import { View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -17,7 +17,8 @@ export function BadgesSection({ userId }: BadgesSectionProps) {
     const { theme } = useTheme();
     const { data: badges, isLoading } = useUserBadges(userId);
     const styles = createBadgeStyles(theme);
-    const [selectedBadge, setSelectedBadge] = useState<UserBadgeWithDefinition | null>(null);
+    const [selectedBadge, setSelectedBadge] =
+        useState<UserBadgeWithDefinition | null>(null);
 
     const allBadges = badges?.filter((b) => b.is_active) ?? [];
     const earnedCount = allBadges.filter((b) => b.earned_at !== null).length;

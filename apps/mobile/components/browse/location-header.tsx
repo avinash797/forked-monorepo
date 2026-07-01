@@ -61,7 +61,10 @@ export function LocationHeader({
                         color={theme.color.textPrimary}
                     />
                     <ThemedText
-                        style={[styles.locationText, { color: theme.color.accent }]}
+                        style={[
+                            styles.locationText,
+                            { color: theme.color.accent },
+                        ]}
                         numberOfLines={1}
                     >
                         {displayText}
@@ -69,12 +72,11 @@ export function LocationHeader({
                 </Pressable>
             </View>
 
-
             {/* Search Input */}
             <View style={styles.searchWrapper}>
                 <SearchInput
                     value=""
-                    onChangeText={() => { }}
+                    onChangeText={() => {}}
                     placeholder="What are you craving?"
                     onFocus={onSearchPress}
                     isLoading={false}
@@ -93,7 +95,7 @@ export function LocationHeader({
                         lightColor="#7A6B2E"
                         darkColor="#7A6B2E"
                     >
-                        You're offline — showing saved data
+                        You&apos;re offline — showing saved data
                     </ThemedText>
                 </View>
             )}

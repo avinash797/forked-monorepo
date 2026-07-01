@@ -84,22 +84,16 @@ export function PhotoPicker({
                 <ThemedText type="defaultSemiBold" style={styles.title}>
                     Photos{' '}
                     {required && (
-                        <ThemedText style={styles.accent}>
-                            *
-                        </ThemedText>
+                        <ThemedText style={styles.accent}>*</ThemedText>
                     )}
                 </ThemedText>
-                <ThemedText
-                    style={styles.count}
-                >
+                <ThemedText style={styles.count}>
                     {photos.length}/{maxPhotos}
                 </ThemedText>
             </View>
 
             {subtitle && photos.length === 0 && (
-                <ThemedText style={styles.subtitle}>
-                    {subtitle}
-                </ThemedText>
+                <ThemedText style={styles.subtitle}>{subtitle}</ThemedText>
             )}
 
             <View style={styles.grid}>
@@ -118,7 +112,11 @@ export function PhotoPicker({
                                 borderless: true,
                             }}
                         >
-                            <IconSymbol name="close" size={16} color={theme.color.accentOn} />
+                            <IconSymbol
+                                name="close"
+                                size={16}
+                                color={theme.color.accentOn}
+                            />
                         </Pressable>
                     </View>
                 ))}

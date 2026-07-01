@@ -2,7 +2,7 @@ import { ScoreBadge } from '@/components/score-badge';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
-import type { LeaderboardEntry } from '@/types/rpc.types';
+import type { LeaderboardEntry } from '@forked/supabase';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
@@ -26,7 +26,10 @@ type Medal = 'gold' | 'silver' | 'bronze';
  * Row for the global (community) leaderboard — ranks by Bayesian score
  * and shows confidence tier + total ratings.
  */
-export function GlobalLeaderboardRow({ item, onPress }: GlobalLeaderboardRowProps) {
+export function GlobalLeaderboardRow({
+    item,
+    onPress,
+}: GlobalLeaderboardRowProps) {
     const { theme } = useTheme();
     const medal = getMedal(item.rank);
     const styles = createThemedStyles(theme, medal);
@@ -52,8 +55,15 @@ export function GlobalLeaderboardRow({ item, onPress }: GlobalLeaderboardRowProp
             )}
 
             <View style={styles.content}>
-                <View style={{ position: 'absolute', left: 0, top: 0, zIndex: 10 }}>
-                    <Svg width="40" height="70" >
+                <View
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        zIndex: 10,
+                    }}
+                >
+                    <Svg width="40" height="70">
                         {/* Stroke layer */}
                         <SvgText
                             x="20"
@@ -74,7 +84,7 @@ export function GlobalLeaderboardRow({ item, onPress }: GlobalLeaderboardRowProp
                             y="30%"
                             textAnchor="middle"
                             alignmentBaseline="central"
-                            fill={"#fff"}
+                            fill={'#fff'}
                             fontSize={40}
                             fontWeight="900"
                             strokeWidth={0}
@@ -83,7 +93,6 @@ export function GlobalLeaderboardRow({ item, onPress }: GlobalLeaderboardRowProp
                         </SvgText>
                     </Svg>
                 </View>
-
 
                 <View style={styles.photoContainer}>
                     {item.featured_photo_url ? (
@@ -110,24 +119,36 @@ export function GlobalLeaderboardRow({ item, onPress }: GlobalLeaderboardRowProp
                     </ThemedText>
 
                     <ThemedText style={styles.neighborhood} numberOfLines={1}>
-                        <IconSymbol name="pin" size={14} color={theme.color.textSecondary} />
+                        <IconSymbol
+                            name="pin"
+                            size={14}
+                            color={theme.color.textSecondary}
+                        />
                         {item.neighborhood_name ?? item.address?.split(',')[1]}
                     </ThemedText>
 
                     {(item.confidence_tier || item.total_ratings != null) && (
                         <View style={styles.personalMeta}>
-                            <ThemedText style={styles.metaText} numberOfLines={1}>
+                            <ThemedText
+                                style={styles.metaText}
+                                numberOfLines={1}
+                            >
                                 {item.total_ratings} ratings
                             </ThemedText>
                             <ThemedText style={styles.metaDot}>·</ThemedText>
-                            <ThemedText style={styles.metaText} numberOfLines={1}>
+                            <ThemedText
+                                style={styles.metaText}
+                                numberOfLines={1}
+                            >
                                 Confidence: {item.confidence_tier}
                             </ThemedText>
-                            <ScoreBadge score={item.bayesian_score ?? 0} style={styles.scoreBadge} />
+                            <ScoreBadge
+                                score={item.bayesian_score ?? 0}
+                                style={styles.scoreBadge}
+                            />
                         </View>
                     )}
                 </View>
-
             </View>
         </Pressable>
     );
@@ -138,22 +159,52 @@ export function GlobalLeaderboardRowSkeleton() {
     const opacity = useSharedValue(1);
 
     useEffect(() => {
-        opacity.value = withRepeat(withTiming(0.35, { duration: 750 }), -1, true);
+        opacity.value = withRepeat(
+            withTiming(0.35, { duration: 750 }),
+            -1,
+            true
+        );
     }, []);
 
     const animStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
     const bg = theme.color.surface2;
 
     return (
-        <Animated.View style={[skeletonStyles.container, { backgroundColor: theme.color.surface }, animStyle]}>
+        <Animated.View
+            style={[
+                skeletonStyles.container,
+                { backgroundColor: theme.color.surface },
+                animStyle,
+            ]}
+        >
             <View style={skeletonStyles.content}>
                 <View style={[skeletonStyles.rank, { backgroundColor: bg }]} />
-                <View style={[skeletonStyles.photo, { backgroundColor: bg, borderRadius: theme.radius.sm }]} />
+                <View
+                    style={[
+                        skeletonStyles.photo,
+                        { backgroundColor: bg, borderRadius: theme.radius.sm },
+                    ]}
+                />
                 <View style={skeletonStyles.info}>
-                    <View style={[skeletonStyles.nameLine, { backgroundColor: bg, borderRadius: 4 }]} />
-                    <View style={[skeletonStyles.subLine, { backgroundColor: bg, borderRadius: 4 }]} />
+                    <View
+                        style={[
+                            skeletonStyles.nameLine,
+                            { backgroundColor: bg, borderRadius: 4 },
+                        ]}
+                    />
+                    <View
+                        style={[
+                            skeletonStyles.subLine,
+                            { backgroundColor: bg, borderRadius: 4 },
+                        ]}
+                    />
                 </View>
-                <View style={[skeletonStyles.score, { backgroundColor: bg, borderRadius: theme.radius.sm }]} />
+                <View
+                    style={[
+                        skeletonStyles.score,
+                        { backgroundColor: bg, borderRadius: theme.radius.sm },
+                    ]}
+                />
             </View>
         </Animated.View>
     );
@@ -177,9 +228,18 @@ function getMedalGradient(medal: Medal, theme: any): [string, string] {
 
 function adjustBrightness(color: string, factor: number): string {
     const hex = color?.replace('#', '') || '000000';
-    const r = Math.min(255, Math.round(parseInt(hex.substring(0, 2), 16) * factor));
-    const g = Math.min(255, Math.round(parseInt(hex.substring(2, 4), 16) * factor));
-    const b = Math.min(255, Math.round(parseInt(hex.substring(4, 6), 16) * factor));
+    const r = Math.min(
+        255,
+        Math.round(parseInt(hex.substring(0, 2), 16) * factor)
+    );
+    const g = Math.min(
+        255,
+        Math.round(parseInt(hex.substring(2, 4), 16) * factor)
+    );
+    const b = Math.min(
+        255,
+        Math.round(parseInt(hex.substring(4, 6), 16) * factor)
+    );
     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
@@ -224,7 +284,7 @@ const skeletonStyles = StyleSheet.create({
 
 const createThemedStyles = (
     theme: ReturnType<typeof useTheme>['theme'],
-    medal?: Medal,
+    medal?: Medal
 ) =>
     StyleSheet.create({
         container: {

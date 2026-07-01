@@ -5,7 +5,9 @@ export type ActiveTheme = ReturnType<typeof import('./index').getTheme>;
 
 export function makeShadow(t: ActiveTheme, size: 'sm' | 'md' | 'lg') {
     const s = t.shadow[size];
-    return { boxShadow: `0px ${s.y}px ${s.radius}px rgba(0, 0, 0, ${s.opacity})` };
+    return {
+        boxShadow: `0px ${s.y}px ${s.radius}px rgba(0, 0, 0, ${s.opacity})`,
+    };
 }
 
 export function createStyles<

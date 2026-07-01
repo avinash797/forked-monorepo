@@ -40,7 +40,9 @@ export function useRecentBattles(
         queryKey: ['recent-battles', limit, cityId, user?.id],
         queryFn: async () => {
             // Get the real auth.uid() — this matches what RPCs store in comparisons.user_id
-            const { data: { session } } = await supabase.auth.getSession();
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
             const authUserId = session?.user?.id;
 
             let query = supabase
@@ -88,17 +90,18 @@ export function useRecentBattles(
                     const opponentRating = (item as any).opponent_rating;
 
                     // result = 'new_wins' → new_rating is winner, else opponent_rating is winner
-                    const winnerRestaurant = item.result === 'new_wins'
-                        ? newRating?.restaurant?.name || 'Unknown'
-                        : opponentRating?.restaurant?.name || 'Unknown';
-                    const loserRestaurant = item.result === 'new_wins'
-                        ? opponentRating?.restaurant?.name || 'Unknown'
-                        : newRating?.restaurant?.name || 'Unknown';
+                    const winnerRestaurant =
+                        item.result === 'new_wins'
+                            ? newRating?.restaurant?.name || 'Unknown'
+                            : opponentRating?.restaurant?.name || 'Unknown';
+                    const loserRestaurant =
+                        item.result === 'new_wins'
+                            ? opponentRating?.restaurant?.name || 'Unknown'
+                            : newRating?.restaurant?.name || 'Unknown';
 
                     return {
                         id: item.id,
-                        username:
-                            (item.user as any)?.username || 'Anonymous',
+                        username: (item.user as any)?.username || 'Anonymous',
                         dishTypeName: (item.dish_type as any)?.name || 'Dish',
                         dishTypeEmoji: (item.dish_type as any)?.emoji || '🍽️',
                         dishTypeIcon: (item.dish_type as any)?.icon || null,

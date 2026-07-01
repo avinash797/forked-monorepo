@@ -1,4 +1,4 @@
-import { UserProfile } from '@/types/auth';
+import { UserProfile } from '@forked/types/auth';
 import type { Session, User } from '@supabase/supabase-js';
 import { create } from 'zustand';
 

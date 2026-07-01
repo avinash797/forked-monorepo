@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { ScoreBadge } from "@/components/ui/score-badge";
-import type { LeaderboardEntry } from "@/types/rpc.types";
+import type { LeaderboardEntry } from "@forked/supabase";
 
 interface Props {
   cityId: string;

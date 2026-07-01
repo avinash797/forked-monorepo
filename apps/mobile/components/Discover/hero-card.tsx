@@ -141,7 +141,10 @@ export function HeroCardEmpty() {
     const styles = createStyles(theme, windowWidth);
 
     return (
-        <Animated.View entering={FadeInRight.duration(400)} style={styles.container}>
+        <Animated.View
+            entering={FadeInRight.duration(400)}
+            style={styles.container}
+        >
             <View style={[styles.card, styles.emptyCard]}>
                 {/* Illustration area */}
                 <View style={styles.emptyIllustrationContainer}>
@@ -153,7 +156,7 @@ export function HeroCardEmpty() {
                         />
                     </View>
                     <ThemedText style={styles.emptyIllustrationLabel}>
-                        You've tried them all
+                        You&apos;ve tried them all
                     </ThemedText>
                 </View>
 
@@ -172,7 +175,10 @@ export function HeroCardEmpty() {
                             pressed && styles.emptyCtaButtonPressed,
                         ]}
                     >
-                        <ForkLogo color={theme.color.bg} size={theme.font.size.md} />
+                        <ForkLogo
+                            color={theme.color.bg}
+                            size={theme.font.size.md}
+                        />
                         <ThemedText style={styles.emptyCtaButtonText}>
                             Rate a Dish
                         </ThemedText>

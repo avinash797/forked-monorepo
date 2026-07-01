@@ -5,7 +5,7 @@ import { ThemedTextInput } from '@/components/themed-text-input';
 import { ThemedView } from '@/components/themed-view';
 import { supabase } from '@/lib/supabase';
 import { useRatingStore } from '@/stores';
-import { Database } from '@/types/database.types';
+import { Database } from '@forked/supabase';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
@@ -98,7 +98,9 @@ export default function CreateVenueScreen() {
             ]);
         } catch (err) {
             setError(
-                err instanceof Error ? err.message : 'Failed to create restaurant'
+                err instanceof Error
+                    ? err.message
+                    : 'Failed to create restaurant'
             );
         } finally {
             setIsLoading(false);

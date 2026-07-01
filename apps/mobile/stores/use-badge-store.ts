@@ -1,4 +1,4 @@
-import type { NewBadgeAward } from '@/types/badge.types';
+import type { NewBadgeAward } from '@forked/supabase';
 import { create } from 'zustand';
 
 interface BadgeStore {

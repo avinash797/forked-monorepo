@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { IS_WAITLIST_MODE } from "@/lib/waitlist";
 import { MapPin } from "lucide-react";
-import type { LeaderboardEntry } from "@/types/rpc.types";
+import type { LeaderboardEntry } from "@forked/supabase";
 
 const MOCK_ENTRIES: LeaderboardEntry[] = [
   {

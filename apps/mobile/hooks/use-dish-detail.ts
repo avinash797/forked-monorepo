@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
-import { DishType, GlobalDishScore } from '@/types/dishes';
-import { Restaurant } from '@/types/restaurant';
-import { TasteTag } from '@/types/taste_tags';
+import { DishType, GlobalDishScore } from '@forked/types/dishes';
+import { Restaurant } from '@forked/types/restaurant';
+import { TasteTag } from '@forked/types/taste-tags';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from './use-auth';
 
@@ -72,7 +72,12 @@ export function useDishMenu(
         queryKey: ['dish-menu', dishId, restaurantId],
         queryFn: async () => {
             if (!dishId || !restaurantId)
-                return { variations: [], photos: [], photoRatingMap: {} as Record<string, string>, photoUserMap: {} as Record<string, string> };
+                return {
+                    variations: [],
+                    photos: [],
+                    photoRatingMap: {} as Record<string, string>,
+                    photoUserMap: {} as Record<string, string>,
+                };
 
             const [{ data: restaurantDishData }, { data: ratingsWithPhotos }] =
                 await Promise.all([
@@ -166,12 +171,12 @@ export function useDishRatings(
                     (rating: any) => rating.user_id === user?.id
                 ) as
                     | {
-                        user_id: string;
-                        sentiment: 'liked' | 'okay' | 'disliked';
-                        derived_score: number | null;
-                        notes: string | null;
-                        tags: { taste_tags: TasteTag }[];
-                    }
+                          user_id: string;
+                          sentiment: 'liked' | 'okay' | 'disliked';
+                          derived_score: number | null;
+                          notes: string | null;
+                          tags: { taste_tags: TasteTag }[];
+                      }
                     | undefined,
             };
         },

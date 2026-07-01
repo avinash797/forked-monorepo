@@ -44,7 +44,7 @@ export function BestEverCard({ item, index, onPress }: BestEverCardProps) {
                 onPress={onPress}
             >
                 <Image
-                    source={{ uri: item.photo_url }}
+                    source={{ uri: item.photo_url ?? undefined }}
                     style={styles.image}
                     contentFit="cover"
                     transition={200}

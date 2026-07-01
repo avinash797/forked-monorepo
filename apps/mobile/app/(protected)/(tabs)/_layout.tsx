@@ -71,7 +71,9 @@ export default function TabLayout() {
                         <CenterTabButton
                             {...props}
                             onPress={() => {
-                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                Haptics.impactAsync(
+                                    Haptics.ImpactFeedbackStyle.Medium
+                                );
                                 router.push('/(protected)/(rating)');
                             }}
                         />

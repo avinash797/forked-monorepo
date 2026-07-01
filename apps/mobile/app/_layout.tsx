@@ -5,7 +5,12 @@ import {
 } from '@react-navigation/native';
 import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { Stack, useNavigationContainerRef, useRouter, useSegments } from 'expo-router';
+import {
+    Stack,
+    useNavigationContainerRef,
+    useRouter,
+    useSegments,
+} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useRef, useState } from 'react';

@@ -1,6 +1,6 @@
 import { useTheme } from '@/contexts/theme-provider';
 import { buildComponentStyles } from '@/lib/theme/componentStyles';
-import { Restaurant } from '@/types/restaurant';
+import { Restaurant } from '@forked/types/restaurant';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface VenueCardProps {

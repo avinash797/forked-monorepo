@@ -8,7 +8,7 @@ import {
 } from '@/hooks/use-restaurants';
 import { supabase } from '@/lib/supabase';
 import { useLocationStore } from '@/stores/location.store';
-import { DishType } from '@/types/dishes';
+import { DishType } from '@forked/types/dishes';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -125,18 +125,22 @@ export function useSearch(query: string) {
         queryKey: ['search-dishes', debouncedQuery],
         queryFn: async () => {
             if (debouncedQuery.length < 2) {
-                return { dishTypes: [] as DishType[], restaurantDishes: [] as RestaurantDishSearchResult[] };
+                return {
+                    dishTypes: [] as DishType[],
+                    restaurantDishes: [] as RestaurantDishSearchResult[],
+                };
             }
 
-            const [dishTypesResult, restaurantDishesResult] =
-                await Promise.all([
+            const [dishTypesResult, restaurantDishesResult] = await Promise.all(
+                [
                     supabase.rpc('search_dish_types', {
                         search_term: debouncedQuery,
                     }),
                     supabase.rpc('search_restaurant_dishes', {
                         search_term: debouncedQuery,
                     }),
-                ]);
+                ]
+            );
 
             if (dishTypesResult.error) throw dishTypesResult.error;
             if (restaurantDishesResult.error)
@@ -145,7 +149,8 @@ export function useSearch(query: string) {
             return {
                 dishTypes: (dishTypesResult.data ?? []) as DishType[],
                 restaurantDishes: dedupeByRestaurant(
-                    (restaurantDishesResult.data ?? []) as RestaurantDishSearchResult[]
+                    (restaurantDishesResult.data ??
+                        []) as RestaurantDishSearchResult[]
                 ),
             };
         },

@@ -1,0 +1,83 @@
+{
+  "version": "2.0.0",
+  "options": {
+    "cwd": "${workspaceFolder}"
+  },
+  "tasks": [
+    {
+      "label": "Mobile: Start (Expo)",
+      "type": "shell",
+      "command": "npm run start:mobile",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated", "group": "dev" },
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "Mobile: iOS",
+      "type": "shell",
+      "command": "npm run ios",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated", "group": "dev" }
+    },
+    {
+      "label": "Mobile: Android",
+      "type": "shell",
+      "command": "npm run android",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated", "group": "dev" }
+    },
+    {
+      "label": "Web: Dev",
+      "type": "shell",
+      "command": "npm run dev:web",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated", "group": "dev" }
+    },
+    {
+      "label": "Web: Build",
+      "type": "shell",
+      "command": "npm run build:web",
+      "problemMatcher": []
+    },
+    {
+      "label": "Lint (all workspaces)",
+      "type": "shell",
+      "command": "npm run lint",
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "Typecheck (all workspaces)",
+      "type": "shell",
+      "command": "npm run typecheck",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "DB: Start (Supabase)",
+      "type": "shell",
+      "command": "npm run db:start",
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: Stop (Supabase)",
+      "type": "shell",
+      "command": "npm run db:stop",
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: Reset (Supabase)",
+      "type": "shell",
+      "command": "npm run db:reset",
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: Generate Types",
+      "type": "shell",
+      "command": "npm run gen:types",
+      "problemMatcher": []
+    }
+  ]
+}

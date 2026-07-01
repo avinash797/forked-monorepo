@@ -1,6 +1,6 @@
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/contexts/theme-provider';
-import { GroupedRestaurantDish } from '@/types/restaurant';
+import { GroupedRestaurantDish } from '@forked/types/restaurant';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
@@ -70,9 +70,10 @@ export function DishCardWithRating({
             <View style={styles.cardContent}>
                 {/* Top Right: Rating Badge + Trend Indicator */}
                 <View style={styles.topRightContainer}>
-                    {dish.bayesian_score !== null && dish.bayesian_score > 0 && (
-                        <ScoreBadge score={dish.bayesian_score} />
-                    )}
+                    {dish.bayesian_score !== null &&
+                        dish.bayesian_score > 0 && (
+                            <ScoreBadge score={dish.bayesian_score} />
+                        )}
                 </View>
 
                 {/* Bottom Content */}
@@ -93,8 +94,8 @@ export function DishCardWithRating({
                         {dish.variations.length > 1
                             ? `${dish.variations.length} variations`
                             : dish.variations[0]?.name
-                                ? `${dish.variations[0].name}`
-                                : ''}
+                              ? `${dish.variations[0].name}`
+                              : ''}
                     </ThemedText>
                 </View>
             </View>

@@ -1,0 +1,7 @@
+{
+  "extends": "@forked/typescript-config/library.json",
+  "compilerOptions": {
+    "lib": ["es2022", "dom"]
+  },
+  "include": ["src/**/*.ts"]
+}

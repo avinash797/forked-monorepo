@@ -1,5 +1,5 @@
 import type { AddressData } from '@/hooks/use-address-search';
-import type { Database } from '@/types/database.types';
+import type { Database } from '@forked/supabase';
 
 type UpsertRestaurantArgs =
     Database['public']['Functions']['upsert_restaurant_from_google']['Args'];

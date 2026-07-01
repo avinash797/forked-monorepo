@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { ScoreBadge } from "@/components/ui/score-badge";
 import { Badge } from "@/components/ui/badge";
-import type { LeaderboardEntry } from "@/types/rpc.types";
+import type { LeaderboardEntry } from "@forked/supabase";
 
 export type { LeaderboardEntry };
 

@@ -161,19 +161,26 @@ export function AddressAutocomplete({
                                     { backgroundColor: suggestionBg },
                                     pressed && { opacity: 0.7 },
                                 ]}
-                                onPress={() => handleSelect(item.placePrediction.placeId)}
+                                onPress={() =>
+                                    handleSelect(item.placePrediction.placeId)
+                                }
                             >
                                 <ThemedText
                                     style={styles.suggestionName}
                                     numberOfLines={1}
                                 >
-                                    {item.placePrediction.structuredFormat.mainText.text}
+                                    {
+                                        item.placePrediction.structuredFormat
+                                            .mainText.text
+                                    }
                                 </ThemedText>
                                 <ThemedText
                                     style={styles.suggestionAddress}
                                     numberOfLines={1}
                                 >
-                                    {item.placePrediction.structuredFormat.secondaryText?.text ?? item.placePrediction.text.text}
+                                    {item.placePrediction.structuredFormat
+                                        .secondaryText?.text ??
+                                        item.placePrediction.text.text}
                                 </ThemedText>
                             </Pressable>
                             {index < suggestions.length - 1 && (

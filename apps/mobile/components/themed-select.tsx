@@ -156,7 +156,11 @@ export function ThemedSelect({
                 >
                     {displayText}
                 </ThemedText>
-                <IconSymbol name="chevron-down" size={20} color={theme.color.textSecondary} />
+                <IconSymbol
+                    name="chevron-down"
+                    size={20}
+                    color={theme.color.textSecondary}
+                />
             </Pressable>
             {error && (
                 <ThemedText
@@ -176,7 +180,9 @@ export function ThemedSelect({
                 onDismiss={handleClose}
                 enablePanDownToClose
                 backgroundStyle={{ backgroundColor: theme.color.surface }}
-                handleIndicatorStyle={{ backgroundColor: theme.color.textSecondary }}
+                handleIndicatorStyle={{
+                    backgroundColor: theme.color.textSecondary,
+                }}
             >
                 <BottomSheetView style={styles.bottomSheetContent}>
                     <View style={styles.modalHeader}>
@@ -247,7 +253,9 @@ export function ThemedSelect({
                                         option.value === value && {
                                             backgroundColor,
                                         },
-                                        pressed && { opacity: theme.opacity.pressed },
+                                        pressed && {
+                                            opacity: theme.opacity.pressed,
+                                        },
                                     ]}
                                     onPress={() => handleSelect(option.value)}
                                     android_ripple={{

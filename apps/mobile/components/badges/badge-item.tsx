@@ -1,6 +1,6 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import type { UserBadgeWithDefinition } from '@/types/badge.types';
+import type { UserBadgeWithDefinition } from '@forked/supabase';
 import { Image } from 'expo-image';
 import { Pressable } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -16,7 +16,11 @@ interface BadgeItemProps {
 export function BadgeItem({ item, index, onPress, styles }: BadgeItemProps) {
     const isEarned = item.earned_at !== null;
     return (
-        <Animated.View key={item.id} entering={FadeInDown.delay(index * 50).duration(300)} style={styles.badgeWrapper}>
+        <Animated.View
+            key={item.id}
+            entering={FadeInDown.delay(index * 50).duration(300)}
+            style={styles.badgeWrapper}
+        >
             <Pressable
                 style={({ pressed }) => [
                     styles.badgeItem,
@@ -27,7 +31,9 @@ export function BadgeItem({ item, index, onPress, styles }: BadgeItemProps) {
                 <ThemedView
                     style={[
                         styles.badgeImageContainer,
-                        item.is_featured && isEarned && styles.badgeImageFeatured,
+                        item.is_featured &&
+                            isEarned &&
+                            styles.badgeImageFeatured,
                         !isEarned && styles.badgeImageUnearned,
                     ]}
                 >
@@ -41,12 +47,20 @@ export function BadgeItem({ item, index, onPress, styles }: BadgeItemProps) {
                             contentFit="contain"
                         />
                     ) : (
-                        <ThemedText style={[styles.placeholderEmoji, !isEarned && styles.unearnedImage]}>
+                        <ThemedText
+                            style={[
+                                styles.placeholderEmoji,
+                                !isEarned && styles.unearnedImage,
+                            ]}
+                        >
                             🏅
                         </ThemedText>
                     )}
                 </ThemedView>
-                <ThemedText style={[styles.badgeName, !isEarned && styles.unearnedText]} numberOfLines={1}>
+                <ThemedText
+                    style={[styles.badgeName, !isEarned && styles.unearnedText]}
+                    numberOfLines={1}
+                >
                     {item.name}
                 </ThemedText>
             </Pressable>

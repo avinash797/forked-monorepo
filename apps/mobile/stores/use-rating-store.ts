@@ -1,5 +1,5 @@
-import { Database } from '@/types/database.types';
-import { DishType } from '@/types/dishes';
+import { Database } from '@forked/supabase';
+import { DishType } from '@forked/types/dishes';
 import { create } from 'zustand';
 
 type Restaurant = Database['public']['Tables']['restaurants']['Row'];
@@ -91,9 +91,11 @@ export const useRatingStore = create<RatingState>((set) => ({
 
     // Actions
     setPhotoUri: (uri) => set({ photoUri: uri }),
-    setSelectedRestaurant: (restaurant) => set({ selectedRestaurant: restaurant }),
+    setSelectedRestaurant: (restaurant) =>
+        set({ selectedRestaurant: restaurant }),
     setSelectedDishType: (dishType) => set({ selectedDishType: dishType }),
-    setSelectedVariationId: (variationId) => set({ selectedVariationId: variationId }),
+    setSelectedVariationId: (variationId) =>
+        set({ selectedVariationId: variationId }),
     setSentiment: (sentiment) => set({ sentiment }),
     setReviewText: (text) => set({ reviewText: text }),
     setSelectedTags: (tags) => set({ selectedTags: tags }),

@@ -8,7 +8,7 @@ import {
     validateDisplayName,
     validateEmail,
     validatePassword,
-} from '@/lib/validators';
+} from '@forked/utils';
 import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -16,7 +16,7 @@ import {
     Pressable,
     ScrollView,
     StyleSheet,
-    View
+    View,
 } from 'react-native';
 
 export default function SignupScreen() {
@@ -79,15 +79,10 @@ export default function SignupScreen() {
                     keyboardShouldPersistTaps="handled"
                 >
                     <View style={styles.header}>
-                        <ThemedText type="title">
-                            Sign Up
-                        </ThemedText>
+                        <ThemedText type="title">Sign Up</ThemedText>
                     </View>
 
-                    <View
-
-                        style={styles.form}
-                    >
+                    <View style={styles.form}>
                         <ThemedTextInput
                             label="Name"
                             placeholder="Your name"
@@ -142,14 +137,10 @@ export default function SignupScreen() {
                         />
 
                         <View style={styles.loginContainer}>
-                            <ThemedText >
-                                Already have an account?{' '}
-                            </ThemedText>
+                            <ThemedText>Already have an account? </ThemedText>
                             <Link href="/(auth)/login" asChild>
                                 <Pressable>
-                                    <ThemedText type="link">
-                                        Login
-                                    </ThemedText>
+                                    <ThemedText type="link">Login</ThemedText>
                                 </Pressable>
                             </Link>
                         </View>

@@ -3,7 +3,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-text-input';
 import { ThemedView } from '@/components/themed-view';
 import { useAuth } from '@/hooks/use-auth';
-import { validateEmail } from '@/lib/validators';
+import { validateEmail } from '@forked/utils';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {

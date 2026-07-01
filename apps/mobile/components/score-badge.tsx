@@ -1,5 +1,6 @@
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/contexts/theme-provider';
+import { formatScore, getScoreTier } from '@forked/utils';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
@@ -17,7 +18,8 @@ export function ScoreBadge({ score, style }: ScoreBadgeProps) {
     const textLight = theme.color.textOnImage;
 
     const getBadgeConfig = (score: number) => {
-        if (score >= 7.0) {
+        const tier = getScoreTier(score);
+        if (tier === 'high') {
             return {
                 colors: [
                     theme.color.success,
@@ -30,7 +32,7 @@ export function ScoreBadge({ score, style }: ScoreBadgeProps) {
                         : 'rgba(16, 185, 129, 0.3)',
             };
         }
-        if (score >= 4.0) {
+        if (tier === 'mid') {
             return {
                 colors: [
                     theme.color.warning,
@@ -94,7 +96,7 @@ export function ScoreBadge({ score, style }: ScoreBadgeProps) {
                 style={localStyles.gradient}
             >
                 <ThemedText style={localStyles.text}>
-                    {score.toFixed(1)}
+                    {formatScore(score)}
                 </ThemedText>
             </LinearGradient>
         </View>

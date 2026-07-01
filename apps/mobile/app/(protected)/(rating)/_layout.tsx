@@ -7,17 +7,19 @@ export default function RatingLayout() {
     const router = useRouter();
     const { theme } = useTheme();
     return (
-        <Stack screenOptions={{
-            headerLeft:
-                Platform.OS === 'ios'
-                    ? () => (
-                        <HeaderBackButton
-                            onPress={() => router.back()}
-                            tintColor={theme.color.textPrimary}
-                        />
-                    )
-                    : undefined,
-        }}>
+        <Stack
+            screenOptions={{
+                headerLeft:
+                    Platform.OS === 'ios'
+                        ? () => (
+                              <HeaderBackButton
+                                  onPress={() => router.back()}
+                                  tintColor={theme.color.textPrimary}
+                              />
+                          )
+                        : undefined,
+            }}
+        >
             <Stack.Screen
                 name="index"
                 options={{

@@ -1,6 +1,6 @@
 import { randomNonce, sha256Hex } from '@/lib/nonce';
 import { supabase } from '@/lib/supabase';
-import type { AuthState, UserProfile } from '@/types/auth';
+import type { AuthState, UserProfile } from '@forked/types/auth';
 import {
     GoogleSignin,
     statusCodes,
@@ -234,7 +234,9 @@ export function useAuth(): UseAuthReturn {
             }
 
             if (!credential.identityToken) {
-                throw new Error('Apple sign-in did not return an identity token');
+                throw new Error(
+                    'Apple sign-in did not return an identity token'
+                );
             }
 
             const { data, error } = await supabase.auth.signInWithIdToken({
@@ -271,9 +273,12 @@ export function useAuth(): UseAuthReturn {
             try {
                 await GoogleSignin.hasPlayServices();
                 const res = await GoogleSignin.signIn();
-                const idToken = (res as any)?.data?.idToken ?? (res as any)?.idToken;
+                const idToken =
+                    (res as any)?.data?.idToken ?? (res as any)?.idToken;
                 if (!idToken) {
-                    throw new Error('Google sign-in did not return an id token');
+                    throw new Error(
+                        'Google sign-in did not return an id token'
+                    );
                 }
                 const { error } = await supabase.auth.signInWithIdToken({
                     provider: 'google',

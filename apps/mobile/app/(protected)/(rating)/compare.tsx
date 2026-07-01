@@ -11,12 +11,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-    ActivityIndicator,
-    Pressable,
-    StyleSheet,
-    View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
     FadeIn,
     FadeInDown,
@@ -119,34 +114,48 @@ export default function CompareScreen() {
                 setIsProcessing(false);
             }
         },
-        [battleState, isProcessing, processBattle, params.dishTypeId, setBattleState, clearBattleState, resetRating, router]
+        [
+            battleState,
+            isProcessing,
+            processBattle,
+            params.dishTypeId,
+            setBattleState,
+            clearBattleState,
+            resetRating,
+            router,
+        ]
     );
 
-    const handleSkip = useCallback(
-        async () => {
-            if (isProcessing || !battleState) return;
-            setIsProcessing(true);
+    const handleSkip = useCallback(async () => {
+        if (isProcessing || !battleState) return;
+        setIsProcessing(true);
 
-            try {
-                await skipBattle({
-                    battle_id: battleState.battleId,
-                    dish_type_id: params.dishTypeId,
-                });
+        try {
+            await skipBattle({
+                battle_id: battleState.battleId,
+                dish_type_id: params.dishTypeId,
+            });
 
-                // Skip always ends the battle immediately
-                clearBattleState();
-                resetRating();
-                maybeRequestReview();
-                router.dismissAll();
-                router.replace('/(protected)/(tabs)');
-            } catch (error) {
-                if (__DEV__) console.error('Error skipping battle:', error);
-            } finally {
-                setIsProcessing(false);
-            }
-        },
-        [battleState, isProcessing, skipBattle, params.dishTypeId, clearBattleState, resetRating, router]
-    );
+            // Skip always ends the battle immediately
+            clearBattleState();
+            resetRating();
+            maybeRequestReview();
+            router.dismissAll();
+            router.replace('/(protected)/(tabs)');
+        } catch (error) {
+            if (__DEV__) console.error('Error skipping battle:', error);
+        } finally {
+            setIsProcessing(false);
+        }
+    }, [
+        battleState,
+        isProcessing,
+        skipBattle,
+        params.dishTypeId,
+        clearBattleState,
+        resetRating,
+        router,
+    ]);
 
     const handleClose = () => {
         clearBattleState();
@@ -190,9 +199,7 @@ export default function CompareScreen() {
                     onPress={() => handleSkip()}
                     disabled={isProcessing}
                 >
-                    <ThemedText style={styles.skipText}>
-                        Skip
-                    </ThemedText>
+                    <ThemedText style={styles.skipText}>Skip</ThemedText>
                 </Pressable>
             </Animated.View>
 
@@ -219,8 +226,17 @@ export default function CompareScreen() {
                                 transition={200}
                             />
                         ) : (
-                            <View style={[styles.cardImage, styles.noPhotoPlaceholder]}>
-                                <IconSymbol name="restaurant-outline" size={40} color="#666" />
+                            <View
+                                style={[
+                                    styles.cardImage,
+                                    styles.noPhotoPlaceholder,
+                                ]}
+                            >
+                                <IconSymbol
+                                    name="restaurant-outline"
+                                    size={40}
+                                    color="#666"
+                                />
                             </View>
                         )}
                         <LinearGradient
@@ -271,8 +287,17 @@ export default function CompareScreen() {
                                 transition={200}
                             />
                         ) : (
-                            <View style={[styles.cardImage, styles.noPhotoPlaceholder]}>
-                                <IconSymbol name="restaurant-outline" size={40} color="#666" />
+                            <View
+                                style={[
+                                    styles.cardImage,
+                                    styles.noPhotoPlaceholder,
+                                ]}
+                            >
+                                <IconSymbol
+                                    name="restaurant-outline"
+                                    size={40}
+                                    color="#666"
+                                />
                             </View>
                         )}
                         <LinearGradient
@@ -319,7 +344,6 @@ export default function CompareScreen() {
                     </ThemedText>
                 </Animated.View>
             )}
-
         </ThemedView>
     );
 }

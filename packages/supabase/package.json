@@ -14,6 +14,9 @@
     "./web": "./src/web.ts",
     "./server": "./src/server.ts"
   },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
   "peerDependencies": {
     "@react-native-async-storage/async-storage": "*",
     "@supabase/ssr": "^0.8.0",
@@ -30,5 +33,9 @@
     "react-native-url-polyfill": {
       "optional": true
     }
+  },
+  "devDependencies": {
+    "@forked/typescript-config": "*",
+    "typescript": "~5.9.2"
   }
 }

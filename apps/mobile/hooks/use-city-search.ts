@@ -102,7 +102,8 @@ export function useCitySearch() {
             if (existing) {
                 return {
                     cityId: existing.id,
-                    displayName: `${existing.name}, ${existing.state || ''}`.trim(),
+                    displayName:
+                        `${existing.name}, ${existing.state || ''}`.trim(),
                 };
             }
 
@@ -119,9 +120,10 @@ export function useCitySearch() {
                     country: 'USA',
                     slug,
                     is_active: false,
-                    coordinates: details.lat && details.lng
-                        ? `SRID=4326;POINT(${details.lng} ${details.lat})`
-                        : undefined,
+                    coordinates:
+                        details.lat && details.lng
+                            ? `SRID=4326;POINT(${details.lng} ${details.lat})`
+                            : undefined,
                 })
                 .select('id, name, state')
                 .single();
@@ -140,7 +142,8 @@ export function useCitySearch() {
                     if (fallback) {
                         return {
                             cityId: fallback.id,
-                            displayName: `${fallback.name}, ${fallback.state || ''}`.trim(),
+                            displayName:
+                                `${fallback.name}, ${fallback.state || ''}`.trim(),
                         };
                     }
                 }

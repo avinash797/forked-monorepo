@@ -77,7 +77,11 @@ export function ReportPhotoModal({
                     style: 'destructive',
                     onPress: () => {
                         handleClose();
-                        blockMutation.mutate({ ratingId, dishId, restaurantId });
+                        blockMutation.mutate({
+                            ratingId,
+                            dishId,
+                            restaurantId,
+                        });
                     },
                 },
             ]
@@ -99,7 +103,7 @@ export function ReportPhotoModal({
             onRequestClose={handleClose}
         >
             <Pressable style={styles.overlay} onPress={handleClose}>
-                <Pressable style={styles.content} onPress={() => { }}>
+                <Pressable style={styles.content} onPress={() => {}}>
                     <View style={styles.header}>
                         <ThemedText type="subtitle" style={styles.title}>
                             Report Photo
@@ -107,9 +111,7 @@ export function ReportPhotoModal({
                         <Pressable
                             onPress={handleClose}
                             hitSlop={12}
-                            style={({ pressed }) =>
-                                pressed && { opacity: 0.5 }
-                            }
+                            style={({ pressed }) => pressed && { opacity: 0.5 }}
                         >
                             <IconSymbol
                                 name="close"
@@ -125,8 +127,7 @@ export function ReportPhotoModal({
 
                     <View style={styles.reasons}>
                         {REPORT_REASONS.map((reason) => {
-                            const isSelected =
-                                selectedReason === reason.value;
+                            const isSelected = selectedReason === reason.value;
                             return (
                                 <Pressable
                                     key={reason.value}

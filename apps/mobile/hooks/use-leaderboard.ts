@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import type { DishTypeEntryCount, LeaderboardEntry } from '@/types/rpc.types';
+import type { DishTypeEntryCount, LeaderboardEntry } from '@forked/supabase';
 import { useQuery } from '@tanstack/react-query';
 
 export type { LeaderboardEntry };
@@ -59,15 +59,26 @@ export function useNearbyLeaderboard({
     limit = 10,
 }: NearbyLeaderboardParams) {
     return useQuery({
-        queryKey: ['leaderboard', 'nearby', dishTypeId, latitude, longitude, radiusMeters, limit],
+        queryKey: [
+            'leaderboard',
+            'nearby',
+            dishTypeId,
+            latitude,
+            longitude,
+            radiusMeters,
+            limit,
+        ],
         queryFn: async () => {
-            const { data, error } = await supabase.rpc('get_nearby_leaderboard', {
-                p_dish_type_id: dishTypeId,
-                p_latitude: latitude!,
-                p_longitude: longitude!,
-                p_radius_meters: radiusMeters,
-                p_limit: limit,
-            });
+            const { data, error } = await supabase.rpc(
+                'get_nearby_leaderboard',
+                {
+                    p_dish_type_id: dishTypeId,
+                    p_latitude: latitude!,
+                    p_longitude: longitude!,
+                    p_radius_meters: radiusMeters,
+                    p_limit: limit,
+                }
+            );
             if (error) throw error;
             return (data ?? []) as unknown as LeaderboardEntry[];
         },
@@ -75,13 +86,18 @@ export function useNearbyLeaderboard({
     });
 }
 
-export function useLeaderboardDishTypeCounts(cityId: string | null | undefined) {
+export function useLeaderboardDishTypeCounts(
+    cityId: string | null | undefined
+) {
     return useQuery({
         queryKey: ['leaderboard', 'dish-type-counts', cityId],
         queryFn: async () => {
-            const { data, error } = await supabase.rpc('get_dish_type_entry_counts', {
-                p_city_id: cityId!,
-            });
+            const { data, error } = await supabase.rpc(
+                'get_dish_type_entry_counts',
+                {
+                    p_city_id: cityId!,
+                }
+            );
             if (error) throw error;
 
             const counts = new Map<string, number>();

@@ -1,5 +1,5 @@
-import { Database } from './database.types';
-import { DishType, DishTypeVariation, RestaurantDish } from './dishes';
+import type { Database } from '@forked/supabase';
+import type { DishType, DishTypeVariation, RestaurantDish } from './dishes';
 
 export type RawRestaurant = Database['public']['Tables']['restaurants']['Row'];
 export interface Restaurant extends RawRestaurant {
@@ -32,7 +32,6 @@ export type GroupedRestaurantDish = Omit<
     })[];
 };
 
-
 export type LocationProperties = {
     lat: number | null;
     lng: number | null;
@@ -46,4 +45,4 @@ export type LocationProperties = {
     website: string | null;
     full_address: string;
     neighborhood: string | null;
-}
+};

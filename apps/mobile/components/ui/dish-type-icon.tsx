@@ -31,14 +31,7 @@ export function DishTypeIcon({
     color,
 }: DishTypeIconProps) {
     if (icon) {
-        return (
-            <SvgXml
-                xml={icon}
-                width={size}
-                height={size}
-                color={color}
-            />
-        );
+        return <SvgXml xml={icon} width={size} height={size} color={color} />;
     }
 
     return (

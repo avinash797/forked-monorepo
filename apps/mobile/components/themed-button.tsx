@@ -62,9 +62,7 @@ export function ThemedButton({
     const isDisabled = disabled || loading;
 
     const loaderColor =
-        variant === 'primary'
-            ? theme.color.accentOn
-            : theme.color.textPrimary;
+        variant === 'primary' ? theme.color.accentOn : theme.color.textPrimary;
 
     return (
         <Pressable

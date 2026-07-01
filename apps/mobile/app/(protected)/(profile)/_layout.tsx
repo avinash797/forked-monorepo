@@ -21,22 +21,10 @@ export default function ProfileGroupLayout() {
                         : undefined,
             }}
         >
-            <Stack.Screen
-                name="settings"
-                options={{ title: 'Settings' }}
-            />
-            <Stack.Screen
-                name="edit"
-                options={{ title: 'Edit Profile' }}
-            />
-            <Stack.Screen
-                name="appearance"
-                options={{ title: 'Appearance' }}
-            />
-            <Stack.Screen
-                name="account"
-                options={{ title: 'Account' }}
-            />
+            <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+            <Stack.Screen name="edit" options={{ title: 'Edit Profile' }} />
+            <Stack.Screen name="appearance" options={{ title: 'Appearance' }} />
+            <Stack.Screen name="account" options={{ title: 'Account' }} />
         </Stack>
     );
 }

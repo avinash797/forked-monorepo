@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { ContentReport } from "@/lib/admin/report-queries";
-import type { Database } from "@/types/database.types";
-import type { AnonymizeUserDataResponse } from "@/types/rpc.types";
+import type { Database } from "@forked/supabase";
+import type { AnonymizeUserDataResponse } from "@forked/supabase";
 
 type Json = Database["public"]["Tables"]["admin_actions"]["Insert"]["details"];
 

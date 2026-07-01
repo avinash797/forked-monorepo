@@ -11,13 +11,22 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
 import { useCityDishTypes } from '@/hooks/use-dish-types';
-import { useGetLeaderboardByDishType, useLeaderboardDishTypeCounts } from '@/hooks/use-leaderboard';
-import type { LeaderboardEntry } from '@/types/rpc.types';
+import {
+    useGetLeaderboardByDishType,
+    useLeaderboardDishTypeCounts,
+} from '@/hooks/use-leaderboard';
+import type { LeaderboardEntry } from '@forked/supabase';
 import { useLocationFilterStore } from '@/stores';
-import { DishType } from '@/types/dishes';
+import { DishType } from '@forked/types/dishes';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import {
+    Pressable,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    View,
+} from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -54,10 +63,12 @@ export default function LeaderboardScreen() {
     const cityId = selectedCityId;
 
     // Fetch city-prioritized dish types
-    const { data: cityDishTypes, isPending: isCityDishTypesPending } = useCityDishTypes(cityId);
+    const { data: cityDishTypes, isPending: isCityDishTypesPending } =
+        useCityDishTypes(cityId);
 
     // Fetch entry counts to sort pills by activity
-    const { data: dishTypeCounts, isPending: isDishTypeCountsPending } = useLeaderboardDishTypeCounts(cityId);
+    const { data: dishTypeCounts, isPending: isDishTypeCountsPending } =
+        useLeaderboardDishTypeCounts(cityId);
 
     const sortedDishTypes = useMemo(() => {
         if (!cityDishTypes?.length) return [];
@@ -189,13 +200,17 @@ export default function LeaderboardScreen() {
                 showsVerticalScrollIndicator={false}
                 contentInsetAdjustmentBehavior="automatic"
             >
-                {(isCityDishTypesPending || isDishTypeCountsPending || (selectedDishType && isPending)) ? (
-                    [0, 1, 2, 3, 4].map((i) => (
-                        <GlobalLeaderboardRowSkeleton key={i} />
-                    ))
-                ) : null}
+                {isCityDishTypesPending ||
+                isDishTypeCountsPending ||
+                (selectedDishType && isPending)
+                    ? [0, 1, 2, 3, 4].map((i) => (
+                          <GlobalLeaderboardRowSkeleton key={i} />
+                      ))
+                    : null}
 
-                {!isCityDishTypesPending && !isDishTypeCountsPending && sortedDishTypes.length === 0 ? (
+                {!isCityDishTypesPending &&
+                !isDishTypeCountsPending &&
+                sortedDishTypes.length === 0 ? (
                     <View style={styles.emptyContainer}>
                         <EmptyState
                             icon="restaurant-outline"
@@ -209,7 +224,9 @@ export default function LeaderboardScreen() {
                     </View>
                 ) : null}
 
-                {selectedDishType && !isPending && leaderboardItems.length === 0 ? (
+                {selectedDishType &&
+                !isPending &&
+                leaderboardItems.length === 0 ? (
                     <View style={styles.emptyContainer}>
                         <EmptyState
                             icon="restaurant-outline"

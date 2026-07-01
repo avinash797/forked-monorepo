@@ -1,5 +1,5 @@
 import { ThemedText } from '@/components/themed-text';
-import type { UserBadgeWithDefinition } from '@/types/badge.types';
+import type { UserBadgeWithDefinition } from '@forked/supabase';
 import { Image } from 'expo-image';
 import { Modal, Pressable, View } from 'react-native';
 import Animated, { BounceIn } from 'react-native-reanimated';
@@ -11,7 +11,11 @@ interface BadgeDetailModalProps {
     styles: BadgeStyles;
 }
 
-export function BadgeDetailModal({ badge, onClose, styles }: BadgeDetailModalProps) {
+export function BadgeDetailModal({
+    badge,
+    onClose,
+    styles,
+}: BadgeDetailModalProps) {
     return (
         <Modal
             visible={badge !== null}
@@ -38,7 +42,9 @@ export function BadgeDetailModal({ badge, onClose, styles }: BadgeDetailModalPro
                                 />
                             ) : (
                                 <View style={styles.modalBadgePlaceholder}>
-                                    <ThemedText style={styles.modalPlaceholderEmoji}>
+                                    <ThemedText
+                                        style={styles.modalPlaceholderEmoji}
+                                    >
                                         🏅
                                     </ThemedText>
                                 </View>
@@ -62,7 +68,11 @@ export function BadgeDetailModal({ badge, onClose, styles }: BadgeDetailModalPro
                                 Earned{' '}
                                 {new Date(badge.earned_at).toLocaleDateString(
                                     undefined,
-                                    { month: 'long', day: 'numeric', year: 'numeric' }
+                                    {
+                                        month: 'long',
+                                        day: 'numeric',
+                                        year: 'numeric',
+                                    }
                                 )}
                             </ThemedText>
                         ) : (

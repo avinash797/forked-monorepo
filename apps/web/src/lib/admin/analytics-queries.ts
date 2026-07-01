@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { DailyStat, CityBreakdown, DishTypeBreakdown } from "@/types/rpc.types";
+import type { DailyStat, CityBreakdown, DishTypeBreakdown } from "@forked/supabase";
 
 export type { DailyStat, CityBreakdown, DishTypeBreakdown };
 

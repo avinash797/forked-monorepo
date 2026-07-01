@@ -250,21 +250,16 @@ export const LocationBottomSheet = forwardRef<
             enablePanDownToClose
             onDismiss={onClose}
             backgroundStyle={{ backgroundColor: theme.color.surface }}
-            handleIndicatorStyle={{ backgroundColor: theme.color.textSecondary }}
+            handleIndicatorStyle={{
+                backgroundColor: theme.color.textSecondary,
+            }}
             backdropComponent={renderBackdrop}
             enableContentPanningGesture={false}
             enableDynamicSizing={false}
         >
-
             {/* Tabs — Neighborhoods tab hidden until feature is ready */}
             <View style={styles.tabContainer}>
-
-                <ThemedText
-                    style={[
-                        styles.tabText,
-                        styles.activeTabText,
-                    ]}
-                >
+                <ThemedText style={[styles.tabText, styles.activeTabText]}>
                     Cities
                 </ThemedText>
             </View>

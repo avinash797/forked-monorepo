@@ -16,9 +16,7 @@ import Animated, {
     useAnimatedStyle,
     useSharedValue,
 } from 'react-native-reanimated';
-import {
-    useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const HERO_HEIGHT = 340;
 const HEADER_HEIGHT = 60;
@@ -219,10 +217,7 @@ export default function ProfileScreen() {
                 >
                     {/* Hero Content */}
                     <Animated.View
-                        style={[
-                            styles.heroContent,
-                            animatedHeroContentStyle,
-                        ]}
+                        style={[styles.heroContent, animatedHeroContentStyle]}
                     >
                         <View style={styles.avatarContainer}>
                             {avatarUrl ? (
@@ -240,9 +235,7 @@ export default function ProfileScreen() {
                                         },
                                     ]}
                                 >
-                                    <ThemedText
-                                        style={styles.avatarInitials}
-                                    >
+                                    <ThemedText style={styles.avatarInitials}>
                                         {getInitials(displayName)}
                                     </ThemedText>
                                 </ThemedView>
@@ -311,7 +304,7 @@ const createThemedStyles = (
             flex: 1,
         },
         scrollContent: {
-            paddingBottom: theme.space.xl
+            paddingBottom: theme.space.xl,
         },
         topControls: {
             position: 'absolute',
@@ -376,7 +369,6 @@ const createThemedStyles = (
         },
         avatarContainer: {
             marginBottom: theme.space.sm,
-
         },
         avatar: {
             width: 120,

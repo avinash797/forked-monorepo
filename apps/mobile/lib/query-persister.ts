@@ -16,7 +16,7 @@ const PERSISTED_QUERY_PREFIXES = [
     'userStats',
     'device-location',
     'leaderboard',
-    'myDishRankings'
+    'myDishRankings',
 ];
 
 export function shouldDehydrateQuery(query: Query): boolean {

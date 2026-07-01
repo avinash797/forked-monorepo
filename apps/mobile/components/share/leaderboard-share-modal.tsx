@@ -156,7 +156,10 @@ export function LeaderboardShareModal({
                         <View style={styles.topHeader}>
                             {/* Branded logo box */}
                             <View style={styles.logoBox}>
-                                <ForkLogo size={20} color={theme.color.textOnImage} />
+                                <ForkLogo
+                                    size={20}
+                                    color={theme.color.textOnImage}
+                                />
                             </View>
 
                             {/* Title block */}
@@ -212,7 +215,7 @@ export function LeaderboardShareModal({
                                         style={[
                                             styles.rankRow,
                                             idx < top5.length - 1 &&
-                                            styles.rankRowDivider,
+                                                styles.rankRowDivider,
                                         ]}
                                     >
                                         {/* Large rank number */}
@@ -232,7 +235,22 @@ export function LeaderboardShareModal({
                                                 style={styles.neighborhoodText}
                                                 numberOfLines={1}
                                             >
-                                                <IconSymbol name="pin" size={12} color={'rgba(255,255,255,0.50)'} />{(entry.neighborhood_name && entry.city_name ? (entry.neighborhood_name + ', ' + entry.city_name) : entry.neighborhood_name ?? entry.city_name ?? '').toUpperCase()}
+                                                <IconSymbol
+                                                    name="pin"
+                                                    size={12}
+                                                    color={
+                                                        'rgba(255,255,255,0.50)'
+                                                    }
+                                                />
+                                                {(entry.neighborhood_name &&
+                                                entry.city_name
+                                                    ? entry.neighborhood_name +
+                                                      ', ' +
+                                                      entry.city_name
+                                                    : (entry.neighborhood_name ??
+                                                      entry.city_name ??
+                                                      '')
+                                                ).toUpperCase()}
                                             </Text>
                                         </View>
 

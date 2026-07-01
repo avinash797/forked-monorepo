@@ -4,7 +4,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-text-input';
 import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
-import { validateEmail, validatePassword } from '@/lib/validators';
+import { validateEmail, validatePassword } from '@forked/utils';
 import { Link } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -12,7 +12,7 @@ import {
     Pressable,
     ScrollView,
     StyleSheet,
-    View
+    View,
 } from 'react-native';
 
 export default function LoginScreen() {
@@ -63,17 +63,10 @@ export default function LoginScreen() {
                     keyboardShouldPersistTaps="handled"
                 >
                     <View style={styles.header}>
-
-                        <ThemedText type="title">
-                            Welcome back!
-                        </ThemedText>
-
+                        <ThemedText type="title">Welcome back!</ThemedText>
                     </View>
 
-                    <View
-
-                        style={styles.form}
-                    >
+                    <View style={styles.form}>
                         <ThemedTextInput
                             label="Email"
                             placeholder="your@email.com"
@@ -97,9 +90,7 @@ export default function LoginScreen() {
                         />
 
                         {errors.general && (
-                            <ThemedText
-                                style={styles.generalError}
-                            >
+                            <ThemedText style={styles.generalError}>
                                 {errors.general}
                             </ThemedText>
                         )}
@@ -132,14 +123,12 @@ export default function LoginScreen() {
                         />
 
                         <View style={styles.signupContainer}>
-                            <ThemedText >
+                            <ThemedText>
                                 Don&apos;t have an account?{' '}
                             </ThemedText>
                             <Link href="/(auth)/signup" asChild>
                                 <Pressable>
-                                    <ThemedText type="link">
-                                        Sign Up
-                                    </ThemedText>
+                                    <ThemedText type="link">Sign Up</ThemedText>
                                 </Pressable>
                             </Link>
                         </View>
@@ -151,7 +140,6 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-
     container: {
         flex: 1,
     },

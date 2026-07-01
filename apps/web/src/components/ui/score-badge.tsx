@@ -1,14 +1,16 @@
+import { formatScore, getScoreTier, type ScoreTier } from "@forked/utils";
+
 interface ScoreBadgeProps {
   score: number;
   size?: "sm" | "md" | "lg";
   className?: string;
 }
 
-function getScoreColor(score: number): string {
-  if (score >= 7.0) return "from-emerald-500 to-emerald-600 text-white";
-  if (score >= 4.0) return "from-amber-400 to-amber-500 text-white";
-  return "from-red-400 to-red-500 text-white";
-}
+const tierStyles: Record<ScoreTier, string> = {
+  high: "from-emerald-500 to-emerald-600 text-white",
+  mid: "from-amber-400 to-amber-500 text-white",
+  low: "from-red-400 to-red-500 text-white",
+};
 
 const sizeStyles = {
   sm: "text-xs px-2 py-0.5 min-w-[36px]",
@@ -23,9 +25,9 @@ export function ScoreBadge({
 }: ScoreBadgeProps) {
   return (
     <span
-      className={`inline-flex items-center justify-center font-bold rounded-sm bg-gradient-to-b ${getScoreColor(score)} ${sizeStyles[size]} ${className}`}
+      className={`inline-flex items-center justify-center font-bold rounded-sm bg-gradient-to-b ${tierStyles[getScoreTier(score)]} ${sizeStyles[size]} ${className}`}
     >
-      {score.toFixed(1)}
+      {formatScore(score)}
     </span>
   );
 }

@@ -1,7 +1,9 @@
 import type { useTheme } from '@/contexts/theme-provider';
 import { StyleSheet } from 'react-native';
 
-export const createBadgeStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+export const createBadgeStyles = (
+    theme: ReturnType<typeof useTheme>['theme']
+) =>
     StyleSheet.create({
         container: {
             marginTop: theme.space.lg,

@@ -16,9 +16,27 @@ interface SentimentOption {
 }
 
 const SENTIMENT_OPTIONS: SentimentOption[] = [
-    { value: 'liked', label: 'Liked it!', color: '#22c55e', icon: 'heart-outline', iconSelected: 'heart' },
-    { value: 'okay', label: 'It was okay', color: '#f59e0b', icon: 'thumbs-up-outline', iconSelected: 'thumbs-up' },
-    { value: 'disliked', label: "Didn't like it", color: '#ef4444', icon: 'thumbs-down-outline', iconSelected: 'thumbs-down' },
+    {
+        value: 'liked',
+        label: 'Liked it!',
+        color: '#22c55e',
+        icon: 'heart-outline',
+        iconSelected: 'heart',
+    },
+    {
+        value: 'okay',
+        label: 'It was okay',
+        color: '#f59e0b',
+        icon: 'thumbs-up-outline',
+        iconSelected: 'thumbs-up',
+    },
+    {
+        value: 'disliked',
+        label: "Didn't like it",
+        color: '#ef4444',
+        icon: 'thumbs-down-outline',
+        iconSelected: 'thumbs-down',
+    },
 ];
 
 interface SentimentPickerProps {
@@ -27,7 +45,11 @@ interface SentimentPickerProps {
     disabled?: boolean;
 }
 
-export function SentimentPicker({ value, onChange, disabled }: SentimentPickerProps) {
+export function SentimentPicker({
+    value,
+    onChange,
+    disabled,
+}: SentimentPickerProps) {
     const { theme } = useTheme();
     const styles = useMemo(() => createThemedStyles(theme), [theme]);
 
@@ -41,17 +63,24 @@ export function SentimentPicker({ value, onChange, disabled }: SentimentPickerPr
                         style={({ pressed }) => [
                             styles.option,
                             {
-                                borderColor: isSelected ? option.color : theme.color.border,
+                                borderColor: isSelected
+                                    ? option.color
+                                    : theme.color.border,
                                 backgroundColor: isSelected
                                     ? option.color + '20'
                                     : theme.color.surface,
-                                opacity: pressed || (disabled && !isSelected) ? theme.opacity.pressed : 1,
+                                opacity:
+                                    pressed || (disabled && !isSelected)
+                                        ? theme.opacity.pressed
+                                        : 1,
                             },
                         ]}
                         onPress={() => {
                             if (disabled) return;
                             if (process.env.EXPO_OS === 'ios') {
-                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                Haptics.impactAsync(
+                                    Haptics.ImpactFeedbackStyle.Light
+                                );
                             }
                             onChange(option.value);
                         }}
@@ -60,19 +89,28 @@ export function SentimentPicker({ value, onChange, disabled }: SentimentPickerPr
                         accessibilityState={{ checked: isSelected }}
                         accessibilityLabel={option.label}
                     >
-                        <IconSymbol name={isSelected ? option.iconSelected : option.icon} size={24} color={option.color} />
+                        <IconSymbol
+                            name={
+                                isSelected ? option.iconSelected : option.icon
+                            }
+                            size={24}
+                            color={option.color}
+                        />
                         <ThemedText
                             style={[
                                 styles.label,
                                 {
-                                    color: isSelected ? option.color : theme.color.textPrimary,
-                                    fontWeight: isSelected ? theme.font.weight.bold : theme.font.weight.medium,
+                                    color: isSelected
+                                        ? option.color
+                                        : theme.color.textPrimary,
+                                    fontWeight: isSelected
+                                        ? theme.font.weight.bold
+                                        : theme.font.weight.medium,
                                 },
                             ]}
                         >
                             {option.label}
                         </ThemedText>
-
                     </Pressable>
                 );
             })}
@@ -99,5 +137,4 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
         label: {
             fontSize: theme.font.size.md + 1,
         },
-
     });

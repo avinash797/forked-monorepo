@@ -1,15 +1,18 @@
 # Theme System Usage Guide
 
-The app now uses a complete design token system with multiple theme variants. All existing components have been migrated and will automatically benefit from the new system.
+Design tokens (color palettes + scales) live in the shared **`@forked/theme`**
+package (`packages/theme`). This folder assembles them into the app theme:
 
-## Available Themes
+- `index.ts` — `getTheme(name, mode)` builds the active theme object from
+  `mobilePalette` + `scales`.
+- `makeStyles.ts` — `createStyles` / `makeShadow` helpers and the `ActiveTheme` type.
+- `componentStyles.ts` — pre-built styles (`card`, `h1`, `buttonPrimary`, ...).
 
-- **default** - Original Forked theme (warm orange accent)
-- **genZ** - Punchy, bold design with red accent
-- **foodies** - Premium, warm theme with brick red
-- **critics** - Editorial, sophisticated theme with wine accent
+To change a color or scale value, edit `packages/theme/src/palettes.ts`
+(mobile palette) or `scales.ts` — never hard-code values in components.
+The web app consumes the same package, so scales stay in sync automatically.
 
-Each theme supports both light and dark modes.
+There is currently one theme variant (`default`) with light + dark modes.
 
 ## Basic Usage
 
@@ -19,7 +22,7 @@ Each theme supports both light and dark modes.
 import { useTheme } from '@/contexts/theme-provider';
 
 function MyComponent() {
-    const { theme, themeName, setThemeName, isDark } = useTheme();
+    const { theme, isDark } = useTheme();
 
     return (
         <View
@@ -29,39 +32,10 @@ function MyComponent() {
                 style={{
                     color: theme.color.textPrimary,
                     fontSize: theme.font.size.lg,
-                    marginBottom: theme.space.sm,
                 }}
             >
                 Hello World
             </Text>
-            <TouchableOpacity
-                style={{
-                    backgroundColor: theme.color.accent,
-                    borderRadius: theme.radius.md,
-                    padding: theme.space.md,
-                }}
-            >
-                <Text style={{ color: theme.color.accentOn }}>Click Me</Text>
-            </TouchableOpacity>
-        </View>
-    );
-}
-```
-
-### Switching Themes
-
-```tsx
-import { useTheme } from '@/contexts/theme-provider';
-
-function ThemeSwitcher() {
-    const { themeName, setThemeName } = useTheme();
-
-    return (
-        <View>
-            <Button onPress={() => setThemeName('default')}>Default</Button>
-            <Button onPress={() => setThemeName('genZ')}>Gen Z</Button>
-            <Button onPress={() => setThemeName('foodies')}>Foodies</Button>
-            <Button onPress={() => setThemeName('critics')}>Critics</Button>
         </View>
     );
 }
@@ -167,7 +141,7 @@ const cardStyle = {
 
 ```tsx
 theme.opacity.disabled; // 0.45
-theme.opacity.pressed; // 0.80
+theme.opacity.pressed; // 0.82
 theme.opacity.subtle; // 0.10
 ```
 
@@ -188,10 +162,6 @@ function MyComponent() {
             container: {
                 backgroundColor: t.color.bg,
                 padding: t.space.md,
-            },
-            text: {
-                color: t.color.textPrimary,
-                fontSize: t.font.size.md,
             },
         }),
         theme
@@ -231,26 +201,7 @@ Available pre-built styles:
 - `badge` - Badge component
 - `divider` - Horizontal divider
 
-## Backwards Compatibility
-
-All existing themed components support legacy `lightColor` and `darkColor` props:
-
-```tsx
-// Still works (deprecated)
-<ThemedText lightColor="#000" darkColor="#fff">Text</ThemedText>
-
-// Recommended (uses theme tokens)
-<ThemedText>Text</ThemedText>
-```
-
 ## Theme Persistence
 
-User's selected theme is automatically saved to AsyncStorage and restored on app launch.
-
-## Testing Different Themes
-
-To test a specific theme on app launch, pass `initialThemeName` to ThemeProvider in `app/_layout.tsx`:
-
-```tsx
-<ThemeProvider initialThemeName="genZ">{/* ... */}</ThemeProvider>
-```
+User's selected color-scheme preference is automatically saved to
+AsyncStorage and restored on app launch (see `contexts/theme-provider.tsx`).

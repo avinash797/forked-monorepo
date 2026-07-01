@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Database } from "@/types/database.types";
+import type { Database } from "@forked/supabase";
 
 export type ReportReason = Database["public"]["Enums"]["report_reason"];
 export type ReportStatus = Database["public"]["Enums"]["report_status"];

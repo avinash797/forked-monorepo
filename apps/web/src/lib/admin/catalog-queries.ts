@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import type { TasteTag } from "@forked/types";
 
 export type DishTypeRow = {
   id: string;
@@ -36,13 +37,7 @@ export type DishTypeVariationRow = {
   created_at: string | null;
 };
 
-export type TasteTagRow = {
-  id: string;
-  dish_type_id: string | null;
-  name: string;
-  slug: string;
-  created_at: string | null;
-};
+export type TasteTagRow = TasteTag;
 
 export type CityRow = {
   id: string;

@@ -9,13 +9,14 @@ import {
     BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
 import { BottomSheetDefaultBackdropProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types';
-import { forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
 import {
-    ActivityIndicator,
-    Pressable,
-    StyleSheet,
-    View,
-} from 'react-native';
+    forwardRef,
+    useCallback,
+    useImperativeHandle,
+    useMemo,
+    useRef,
+} from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface CitySearchSheetProps {
@@ -172,7 +173,9 @@ export const CitySearchSheet = forwardRef<
             enablePanDownToClose
             onDismiss={handleDismiss}
             backgroundStyle={{ backgroundColor: theme.color.surface }}
-            handleIndicatorStyle={{ backgroundColor: theme.color.textSecondary }}
+            handleIndicatorStyle={{
+                backgroundColor: theme.color.textSecondary,
+            }}
             backdropComponent={renderBackdrop}
             enableContentPanningGesture={false}
             enableDynamicSizing={false}

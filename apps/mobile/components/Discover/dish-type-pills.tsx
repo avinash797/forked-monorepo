@@ -1,13 +1,8 @@
 import { useTheme } from '@/contexts/theme-provider';
-import { DishType } from '@/types/dishes';
+import { DishType } from '@forked/types/dishes';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect } from 'react';
-import {
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    View,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import DishTypePill from '../ui/dish-type-pill';
 
@@ -71,7 +66,10 @@ export default function DishTypePills({
                                 <Pressable
                                     onPress={() => {
                                         if (process.env.EXPO_OS === 'ios') {
-                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                            Haptics.impactAsync(
+                                                Haptics.ImpactFeedbackStyle
+                                                    .Light
+                                            );
                                         }
                                         handleDishTypeSelect(dishType);
                                     }}

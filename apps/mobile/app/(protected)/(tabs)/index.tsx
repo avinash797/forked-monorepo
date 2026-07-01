@@ -21,9 +21,14 @@ import { useLocationFilterStore, useLocationStore } from '@/stores';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import {
+    Animated,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 
 export default function HomeScreen() {
     const router = useRouter();
@@ -61,13 +66,16 @@ export default function HomeScreen() {
         }
 
         // City filter or fallback
-        const cityId =
-            selectedCityId || currentCity?.id;
+        const cityId = selectedCityId || currentCity?.id;
         return { cityId };
     }, [filterType, selectedCityId, nearbyConfig, currentCity?.id]);
 
     // Fetch all discover data in a single batch
-    const { data: discoverData, isLoading, refetch } = useDiscoverData(locationFilter);
+    const {
+        data: discoverData,
+        isLoading,
+        refetch,
+    } = useDiscoverData(locationFilter);
     const [refreshing, setRefreshing] = useState(false);
 
     const onRefresh = useCallback(async () => {
@@ -109,7 +117,7 @@ export default function HomeScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.safeArea} edges={['top']} >
+        <SafeAreaView style={styles.safeArea} edges={['top']}>
             <ThemedView style={styles.container}>
                 {/* Sticky header with scroll-driven shadow */}
                 <Animated.View
@@ -144,7 +152,6 @@ export default function HomeScreen() {
                     }
                 >
                     <View style={styles.heroSection}>
-
                         <RecentBattleTicker />
 
                         <View style={styles.sectionContainer}>
@@ -186,7 +193,6 @@ export default function HomeScreen() {
 
                         <View style={styles.sectionContainer}>
                             <View style={styles.sectionTitleContainer}>
-
                                 <ThemedText type="subtitle">
                                     Rising Stars
                                 </ThemedText>
@@ -226,8 +232,6 @@ export default function HomeScreen() {
                             </ScrollView>
                         </View>
                     </View>
-
-
                 </Animated.ScrollView>
             </ThemedView>
 

@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { Database } from '@/types/database.types';
+import { Database } from '@forked/supabase';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 type Restaurant = Database['public']['Tables']['restaurants']['Row'];

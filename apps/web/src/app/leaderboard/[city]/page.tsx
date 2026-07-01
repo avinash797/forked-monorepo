@@ -5,7 +5,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { DishTypeTabs } from "@/components/leaderboard/dish-type-tabs";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
-import type { LeaderboardEntry } from "@/types/rpc.types";
+import type { LeaderboardEntry } from "@forked/supabase";
 import { buildMetadata } from "@/lib/seo";
 
 export const revalidate = 600;

@@ -69,10 +69,7 @@ export function useBlockUser() {
             if (error.message?.includes('Cannot block yourself')) {
                 Alert.alert('Error', 'You cannot block yourself.');
             } else {
-                Alert.alert(
-                    'Error',
-                    'Failed to block user. Please try again.'
-                );
+                Alert.alert('Error', 'Failed to block user. Please try again.');
             }
         },
     });

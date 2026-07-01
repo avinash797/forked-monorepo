@@ -1,4 +1,4 @@
-import { Database } from './database.types';
+import type { Database } from '@forked/supabase';
 
 export interface Charm {
     id: string;

@@ -48,7 +48,7 @@ export default async function LeaderboardHub() {
             Leaderboards
           </h1>
           <p className="text-text-secondary mb-12">
-            Choose a city to explore dish leaderboards ranked by Forked's proprietary algorithm.
+            Choose a city to explore dish leaderboards ranked by Forked&apos;s proprietary algorithm.
           </p>
 
           {cities.length > 0 ? (

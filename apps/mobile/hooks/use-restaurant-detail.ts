@@ -3,7 +3,7 @@ import {
     GroupedRestaurantDish,
     RestaurantDishWithDetails,
     RestaurantWithNeighborhood,
-} from '@/types/restaurant';
+} from '@forked/types/restaurant';
 import { useQuery } from '@tanstack/react-query';
 
 /**

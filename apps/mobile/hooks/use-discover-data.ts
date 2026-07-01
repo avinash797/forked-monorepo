@@ -118,7 +118,6 @@ export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
                         .eq('is_active', true)
                         .order('launch_order', { ascending: true }),
 
-
                     // 2. Fetch heroes using RPC (excludes user-rated restaurants)
                     supabase.rpc('get_discover_heroes', {
                         ...rpcLocationParams,
@@ -194,7 +193,6 @@ export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
                     icon: dt.icon,
                     topDish: heroMap[dt.id] || null,
                     risingStar: risingStarMap[dt.id] || null,
-
                 })
             );
 

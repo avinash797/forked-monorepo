@@ -10,18 +10,12 @@ import { useTheme } from '@/contexts/theme-provider';
 import { useAuth } from '@/hooks/use-auth';
 import { useDishDetail } from '@/hooks/use-dish-detail';
 import { useRatingStore } from '@/stores';
-import { Restaurant } from '@/types/restaurant';
+import { Restaurant } from '@forked/types/restaurant';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {
-    Alert,
-    Dimensions,
-    Pressable,
-    StyleSheet,
-    View,
-} from 'react-native';
+import { Alert, Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
     Easing,
     Extrapolation,
@@ -167,7 +161,6 @@ export default function DishDetailScreen() {
             );
         }
     };
-
 
     // Rating store for pre-populating when user wants to rate this dish
     const { setSelectedRestaurant, setSelectedDishType, resetRating } =
@@ -339,8 +332,8 @@ export default function DishDetailScreen() {
             userRating.sentiment === 'liked'
                 ? 'liked'
                 : userRating.sentiment === 'disliked'
-                    ? "didn't like"
-                    : 'thought was okay';
+                  ? "didn't like"
+                  : 'thought was okay';
 
         const dishName = coreData.dish_type.name.toLowerCase();
 
@@ -357,17 +350,20 @@ export default function DishDetailScreen() {
             ? tagNames.length === 1
                 ? tagNames[0]
                 : tagNames.length === 2
-                    ? `${tagNames[0]} and ${tagNames[1]}`
-                    : `${tagNames.slice(0, -1).join(', ')}, and ${tagNames[tagNames.length - 1]}`
+                  ? `${tagNames[0]} and ${tagNames[1]}`
+                  : `${tagNames.slice(0, -1).join(', ')}, and ${tagNames[tagNames.length - 1]}`
             : null;
 
         return (
             <ThemedText style={styles.ratingSummaryText}>
                 {'You '}
-                {userRating.sentiment !== 'okay' ? bold(sentimentVerb) : 'thought'}
+                {userRating.sentiment !== 'okay'
+                    ? bold(sentimentVerb)
+                    : 'thought'}
                 {` this `}
                 {bold(dishName)}
-                {userRating.sentiment === 'okay' && ' was '}{userRating.sentiment === 'okay' && bold('just okay')}
+                {userRating.sentiment === 'okay' && ' was '}
+                {userRating.sentiment === 'okay' && bold('just okay')}
                 {formattedTags && (
                     <>
                         {', and described it as '}
@@ -470,7 +466,9 @@ export default function DishDetailScreen() {
                     icon="alert-circle-outline"
                     title="Unable to load dish"
                     message={
-                        (core.error instanceof Error ? core.error.message : core.error) ||
+                        (core.error instanceof Error
+                            ? core.error.message
+                            : core.error) ||
                         'This dish may no longer be available.'
                     }
                     actionLabel="Go Back"
@@ -491,11 +489,37 @@ export default function DishDetailScreen() {
                     <Animated.View
                         style={[styles.backButton, animatedBackButtonStyle]}
                     >
-                        <Animated.View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }, animatedLightIconStyle]}>
-                            <IconSymbol name="arrow-back" size={24} color={theme.color.textOnImage} />
+                        <Animated.View
+                            style={[
+                                StyleSheet.absoluteFill,
+                                {
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                },
+                                animatedLightIconStyle,
+                            ]}
+                        >
+                            <IconSymbol
+                                name="arrow-back"
+                                size={24}
+                                color={theme.color.textOnImage}
+                            />
                         </Animated.View>
-                        <Animated.View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }, animatedDarkIconStyle]}>
-                            <IconSymbol name="arrow-back" size={24} color={theme.color.textPrimary} />
+                        <Animated.View
+                            style={[
+                                StyleSheet.absoluteFill,
+                                {
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                },
+                                animatedDarkIconStyle,
+                            ]}
+                        >
+                            <IconSymbol
+                                name="arrow-back"
+                                size={24}
+                                color={theme.color.textPrimary}
+                            />
                         </Animated.View>
                     </Animated.View>
                 </Pressable>
@@ -634,7 +658,9 @@ export default function DishDetailScreen() {
                                 <View style={styles.statDivider} />
                                 <View style={styles.statItem}>
                                     <ThemedText style={styles.statValue}>
-                                        {(coreData as any).bayesian_score?.toFixed(1) ?? '—'}
+                                        {(
+                                            coreData as any
+                                        ).bayesian_score?.toFixed(1) ?? '—'}
                                     </ThemedText>
                                     <ThemedText style={styles.statLabel}>
                                         Score
@@ -643,7 +669,10 @@ export default function DishDetailScreen() {
                                 <View style={styles.statDivider} />
                                 <View style={styles.statItem}>
                                     <ThemedText style={styles.statValue}>
-                                        {((coreData as any).confidence_tier ?? 'low').replace('_', ' ')}
+                                        {(
+                                            (coreData as any).confidence_tier ??
+                                            'low'
+                                        ).replace('_', ' ')}
                                     </ThemedText>
                                     <ThemedText style={styles.statLabel}>
                                         Confidence
@@ -655,7 +684,7 @@ export default function DishDetailScreen() {
                                 style={[
                                     styles.rateButtonContainer,
                                     userRating &&
-                                    styles.rateButtonContainerRated,
+                                        styles.rateButtonContainerRated,
                                 ]}
                             >
                                 {ratings.isLoading ? (
@@ -775,8 +804,6 @@ export default function DishDetailScreen() {
                             )}
                         </View>
                     </View>
-
-
                 </View>
             </Animated.ScrollView>
 

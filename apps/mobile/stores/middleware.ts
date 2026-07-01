@@ -28,13 +28,13 @@ import { persist, createJSONStorage, PersistOptions } from 'zustand/middleware';
  * ```
  */
 export const createAsyncStoragePersist = <T>(
-  config: StateCreator<T>,
-  options: PersistOptions<T>
+    config: StateCreator<T>,
+    options: PersistOptions<T>
 ) => {
-  return persist(config, {
-    ...options,
-    storage: createJSONStorage(() => AsyncStorage),
-  });
+    return persist(config, {
+        ...options,
+        storage: createJSONStorage(() => AsyncStorage),
+    });
 };
 
 /**
@@ -55,23 +55,23 @@ export const createAsyncStoragePersist = <T>(
  * ```
  */
 export const logger = <T>(
-  config: StateCreator<T>,
-  name?: string
+    config: StateCreator<T>,
+    name?: string
 ): StateCreator<T> => {
-  return (set, get, api) =>
-    config(
-      (args) => {
-        if (__DEV__) {
-          console.log(`[${name || 'Store'}] Before:`, get());
-          set(args);
-          console.log(`[${name || 'Store'}] After:`, get());
-        } else {
-          set(args);
-        }
-      },
-      get,
-      api
-    );
+    return (set, get, api) =>
+        config(
+            (args) => {
+                if (__DEV__) {
+                    console.log(`[${name || 'Store'}] Before:`, get());
+                    set(args);
+                    console.log(`[${name || 'Store'}] After:`, get());
+                } else {
+                    set(args);
+                }
+            },
+            get,
+            api
+        );
 };
 
 /**

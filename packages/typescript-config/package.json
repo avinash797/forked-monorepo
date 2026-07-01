@@ -1,0 +1,6 @@
+{
+  "name": "@forked/typescript-config",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared TypeScript configs for the Forked monorepo"
+}

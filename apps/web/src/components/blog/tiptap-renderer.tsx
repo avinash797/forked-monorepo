@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { Json } from "@/types/database.types";
+import type { Json } from "@forked/supabase";
 
 interface TipTapNode {
   type: string;

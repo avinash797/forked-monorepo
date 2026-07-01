@@ -1,6 +1,6 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
-import type { PersonalRankingEntry } from '@/types/rpc.types';
+import type { PersonalRankingEntry } from '@forked/supabase';
 import { formatDistanceToNow } from 'date-fns';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -16,7 +16,6 @@ import Svg, { Text as SvgText } from 'react-native-svg';
 import { ScoreBadge } from '../score-badge';
 import { ThemedText } from '../themed-text';
 
-
 interface PersonalLeaderboardRowProps {
     item: PersonalRankingEntry;
     onPress: () => void;
@@ -24,7 +23,10 @@ interface PersonalLeaderboardRowProps {
 
 type Medal = 'gold' | 'silver' | 'bronze';
 
-const SENTIMENT_CONFIG: Record<string, { icon: IconSymbolName; color: string; label: string }> = {
+const SENTIMENT_CONFIG: Record<
+    string,
+    { icon: IconSymbolName; color: string; label: string }
+> = {
     liked: { icon: 'heart', color: '#22c55e', label: 'Liked' },
     okay: { icon: 'thumbs-up', color: '#f59e0b', label: 'Okay' },
     disliked: { icon: 'thumbs-down', color: '#ef4444', label: "Didn't like" },
@@ -34,12 +36,17 @@ const SENTIMENT_CONFIG: Record<string, { icon: IconSymbolName; color: string; la
  * Row for the user's personal ranking — ranks by Elo-derived score
  * and shows sentiment + when rated.
  */
-export function PersonalLeaderboardRow({ item, onPress }: PersonalLeaderboardRowProps) {
+export function PersonalLeaderboardRow({
+    item,
+    onPress,
+}: PersonalLeaderboardRowProps) {
     const { theme } = useTheme();
     const medal = getMedal(item.rank);
     const styles = createThemedStyles(theme, medal);
 
-    const sentimentInfo = item.sentiment ? SENTIMENT_CONFIG[item.sentiment] : null;
+    const sentimentInfo = item.sentiment
+        ? SENTIMENT_CONFIG[item.sentiment]
+        : null;
 
     return (
         <Pressable
@@ -62,8 +69,15 @@ export function PersonalLeaderboardRow({ item, onPress }: PersonalLeaderboardRow
             )}
 
             <View style={styles.content}>
-                <View style={{ position: 'absolute', left: 0, top: 0, zIndex: 10 }}>
-                    <Svg width="40" height="70" >
+                <View
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        zIndex: 10,
+                    }}
+                >
+                    <Svg width="40" height="70">
                         {/* Stroke layer */}
                         <SvgText
                             x="20"
@@ -84,7 +98,7 @@ export function PersonalLeaderboardRow({ item, onPress }: PersonalLeaderboardRow
                             y="30%"
                             textAnchor="middle"
                             alignmentBaseline="central"
-                            fill={"#fff"}
+                            fill={'#fff'}
                             fontSize={40}
                             fontWeight="900"
                             strokeWidth={0}
@@ -93,7 +107,6 @@ export function PersonalLeaderboardRow({ item, onPress }: PersonalLeaderboardRow
                         </SvgText>
                     </Svg>
                 </View>
-
 
                 <View style={styles.photoContainer}>
                     {item.photo_url ? (
@@ -125,8 +138,14 @@ export function PersonalLeaderboardRow({ item, onPress }: PersonalLeaderboardRow
                         </ThemedText>
                     )}
                     <ThemedText style={styles.neighborhood} numberOfLines={1}>
-                        <IconSymbol name="pin" size={14} color={theme.color.textSecondary} />
-                        {item.neighborhood_name ? `${item.neighborhood_name}, ${item.city_name}` : item.city_name}
+                        <IconSymbol
+                            name="pin"
+                            size={14}
+                            color={theme.color.textSecondary}
+                        />
+                        {item.neighborhood_name
+                            ? `${item.neighborhood_name}, ${item.city_name}`
+                            : item.city_name}
                     </ThemedText>
 
                     {sentimentInfo && (
@@ -137,24 +156,40 @@ export function PersonalLeaderboardRow({ item, onPress }: PersonalLeaderboardRow
                                 color={sentimentInfo.color}
                             />
                             <ThemedText
-                                style={[styles.metaText, { color: sentimentInfo.color, fontWeight: '600' }]}
+                                style={[
+                                    styles.metaText,
+                                    {
+                                        color: sentimentInfo.color,
+                                        fontWeight: '600',
+                                    },
+                                ]}
                                 numberOfLines={1}
                             >
                                 {sentimentInfo.label}
                             </ThemedText>
                             {item.rated_at ? (
                                 <>
-                                    <ThemedText style={styles.metaDot}>·</ThemedText>
-                                    <ThemedText style={styles.metaText} numberOfLines={1}>
-                                        {formatDistanceToNow(new Date(item.rated_at), { addSuffix: true })}
+                                    <ThemedText style={styles.metaDot}>
+                                        ·
+                                    </ThemedText>
+                                    <ThemedText
+                                        style={styles.metaText}
+                                        numberOfLines={1}
+                                    >
+                                        {formatDistanceToNow(
+                                            new Date(item.rated_at),
+                                            { addSuffix: true }
+                                        )}
                                     </ThemedText>
                                 </>
                             ) : null}
-                            <ScoreBadge score={item.derived_score ?? 0} style={styles.scoreBadge} />
+                            <ScoreBadge
+                                score={item.derived_score ?? 0}
+                                style={styles.scoreBadge}
+                            />
                         </View>
                     )}
                 </View>
-
             </View>
         </Pressable>
     );
@@ -165,22 +200,52 @@ export function PersonalLeaderboardRowSkeleton() {
     const opacity = useSharedValue(1);
 
     useEffect(() => {
-        opacity.value = withRepeat(withTiming(0.35, { duration: 750 }), -1, true);
+        opacity.value = withRepeat(
+            withTiming(0.35, { duration: 750 }),
+            -1,
+            true
+        );
     }, []);
 
     const animStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
     const bg = theme.color.surface2;
 
     return (
-        <Animated.View style={[skeletonStyles.container, { backgroundColor: theme.color.surface }, animStyle]}>
+        <Animated.View
+            style={[
+                skeletonStyles.container,
+                { backgroundColor: theme.color.surface },
+                animStyle,
+            ]}
+        >
             <View style={skeletonStyles.content}>
                 <View style={[skeletonStyles.rank, { backgroundColor: bg }]} />
-                <View style={[skeletonStyles.photo, { backgroundColor: bg, borderRadius: theme.radius.sm }]} />
+                <View
+                    style={[
+                        skeletonStyles.photo,
+                        { backgroundColor: bg, borderRadius: theme.radius.sm },
+                    ]}
+                />
                 <View style={skeletonStyles.info}>
-                    <View style={[skeletonStyles.nameLine, { backgroundColor: bg, borderRadius: 4 }]} />
-                    <View style={[skeletonStyles.subLine, { backgroundColor: bg, borderRadius: 4 }]} />
+                    <View
+                        style={[
+                            skeletonStyles.nameLine,
+                            { backgroundColor: bg, borderRadius: 4 },
+                        ]}
+                    />
+                    <View
+                        style={[
+                            skeletonStyles.subLine,
+                            { backgroundColor: bg, borderRadius: 4 },
+                        ]}
+                    />
                 </View>
-                <View style={[skeletonStyles.score, { backgroundColor: bg, borderRadius: theme.radius.sm }]} />
+                <View
+                    style={[
+                        skeletonStyles.score,
+                        { backgroundColor: bg, borderRadius: theme.radius.sm },
+                    ]}
+                />
             </View>
         </Animated.View>
     );
@@ -204,9 +269,18 @@ function getMedalGradient(medal: Medal, theme: any): [string, string] {
 
 function adjustBrightness(color: string, factor: number): string {
     const hex = color?.replace('#', '') || '000000';
-    const r = Math.min(255, Math.round(parseInt(hex.substring(0, 2), 16) * factor));
-    const g = Math.min(255, Math.round(parseInt(hex.substring(2, 4), 16) * factor));
-    const b = Math.min(255, Math.round(parseInt(hex.substring(4, 6), 16) * factor));
+    const r = Math.min(
+        255,
+        Math.round(parseInt(hex.substring(0, 2), 16) * factor)
+    );
+    const g = Math.min(
+        255,
+        Math.round(parseInt(hex.substring(2, 4), 16) * factor)
+    );
+    const b = Math.min(
+        255,
+        Math.round(parseInt(hex.substring(4, 6), 16) * factor)
+    );
     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
@@ -251,7 +325,7 @@ const skeletonStyles = StyleSheet.create({
 
 const createThemedStyles = (
     theme: ReturnType<typeof useTheme>['theme'],
-    medal?: Medal,
+    medal?: Medal
 ) =>
     StyleSheet.create({
         container: {

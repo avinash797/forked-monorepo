@@ -13,7 +13,7 @@ import { buildUpsertRestaurantParams } from '@/lib/restaurant-params';
 import { supabase } from '@/lib/supabase';
 import { useRatingStore } from '@/stores';
 import { useLocationStore } from '@/stores/location.store';
-import { Database } from '@/types/database.types';
+import { Database } from '@forked/supabase';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

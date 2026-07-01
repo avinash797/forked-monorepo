@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { DishType } from '@/types/dishes';
+import { DishType } from '@forked/types/dishes';
 import { useQuery } from '@tanstack/react-query';
 
 export function useDishTypes() {

@@ -19,7 +19,7 @@ import {
     Pressable,
     ScrollView,
     StyleSheet,
-    View
+    View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -142,7 +142,10 @@ export default function EditProfileScreen() {
                             user.id,
                             'avatars'
                         );
-                        if (result) setValue('avatar_url', result.url, { shouldDirty: true });
+                        if (result)
+                            setValue('avatar_url', result.url, {
+                                shouldDirty: true,
+                            });
                     }
                 },
             },
@@ -157,7 +160,10 @@ export default function EditProfileScreen() {
                             user.id,
                             'avatars'
                         );
-                        if (result) setValue('avatar_url', result.url, { shouldDirty: true });
+                        if (result)
+                            setValue('avatar_url', result.url, {
+                                shouldDirty: true,
+                            });
                     }
                 },
             },
@@ -212,7 +218,10 @@ export default function EditProfileScreen() {
             <ScrollView
                 contentContainerStyle={[
                     styles.scrollContent,
-                    { paddingBottom: insets.bottom > 0 ? insets.bottom + 24 : 48 },
+                    {
+                        paddingBottom:
+                            insets.bottom > 0 ? insets.bottom + 24 : 48,
+                    },
                 ]}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
@@ -302,7 +311,7 @@ export default function EditProfileScreen() {
                                 style={[
                                     styles.cityFieldText,
                                     !cityDisplayText &&
-                                    styles.cityFieldPlaceholder,
+                                        styles.cityFieldPlaceholder,
                                 ]}
                                 numberOfLines={1}
                             >
@@ -351,7 +360,7 @@ export default function EditProfileScreen() {
             <CitySearchSheet
                 ref={citySheetRef}
                 onSelect={handleCitySelect}
-                onClose={() => { }}
+                onClose={() => {}}
             />
         </View>
     );

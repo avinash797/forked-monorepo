@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { Database } from '@/types/database.types';
+import { Database } from '@forked/supabase';
 import { useQuery } from '@tanstack/react-query';
 
 export type DishTypeVariation =

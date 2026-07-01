@@ -13,14 +13,11 @@ export function useDeleteAccount() {
         mutationFn: async (): Promise<DeleteAccountResponse> => {
             // supabase.functions.invoke automatically passes the current
             // session's access token in the Authorization header
-            const { data, error } = await supabase.functions.invoke(
-                'delete-account'
-            );
+            const { data, error } =
+                await supabase.functions.invoke('delete-account');
 
             if (error) {
-                throw new Error(
-                    error.message || 'Failed to delete account'
-                );
+                throw new Error(error.message || 'Failed to delete account');
             }
 
             if (!data?.success) {

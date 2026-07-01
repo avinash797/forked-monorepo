@@ -12,20 +12,29 @@ import { useAuth } from '@/hooks/use-auth';
 import { useDishTypes } from '@/hooks/use-dish-types';
 import { useMyDishRankings } from '@/hooks/use-ratings';
 import { useUserStats } from '@/hooks/use-user-stats';
-import { DishType } from '@/types/dishes';
-import type { PersonalRankingEntry } from '@/types/rpc.types';
+import { DishType } from '@forked/types/dishes';
+import type { PersonalRankingEntry } from '@forked/supabase';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import {
+    Pressable,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    View,
+} from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const personal = () => {
+const PersonalScreen = () => {
     const router = useRouter();
 
     const { theme } = useTheme();
     const insets = useSafeAreaInsets();
-    const styles = useMemo(() => createThemedStyles(theme, insets), [theme, insets]);
+    const styles = useMemo(
+        () => createThemedStyles(theme, insets),
+        [theme, insets]
+    );
     const { user } = useAuth();
 
     const [selectedDishType, setSelectedDishType] = useState<DishType | null>(
@@ -34,8 +43,11 @@ const personal = () => {
     const [shareModalVisible, setShareModalVisible] = useState(false);
 
     // Fetch dish types and user stats, then filter to only types the user has rated
-    const { data: allDishTypes, isPending: isDishTypesPending } = useDishTypes();
-    const { data: userStats, isPending: isUserStatsPending } = useUserStats(user?.id);
+    const { data: allDishTypes, isPending: isDishTypesPending } =
+        useDishTypes();
+    const { data: userStats, isPending: isUserStatsPending } = useUserStats(
+        user?.id
+    );
 
     const personalDishTypes = useMemo(() => {
         if (!userStats?.dishes_by_type) return [];
@@ -68,7 +80,6 @@ const personal = () => {
             },
         });
     };
-
 
     return (
         <View style={styles.container}>
@@ -117,7 +128,9 @@ const personal = () => {
             <ScrollView
                 refreshControl={
                     <RefreshControl
-                        refreshing={isDishRankingsFetching && !isDishRankingsPending}
+                        refreshing={
+                            isDishRankingsFetching && !isDishRankingsPending
+                        }
                         onRefresh={() => refetch()}
                         tintColor={theme.color.accent}
                     />
@@ -126,18 +139,25 @@ const personal = () => {
                 showsVerticalScrollIndicator={false}
                 contentInsetAdjustmentBehavior="automatic"
             >
-                {(isDishTypesPending || isUserStatsPending || (selectedDishType && isDishRankingsPending)) ? (
-                    [0, 1, 2, 3, 4].map((i) => (
-                        <PersonalLeaderboardRowSkeleton key={i} />
-                    ))
-                ) : null}
+                {isDishTypesPending ||
+                isUserStatsPending ||
+                (selectedDishType && isDishRankingsPending)
+                    ? [0, 1, 2, 3, 4].map((i) => (
+                          <PersonalLeaderboardRowSkeleton key={i} />
+                      ))
+                    : null}
 
-                {!isDishTypesPending && !isUserStatsPending && !selectedDishType && personalDishTypes.length === 0 ? (
+                {!isDishTypesPending &&
+                !isUserStatsPending &&
+                !selectedDishType &&
+                personalDishTypes.length === 0 ? (
                     <View style={styles.emptyContainer}>
                         <EmptyState
                             icon="restaurant-outline"
                             title="No Rankings Yet"
-                            message={'This is where you will see your best dishes. \nStart by rating one!'}
+                            message={
+                                'This is where you will see your best dishes. \nStart by rating one!'
+                            }
                             actionLabel="Rate a Dish"
                             onActionPress={() =>
                                 router.push('/(protected)/(rating)')
@@ -164,9 +184,12 @@ const personal = () => {
     );
 };
 
-export default personal;
+export default PersonalScreen;
 
-const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme'], insets: ReturnType<typeof useSafeAreaInsets>) =>
+const createThemedStyles = (
+    theme: ReturnType<typeof useTheme>['theme'],
+    insets: ReturnType<typeof useSafeAreaInsets>
+) =>
     StyleSheet.create({
         container: {
             flex: 1,
@@ -204,7 +227,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme'], insets:
             lineHeight: theme.font.size.xxl + 6,
             flex: 1,
             flexGrow: 1,
-            flexWrap: 'wrap'
+            flexWrap: 'wrap',
         },
         mainSubtitle: {
             fontSize: theme.font.size.lg,

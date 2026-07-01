@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@forked/supabase"],
+  transpilePackages: [
+    "@forked/supabase",
+    "@forked/theme",
+    "@forked/types",
+    "@forked/utils",
+  ],
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [

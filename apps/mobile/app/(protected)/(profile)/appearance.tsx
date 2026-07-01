@@ -9,8 +9,13 @@ const COLOR_SCHEME_OPTIONS = [
 ] as const;
 
 export default function AppearanceScreen() {
-    const { themeName, setThemeName, themePreference, setThemePreference, theme } =
-        useTheme();
+    const {
+        themeName,
+        setThemeName,
+        themePreference,
+        setThemePreference,
+        theme,
+    } = useTheme();
 
     const styles = createThemedStyles(theme);
 

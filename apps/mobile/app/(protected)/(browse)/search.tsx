@@ -14,9 +14,9 @@ import {
 } from '@/hooks/use-search';
 import { buildUpsertRestaurantParams } from '@/lib/restaurant-params';
 import { supabase } from '@/lib/supabase';
-import { DishType } from '@/types/dishes';
-import { LocationProperties } from '@/types/restaurant';
-import { Database } from '@/types/database.types';
+import { DishType } from '@forked/types/dishes';
+import { LocationProperties } from '@forked/types/restaurant';
+import { Database } from '@forked/supabase';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -170,18 +170,14 @@ export default function SearchScreen() {
         </Pressable>
     );
 
-    const renderRestaurantRow = ({
-        item,
-    }: {
-        item: RestaurantSearchItem;
-    }) => {
+    const renderRestaurantRow = ({ item }: { item: RestaurantSearchItem }) => {
         let name: string;
         let subtitle: string | undefined;
         let handlePress: () => void;
 
         if (item.type === 'restaurant') {
-            const locationProperties =
-                item.data.location_properties as LocationProperties;
+            const locationProperties = item.data
+                .location_properties as LocationProperties;
             name = item.data.name;
             subtitle = locationProperties
                 ? `${locationProperties.street?.split(' ').slice(1).join(' ')}, ${locationProperties.city}, ${locationProperties.state}`
@@ -456,7 +452,7 @@ export default function SearchScreen() {
                                             style={[
                                                 styles.tabBadgeText,
                                                 isActive &&
-                                                styles.tabBadgeTextActive,
+                                                    styles.tabBadgeTextActive,
                                             ]}
                                         >
                                             {tab.count}

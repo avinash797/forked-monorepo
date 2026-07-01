@@ -1,10 +1,5 @@
 import { useMemo, useState } from 'react';
-import {
-    TextInput,
-    Pressable,
-    View,
-    type TextInputProps,
-} from 'react-native';
+import { TextInput, Pressable, View, type TextInputProps } from 'react-native';
 
 import { useTheme } from '@/contexts/theme-provider';
 import { ThemedText } from './themed-text';

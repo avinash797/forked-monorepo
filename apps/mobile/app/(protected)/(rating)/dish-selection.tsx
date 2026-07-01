@@ -15,7 +15,7 @@ import {
     useRestaurantDishes,
 } from '@/hooks/use-restaurant-dishes';
 import { useRatingStore } from '@/stores';
-import { DishType } from '@/types/dishes';
+import { DishType } from '@forked/types/dishes';
 import { Stack, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -85,8 +85,6 @@ export default function DishSelectionScreen() {
         }
     }, [selectedRestaurant, router]);
 
-    if (!selectedRestaurant) return null;
-
     // ─── Derived data ────────────────────────────────────────────────────────
 
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -151,7 +149,7 @@ export default function DishSelectionScreen() {
             if (filteredRestaurantDishes.length > 0) {
                 result.push({
                     key: 'all-restaurant',
-                    title: `At ${selectedRestaurant.name}`,
+                    title: `At ${selectedRestaurant?.name ?? ''}`,
                     data: filteredRestaurantDishes,
                 });
             }
@@ -168,7 +166,10 @@ export default function DishSelectionScreen() {
             }
         } else {
             // Default view: structured sections
-            if (allRestaurantDishes.length > 5 && top5RestaurantDishes.length > 0) {
+            if (
+                allRestaurantDishes.length > 5 &&
+                top5RestaurantDishes.length > 0
+            ) {
                 result.push({
                     key: 'top',
                     title: 'Most Rated Here',
@@ -178,7 +179,7 @@ export default function DishSelectionScreen() {
             if (allRestaurantDishes.length > 0) {
                 result.push({
                     key: 'all-restaurant',
-                    title: `All Dishes at ${selectedRestaurant.name}`,
+                    title: `All Dishes at ${selectedRestaurant?.name ?? ''}`,
                     data: allRestaurantDishes,
                 });
             }
@@ -206,7 +207,7 @@ export default function DishSelectionScreen() {
         filteredRestaurantDishes,
         filteredCityDishTypes,
         filteredOtherDishTypes,
-        selectedRestaurant.name,
+        selectedRestaurant?.name,
     ]);
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
@@ -369,6 +370,10 @@ export default function DishSelectionScreen() {
     );
 
     const isLoading = isLoadingRestDishes || isLoadingDishTypes;
+
+    // All hooks have run by this point, so the guard no longer changes the
+    // hook order between renders (the effect above navigates back).
+    if (!selectedRestaurant) return null;
 
     // ─── Render ──────────────────────────────────────────────────────────────
 

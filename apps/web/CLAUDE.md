@@ -114,17 +114,16 @@ src/
 │   │   ├── user-queries.ts        # User list/detail/activity queries
 │   │   ├── moderation-queries.ts  # Flag/photo/restaurant queries
 │   │   └── analytics-queries.ts   # RPC call wrappers for charts
-│   ├── supabase/
-│   │   ├── client.ts              # createBrowserClient (for client components)
-│   │   ├── server.ts              # createServerClient (reads cookies from next/headers)
-│   │   ├── middleware.ts          # createServerClient for middleware (request/response cookies)
-│   │   └── static.ts             # createStaticClient (no cookies — for generateStaticParams)
-│   └── theme/
-│       └── tokens.ts              # TypeScript reference of all design tokens
-│
-└── types/
-    └── database.types.ts          # Re-exports shared types from @forked/supabase (packages/supabase)
+│   └── supabase/
+│       ├── client.ts              # createBrowserClient (for client components)
+│       ├── server.ts              # createServerClient (reads cookies from next/headers)
+│       ├── middleware.ts          # createServerClient for middleware (request/response cookies)
+│       └── static.ts             # createStaticClient (no cookies — for generateStaticParams)
 ```
+
+Database/RPC types are imported directly from `@forked/supabase`, domain types
+from `@forked/types`, and shared helpers (score tiers, validators) from
+`@forked/utils` — there is no local `src/types/` folder.
 
 ## Git Workflow Rules
 
@@ -167,7 +166,14 @@ src/
 
 ### Token Source
 
-Design tokens come from the mobile app's `forked/lib/theme/token.default.ts`. They are defined as CSS custom properties in `globals.css` and mapped to Tailwind via `@theme inline`.
+Design tokens come from the shared `@forked/theme` package (`packages/theme`).
+The web palette lives in `packages/theme/src/palettes.ts` and is rendered to CSS
+custom properties in the **generated** `@forked/theme/theme.css`, which
+`globals.css` imports and maps to Tailwind via `@theme inline`.
+
+To change a token: edit `packages/theme/src/palettes.ts` (or `scales.ts`), run
+`npm run gen:theme` at the repo root, and commit the regenerated `theme.css`.
+Never hand-edit `theme.css` or re-declare token values in this app.
 
 ### Key Colors
 

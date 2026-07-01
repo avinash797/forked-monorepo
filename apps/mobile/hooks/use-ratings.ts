@@ -1,12 +1,12 @@
 import { supabase } from '@/lib/supabase';
 import { useBadgeStore } from '@/stores/use-badge-store';
-import { Database } from '@/types/database.types';
+import { Database } from '@forked/supabase';
 import type {
     BattleOpponent,
     CreateRatingResponse,
     PersonalRankingEntry,
     SubmitComparisonResponse,
-} from '@/types/rpc.types';
+} from '@forked/supabase';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 type PersonalRating = Database['public']['Tables']['personal_ratings']['Row'];
@@ -83,9 +83,12 @@ export function useMyDishRankings(dishTypeId?: string) {
         queryFn: async () => {
             if (!dishTypeId) return [];
 
-            const { data, error } = await supabase.rpc('get_personal_rankings', {
-                p_dish_type_id: dishTypeId,
-            });
+            const { data, error } = await supabase.rpc(
+                'get_personal_rankings',
+                {
+                    p_dish_type_id: dishTypeId,
+                }
+            );
 
             if (error) throw error;
             return (data ?? []) as unknown as PersonalRankingEntry[];

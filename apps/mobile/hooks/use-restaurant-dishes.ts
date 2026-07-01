@@ -1,19 +1,26 @@
 import { supabase } from '@/lib/supabase';
-import { Database } from '@/types/database.types';
+import { Database } from '@forked/supabase';
 import { useQuery } from '@tanstack/react-query';
 
 type RestaurantDishRow =
     Database['public']['Tables']['restaurant_dishes']['Row'];
 type DishTypeRow = Database['public']['Tables']['dish_types']['Row'];
-type VariationRow =
-    Database['public']['Tables']['dish_type_variations']['Row'];
+type VariationRow = Database['public']['Tables']['dish_type_variations']['Row'];
 
-export interface RestaurantDishWithDetails
-    extends Omit<RestaurantDishRow, 'dish_type_id' | 'variation_id'> {
+export interface RestaurantDishWithDetails extends Omit<
+    RestaurantDishRow,
+    'dish_type_id' | 'variation_id'
+> {
     dish_type_id: string;
     variation_id: string | null;
-    dish_type: Pick<DishTypeRow, 'id' | 'name' | 'emoji' | 'icon' | 'slug' | 'aliases'>;
-    variation: Pick<VariationRow, 'id' | 'name' | 'emoji' | 'icon' | 'slug'> | null;
+    dish_type: Pick<
+        DishTypeRow,
+        'id' | 'name' | 'emoji' | 'icon' | 'slug' | 'aliases'
+    >;
+    variation: Pick<
+        VariationRow,
+        'id' | 'name' | 'emoji' | 'icon' | 'slug'
+    > | null;
 }
 
 /**

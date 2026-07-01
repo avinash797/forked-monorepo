@@ -1,6 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
+import { CONFIDENCE_TIER_LABELS } from '@forked/utils';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
 interface ConfidenceMeterProps {
@@ -31,7 +32,7 @@ export function ConfidenceMeter({
         if (tier === 'very_high') {
             return {
                 level: 'very_high' as const,
-                label: 'Verified',
+                label: CONFIDENCE_TIER_LABELS.very_high,
                 icon: 'flame-outline' as const,
                 color: theme.color.success,
                 backgroundColor:
@@ -43,7 +44,7 @@ export function ConfidenceMeter({
         if (tier === 'high') {
             return {
                 level: 'high' as const,
-                label: 'Established',
+                label: CONFIDENCE_TIER_LABELS.high,
                 icon: 'checkmark-circle-outline' as const,
                 color: theme.color.info,
                 backgroundColor:
@@ -55,7 +56,7 @@ export function ConfidenceMeter({
         if (tier === 'medium') {
             return {
                 level: 'medium' as const,
-                label: 'Emerging',
+                label: CONFIDENCE_TIER_LABELS.medium,
                 icon: 'trending-up-outline' as const,
                 color: theme.color.warning,
                 backgroundColor:
@@ -66,7 +67,7 @@ export function ConfidenceMeter({
         }
         return {
             level: 'low' as const,
-            label: 'New',
+            label: CONFIDENCE_TIER_LABELS.low,
             icon: 'sparkles-outline' as const,
             color: theme.color.textSecondary,
             backgroundColor:
@@ -82,7 +83,8 @@ export function ConfidenceMeter({
         container: {
             flexDirection: 'row',
             alignItems: 'center',
-            paddingHorizontal: variant === 'compact' ? theme.space.xs : theme.space.sm,
+            paddingHorizontal:
+                variant === 'compact' ? theme.space.xs : theme.space.sm,
             paddingVertical: theme.space.xxs,
             backgroundColor: config.backgroundColor,
             borderRadius: theme.radius.pill,
@@ -99,12 +101,14 @@ export function ConfidenceMeter({
         },
         label: {
             color: config.color,
-            fontSize: variant === 'compact' ? theme.font.size.xs : theme.font.size.sm,
+            fontSize:
+                variant === 'compact' ? theme.font.size.xs : theme.font.size.sm,
             fontWeight: '600',
         },
         battles: {
             color: theme.color.textSecondary,
-            fontSize: variant === 'compact' ? theme.font.size.xs : theme.font.size.sm,
+            fontSize:
+                variant === 'compact' ? theme.font.size.xs : theme.font.size.sm,
             fontWeight: '500',
         },
     });

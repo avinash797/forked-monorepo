@@ -1,5 +1,5 @@
 import { useTheme } from '@/contexts/theme-provider';
-import { DishType } from '@/types/dishes';
+import { DishType } from '@forked/types/dishes';
 import React from 'react';
 import { View } from 'react-native';
 import { ThemedText } from '../themed-text';
@@ -10,7 +10,12 @@ const DishTypePill = (dishType: DishType) => {
     const { theme } = useTheme();
     return (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <DishTypeIcon icon={icon} emoji={emoji} size={18} color={theme.color.accent} />
+            <DishTypeIcon
+                icon={icon}
+                emoji={emoji}
+                size={18}
+                color={theme.color.accent}
+            />
             <ThemedText style={{ fontWeight: '600' }}>{name}</ThemedText>
         </View>
     );

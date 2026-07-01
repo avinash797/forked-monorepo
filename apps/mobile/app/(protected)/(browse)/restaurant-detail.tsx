@@ -14,7 +14,14 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Dimensions, Linking, Pressable, StyleSheet, View } from 'react-native';
+import {
+    Alert,
+    Dimensions,
+    Linking,
+    Pressable,
+    StyleSheet,
+    View,
+} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import ImageViewing from 'react-native-image-viewing';
 import Animated, {
@@ -55,7 +62,6 @@ function formatPlaceTypes(types: string[] | null): string[] {
         )
         .slice(0, 3); // cap at 3 to avoid clutter
 }
-
 
 // ── Skeleton placeholder with pulsing animation ─────────────────────────
 function SkeletonBlock({
@@ -131,7 +137,12 @@ export default function RestaurantDetailScreen() {
     const { user } = useAuth();
 
     const { data, isLoading, error } = useRestaurantDetail(venueId);
-    const { venue, dishes = [], photoRatingMap = {}, photoUserMap = {} } = data || {};
+    const {
+        venue,
+        dishes = [],
+        photoRatingMap = {},
+        photoUserMap = {},
+    } = data || {};
     const allPhotos = Object.keys(photoRatingMap);
 
     // Report photo state
@@ -352,7 +363,6 @@ export default function RestaurantDetailScreen() {
                             style={{ marginBottom: 8 }}
                         />
 
-
                         {/* Place types row  e.g. "Steak House • Fine Dining • Bar" */}
                         <View
                             style={{
@@ -396,8 +406,6 @@ export default function RestaurantDetailScreen() {
                             borderRadius={13}
                             style={{ marginBottom: 8 }}
                         />
-
-
                     </View>
 
                     {/* Action icon buttons (globe / phone / location) */}
@@ -412,7 +420,6 @@ export default function RestaurantDetailScreen() {
                             height={35}
                             borderRadius={20}
                         />
-
                     </View>
 
                     {/* Menu section */}
@@ -466,11 +473,37 @@ export default function RestaurantDetailScreen() {
                     <Animated.View
                         style={[styles.backButton, animatedBackButtonStyle]}
                     >
-                        <Animated.View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }, animatedLightIconStyle]}>
-                            <IconSymbol name="arrow-back" size={24} color={theme.color.textOnImage} />
+                        <Animated.View
+                            style={[
+                                StyleSheet.absoluteFill,
+                                {
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                },
+                                animatedLightIconStyle,
+                            ]}
+                        >
+                            <IconSymbol
+                                name="arrow-back"
+                                size={24}
+                                color={theme.color.textOnImage}
+                            />
                         </Animated.View>
-                        <Animated.View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }, animatedDarkIconStyle]}>
-                            <IconSymbol name="arrow-back" size={24} color={theme.color.textPrimary} />
+                        <Animated.View
+                            style={[
+                                StyleSheet.absoluteFill,
+                                {
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                },
+                                animatedDarkIconStyle,
+                            ]}
+                        >
+                            <IconSymbol
+                                name="arrow-back"
+                                size={24}
+                                color={theme.color.textPrimary}
+                            />
                         </Animated.View>
                     </Animated.View>
                 </Pressable>
@@ -549,7 +582,6 @@ export default function RestaurantDetailScreen() {
                         style={StyleSheet.absoluteFill}
                         pointerEvents="none"
                     />
-
                 </Animated.View>
 
                 {/* Content Section */}
@@ -570,7 +602,11 @@ export default function RestaurantDetailScreen() {
 
                     <View style={styles.venueHeader}>
                         {/* Name row with verified badge */}
-                        <ScrollView contentContainerStyle={styles.dishTypesRow} horizontal showsHorizontalScrollIndicator={false}>
+                        <ScrollView
+                            contentContainerStyle={styles.dishTypesRow}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                        >
                             {[...dishTypesServed].map((dishType, index) => (
                                 <View key={index} style={styles.dishTypePill}>
                                     <ThemedText style={styles.dishTypeText}>
@@ -597,8 +633,10 @@ export default function RestaurantDetailScreen() {
                                 </View>
                             )}
                         </View>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                        >
                             {/* Google place type pills */}
                             {formatPlaceTypes(venue.types).length > 0 && (
                                 <View style={styles.placeTypesRow}>
@@ -619,7 +657,6 @@ export default function RestaurantDetailScreen() {
 
                         {/* Neighborhood + dish types row */}
                         <View style={styles.cuisinesContainer}>
-
                             <Pressable
                                 onPress={handleAddressPress}
                                 style={styles.neighborhoodPill}
@@ -629,30 +666,31 @@ export default function RestaurantDetailScreen() {
                                     size={12}
                                     color={theme.color.accent}
                                 />
-                                {venue.neighborhood?.name && <ThemedText
-                                    style={styles.neighborhoodText}
-                                >
-                                    {venue.neighborhood.name},{" "}
-                                </ThemedText>}
-                                {venue.location_properties && <ThemedText
-                                    style={styles.neighborhoodText}
-                                >
-                                    {venue.location_properties.city},{" "}
-                                </ThemedText>}
-                                {venue.location_properties && <ThemedText
-                                    style={styles.neighborhoodText}
-                                >
-                                    {venue.location_properties.state}
-                                </ThemedText>}
-                                {!venue.neighborhood?.name && !venue.location_properties && <ThemedText
-                                    style={styles.neighborhoodText}
-                                >
-                                    {venue.address}
-                                </ThemedText>}
+                                {venue.neighborhood?.name && (
+                                    <ThemedText style={styles.neighborhoodText}>
+                                        {venue.neighborhood.name},{' '}
+                                    </ThemedText>
+                                )}
+                                {venue.location_properties && (
+                                    <ThemedText style={styles.neighborhoodText}>
+                                        {venue.location_properties.city},{' '}
+                                    </ThemedText>
+                                )}
+                                {venue.location_properties && (
+                                    <ThemedText style={styles.neighborhoodText}>
+                                        {venue.location_properties.state}
+                                    </ThemedText>
+                                )}
+                                {!venue.neighborhood?.name &&
+                                    !venue.location_properties && (
+                                        <ThemedText
+                                            style={styles.neighborhoodText}
+                                        >
+                                            {venue.address}
+                                        </ThemedText>
+                                    )}
                             </Pressable>
-
                         </View>
-
                     </View>
 
                     <View style={styles.infoBox}>
@@ -669,7 +707,9 @@ export default function RestaurantDetailScreen() {
                                     />
                                 }
                             >
-                                <ThemedText style={styles.infoButtonText}>Phone</ThemedText>
+                                <ThemedText style={styles.infoButtonText}>
+                                    Phone
+                                </ThemedText>
                             </ThemedButton>
                         )}
                         {venue.website && (
@@ -685,7 +725,9 @@ export default function RestaurantDetailScreen() {
                                     />
                                 }
                             >
-                                <ThemedText style={styles.infoButtonText}>Website</ThemedText>
+                                <ThemedText style={styles.infoButtonText}>
+                                    Website
+                                </ThemedText>
                             </ThemedButton>
                         )}
                     </View>

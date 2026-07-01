@@ -30,11 +30,13 @@ export interface RisingStarDish {
  * - Low total_ratings (< 10)
  * - At least 2 ratings to avoid single-rating flukes
  */
-export function useRisingStars(options: {
-    cityId?: string;
-    dishTypeId?: string;
-    limit?: number;
-} = {}) {
+export function useRisingStars(
+    options: {
+        cityId?: string;
+        dishTypeId?: string;
+        limit?: number;
+    } = {}
+) {
     const { cityId, dishTypeId, limit = 5 } = options;
 
     return useQuery({
@@ -90,7 +92,8 @@ export function useRisingStars(options: {
             const risingStars: RisingStarDish[] = (data || []).map((item) => ({
                 id: item.id,
                 restaurant_id: item.restaurant_id,
-                restaurant_name: (item.restaurant as any)?.name || 'Unknown Restaurant',
+                restaurant_name:
+                    (item.restaurant as any)?.name || 'Unknown Restaurant',
                 dish_type_id: item.dish_type_id,
                 dish_type_name: (item.dish_type as any)?.name || 'Dish',
                 dish_type_emoji: (item.dish_type as any)?.emoji || '🍽️',

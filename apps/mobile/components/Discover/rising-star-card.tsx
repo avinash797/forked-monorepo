@@ -104,7 +104,7 @@ export default function RisingStarCard({
                                 icon={dish.dish_type_icon}
                                 emoji={dish.dish_type_emoji}
                                 size={16}
-                            /> {" "}
+                            />{' '}
                             {dish.dish_type_name}
                         </ThemedText>
 
@@ -127,7 +127,6 @@ export default function RisingStarCard({
                                 </ThemedText>
                             )}
                         </View>
-
                     </View>
 
                     <View style={styles.scoreRow}>
@@ -159,7 +158,10 @@ export function RisingStarCardEmpty() {
     const styles = createStyles(theme, windowWidth);
 
     return (
-        <Animated.View entering={FadeInRight.duration(400)} style={styles.container}>
+        <Animated.View
+            entering={FadeInRight.duration(400)}
+            style={styles.container}
+        >
             <View style={[styles.card, styles.emptyCard]}>
                 {/* Illustration area */}
                 <View style={styles.emptyIllustrationContainer}>
@@ -181,12 +183,15 @@ export function RisingStarCardEmpty() {
                         Hidden Gems Await
                     </ThemedText>
                     <ThemedText style={styles.emptySubtext}>
-                        Every legend starts somewhere — don't keep that secret spot to yourself! Let us in on that!
+                        Every legend starts somewhere — don&apos;t keep that
+                        secret spot to yourself! Let us in on that!
                     </ThemedText>
                     <View style={styles.callToActionRow}>
                         <Pressable
                             onPress={() => router.push('/(protected)/(rating)')}
-                            style={({ pressed }) => pressed && { opacity: theme.opacity.pressed }}
+                            style={({ pressed }) =>
+                                pressed && { opacity: theme.opacity.pressed }
+                            }
                         >
                             <ThemedText style={styles.callToAction}>
                                 Rate a Hidden Spot →

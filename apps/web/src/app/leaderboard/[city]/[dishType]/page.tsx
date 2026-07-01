@@ -5,7 +5,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { DishTypeTabs } from "@/components/leaderboard/dish-type-tabs";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
-import type { LeaderboardEntry } from "@/types/rpc.types";
+import type { LeaderboardEntry } from "@forked/supabase";
 import { buildMetadata, buildLeaderboardJsonLd } from "@/lib/seo";
 import { getRelatedBlogPosts } from "@/lib/blog/queries";
 import { BlogPostCard } from "@/components/blog/blog-post-card";
@@ -151,7 +151,7 @@ export default async function DishTypeLeaderboard({ params }: Props) {
               {topEntry.address &&
                 ` in ${topEntry.address}`}
               , based on {topEntry.total_ratings} rating
-              {topEntry.total_ratings !== 1 ? "s" : ""} through Forked's proprietary ranking algorithm.
+              {topEntry.total_ratings !== 1 ? "s" : ""} through Forked&apos;s proprietary ranking algorithm.
             </p>
           )}
 

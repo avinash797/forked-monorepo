@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import type { MatchLocationResponse } from '@/types/rpc.types';
+import type { MatchLocationResponse } from '@forked/supabase';
 import * as Location from 'expo-location';
 import { create } from 'zustand';
 import { useLocationFilterStore } from './use-location-filter-store';
@@ -80,7 +80,8 @@ export const useLocationStore = create<LocationState>((set, get) => ({
                     currentNeighborhood: data.neighborhood,
                     isLoading: false,
                 });
-                const { filterType, selectedCityId, setCityFilter } = useLocationFilterStore.getState();
+                const { filterType, selectedCityId, setCityFilter } =
+                    useLocationFilterStore.getState();
                 if (!filterType && !selectedCityId && data.city) {
                     setCityFilter(data.city.id, data.city.name);
                 }

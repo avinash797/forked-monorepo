@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import type { LeaderboardEntry, UserStatsResponse } from '@/types/rpc.types';
+import type { LeaderboardEntry, UserStatsResponse } from '@forked/supabase';
 import { useQuery } from '@tanstack/react-query';
 
 // Re-export for backward compatibility (hook moved to use-badges.ts)
@@ -122,7 +122,9 @@ export function useRatingsByDishType(userId?: string) {
             // Get count of ratings per dish type
             const { data, error } = await supabase
                 .from('personal_ratings')
-                .select('dish_type_id, dish_type:dish_types(id, name, emoji, icon)')
+                .select(
+                    'dish_type_id, dish_type:dish_types(id, name, emoji, icon)'
+                )
 
                 .eq('user_id', targetUserId);
 
@@ -139,7 +141,6 @@ export function useRatingsByDishType(userId?: string) {
                     icon: string | null;
                     count: number;
                 }
-
             >();
 
             data.forEach((rating) => {
@@ -162,7 +163,6 @@ export function useRatingsByDishType(userId?: string) {
                             icon: dishType.icon,
                             count: 1,
                         });
-
                     }
                 }
             });

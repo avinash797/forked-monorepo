@@ -98,29 +98,29 @@ export function PhotoGallery({
                 FooterComponent={
                     onReportPhoto
                         ? ({ imageIndex }: { imageIndex: number }) => (
-                            <View style={styles.viewerFooter}>
-                                <Pressable
-                                    onPress={() => {
-                                        closeViewer();
-                                        onReportPhoto(photos[imageIndex]);
-                                    }}
-                                    style={({ pressed }) => [
-                                        styles.reportButton,
-                                        pressed && { opacity: 0.7 },
-                                    ]}
-                                    hitSlop={8}
-                                >
-                                    <IconSymbol
-                                        name="flag-outline"
-                                        size={16}
-                                        color="#fff"
-                                    />
-                                    <ThemedText style={styles.reportText}>
-                                        Report
-                                    </ThemedText>
-                                </Pressable>
-                            </View>
-                        )
+                              <View style={styles.viewerFooter}>
+                                  <Pressable
+                                      onPress={() => {
+                                          closeViewer();
+                                          onReportPhoto(photos[imageIndex]);
+                                      }}
+                                      style={({ pressed }) => [
+                                          styles.reportButton,
+                                          pressed && { opacity: 0.7 },
+                                      ]}
+                                      hitSlop={8}
+                                  >
+                                      <IconSymbol
+                                          name="flag-outline"
+                                          size={16}
+                                          color="#fff"
+                                      />
+                                      <ThemedText style={styles.reportText}>
+                                          Report
+                                      </ThemedText>
+                                  </Pressable>
+                              </View>
+                          )
                         : undefined
                 }
             />

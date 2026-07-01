@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { useBadgeStore } from '@/stores/use-badge-store';
-import type { SubmitComparisonResponse } from '@/types/rpc.types';
+import type { SubmitComparisonResponse } from '@forked/supabase';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export interface ProcessBattleInput {
@@ -25,10 +25,13 @@ export function useProcessBattle() {
     const { addBadges } = useBadgeStore();
 
     return useMutation({
-        mutationFn: async (input: ProcessBattleInput): Promise<SubmitComparisonResponse> => {
-            const p_result = input.winner_rating_id === input.new_rating_id
-                ? 'new_wins'
-                : 'opponent_wins';
+        mutationFn: async (
+            input: ProcessBattleInput
+        ): Promise<SubmitComparisonResponse> => {
+            const p_result =
+                input.winner_rating_id === input.new_rating_id
+                    ? 'new_wins'
+                    : 'opponent_wins';
 
             const { data, error } = await supabase.rpc('submit_comparison', {
                 p_battle_id: input.battle_id,
@@ -65,7 +68,9 @@ export function useSkipBattle() {
     const { addBadges } = useBadgeStore();
 
     return useMutation({
-        mutationFn: async (input: SkipBattleInput): Promise<SubmitComparisonResponse> => {
+        mutationFn: async (
+            input: SkipBattleInput
+        ): Promise<SubmitComparisonResponse> => {
             const { data, error } = await supabase.rpc('submit_comparison', {
                 p_battle_id: input.battle_id,
                 p_result: 'skipped',

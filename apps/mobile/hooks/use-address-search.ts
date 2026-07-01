@@ -254,9 +254,12 @@ export function usePlacesSearch(options?: UseAddressSearchOptions) {
                 getComponent('locality') ||
                 getComponent('sublocality') ||
                 getComponent('administrative_area_level_2'); // fallback
-            const state = getShortComponent('administrative_area_level_1') || getComponent('administrative_area_level_1');
+            const state =
+                getShortComponent('administrative_area_level_1') ||
+                getComponent('administrative_area_level_1');
             const zip = getComponent('postal_code');
-            const country = getShortComponent('country') || getComponent('country');
+            const country =
+                getShortComponent('country') || getComponent('country');
             const neighborhood = getComponent('neighborhood');
 
             const phone = data.nationalPhoneNumber;
@@ -308,7 +311,9 @@ export function usePlacesSearch(options?: UseAddressSearchOptions) {
  * Ideal for the create-venue flow where the user needs to enter
  * a street address rather than search for an existing restaurant.
  */
-export function useAddressSearch(options?: UseAddressSearchOptions): UsePlacesSearchReturn {
+export function useAddressSearch(
+    options?: UseAddressSearchOptions
+): UsePlacesSearchReturn {
     const [query, setQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
 
@@ -422,9 +427,12 @@ export function useAddressSearch(options?: UseAddressSearchOptions): UsePlacesSe
                 getComponent('locality') ||
                 getComponent('sublocality') ||
                 getComponent('administrative_area_level_2');
-            const state = getShortComponent('administrative_area_level_1') || getComponent('administrative_area_level_1');
+            const state =
+                getShortComponent('administrative_area_level_1') ||
+                getComponent('administrative_area_level_1');
             const zip = getComponent('postal_code');
-            const country = getShortComponent('country') || getComponent('country');
+            const country =
+                getShortComponent('country') || getComponent('country');
             const neighborhood = getComponent('neighborhood');
 
             const phone = data.nationalPhoneNumber;

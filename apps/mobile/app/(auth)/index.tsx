@@ -21,7 +21,7 @@ const slides = [
             highlighted: 'Dishes',
             after: ', Not Restaurants',
         },
-        subtitle: 'Because a 3-star dive can have the best po\'boy in the city.',
+        subtitle: "Because a 3-star dive can have the best po'boy in the city.",
     },
     {
         title: {
@@ -37,7 +37,8 @@ const slides = [
             highlighted: 'Photo',
             after: ' to Prove It',
         },
-        subtitle: 'No fake ratings. If you didn\'t take a picture, you weren\'t there.',
+        subtitle:
+            "No fake ratings. If you didn't take a picture, you weren't there.",
     },
     {
         title: {
@@ -46,7 +47,7 @@ const slides = [
             after: ' List',
         },
         subtitle: 'See the #1 ranked dishes near you in under 30 seconds.',
-    }
+    },
 ];
 
 export default function OnboardingScreen() {
@@ -109,12 +110,14 @@ export default function OnboardingScreen() {
                 </View>
                 <View>
                     <ThemedButton onPress={handleNext}>
-                        {currentIndex === 0
-                            ? 'Get Started'
-                            : 'Continue'}
+                        {currentIndex === 0 ? 'Get Started' : 'Continue'}
                     </ThemedButton>
                     {currentIndex === 0 && (
-                        <ThemedButton variant='text' onPress={handleSkip} style={styles.skipButton}>
+                        <ThemedButton
+                            variant="text"
+                            onPress={handleSkip}
+                            style={styles.skipButton}
+                        >
                             I already have an account
                         </ThemedButton>
                     )}
@@ -167,7 +170,9 @@ function SlideItem({
             <Animated.View style={[styles.slideContent, animatedStyle]}>
                 <Text style={styles.title}>
                     <Text style={styles.titleBefore}>{item.title.before}</Text>
-                    <Text style={styles.titleHighlighted}>{item.title.highlighted}</Text>
+                    <Text style={styles.titleHighlighted}>
+                        {item.title.highlighted}
+                    </Text>
                     <Text style={styles.titleAfter}>{item.title.after}</Text>
                 </Text>
                 <Text style={styles.subtitle}>{item.subtitle}</Text>

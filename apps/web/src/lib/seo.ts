@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { LeaderboardEntry } from "@/types/rpc.types";
+import type { LeaderboardEntry } from "@forked/supabase";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://forkedapp.com";
 const SITE_NAME = "Forked";

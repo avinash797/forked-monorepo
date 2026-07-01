@@ -53,11 +53,19 @@ function AccountRow({
             <IconSymbol
                 name={icon}
                 size={20}
-                color={destructive ? theme.color.error : theme.color.textSecondary}
+                color={
+                    destructive ? theme.color.error : theme.color.textSecondary
+                }
                 style={styles.rowIcon}
             />
             <View style={styles.rowContent}>
-                <ThemedText style={styles.rowLabel} lightColor={destructive ? theme.color.error : ''} darkColor={destructive ? theme.color.error : ''}>{label}</ThemedText>
+                <ThemedText
+                    style={styles.rowLabel}
+                    lightColor={destructive ? theme.color.error : ''}
+                    darkColor={destructive ? theme.color.error : ''}
+                >
+                    {label}
+                </ThemedText>
                 {detail ? (
                     <ThemedText style={styles.rowDetail} numberOfLines={1}>
                         {detail}
@@ -144,10 +152,7 @@ export default function AccountScreen() {
             Alert.alert('Success', 'Your password has been updated.');
         },
         onError: (error: Error) => {
-            Alert.alert(
-                'Error',
-                error.message || 'Failed to update password.'
-            );
+            Alert.alert('Error', error.message || 'Failed to update password.');
         },
     });
 
@@ -166,10 +171,7 @@ export default function AccountScreen() {
     const handleUpdatePassword = () => {
         if (!currentPassword || !newPassword || !confirmPassword) return;
         if (newPassword.length < 6) {
-            Alert.alert(
-                'Error',
-                'New password must be at least 6 characters.'
-            );
+            Alert.alert('Error', 'New password must be at least 6 characters.');
             return;
         }
         if (newPassword !== confirmPassword) {
@@ -228,7 +230,7 @@ export default function AccountScreen() {
                 Alert.alert(
                     'Error',
                     error.message ||
-                    'Failed to delete account. Please try again.'
+                        'Failed to delete account. Please try again.'
                 );
             },
         });
@@ -239,8 +241,7 @@ export default function AccountScreen() {
         setDeleteConfirmText('');
     };
 
-    const isEmailValid =
-        newEmail.trim().length > 0 && newEmail !== user?.email;
+    const isEmailValid = newEmail.trim().length > 0 && newEmail !== user?.email;
     const isPasswordValid =
         currentPassword.length > 0 &&
         newPassword.length >= 6 &&
@@ -274,7 +275,7 @@ export default function AccountScreen() {
                         onPress={handleDeleteAccountPress}
                         styles={styles}
                         theme={theme}
-                        detail='Permanently delete your account'
+                        detail="Permanently delete your account"
                         destructive
                     />
                 </View>
@@ -304,7 +305,7 @@ export default function AccountScreen() {
                                 width: '100%',
                                 maxWidth: 400,
                             }}
-                            onPress={() => { }}
+                            onPress={() => {}}
                         >
                             <View
                                 style={{

@@ -133,8 +133,9 @@ Battle opponent data flows via `useRatingStore().battleState` (Zustand), not URL
 - `FlatList` over `ScrollView` for lists
 - Bottom sheets over modals
 - `_layout.tsx` = navigation only, no business logic
-- Always use theme tokens (`theme.color.*`, `theme.space.*`, `theme.font.*`)
+- Always use theme tokens (`theme.color.*`, `theme.space.*`, `theme.font.*`). Token values live in the shared `@forked/theme` package (`packages/theme`); `lib/theme/index.ts` assembles the theme object from them
+- Shared code lives in workspace packages: DB/RPC types from `@forked/supabase`, domain types (Restaurant, DishType, TasteTag, auth) from `@forked/types`, score/validator helpers from `@forked/utils`. Don't re-declare these in the app
 - Theme-aware styles: define a `createThemedStyles(theme)` function that returns `StyleSheet.create({...})`, then call `const styles = createThemedStyles(theme)` inside the component. This keeps all styles in one place and avoids scattered inline theme references.
 - Import alias: `@/*` maps to project root
 - PostGIS for all geospatial queries
-- `score-badge.tsx`: green ≥7.0 / yellow 4.0–6.9 / red <4.0
+- `score-badge.tsx`: green ≥7.0 / yellow 4.0–6.9 / red <4.0 (thresholds come from `getScoreTier` in `@forked/utils`)

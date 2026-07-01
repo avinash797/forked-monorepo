@@ -1,0 +1,21 @@
+{
+  "name": "@forked/utils",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./score": "./src/score.ts",
+    "./validators": "./src/validators.ts",
+    "./us-states": "./src/us-states.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@forked/typescript-config": "*",
+    "typescript": "~5.9.2"
+  }
+}

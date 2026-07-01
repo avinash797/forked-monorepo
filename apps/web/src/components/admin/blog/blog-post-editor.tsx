@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { TipTapEditor } from "./tiptap-editor";
 import { ImageUpload } from "./image-upload";
 import type { JSONContent } from "@tiptap/react";
-import type { Json } from "@/types/database.types";
+import type { Json } from "@forked/supabase";
 import type { AdminBlogPostDetail } from "@/lib/admin/blog-queries";
 
 type DropdownOption = { id: string; name: string; slug?: string };

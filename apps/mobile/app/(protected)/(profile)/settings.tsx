@@ -154,18 +154,17 @@ export default function SettingsScreen() {
                 <SettingsRow
                     icon="log-out-outline"
                     label="Logout"
-                    onPress={() =>
-                        handleLogout()
-                    }
+                    onPress={() => handleLogout()}
                     styles={styles}
                     theme={theme}
                 />
-
             </View>
 
             <View style={styles.logoutSection}>
                 <View style={styles.versionRow}>
-                    <ThemedText style={styles.versionRowLabel}>Version</ThemedText>
+                    <ThemedText style={styles.versionRowLabel}>
+                        Version
+                    </ThemedText>
                     <ThemedText style={styles.versionValue}>
                         {Constants.expoConfig?.version ?? 'Unknown'}
                     </ThemedText>

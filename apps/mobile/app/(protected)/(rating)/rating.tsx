@@ -125,7 +125,11 @@ export default function RatingScreen() {
                 taste_tag_ids: selectedTags,
             });
 
-            if (!result.battle_complete && result.battle_id && result.opponent) {
+            if (
+                !result.battle_complete &&
+                result.battle_id &&
+                result.opponent
+            ) {
                 const totalCandidates = result.total_candidates ?? 1;
                 const maxSteps = Math.floor(Math.log2(totalCandidates)) + 1;
                 setBattleState({
@@ -154,20 +158,16 @@ export default function RatingScreen() {
             if (uploadedStoragePath) {
                 await deletePhoto(uploadedStoragePath);
             }
-            Alert.alert(
-                'Error',
-                'Failed to submit rating. Please try again.',
-                [
-                    {
-                        text: 'OK',
-                        onPress: () => {
-                            resetRating();
-                            router.dismissAll();
-                            router.replace('/(protected)/(tabs)');
-                        },
+            Alert.alert('Error', 'Failed to submit rating. Please try again.', [
+                {
+                    text: 'OK',
+                    onPress: () => {
+                        resetRating();
+                        router.dismissAll();
+                        router.replace('/(protected)/(tabs)');
                     },
-                ]
-            );
+                },
+            ]);
         }
     };
 
@@ -175,7 +175,10 @@ export default function RatingScreen() {
         sentiment !== null && !isSubmitting && !isUploading && isOnline;
 
     return (
-        <ScrollView style={styles.container} contentInsetAdjustmentBehavior="automatic">
+        <ScrollView
+            style={styles.container}
+            contentInsetAdjustmentBehavior="automatic"
+        >
             <ThemedView style={styles.content}>
                 <View style={styles.header}>
                     <DishTypeIcon icon={selectedDishType.icon} size={40} />
@@ -184,9 +187,7 @@ export default function RatingScreen() {
                     </ThemedText>
                 </View>
 
-                <ThemedText
-                    style={styles.restaurantText}
-                >
+                <ThemedText style={styles.restaurantText}>
                     at {selectedRestaurant.name}
                 </ThemedText>
 
@@ -213,7 +214,7 @@ export default function RatingScreen() {
                         onRemovePhoto={handleRemovePhoto}
                         maxPhotos={1}
                         isLoading={isUploading}
-                        subtitle='Adding a photo will add weight to your rating'
+                        subtitle="Adding a photo will add weight to your rating"
                     />
                 </ThemedView>
 
@@ -246,7 +247,7 @@ export default function RatingScreen() {
                                             style={[
                                                 styles.tagText,
                                                 isSelected &&
-                                                styles.tagTextSelected,
+                                                    styles.tagTextSelected,
                                             ]}
                                         >
                                             {tag.name}

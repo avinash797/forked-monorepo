@@ -165,7 +165,13 @@ export function RecentBattleTicker({ cityId }: RecentBattleTickerProps) {
                                 </ThemedText>
                             </ThemedText>
                             <View style={styles.bottomTextContainer}>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        gap: 4,
+                                    }}
+                                >
                                     <DishTypeIcon
                                         icon={currentBattle.dishTypeIcon}
                                         emoji={currentBattle.dishTypeEmoji}
