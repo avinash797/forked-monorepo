@@ -20,9 +20,7 @@ export function useBlockUser() {
         mutationFn: async (
             input: BlockUserInput
         ): Promise<BlockUserResponse> => {
-            // Note: 'block_user' RPC is defined in migration 20260406000000.
-            // After applying the migration and regenerating types, remove this cast.
-            const { data, error } = await (supabase.rpc as any)('block_user', {
+            const { data, error } = await supabase.rpc('block_user', {
                 p_rating_id: input.ratingId,
             });
 

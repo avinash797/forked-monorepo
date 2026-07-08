@@ -59,7 +59,6 @@ export default function LeaderboardScreen() {
     );
     const [shareModalVisible, setShareModalVisible] = useState(false);
 
-    // Use current city or fallback to NOLA
     const cityId = selectedCityId;
 
     // Fetch city-prioritized dish types
