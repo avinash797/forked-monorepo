@@ -4,6 +4,7 @@ import { DishTypeIcon } from '@/components/ui/dish-type-icon';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import { RisingStarData } from '@/hooks/use-discover-data';
+import { getTransformedImageUrl } from '@forked/utils';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
@@ -76,7 +77,12 @@ export default function RisingStarCard({
                 <View style={styles.imageContainer}>
                     {dish.featured_photo_url ? (
                         <Image
-                            source={{ uri: dish.featured_photo_url }}
+                            source={{
+                                uri: getTransformedImageUrl(
+                                    dish.featured_photo_url,
+                                    { width: 600 }
+                                )!,
+                            }}
                             style={styles.image}
                             contentFit="cover"
                             transition={200}

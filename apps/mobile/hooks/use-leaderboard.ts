@@ -4,6 +4,15 @@ import { useQuery } from '@tanstack/react-query';
 
 export type { LeaderboardEntry };
 
+/**
+ * Base URL of the web app's CDN-cached leaderboard API. When set, public
+ * leaderboard reads go through the CDN (~5 min staleness) instead of hitting
+ * Postgres on every pull. Unset (e.g. local dev) falls back to the RPC.
+ */
+const WEB_API_URL = process.env.EXPO_PUBLIC_WEB_API_URL;
+
+const LEADERBOARD_STALE_TIME = 1000 * 60 * 5; // matches CDN s-maxage
+
 interface LeaderboardParams {
     cityId: string;
     dishTypeId: string;
@@ -11,10 +20,33 @@ interface LeaderboardParams {
     limit?: number;
 }
 
+async function fetchLeaderboardFromCdn({
+    cityId,
+    dishTypeId,
+    neighborhoodId,
+    limit,
+}: Required<Pick<LeaderboardParams, 'cityId' | 'dishTypeId' | 'limit'>> &
+    Pick<LeaderboardParams, 'neighborhoodId'>): Promise<LeaderboardEntry[]> {
+    const params = new URLSearchParams({
+        city_id: cityId,
+        dish_type_id: dishTypeId,
+        limit: String(limit),
+    });
+    if (neighborhoodId) params.set('neighborhood_id', neighborhoodId);
+
+    const response = await fetch(
+        `${WEB_API_URL}/api/v1/leaderboard?${params.toString()}`
+    );
+    if (!response.ok) {
+        throw new Error(`Leaderboard API failed: ${response.status}`);
+    }
+    return (await response.json()) as LeaderboardEntry[];
+}
+
 /**
  * Main hook for fetching leaderboard data.
  * Ordered by Bayesian-smoothed community score.
- * Minimum 2 ratings is hardcoded in the RPC.
+ * Minimum ratings per entry comes from app_constants (LEADERBOARD_MIN_RATERS).
  */
 export function useLeaderboard({
     cityId,
@@ -25,6 +57,19 @@ export function useLeaderboard({
     return useQuery({
         queryKey: ['leaderboard', cityId, dishTypeId, neighborhoodId, limit],
         queryFn: async () => {
+            if (WEB_API_URL) {
+                try {
+                    return await fetchLeaderboardFromCdn({
+                        cityId,
+                        dishTypeId,
+                        neighborhoodId,
+                        limit,
+                    });
+                } catch {
+                    // CDN path is an optimization — fall through to the RPC
+                }
+            }
+
             const { data, error } = await supabase.rpc('get_leaderboard', {
                 p_city_id: cityId,
                 p_dish_type_id: dishTypeId,
@@ -36,6 +81,7 @@ export function useLeaderboard({
             return (data ?? []) as unknown as LeaderboardEntry[];
         },
         enabled: !!cityId && !!dishTypeId,
+        staleTime: LEADERBOARD_STALE_TIME,
     });
 }
 
@@ -83,6 +129,7 @@ export function useNearbyLeaderboard({
             return (data ?? []) as unknown as LeaderboardEntry[];
         },
         enabled: !!dishTypeId && !!latitude && !!longitude,
+        staleTime: LEADERBOARD_STALE_TIME,
     });
 }
 

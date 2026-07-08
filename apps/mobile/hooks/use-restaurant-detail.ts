@@ -65,11 +65,14 @@ export function useRestaurantDetail(restaurantId: string | null) {
         queryFn: async () => {
             if (!restaurantId) throw new Error('No restaurant ID provided');
 
-            // Fetch venue with neighborhood join
+            // Fetch venue with neighborhood join. Columns are named to keep
+            // the PostGIS coordinates blob out of the payload.
             const { data: restaurantData, error: restaurantError } =
                 await supabase
                     .from('restaurants')
-                    .select('*, neighborhood:neighborhoods(name)')
+                    .select(
+                        'id, name, address, city_id, neighborhood_id, google_place_id, phone, website, is_verified, is_closed, types, location_properties, neighborhood:neighborhoods(name)'
+                    )
                     .eq('id', restaurantId)
                     .single();
 

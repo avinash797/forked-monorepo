@@ -118,10 +118,13 @@ export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
                         .eq('is_active', true)
                         .order('launch_order', { ascending: true }),
 
-                    // 2. Fetch heroes using RPC (excludes user-rated restaurants)
+                    // 2. Fetch heroes using RPC (excludes user-rated restaurants).
+                    // Only the best row per dish type is rendered, so let the
+                    // database do that cut instead of shipping every restaurant.
                     supabase.rpc('get_discover_heroes', {
                         ...rpcLocationParams,
                         p_min_ratings: 5,
+                        p_per_dish_limit: 1,
                     }),
 
                     // 3. Fetch rising stars using RPC (excludes user-rated restaurants)
@@ -130,6 +133,7 @@ export function useDiscoverData(locationFilter: DiscoverLocationFilter) {
                         p_min_score: 7.5,
                         p_max_ratings: 10,
                         p_min_ratings: 2,
+                        p_per_dish_limit: 1,
                     }),
                 ]);
 

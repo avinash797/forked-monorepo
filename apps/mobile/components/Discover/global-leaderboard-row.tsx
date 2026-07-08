@@ -3,6 +3,7 @@ import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTheme } from '@/contexts/theme-provider';
 import type { LeaderboardEntry } from '@forked/supabase';
+import { getTransformedImageUrl } from '@forked/utils';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
@@ -97,7 +98,12 @@ export function GlobalLeaderboardRow({
                 <View style={styles.photoContainer}>
                     {item.featured_photo_url ? (
                         <Image
-                            source={{ uri: item.featured_photo_url }}
+                            source={{
+                                uri: getTransformedImageUrl(
+                                    item.featured_photo_url,
+                                    { width: 200 }
+                                )!,
+                            }}
                             style={styles.photo}
                             contentFit="cover"
                             transition={150}
