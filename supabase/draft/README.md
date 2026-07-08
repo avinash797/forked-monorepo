@@ -5,12 +5,21 @@ migrations in `supabase/migrations/` into their final state **and fixing the
 discrepancies found during the production-readiness cross-check** (repo files
 vs. the live `Forked` project `bqxhinoabxmpsvzntrlq`).
 
-These are **drafts for review**, not applied migrations. Apply order:
+These are **drafts for review**, not applied migrations. Apply order (or just
+run `./apply-local.sh`, which resets the local stack's `public` schema and
+applies everything below in order):
 
 1. `draft_01_extensions_and_tables.sql` — extensions, enums, tables, indexes
 2. `draft_02_rls_and_indexes.sql` — `is_admin()`, RLS enable, all policies
 3. `draft_03_functions_and_rpcs.sql` — every callable RPC
-4. `draft_04_triggers_storage_cron.sql` — trigger functions, triggers, storage, cron
+4. `draft_seed.sql` — app_constants, national dish types, New Orleans city, badges
+5. `draft_04_triggers_storage_cron.sql` — trigger functions, triggers, storage, cron
+6. `draft_05_city_unlock_and_thresholds.sql` — US-wide pivot: configurable
+   leaderboard thresholds (`app_constants`), nightly one-way
+   `evaluate_city_unlocks()` cron (02:30 UTC), `match_location` distance,
+   `get_flagship_board()`, removal of the dead Gemini-enrichment SQL
+7. `draft_06_discover_per_dish_limit.sql` — discover RPCs gain
+   `p_per_dish_limit`/`p_limit` (egress fix; signature change)
 
 ## Validated
 
@@ -42,9 +51,13 @@ asserted against the running schema (`pg_policies`, `pg_proc`, `has_function_pri
   `auth.users`; user-owned tables reference `profiles` (not `auth.users`) so
   anonymized rows survive account deletion (`20260318000000`).
 - **`user_waitlist` open INSERT** for `anon` — public waitlist signup, by design.
-- **City-enrichment trigger left uninstalled** (matches prod). The
-  `enrich-city-dish-types` edge function it would call is still unauthenticated
-  (`verify_jwt=false`, no in-code guard) — fix that before installing the trigger.
+- ~~City-enrichment trigger left uninstalled~~ **Resolved by removal** (US-wide
+  pivot): the `enrich-city-dish-types` edge function, its client invocation,
+  and the related SQL (`check_city_is_new`, `trigger_enrich_city_dish_types`)
+  are deleted. Dish types are seeded (`draft_seed.sql`) and admin-curated;
+  cities activate via the nightly `evaluate_city_unlocks()` job in draft_05.
+  **At prod promotion time:** run `supabase functions delete
+  enrich-city-dish-types` on the live project.
 
 ## Deferred (not changed here)
 
