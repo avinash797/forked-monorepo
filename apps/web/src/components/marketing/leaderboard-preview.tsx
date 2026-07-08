@@ -62,30 +62,69 @@ const MOCK_ENTRIES: LeaderboardEntry[] = [
   },
 ];
 
-async function getLeaderboardPreview(): Promise<LeaderboardEntry[]> {
+const MOCK_FLAGSHIP: FlagshipBoard = {
+  citySlug: "new-orleans-la-usa",
+  cityName: "New Orleans",
+  dishTypeSlug: "po-boy",
+  dishTypeName: "Po' Boy",
+  otherDishNames: ["Gumbo", "Fried Chicken"],
+};
+
+interface FlagshipBoard {
+  citySlug: string;
+  cityName: string;
+  dishTypeSlug: string;
+  dishTypeName: string;
+  otherDishNames: string[];
+}
+
+interface FlagshipPreview {
+  flagship: FlagshipBoard;
+  entries: LeaderboardEntry[];
+}
+
+/**
+ * The preview features the most active (city, dish type) leaderboard —
+ * the "flagship board" — rather than a hardcoded city, so the landing page
+ * stays accurate as the US-wide rollout unlocks new cities.
+ */
+async function getFlagshipPreview(): Promise<FlagshipPreview | null> {
   try {
     const supabase = await createClient();
 
-    const [{ data: city }, { data: dishType }] = await Promise.all([
+    const { data: flagshipRows } = await supabase.rpc("get_flagship_board");
+    const flagship = flagshipRows?.[0];
+    if (!flagship) return null;
+
+    const [{ data: entries }, { data: knownDishes }] = await Promise.all([
+      supabase.rpc("get_leaderboard", {
+        p_city_id: flagship.city_id,
+        p_dish_type_id: flagship.dish_type_id,
+        p_limit: 5,
+      }),
       supabase
-        .from("cities")
-        .select("id")
-        .eq("slug", "new-orleans-louisiana")
-        .single(),
-      supabase.from("dish_types").select("id").eq("slug", "po-boy").single(),
+        .from("city_known_dishes")
+        .select("dish_type_id, display_order, dish_types(name)")
+        .eq("city_id", flagship.city_id)
+        .neq("dish_type_id", flagship.dish_type_id)
+        .order("display_order", { ascending: true })
+        .limit(2),
     ]);
 
-    if (!city || !dishType) return [];
-
-    const { data } = await supabase.rpc("get_leaderboard", {
-      p_city_id: city.id,
-      p_dish_type_id: dishType.id,
-      p_limit: 5,
-    });
-
-    return (data as unknown as LeaderboardEntry[]) ?? [];
+    return {
+      flagship: {
+        citySlug: flagship.city_slug,
+        cityName: flagship.city_name,
+        dishTypeSlug: flagship.dish_type_slug,
+        dishTypeName: flagship.dish_type_name,
+        otherDishNames: (knownDishes ?? [])
+          .map((kd) => kd.dish_types?.name)
+          .filter((name): name is string => !!name),
+      },
+      entries: (entries as unknown as LeaderboardEntry[]) ?? [],
+    };
   } catch {
-    return [];
+    return null;
   }
 }
 
@@ -103,9 +142,13 @@ function getRankRowStyle(rank: number): string {
 }
 
 export async function LeaderboardPreview() {
-  const entries = IS_WAITLIST_MODE
-    ? MOCK_ENTRIES
-    : await getLeaderboardPreview();
+  const preview = IS_WAITLIST_MODE ? null : await getFlagshipPreview();
+  const flagship = preview?.flagship ?? MOCK_FLAGSHIP;
+  const entries = preview?.entries?.length
+    ? preview.entries
+    : IS_WAITLIST_MODE
+      ? MOCK_ENTRIES
+      : [];
 
   return (
     <section id="leaderboard" className="py-24 md:py-32 px-6 bg-bg">
@@ -114,7 +157,7 @@ export async function LeaderboardPreview() {
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12 gap-6">
           <div>
             <p className="text-[10px] font-black tracking-[0.3em] uppercase text-accent mb-3">
-              LIVE RANKINGS
+              LIVE RANKINGS — {flagship.cityName.toUpperCase()}
             </p>
             <h2 className="font-display italic font-black text-4xl md:text-6xl uppercase leading-none tracking-tighter">
               The <span className="text-accent">Real</span> List.
@@ -126,14 +169,16 @@ export async function LeaderboardPreview() {
           </div>
           <div className="flex gap-2">
             <span className="bg-accent border border-accent px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-accent-on shadow-[0_5px_15px_rgba(238,108,43,0.25)]">
-              PO&apos;BOY
+              {flagship.dishTypeName.toUpperCase()}
             </span>
-            <span className="bg-surface-2 border border-border px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-text-secondary hover:text-text-primary transition-colors">
-              GUMBO
-            </span>
-            <span className="bg-surface-2 border border-border px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-text-secondary hover:text-text-primary transition-colors">
-              JAMBALAYA
-            </span>
+            {flagship.otherDishNames.map((name) => (
+              <span
+                key={name}
+                className="bg-surface-2 border border-border px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-text-secondary hover:text-text-primary transition-colors"
+              >
+                {name.toUpperCase()}
+              </span>
+            ))}
           </div>
         </div>
 
@@ -192,7 +237,7 @@ export async function LeaderboardPreview() {
               </p>
             </div>
             <Link
-              href="/leaderboard/new-orleans-louisiana/gumbo"
+              href={`/leaderboard/${flagship.citySlug}/${flagship.dishTypeSlug}`}
               className="bg-text-primary text-bg px-10 py-5 rounded-2xl font-black tracking-[0.2em] text-xs hover:bg-accent hover:text-accent-on transition-all shrink-0"
             >
               FULL LEADERBOARD

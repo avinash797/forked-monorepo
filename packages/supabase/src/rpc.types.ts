@@ -116,6 +116,12 @@ export interface MatchLocationCity {
     name: string;
     state: string;
     slug: string;
+    /**
+     * Distance from the user to the matched city's center. Cities are only
+     * matched when active (unlocked), so US-wide this can be very large —
+     * clients should fall back to Nearby mode beyond a sensible threshold.
+     */
+    distance_meters: number;
 }
 
 export interface MatchLocationNeighborhood {

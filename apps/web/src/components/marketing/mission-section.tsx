@@ -5,7 +5,7 @@ import { motion, useInView } from "framer-motion";
 
 const statements = [
   "Nobody eats a restaurant. They eat a dish.",
-  "The best gumbo in the city might have 3 stars. We fix that.",
+  "The best pizza in your city might have 3 stars. We fix that.",
   "Not sponsored. Not paid. Not filtered. Just real battles.",
   "Your argument is data. Your vote changes the list.",
 ];

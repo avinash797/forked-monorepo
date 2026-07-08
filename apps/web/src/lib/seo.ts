@@ -82,6 +82,10 @@ export function buildOrganizationJsonLd() {
       "@type": "Place",
       name: "New Orleans, Louisiana",
     },
+    areaServed: {
+      "@type": "Country",
+      name: "United States",
+    },
   };
 }
 

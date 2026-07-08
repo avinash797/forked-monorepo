@@ -8,7 +8,7 @@ import { IS_WAITLIST_MODE } from "@/lib/waitlist";
 export const metadata: Metadata = buildMetadata({
   title: "About — Forked",
   description:
-    "Forked is a dish ranking platform born in New Orleans. Not restaurant ratings. Dish ratings. Ranked by real head-to-head battles.",
+    "Forked is a dish ranking platform born in New Orleans, now ranking dishes across the US. Not restaurant ratings. Dish ratings. Ranked by real head-to-head battles.",
 });
 
 export default function AboutPage() {

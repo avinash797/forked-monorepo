@@ -84,9 +84,9 @@ export function HeroSection() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 1 }}
         >
-          Not &ldquo;go to this restaurant.&rdquo; Get the gumbo at Dooky
-          Chase. Dish-level rankings from real head-to-head battles, verified
-          by photos. Under 30 seconds to vote.
+          Not &ldquo;go to this restaurant.&rdquo; Get the smash burger at
+          the spot down the block. Dish-level rankings from real head-to-head
+          battles, verified by photos. Under 30 seconds to vote.
         </motion.p>
 
         {/* CTAs or Waitlist Form */}

@@ -34,7 +34,7 @@ const faqs: FaqItem[] = [
   {
     question: "Is Forked available in my city?",
     answer:
-      "We launched in New Orleans and are expanding to new cities based on demand. We prioritize cities where the argument is already happening — where locals are already debating the best dish. Download the app and start rating. Active communities get cities first.",
+      "Forked works anywhere in the US — rate dishes in any city from day one, and they always count toward your personal rankings. A city's public leaderboard unlocks once enough locals have rated and battled dishes there. Your ratings are literally what put your city on the map.",
   },
 ];
 

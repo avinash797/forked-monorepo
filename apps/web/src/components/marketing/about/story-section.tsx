@@ -82,10 +82,15 @@ export function StorySection() {
             </span>
           </p>
           <p>
-            We launched in New Orleans because no city takes its food more
+            We started in New Orleans because no city takes its food more
             seriously. People here argue about gumbo the way other cities argue
             about sports teams. If our system can settle that argument, it can
-            settle any argument, anywhere.
+            settle any argument, anywhere.{" "}
+            <span className="text-text-primary font-bold">
+              Now we&apos;re rolling out across the US
+            </span>{" "}
+            — every city&apos;s leaderboard unlocks the moment its locals start
+            rating.
           </p>
         </motion.div>
 
