@@ -9,7 +9,7 @@ const features = [
   {
     icon: Target,
     label: "Rank the Dish. Not the Vibe.",
-    desc: "Your gumbo rating doesn't care if the waiter was slow.",
+    desc: "Your burger rating doesn't care if the waiter was slow.",
   },
   {
     icon: ShieldCheck,
@@ -62,11 +62,11 @@ export function VisionSection() {
             <p>
               The most useful food recommendation you&apos;ll ever get is not
               &ldquo;go to this restaurant.&rdquo; It&apos;s &ldquo;order the
-              gumbo at Dooky Chase.&rdquo; But every review app gives you the
+              birria tacos at the truck on 5th.&rdquo; But every review app gives you the
               restaurant — the vibe, the service, the parking.
             </p>
             <p>
-              Your city&apos;s best po&apos;boy is probably at a place with 3
+              Your city&apos;s best pizza is probably at a place with 3
               stars because the owner was rude once. The overhyped spot with 4.8
               stars is coasting on its interior design. We only rank the dish.
               Nothing else.
@@ -76,7 +76,7 @@ export function VisionSection() {
             <blockquote className="relative pl-6 py-1">
               <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-accent to-accent/0" />
               <p className="italic text-text-primary/80 font-medium text-base md:text-lg">
-                &ldquo;The hole-in-the-wall with the best gumbo in the city is
+                &ldquo;The hole-in-the-wall with the best wings in the city is
                 losing to a steakhouse with a valet. That&apos;s what
                 we&apos;re here to fix.&rdquo;
               </p>

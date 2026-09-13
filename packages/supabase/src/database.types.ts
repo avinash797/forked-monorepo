@@ -7,10 +7,30 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.1"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -195,6 +215,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      blocked_users: {
+        Row: {
+          blocked_user_id: string
+          blocker_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          blocked_user_id: string
+          blocker_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          blocked_user_id?: string
+          blocker_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
       }
       blog_authors: {
         Row: {
@@ -409,6 +450,7 @@ export type Database = {
           name: string
           slug: string
           state: string | null
+          unlocked_at: string | null
           updated_at: string | null
         }
         Insert: {
@@ -420,6 +462,7 @@ export type Database = {
           name: string
           slug: string
           state?: string | null
+          unlocked_at?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -431,6 +474,7 @@ export type Database = {
           name?: string
           slug?: string
           state?: string | null
+          unlocked_at?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -540,13 +584,6 @@ export type Database = {
             columns: ["opponent_rating_id"]
             isOneToOne: false
             referencedRelation: "personal_ratings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "comparisons_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -1400,6 +1437,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _get_constant: {
+        Args: { p_default: number; p_key: string }
+        Returns: number
+      }
       _update_global_dish_score: {
         Args: { p_dish_type_id: string; p_restaurant_id: string }
         Returns: undefined
@@ -1410,15 +1451,7 @@ export type Database = {
         Args: { p_badge_slug: string; p_user_id: string }
         Returns: Json
       }
-      check_city_is_new: {
-        Args: { p_city_id: string }
-        Returns: {
-          city_country: string
-          city_name: string
-          city_state: string
-          is_new: boolean
-        }[]
-      }
+      block_user: { Args: { p_rating_id: string }; Returns: Json }
       check_rate_limit: {
         Args: { p_user_id?: string }
         Returns: {
@@ -1453,6 +1486,13 @@ export type Database = {
       }
       delete_user_account: { Args: { p_confirm?: boolean }; Returns: Json }
       evaluate_badges: { Args: { p_user_id: string }; Returns: Json }
+      evaluate_city_unlocks: {
+        Args: never
+        Returns: {
+          city_id: string
+          city_name: string
+        }[]
+      }
       find_nearby_restaurants: {
         Args: {
           p_lat: number
@@ -1511,7 +1551,9 @@ export type Database = {
       get_discover_heroes: {
         Args: {
           p_city_id?: string
+          p_limit?: number
           p_min_ratings?: number
+          p_per_dish_limit?: number
           p_radius_meters?: number
           p_user_lat?: number
           p_user_long?: number
@@ -1534,9 +1576,11 @@ export type Database = {
       get_discover_rising_stars: {
         Args: {
           p_city_id?: string
+          p_limit?: number
           p_max_ratings?: number
           p_min_ratings?: number
           p_min_score?: number
+          p_per_dish_limit?: number
           p_radius_meters?: number
           p_user_lat?: number
           p_user_long?: number
@@ -1563,6 +1607,18 @@ export type Database = {
         Args: { p_city_id: string }
         Returns: {
           dish_type_id: string
+          entry_count: number
+        }[]
+      }
+      get_flagship_board: {
+        Args: never
+        Returns: {
+          city_id: string
+          city_name: string
+          city_slug: string
+          dish_type_id: string
+          dish_type_name: string
+          dish_type_slug: string
           entry_count: number
         }[]
       }
@@ -1718,8 +1774,6 @@ export type Database = {
           isSetofReturn: true
         }
       }
-      show_limit: { Args: never; Returns: number }
-      show_trgm: { Args: { "": string }; Returns: string[] }
       slugify: { Args: { v_text: string }; Returns: string }
       submit_comparison: {
         Args: { p_battle_id: string; p_result: string }
@@ -1899,6 +1953,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       report_reason: ["inappropriate_photo", "offensive", "spam", "other"],
@@ -1906,3 +1963,4 @@ export const Constants = {
     },
   },
 } as const
+

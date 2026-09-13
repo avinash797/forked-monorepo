@@ -46,6 +46,7 @@ export type CityRow = {
   state: string | null;
   country: string | null;
   is_active: boolean | null;
+  unlocked_at: string | null;
   created_at: string | null;
   updated_at: string | null;
   known_dish_count: number;
@@ -160,7 +161,9 @@ export async function getCities(): Promise<CityRow[]> {
 
   const { data: cities } = await supabase
     .from("cities")
-    .select("id, name, slug, state, country, is_active, created_at, updated_at")
+    .select(
+      "id, name, slug, state, country, is_active, unlocked_at, created_at, updated_at",
+    )
     .order("name", { ascending: true });
 
   if (!cities) return [];

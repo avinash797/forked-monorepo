@@ -35,14 +35,6 @@ export default function RatingLayout() {
                 }}
             />
             <Stack.Screen
-                name="city-onboarding"
-                options={{
-                    title: 'Discovering Dishes',
-                    headerShown: false,
-                    gestureEnabled: false,
-                }}
-            />
-            <Stack.Screen
                 name="dish-selection"
                 options={{
                     title: 'Select Dish',

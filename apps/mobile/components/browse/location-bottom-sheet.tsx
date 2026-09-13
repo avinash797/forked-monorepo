@@ -202,7 +202,8 @@ export const LocationBottomSheet = forwardRef<
                     style={[styles.emptyContainer, { paddingBottom: bottom }]}
                 >
                     <ThemedText style={styles.emptyText}>
-                        No locations available
+                        No unlocked cities yet — rate dishes to put your city on
+                        the map. Use Nearby to explore around you.
                     </ThemedText>
                 </View>
             );

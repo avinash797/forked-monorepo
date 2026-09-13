@@ -2,6 +2,7 @@ import Image from "next/image";
 import { ScoreBadge } from "@/components/ui/score-badge";
 import { Badge } from "@/components/ui/badge";
 import type { LeaderboardEntry } from "@forked/supabase";
+import { getTransformedImageUrl } from "@forked/utils";
 
 export type { LeaderboardEntry };
 
@@ -74,7 +75,11 @@ export function LeaderboardTable({
           {entry.featured_photo_url && (
             <div className="flex-shrink-0 w-14 h-14 rounded-md overflow-hidden bg-surface-2">
               <Image
-                src={entry.featured_photo_url}
+                src={
+                  getTransformedImageUrl(entry.featured_photo_url, {
+                    width: 112,
+                  })!
+                }
                 alt={`${entry.restaurant_name} dish`}
                 width={56}
                 height={56}

@@ -23,13 +23,6 @@ export interface BattleState {
     opponent: BattleOpponent;
 }
 
-export interface NewCityInfo {
-    cityId: string;
-    cityName: string;
-    state: string;
-    country: string;
-}
-
 interface RatingState {
     // Photo state
     photoUri: string | null;
@@ -68,10 +61,6 @@ interface RatingState {
     setBattleState: (state: BattleState | null) => void;
     clearBattleState: () => void;
 
-    // New city info (set when user triggers city creation, used by onboarding screen)
-    newCityInfo: NewCityInfo | null;
-    setNewCityInfo: (info: NewCityInfo | null) => void;
-
     // Reset all state (call after successful submission)
     resetRating: () => void;
 }
@@ -87,7 +76,6 @@ export const useRatingStore = create<RatingState>((set) => ({
     selectedTags: [],
     location: null,
     battleState: null,
-    newCityInfo: null,
 
     // Actions
     setPhotoUri: (uri) => set({ photoUri: uri }),
@@ -102,7 +90,6 @@ export const useRatingStore = create<RatingState>((set) => ({
     setLocation: (location) => set({ location }),
     setBattleState: (battleState) => set({ battleState }),
     clearBattleState: () => set({ battleState: null }),
-    setNewCityInfo: (info) => set({ newCityInfo: info }),
 
     // Reset function
     resetRating: () =>
@@ -116,6 +103,5 @@ export const useRatingStore = create<RatingState>((set) => ({
             selectedTags: [],
             location: null,
             battleState: null,
-            newCityInfo: null,
         }),
 }));

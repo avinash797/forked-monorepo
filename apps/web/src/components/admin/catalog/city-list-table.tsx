@@ -72,6 +72,20 @@ export function CityListTable({ cities }: { cities: CityRow[] }) {
         );
       },
     }),
+    columnHelper.accessor("unlocked_at", {
+      header: "Unlocked",
+      cell: (info) => {
+        const value = info.getValue();
+        return (
+          <span
+            className="text-text-secondary"
+            title="Set when the city was activated (nightly threshold unlock or manual toggle)"
+          >
+            {value ? new Date(value).toLocaleDateString() : "—"}
+          </span>
+        );
+      },
+    }),
     columnHelper.display({
       id: "actions",
       header: "Actions",

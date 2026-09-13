@@ -10,6 +10,7 @@ import Animated, {
 import { useTheme } from '@/contexts/theme-provider';
 import { TopDishData } from '@/hooks/use-discover-data';
 import { trackEvent } from '@/lib/amplitude';
+import { getTransformedImageUrl } from '@forked/utils';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
@@ -81,7 +82,12 @@ export default function HeroCard({
                 <View style={styles.imageContainer}>
                     {dish.featured_photo_url ? (
                         <Image
-                            source={{ uri: dish.featured_photo_url }}
+                            source={{
+                                uri: getTransformedImageUrl(
+                                    dish.featured_photo_url,
+                                    { width: 800 }
+                                )!,
+                            }}
                             style={styles.image}
                             contentFit="cover"
                             transition={200}

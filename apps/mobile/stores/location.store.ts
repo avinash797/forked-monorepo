@@ -32,6 +32,14 @@ export interface Neighborhood {
     slug: string;
 }
 
+/**
+ * Beyond this distance the nearest unlocked city isn't "your city" — the
+ * filter defaults to Nearby mode instead of auto-selecting a far-away city.
+ */
+const MAX_CITY_MATCH_METERS = 100_000; // ~62 miles
+
+const DEFAULT_NEARBY_RADIUS_METERS = 3218; // ~2 miles, matches leaderboard default
+
 export const useLocationStore = create<LocationState>((set, get) => ({
     currentLocation: null,
     currentCity: null,
@@ -75,23 +83,36 @@ export const useLocationStore = create<LocationState>((set, get) => ({
             const data = rpcData as unknown as MatchLocationResponse;
 
             if (data) {
+                // match_location only considers unlocked cities and falls back
+                // to the NEAREST one, which US-wide can be hundreds of miles
+                // away. Only treat the match as "current city" when the user
+                // is plausibly in it; otherwise default the filter to Nearby.
+                const isFarAway =
+                    (data.city?.distance_meters ?? 0) > MAX_CITY_MATCH_METERS;
+
                 set({
-                    currentCity: data.city,
-                    currentNeighborhood: data.neighborhood,
+                    currentCity: isFarAway ? null : data.city,
+                    currentNeighborhood: isFarAway ? null : data.neighborhood,
                     isLoading: false,
                 });
-                const { filterType, selectedCityId, setCityFilter } =
+                const { filterType, selectedCityId, setCityFilter, setNearbyFilter } =
                     useLocationFilterStore.getState();
-                if (!filterType && !selectedCityId && data.city) {
-                    setCityFilter(data.city.id, data.city.name);
+                if (!filterType && !selectedCityId) {
+                    if (data.city && !isFarAway) {
+                        setCityFilter(data.city.id, data.city.name);
+                    } else {
+                        setNearbyFilter(
+                            location.coords.latitude,
+                            location.coords.longitude,
+                            DEFAULT_NEARBY_RADIUS_METERS
+                        );
+                    }
                 }
             } else {
                 set({ isLoading: false });
             }
         } catch (error: any) {
             // console.error('Error fetching location context:', error);
-            // Fallback for development/testing if RPC fails or no city found
-            // For MVP launch we might want to default to NOLA if testing elsewhere
             set({ error: error.message, isLoading: false });
         }
     },

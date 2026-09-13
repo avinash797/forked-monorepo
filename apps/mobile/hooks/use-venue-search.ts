@@ -25,7 +25,7 @@ export type SearchResultItem =
 
 export function useVenueSearch() {
     const { currentLocation } = useLocationStore();
-    const { setSelectedRestaurant, setNewCityInfo } = useRatingStore();
+    const { setSelectedRestaurant } = useRatingStore();
     const queryClient = useQueryClient();
     const [searchQuery, setSearchQuery] = useState('');
     const [isSelecting, setIsSelecting] = useState(false);
@@ -115,9 +115,7 @@ export function useVenueSearch() {
     );
 
     const selectGooglePlace = useCallback(
-        async (
-            suggestion: GooglePlaceSuggestion
-        ): Promise<{ restaurant: Restaurant; isNewCity: boolean }> => {
+        async (suggestion: GooglePlaceSuggestion): Promise<Restaurant> => {
             if (isSelecting) {
                 throw new Error('Selection already in progress');
             }
@@ -149,33 +147,15 @@ export function useVenueSearch() {
                 const restaurant = newRestaurant[0];
                 setSelectedRestaurant(restaurant);
 
-                // Check if this restaurant's city is newly created and needs enrichment
-                let isNewCity = false;
-                if (restaurant.city_id) {
-                    const { data: cityCheck } = await supabase.rpc(
-                        'check_city_is_new',
-                        { p_city_id: restaurant.city_id }
-                    );
-                    if (cityCheck?.[0]?.is_new) {
-                        isNewCity = true;
-                        setNewCityInfo({
-                            cityId: restaurant.city_id,
-                            cityName: cityCheck[0].city_name,
-                            state: cityCheck[0].city_state,
-                            country: cityCheck[0].city_country,
-                        });
-                    }
-                }
-
                 // Invalidate restaurant caches so newly created restaurant appears in lists
                 queryClient.invalidateQueries({ queryKey: ['restaurants'] });
 
-                return { restaurant, isNewCity };
+                return restaurant;
             } finally {
                 setIsSelecting(false);
             }
         },
-        [isSelecting, selectAddress, setSelectedRestaurant, setNewCityInfo]
+        [isSelecting, selectAddress, setSelectedRestaurant]
     );
 
     const isSearching = isSearchingRestaurants || isSearchingAddress;

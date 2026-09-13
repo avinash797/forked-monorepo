@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Expo React Native dish-ranking app (SDK 54, Router v6, TypeScript strict, New Architecture). Single city (New Orleans) at launch. Users rank dishes via **sentiment + Elo hybrid (binary search for UX, Elo for scoring)** — never numeric input.
+Expo React Native dish-ranking app (SDK 54, Router v6, TypeScript strict, New Architecture). US-wide: users can rate dishes in any city (always counted in personal rankings); a city's public leaderboard unlocks via a nightly threshold job (`evaluate_city_unlocks`, config in `app_constants`) and only unlocked cities are selectable as the base city. Users rank dishes via **sentiment + Elo hybrid (binary search for UX, Elo for scoring)** — never numeric input.
 
 > "In under 30 seconds, tell me the best specific dish near me that people like me actually love."
 
