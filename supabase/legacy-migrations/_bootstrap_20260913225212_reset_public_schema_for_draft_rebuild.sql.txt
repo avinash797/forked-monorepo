@@ -1,0 +1,35 @@
+-- Reset the public schema ahead of applying the consolidated draft schema.
+-- Mirrors supabase/draft/apply-local.sh, adapted for the hosted project.
+
+-- 1. Unschedule every cron job (they reference functions about to be dropped)
+DO $$
+DECLARE j RECORD;
+BEGIN
+    IF to_regclass('cron.job') IS NOT NULL THEN
+        FOR j IN SELECT jobname FROM cron.job LOOP
+            PERFORM cron.unschedule(j.jobname);
+        END LOOP;
+    END IF;
+END $$;
+
+-- 2. Drop storage.objects policies (draft_04's CREATE POLICY is not idempotent)
+DO $$
+DECLARE p RECORD;
+BEGIN
+    FOR p IN SELECT policyname FROM pg_policies WHERE schemaname = 'storage' AND tablename = 'objects' LOOP
+        EXECUTE format('DROP POLICY IF EXISTS %I ON storage.objects', p.policyname);
+    END LOOP;
+END $$;
+
+-- 3. Drop and recreate public
+DROP SCHEMA IF EXISTS public CASCADE;
+CREATE SCHEMA public;
+
+-- 4. Restore Supabase-standard grants and default privileges
+GRANT USAGE, CREATE ON SCHEMA public TO postgres, anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES    TO postgres, anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO postgres, anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO postgres, anon, authenticated, service_role;
+
+-- 5. Clear the old migration history; the draft set becomes the new baseline
+DELETE FROM supabase_migrations.schema_migrations;

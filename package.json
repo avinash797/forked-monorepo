@@ -23,11 +23,25 @@
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
-    "db:push": "supabase db push",
     "db:migration": "supabase migration new",
     "gen:types": "supabase gen types typescript --local > packages/supabase/src/database.types.ts",
-    "gen:types:remote": "supabase gen types typescript --linked > packages/supabase/src/database.types.ts",
-    "gen:theme": "npm run gen:css -w @forked/theme"
+    "gen:theme": "npm run gen:css -w @forked/theme",
+    "db:push": "node -e \"console.error('db:push is ambiguous \\u2014 use db:push:dev or db:push:prod (see supabase/ENVIRONMENTS.md)');process.exit(1)\"",
+    "gen:types:remote": "node -e \"console.error('gen:types:remote is ambiguous \\u2014 use gen:types (local) or gen:types:dev');process.exit(1)\"",
+    "sb": "./scripts/supabase-env.sh",
+    "supabase:status": "./scripts/supabase-status.sh",
+    "db:check:dev": "./scripts/supabase-env.sh dev migration list",
+    "db:check:prod": "./scripts/supabase-env.sh prod migration list",
+    "db:push:dev:dry": "./scripts/supabase-env.sh dev db push --dry-run",
+    "db:push:dev": "./scripts/supabase-env.sh dev db push",
+    "db:push:prod:dry": "./scripts/supabase-env.sh prod db push --dry-run",
+    "db:push:prod": "./scripts/supabase-env.sh prod db push",
+    "db:reset:dev": "./scripts/supabase-env.sh dev db reset",
+    "db:dump:dev": "./scripts/supabase-env.sh dev db dump",
+    "db:dump:prod": "./scripts/supabase-env.sh prod db dump",
+    "gen:types:dev": "./scripts/supabase-env.sh dev gen types typescript > packages/supabase/src/database.types.ts",
+    "fn:deploy:dev": "./scripts/supabase-env.sh dev functions deploy",
+    "fn:deploy:prod": "./scripts/supabase-env.sh prod functions deploy"
   },
   "devDependencies": {
     "turbo": "^2.5.0"

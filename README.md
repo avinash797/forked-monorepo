@@ -13,7 +13,7 @@ packages/
   theme/               # @forked/theme — design tokens (scales + palettes + generated theme.css)
   utils/               # @forked/utils — shared logic (score tiers, validators, constants)
   typescript-config/   # @forked/typescript-config — shared tsconfig bases
-supabase/              # Single Supabase project: config.toml, migrations, edge functions
+supabase/              # config.toml, migrations, edge functions — one folder, three DBs (local/dev/prod)
 ```
 
 ## Setup
@@ -40,10 +40,12 @@ See the `.env.example` in each app.
 | `npm run build` | Turborepo build (all workspaces with a build script) |
 | `npm run build:web` | Next.js production build only |
 | `npm run typecheck` / `npm run lint` | All workspaces via Turborepo (cached) |
-| `npm run db:start` / `db:reset` / `db:push` | Supabase local stack / reset / push to linked project |
+| `npm run db:start` / `db:reset` | Supabase local stack / reset it |
 | `npm run db:migration -- <name>` | Create a new migration file |
 | `npm run gen:types` | Regenerate `packages/supabase/src/database.types.ts` from the local DB |
-| `npm run gen:types:remote` | Same, from the linked remote project |
+| `npm run gen:types:dev` | Same, from the dev project |
+| `npm run supabase:status` | Which project is dev, which is prod, what each env file points at |
+| `npm run db:push:dev` / `db:push:prod` | Apply migrations to a named remote project (prod asks you to type `PROD`) |
 | `npm run gen:theme` | Regenerate `packages/theme/theme.css` from the web palette + scales |
 
 ## Shared packages
@@ -106,9 +108,17 @@ npm run gen:types                   # refresh shared types
 npm run db:push                     # push to the linked remote when ready
 ```
 
-Run `supabase link --project-ref <ref>` once at the repo root. Before the first
-`db push`, verify the merged history matches the remote with `supabase migration list`
-(this folder is the union of the old `forked` and `forked-web` migration folders).
+There are two remote projects — `dev` and `prod` — and this repo is deliberately **never
+linked** to either: every command names its target, so there is no "current project" to
+forget to switch back. See **`supabase/ENVIRONMENTS.md`** for the full workflow, and run
+`npm run supabase:status` before anything irreversible.
+
+```bash
+npm run db:push:dev:dry             # preview against dev
+npm run db:push:dev                 # apply to dev
+npm run db:push:prod:dry            # preview against prod
+npm run db:push:prod                # apply to prod (type PROD to confirm)
+```
 
 ## CI
 

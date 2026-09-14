@@ -20,5 +20,10 @@ node_modules/
 supabase/.temp
 supabase/.branches
 
+# per-environment supabase credentials — never commit (see supabase/.env.*.example)
+supabase/.env.dev
+supabase/.env.prod
+supabase/.dumps/
+
 # logs
 npm-debug.log*

@@ -1,0 +1,14 @@
+-- Bootstrap placeholder — intentionally a no-op.
+--
+-- On 2026-09-13 this migration dropped and recreated `public` on the dev project to clear
+-- the pre-rebuild schema before the draft_* baseline below it was applied. The original
+-- statement is preserved at
+--   supabase/legacy-migrations/_bootstrap_20260913225212_reset_public_schema_for_draft_rebuild.sql.txt
+-- and must never run again: it drops the public schema outright and deletes every row
+-- from supabase_migrations.schema_migrations.
+--
+-- The version number stays here so the migrations folder and the dev project's recorded
+-- history line up exactly (no `migration repair` needed). On any database that starts empty
+-- — a local `db reset`, a fresh prod push — there is nothing to clear, so doing nothing is
+-- the correct behaviour.
+SELECT 1;
