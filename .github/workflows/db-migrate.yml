@@ -1,0 +1,49 @@
+name: Database migrations
+
+# Migrations reach a remote database from HERE, not from a laptop.
+# Each GitHub Environment ("dev" / "prod") holds its own SUPABASE_DB_URL secret,
+# and the "prod" environment should have required reviewers turned on
+# (Settings -> Environments -> prod -> Required reviewers), so applying to prod
+# is an approval, not a keystroke.
+
+on:
+    workflow_dispatch:
+        inputs:
+            target:
+                description: Target Supabase project
+                required: true
+                type: choice
+                options: [dev, prod]
+            mode:
+                description: dry-run prints pending migrations; apply runs them
+                required: true
+                default: dry-run
+                type: choice
+                options: [dry-run, apply]
+    push:
+        branches: [main]
+        paths:
+            - 'supabase/migrations/**'
+
+jobs:
+    migrate:
+        name: ${{ github.event_name == 'push' && 'prod (dry-run)' || format('{0} ({1})', inputs.target, inputs.mode) }}
+        runs-on: ubuntu-latest
+        environment: ${{ github.event_name == 'push' && 'prod-readonly' || inputs.target }}
+        env:
+            CI: 'true'
+            SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: supabase/setup-cli@v1
+              with:
+                  version: latest
+
+            - name: Show pending migrations
+              run: ./scripts/supabase-env.sh ${{ github.event_name == 'push' && 'prod' || inputs.target }} db push --dry-run
+
+            - name: Apply migrations
+              if: github.event_name == 'workflow_dispatch' && inputs.mode == 'apply'
+              run: ./scripts/supabase-env.sh ${{ inputs.target }} db push
