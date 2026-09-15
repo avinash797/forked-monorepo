@@ -53,6 +53,7 @@ function RootLayoutNav() {
         });
         // If already ready (e.g. navigation state already exists)
         if (navigationRef.isReady()) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing pattern predating this task, surfaced by the Expo SDK 56 eslint-plugin-react-hooks v7 bump; tracked for follow-up cleanup (see docs/superpowers/plans/2026-09-14-expo-sdk-57-upgrade.md, Task 3)
             setIsNavigationReady(true);
         }
         return unsubscribe;

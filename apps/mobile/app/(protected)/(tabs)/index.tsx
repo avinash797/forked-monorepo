@@ -42,11 +42,13 @@ export default function HomeScreen() {
     const bottomSheetRef = useRef<BottomSheetModal>(null);
     const scrollY = useRef(new Animated.Value(0)).current;
 
+    // eslint-disable-next-line react-hooks/refs -- pre-existing pattern predating this task, surfaced by the Expo SDK 56 eslint-plugin-react-hooks v7 bump; tracked for follow-up cleanup (see docs/superpowers/plans/2026-09-14-expo-sdk-57-upgrade.md, Task 3)
     const headerShadowOpacity = scrollY.interpolate({
         inputRange: [0, 10],
         outputRange: [0, 0.1],
         extrapolate: 'clamp',
     });
+    // eslint-disable-next-line react-hooks/refs -- pre-existing pattern predating this task, surfaced by the Expo SDK 56 eslint-plugin-react-hooks v7 bump; tracked for follow-up cleanup (see docs/superpowers/plans/2026-09-14-expo-sdk-57-upgrade.md, Task 3)
     const headerElevation = scrollY.interpolate({
         inputRange: [0, 10],
         outputRange: [0, 4],
@@ -139,6 +141,7 @@ export default function HomeScreen() {
                     showsVerticalScrollIndicator={false}
                     contentInsetAdjustmentBehavior="automatic"
                     onScroll={Animated.event(
+                        // eslint-disable-next-line react-hooks/refs -- pre-existing pattern predating this task, surfaced by the Expo SDK 56 eslint-plugin-react-hooks v7 bump; tracked for follow-up cleanup (see docs/superpowers/plans/2026-09-14-expo-sdk-57-upgrade.md, Task 3)
                         [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                         { useNativeDriver: false }
                     )}
