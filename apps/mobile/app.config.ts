@@ -100,6 +100,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         'expo-font',
         'expo-web-browser',
         'expo-apple-authentication',
+        'expo-image',
+        'expo-sharing',
         [
             '@react-native-google-signin/google-signin',
             {

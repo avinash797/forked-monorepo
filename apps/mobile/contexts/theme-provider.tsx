@@ -54,7 +54,10 @@ export function ThemeProvider({
     // Determine the effective color scheme based on preference and system setting
     const colorScheme: ThemeMode = useMemo(() => {
         if (themePreference === 'system') {
-            return systemColorScheme ?? 'light';
+            // RN's ColorSchemeName can also be 'unspecified' (Android system
+            // theme value) in addition to null/undefined when there's no
+            // preference — treat all of those as "no preference" => 'light'.
+            return systemColorScheme === 'dark' ? 'dark' : 'light';
         }
         return themePreference;
     }, [themePreference, systemColorScheme]);
