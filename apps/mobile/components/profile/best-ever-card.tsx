@@ -114,7 +114,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             opacity: 0.9,
         },
         image: {
-            ...StyleSheet.absoluteFillObject,
+            ...StyleSheet.absoluteFill,
         },
         gradient: {
             position: 'absolute',

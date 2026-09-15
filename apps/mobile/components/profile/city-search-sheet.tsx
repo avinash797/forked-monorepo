@@ -380,7 +380,7 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             color: theme.color.textTertiary,
         },
         selectingOverlay: {
-            ...StyleSheet.absoluteFillObject,
+            ...StyleSheet.absoluteFill,
             backgroundColor: 'rgba(0,0,0,0.3)',
             justifyContent: 'center',
             alignItems: 'center',

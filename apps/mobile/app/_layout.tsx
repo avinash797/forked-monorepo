@@ -2,7 +2,7 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import {
     ThemeProvider as NavigationThemeProvider,
     type Theme as NavigationTheme,
-} from '@react-navigation/native';
+} from 'expo-router/react-navigation';
 import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import {

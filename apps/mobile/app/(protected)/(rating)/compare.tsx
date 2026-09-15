@@ -418,7 +418,7 @@ const createThemedStyles = (
             opacity: 0.9,
         },
         cardImage: {
-            ...StyleSheet.absoluteFillObject,
+            ...StyleSheet.absoluteFill,
         },
         noPhotoPlaceholder: {
             backgroundColor: theme.color.surface,
@@ -486,7 +486,7 @@ const createThemedStyles = (
             color: theme.color.accentOn,
         },
         processingOverlay: {
-            ...StyleSheet.absoluteFillObject,
+            ...StyleSheet.absoluteFill,
             backgroundColor: 'rgba(0,0,0,0.7)',
             justifyContent: 'center',
             alignItems: 'center',

@@ -1,5 +1,5 @@
 import { useTheme } from '@/contexts/theme-provider';
-import { HeaderBackButton } from '@react-navigation/elements';
+import { HeaderBackButton } from 'expo-router/react-navigation';
 import { Stack, useRouter } from 'expo-router';
 import { Platform } from 'react-native';
 
