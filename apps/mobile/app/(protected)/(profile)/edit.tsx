@@ -9,9 +9,8 @@ import { usePhotoUpload } from '@/hooks/use-photo-upload';
 import { supabase } from '@/lib/supabase';
 
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useNavigation } from 'expo-router/react-navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'expo-router';
+import { useNavigation, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     Alert,

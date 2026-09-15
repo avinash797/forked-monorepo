@@ -1,12 +1,10 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import {
-    ThemeProvider as NavigationThemeProvider,
-    type Theme as NavigationTheme,
-} from 'expo-router/react-navigation';
 import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import {
     Stack,
+    ThemeProvider as NavigationThemeProvider,
+    type Theme as NavigationTheme,
     useNavigationContainerRef,
     useRouter,
     useSegments,
