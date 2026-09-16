@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { ChevronDown, HelpCircle } from "lucide-react";
 import { FAQS } from "@/data/marketing-mock";
