@@ -53,7 +53,7 @@ export function TheEnemy() {
                 <div className="flex items-start justify-between">
                   <div>
                     <h4 className="font-display font-bold text-lg text-white">
-                      Salvatore&apos;s Corner Tavern
+                      Salvatore’s Corner Tavern
                     </h4>
                     <p className="text-xs text-[#A3A3A3]">
                       Italian • Casual Dining • Mid-City
@@ -96,13 +96,13 @@ export function TheEnemy() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-red-400 font-bold">✕</span>
-                  <span><strong>Zero dish clarity:</strong> you still don&apos;t know what to order.</span>
+                  <span><strong>Zero dish clarity:</strong> you still don’t know what to order.</span>
                 </li>
               </ul>
             </div>
 
             <div className="mt-6 pt-4 border-t border-[#2E2E32] text-xs font-mono text-[#8E8E93]">
-              Result: You skip the city&apos;s best slice because the venue average is 3.7.
+              Result: You skip the city’s best slice because the venue average is 3.7.
             </div>
           </div>
 
@@ -135,7 +135,7 @@ export function TheEnemy() {
                       Variant: Margherita
                     </div>
                     <p className="text-xs text-[#A3A3A3] mt-1">
-                      Served at: Salvatore&apos;s Corner Tavern • Mid-City
+                      Served at: Salvatore’s Corner Tavern • Mid-City
                     </p>
                   </div>
 
@@ -163,7 +163,7 @@ export function TheEnemy() {
 
                 {/* The Unfussy Manifesto Quote */}
                 <div className="mt-3 p-2.5 rounded-lg bg-[#E13B22]/15 border border-[#E13B22]/40 text-xs text-white font-medium italic">
-                  &quot;The parking&apos;s bad and the salad&apos;s boring. The margherita is #2 in the city. Order accordingly.&quot;
+                  &quot;The parking’s bad and the salad’s boring. The margherita is #2 in the city. Order accordingly.&quot;
                 </div>
               </div>
 
@@ -199,10 +199,10 @@ export function TheEnemy() {
             </div>
             <div>
               <h3 className="font-display font-bold text-lg text-white">
-                Food isn&apos;t an average. Taste is a head-to-head battle.
+                Food isn’t an average. Taste is a head-to-head battle.
               </h3>
               <p className="text-xs sm:text-sm text-[#A3A3A3]">
-                When someone asks for the best burger, you don&apos;t give a decimal. You give a name.
+                When someone asks for the best burger, you don’t give a decimal. You give a name.
               </p>
             </div>
           </div>
