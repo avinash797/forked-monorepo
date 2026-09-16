@@ -74,7 +74,7 @@ export function LoginForm() {
     <div className="min-h-screen flex items-center justify-center bg-bg">
       <div className="w-full max-w-md px-8">
         <div className="flex flex-col items-center mb-8">
-          <ForkLogo size={48} color="#ee6c2b" />
+          <ForkLogo size={48} color="var(--accent)" />
           <h1 className="mt-4 text-2xl font-bold text-text-primary">
             Forked Admin
           </h1>

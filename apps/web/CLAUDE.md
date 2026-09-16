@@ -177,12 +177,14 @@ Never hand-edit `theme.css` or re-declare token values in this app.
 
 ### Key Colors
 
-- **Accent:** `#ee6c2b` (orange)
-- **Dark backgrounds:** `#221610` (bg), `#342219` (surface), `#3d2a1f` (surface2)
-- **Light backgrounds:** `#f8f6f6` (bg), `#ffffff` (surface), `#F3F4F6` (surface2)
+webPalette is converged with mobilePalette (see the comment in `packages/theme/src/palettes.ts`) — same brick-red accent, same neutrals, field-for-field identical values.
+
+- **Accent:** `#B83227` light / `#C0392B` dark (brick red)
+- **Dark backgrounds:** `#0F0F10` (bg), `#171719` (surface), `#1E1E21` (surface2)
+- **Light backgrounds:** `#FFFFFF` (bg), `#FBF7F2` (surface), `#FFFFFF` (surface2)
 - **Gold:** `#FBBF24` (used for logo, medals)
-- **Text (dark mode):** `#ECEDEE` (primary), `#c9a492` (secondary), `#9BA1A6` (tertiary)
-- **Text (light mode):** `#221610` (primary), `#4B5563` (secondary), `#687076` (tertiary)
+- **Text (dark mode):** `#F3F1EE` (primary), `#B8B1A8` (secondary), `#8E877F` (tertiary)
+- **Text (light mode):** `#1A1714` (primary), `#4A443D` (secondary), `#6D665E` (tertiary)
 
 ### Dark Mode
 
@@ -198,7 +200,7 @@ Always use Tailwind utility classes that reference token colors:
 <button className="bg-accent text-accent-on" />
 
 // Incorrect — don't use raw hex values
-<div className="bg-[#342219] text-[#ECEDEE]" />
+<div className="bg-[#171719] text-[#F3F1EE]" />
 ```
 
 Exception: hard-coded hex values are acceptable in the permanently-dark sections and sub-sections listed above (Navbar's marquee strip, Footer, TheEnemy, AntiSlopComparison, CtaSection, EarlyAccessModal, CityLeaderboardViewer's bottom CTA card, Hero's phone mockup) where the background is always dark regardless of theme.

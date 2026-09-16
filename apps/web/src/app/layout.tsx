@@ -32,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#050505" />
+        <meta name="theme-color" content="#0F0F10" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

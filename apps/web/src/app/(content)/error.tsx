@@ -17,7 +17,7 @@ export default function MarketingError({
   return (
     <div className="flex flex-col items-center justify-center py-24 px-6 text-center min-h-[60vh]">
       <h1 className="font-display italic font-black text-4xl md:text-5xl text-text-primary mb-4">
-        Something went <span className="text-[#FF4D00]">wrong.</span>
+        Something went <span className="text-accent">wrong.</span>
       </h1>
       <p className="text-text-secondary text-lg mb-8 max-w-md">
         We couldn&apos;t load this page. Try again or head back home.

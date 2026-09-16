@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
             gap: "8px",
           }}
         >
-          <span style={{ color: "#ee6c2b", fontSize: "20px", fontWeight: 700 }}>
+          <span style={{ color: "#B83227", fontSize: "20px", fontWeight: 700 }}>
             Forked
           </span>
           <span style={{ color: "#9BA1A6", fontSize: "16px" }}>

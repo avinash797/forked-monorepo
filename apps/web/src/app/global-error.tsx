@@ -19,7 +19,7 @@ export default function GlobalError({
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#050505",
+          backgroundColor: "#0F0F10",
           color: "#fff",
           fontFamily: "system-ui, -apple-system, sans-serif",
           padding: "1.5rem",
@@ -34,7 +34,7 @@ export default function GlobalError({
             marginBottom: "1rem",
           }}
         >
-          Something went <span style={{ color: "#FF4D00" }}>wrong.</span>
+          Something went <span style={{ color: "#C0392B" }}>wrong.</span>
         </h1>
         <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: "2rem" }}>
           An unexpected error occurred. Please try again.
@@ -42,7 +42,7 @@ export default function GlobalError({
         <button
           onClick={() => reset()}
           style={{
-            backgroundColor: "#FF4D00",
+            backgroundColor: "#C0392B",
             color: "#fff",
             border: "none",
             padding: "0.75rem 2rem",
