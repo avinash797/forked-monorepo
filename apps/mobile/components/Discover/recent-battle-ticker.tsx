@@ -57,6 +57,7 @@ export function RecentBattleTicker({ cityId }: RecentBattleTickerProps) {
         battlesLengthRef.current = battles?.length ?? 0;
         // Reset index if it's out of bounds after data changes
         if (battles && currentIndex >= battles.length) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing pattern predating this task, surfaced by the Expo SDK 56 eslint-plugin-react-hooks v7 bump; tracked for follow-up cleanup (see docs/superpowers/plans/2026-09-14-expo-sdk-57-upgrade.md, Task 3)
             setCurrentIndex(0);
         }
     }, [battles, currentIndex]);
@@ -67,12 +68,14 @@ export function RecentBattleTicker({ cityId }: RecentBattleTickerProps) {
         if (length === 0) return;
 
         // Fade out current
+        // eslint-disable-next-line react-hooks/immutability -- Reanimated shared-value mutation, the documented idiom; pre-existing pattern predating this task, surfaced by the Expo SDK 56 eslint-plugin-react-hooks v7 bump; tracked for follow-up cleanup (see docs/superpowers/plans/2026-09-14-expo-sdk-57-upgrade.md, Task 3)
         opacity.value = withTiming(0, {
             duration: 200,
             easing: Easing.ease,
         });
 
         // Slide up current
+        // eslint-disable-next-line react-hooks/immutability -- Reanimated shared-value mutation, the documented idiom; pre-existing pattern predating this task, surfaced by the Expo SDK 56 eslint-plugin-react-hooks v7 bump; tracked for follow-up cleanup (see docs/superpowers/plans/2026-09-14-expo-sdk-57-upgrade.md, Task 3)
         translateY.value = withTiming(-BANNER_HEIGHT, {
             duration: ANIMATION_DURATION,
             easing: Easing.out(Easing.cubic),

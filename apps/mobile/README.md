@@ -18,10 +18,10 @@ Forked solves the problem of venue-based ratings where a restaurant's overall vi
 
 **Tech Stack:**
 
-- Expo SDK 54 + React Native 0.81.5
-- React 19.1.0
+- Expo SDK 57 + React Native 0.86.3
+- React 19.2.3
 - TypeScript (strict mode)
-- Expo Router v6 (file-based routing)
+- Expo Router v57 (file-based routing)
 - Supabase (PostgreSQL database + authentication + storage)
 
 ---

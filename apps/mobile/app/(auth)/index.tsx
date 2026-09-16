@@ -63,6 +63,7 @@ export default function OnboardingScreen() {
         },
     });
 
+    // eslint-disable-next-line react-hooks/refs -- pre-existing pattern predating this task, surfaced by the Expo SDK 56 eslint-plugin-react-hooks v7 bump; tracked for follow-up cleanup (see docs/superpowers/plans/2026-09-14-expo-sdk-57-upgrade.md, Task 3)
     const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
         if (viewableItems[0]) {
             setCurrentIndex(viewableItems[0].index);

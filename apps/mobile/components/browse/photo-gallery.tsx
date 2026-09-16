@@ -150,7 +150,7 @@ const createThemedStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
             height: '100%',
         },
         overlay: {
-            ...StyleSheet.absoluteFillObject,
+            ...StyleSheet.absoluteFill,
             backgroundColor: 'rgba(0, 0, 0, 0.6)',
             alignItems: 'center',
             justifyContent: 'center',

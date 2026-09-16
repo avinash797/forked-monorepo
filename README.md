@@ -149,7 +149,7 @@ cd apps/mobile
 eas build --profile <development|preview|production>
 ```
 
-`eas.json` and `app.config.ts` are unchanged. Expo SDK 54's Metro config
+`eas.json` and `app.config.ts` are unchanged. Expo SDK 57's Metro config
 auto-detects the monorepo (verified via `npx expo export`).
 
 ## Notes from the migrations

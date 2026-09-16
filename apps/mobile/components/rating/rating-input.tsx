@@ -61,6 +61,7 @@ export function RatingInput({
 
         // Clamp x between 0 and width
         const clampedX = Math.max(0, Math.min(x, width));
+        // eslint-disable-next-line react-hooks/immutability -- Reanimated shared-value mutation, the documented idiom; pre-existing pattern predating this task, surfaced by the Expo SDK 56 eslint-plugin-react-hooks v7 bump; tracked for follow-up cleanup (see docs/superpowers/plans/2026-09-14-expo-sdk-57-upgrade.md, Task 3)
         translateX.value = clampedX;
 
         // Calculate rating
@@ -79,6 +80,7 @@ export function RatingInput({
 
     const pan = Gesture.Pan()
         .onStart((e) => {
+            // eslint-disable-next-line react-hooks/immutability -- Reanimated shared-value mutation, the documented idiom; pre-existing pattern predating this task, surfaced by the Expo SDK 56 eslint-plugin-react-hooks v7 bump; tracked for follow-up cleanup (see docs/superpowers/plans/2026-09-14-expo-sdk-57-upgrade.md, Task 3)
             isDragging.value = true;
             handleGesture(e.x);
         })
@@ -86,6 +88,7 @@ export function RatingInput({
             handleGesture(e.x);
         })
         .onEnd(() => {
+            // eslint-disable-next-line react-hooks/immutability -- Reanimated shared-value mutation, the documented idiom; pre-existing pattern predating this task, surfaced by the Expo SDK 56 eslint-plugin-react-hooks v7 bump; tracked for follow-up cleanup (see docs/superpowers/plans/2026-09-14-expo-sdk-57-upgrade.md, Task 3)
             isDragging.value = false;
         });
 

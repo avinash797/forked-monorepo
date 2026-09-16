@@ -179,6 +179,7 @@ export default function LeaderboardScreen() {
                 username={user?.display_name ?? ''}
                 entries={leaderboardItems}
             />
+            {/* eslint-disable-next-line react-hooks/static-components -- pre-existing pattern predating this task, surfaced by the Expo SDK 56 eslint-plugin-react-hooks v7 bump; tracked for follow-up cleanup (see docs/superpowers/plans/2026-09-14-expo-sdk-57-upgrade.md, Task 3) */}
             <ListHeader />
             <DishTypePills
                 dishTypes={sortedDishTypes}
