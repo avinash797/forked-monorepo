@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useTransition } from "react";
 import { ArrowRight, Check, Smartphone, Flame, Clock, Mail } from 'lucide-react';
 import { IS_WAITLIST_MODE } from "@/lib/waitlist";

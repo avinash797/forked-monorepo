@@ -29,13 +29,13 @@ npm run lint       # ESLint
 src/
 ├── app/                           # Next.js App Router
 │   ├── layout.tsx                 # Root layout: fonts, metadata, JSON-LD (WebSite + Organization)
-│   ├── page.tsx                   # Landing page — 7 sections, ISR 10min
+│   ├── page.tsx                   # Landing page — server component, ISR 10min; delegates to marketing/landing-page-client.tsx (client wrapper holding the EarlyAccessModal state) for the 8-section one-page composition: Hero, TheEnemy, ThreePillars, CityLeaderboardViewer, AntiSlopComparison, SubredditReceipts, FaqSection, CtaSection
 │   ├── globals.css                # Design tokens (CSS vars) + Tailwind @theme inline
 │   │
-│   ├── (marketing)/               # Route group with shared Navbar + Footer layout
-│   │   ├── layout.tsx
-│   │   ├── about/page.tsx
-│   │   └── how-it-works/page.tsx
+│   ├── (content)/                 # Route group for standalone content pages
+│   │   ├── blog/
+│   │   ├── privacy/
+│   │   └── terms/
 │   │
 │   ├── admin/                     # Protected admin dashboard
 │   │   ├── layout.tsx             # Admin layout: sidebar (256px) + header + content area
@@ -99,8 +99,8 @@ src/
 │   │       ├── leaderboard-health.tsx   # Confidence score distribution
 │   │       └── date-range-selector.tsx  # Preset date range buttons
 │   ├── layout/
-│   │   ├── navbar.tsx             # Fixed top nav (dark bg, gold logo, accent CTA)
-│   │   └── footer.tsx             # 4-column footer (brand, explore, legal, download)
+│   │   ├── navbar.tsx             # Sticky top nav, token-based, with a hard-coded dark marquee strip of scrolling dish names above it
+│   │   └── footer.tsx             # 3-column dark footer (brand, product links, get-forked/beta CTA)
 │   ├── marketing/                 # Landing page section components
 │   ├── leaderboard/               # Leaderboard display components
 │   └── ui/                        # Shared UI primitives (Button, Card, Badge, etc.)
@@ -186,7 +186,7 @@ Never hand-edit `theme.css` or re-declare token values in this app.
 
 ### Dark Mode
 
-Dark mode uses the `.dark` CSS class strategy. The Navbar, Footer, Hero, Mission, and CTA sections use dark styling directly (hard-coded dark tokens), since the landing page alternates between light and dark sections by design.
+Dark mode uses the `.dark` CSS class strategy. Most sections are token-based and follow the site theme, but a handful of sections are permanently dark regardless of theme (hard-coded dark tokens) by design: the Navbar's top marquee strip (the rest of the Navbar is token-based), the entire Footer, `TheEnemy`, `AntiSlopComparison`, `CtaSection`, `EarlyAccessModal`, the bottom "drive to app" card inside `CityLeaderboardViewer`, and the phone-mockup illustration inside `Hero` (the rest of `Hero` is token-based).
 
 ### Using Tokens
 
@@ -201,7 +201,7 @@ Always use Tailwind utility classes that reference token colors:
 <div className="bg-[#342219] text-[#ECEDEE]" />
 ```
 
-Exception: hard-coded hex values are acceptable in dark-only sections (Navbar, Footer, Hero, Mission, CTA) where the background is always dark regardless of theme.
+Exception: hard-coded hex values are acceptable in the permanently-dark sections and sub-sections listed above (Navbar's marquee strip, Footer, TheEnemy, AntiSlopComparison, CtaSection, EarlyAccessModal, CityLeaderboardViewer's bottom CTA card, Hero's phone mockup) where the background is always dark regardless of theme.
 
 ## Supabase Integration
 

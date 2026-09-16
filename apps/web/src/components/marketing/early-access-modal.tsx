@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { X, Check, Smartphone, Mail, Clock } from "lucide-react";
 import { IS_WAITLIST_MODE } from "@/lib/waitlist";
 import { joinWaitlist } from "@/app/actions/waitlist-action";
@@ -16,6 +16,22 @@ export function EarlyAccessModal({ isOpen, onClose }: EarlyAccessModalProps) {
   const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -28,8 +44,17 @@ export function EarlyAccessModal({ isOpen, onClose }: EarlyAccessModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-[#18181A] border border-[#2E2E34] rounded-3xl p-6 sm:p-8 text-white shadow-2xl overflow-hidden">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-md bg-[#18181A] border border-[#2E2E34] rounded-3xl p-6 sm:p-8 text-white shadow-2xl overflow-hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="early-access-modal-title"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           onClick={onClose}
           className="absolute top-5 right-5 w-8 h-8 rounded-full bg-[#242428] hover:bg-[#2E2E34] text-[#A3A3A3] hover:text-white flex items-center justify-center transition-colors focus:outline-none"
@@ -50,7 +75,7 @@ export function EarlyAccessModal({ isOpen, onClose }: EarlyAccessModalProps) {
             </div>
           )}
 
-          <h3 className="font-display font-black text-2xl sm:text-3xl text-white tracking-tight mb-2">
+          <h3 id="early-access-modal-title" className="font-display font-black text-2xl sm:text-3xl text-white tracking-tight mb-2">
             {IS_WAITLIST_MODE ? "Join Early Access Beta." : "Download Forked."}
           </h3>
 

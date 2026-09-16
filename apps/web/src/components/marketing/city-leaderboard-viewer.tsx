@@ -75,22 +75,32 @@ export async function CityLeaderboardViewer() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Link
-              href="/#faq"
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-display font-bold text-bg bg-text-primary hover:brightness-110 transition-colors"
-            >
-              {IS_WAITLIST_MODE ? (
-                <>
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>Request Beta</span>
-                </>
-              ) : (
-                <>
-                  <Smartphone className="w-3.5 h-3.5" />
-                  <span>Rank in App</span>
-                </>
-              )}
-            </Link>
+            {useLiveData ? (
+              <Link
+                href={`/leaderboard/${preview!.flagship.citySlug}/${preview!.flagship.dishTypeSlug}`}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-display font-bold text-bg bg-text-primary hover:brightness-110 transition-colors"
+              >
+                <Trophy className="w-3.5 h-3.5" />
+                <span>View Full Leaderboard</span>
+              </Link>
+            ) : (
+              <Link
+                href="/#faq"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-display font-bold text-bg bg-text-primary hover:brightness-110 transition-colors"
+              >
+                {IS_WAITLIST_MODE ? (
+                  <>
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>Request Beta</span>
+                  </>
+                ) : (
+                  <>
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>Rank in App</span>
+                  </>
+                )}
+              </Link>
+            )}
           </div>
         </div>
 

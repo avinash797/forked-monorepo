@@ -33,7 +33,7 @@ export function Footer({ onOpenEarlyAccess }: FooterProps = {}) {
             <ul className="space-y-2 text-xs">
               <li><Link href="/#the-enemy" className="hover:text-white transition-colors">The Enemy (Anti-Star)</Link></li>
               <li><Link href="/#how-it-works" className="hover:text-white transition-colors">The Three Pillars</Link></li>
-              <li><Link href="/#leaderboards" className="hover:text-white transition-colors">Dish Leaderboards</Link></li>
+              <li><Link href="/leaderboard" className="hover:text-white transition-colors">Dish Leaderboards</Link></li>
               <li><Link href="/#compare" className="hover:text-white transition-colors">Compare vs Beli & Yelp</Link></li>
               <li><Link href="/#faq" className="hover:text-white transition-colors">FAQ & Math Model</Link></li>
               <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
