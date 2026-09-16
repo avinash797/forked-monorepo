@@ -1,12 +1,9 @@
+import Link from "next/link";
 import { Trophy, ArrowUpRight, Smartphone, ArrowRight, Clock } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { IS_WAITLIST_MODE } from "@/lib/waitlist";
 import { DISHES_BY_CITY } from "@/data/marketing-mock";
 import type { LeaderboardEntry } from "@forked/supabase";
-
-interface CityLeaderboardViewerProps {
-  onOpenEarlyAccess: () => void;
-}
 
 interface FlagshipBoard {
   citySlug: string;
@@ -42,7 +39,7 @@ async function getFlagshipPreview(): Promise<{ flagship: FlagshipBoard; entries:
   }
 }
 
-export async function CityLeaderboardViewer({ onOpenEarlyAccess }: CityLeaderboardViewerProps) {
+export async function CityLeaderboardViewer() {
   const preview = IS_WAITLIST_MODE ? null : await getFlagshipPreview();
   const useLiveData = !!preview?.entries?.length;
   const nolaDishes = DISHES_BY_CITY["nola"] ?? [];
@@ -78,8 +75,8 @@ export async function CityLeaderboardViewer({ onOpenEarlyAccess }: CityLeaderboa
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              onClick={onOpenEarlyAccess}
+            <Link
+              href="/#faq"
               className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-display font-bold text-bg bg-text-primary hover:brightness-110 transition-colors"
             >
               {IS_WAITLIST_MODE ? (
@@ -93,7 +90,7 @@ export async function CityLeaderboardViewer({ onOpenEarlyAccess }: CityLeaderboa
                   <span>Rank in App</span>
                 </>
               )}
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -187,13 +184,13 @@ export async function CityLeaderboardViewer({ onOpenEarlyAccess }: CityLeaderboa
                         {dish.totalBattles.toLocaleString()} head-to-head battles
                       </div>
                     </div>
-                    <button
-                      onClick={onOpenEarlyAccess}
+                    <Link
+                      href="/#faq"
                       className="px-3.5 py-1.5 rounded-lg text-xs font-display font-bold bg-surface-2 hover:bg-text-primary hover:text-bg text-text-primary transition-colors flex items-center gap-1"
                     >
                       <span>{IS_WAITLIST_MODE ? "Join Waitlist" : "Vote in App"}</span>
                       <ArrowUpRight className="w-3.5 h-3.5" />
-                    </button>
+                    </Link>
                   </div>
                 </div>
               );
@@ -225,13 +222,13 @@ export async function CityLeaderboardViewer({ onOpenEarlyAccess }: CityLeaderboa
                 : "Full leaderboards for pizza, smash burgers, hot chicken, and tacos are live in the app. Download now to settle your local debates."}
             </p>
           </div>
-          <button
-            onClick={onOpenEarlyAccess}
+          <Link
+            href="/#faq"
             className="px-6 py-3.5 rounded-xl bg-[#E13B22] hover:bg-[#C02A14] text-white font-display font-black text-sm flex items-center gap-2 transition-all shrink-0 active:scale-95"
           >
             <span>{IS_WAITLIST_MODE ? "Join Beta Waitlist" : "Open in App"}</span>
             <ArrowRight className="w-4 h-4" />
-          </button>
+          </Link>
         </div>
       </div>
     </section>
