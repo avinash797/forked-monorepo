@@ -96,7 +96,7 @@ export function TheEnemy() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-red-400 font-bold">✕</span>
-                  <span><strong>Zero dish clarity:</strong> you still don’t know what to order.</span>
+                  <span><strong>Zero dish clarity:</strong> you still don&apos;t know what to order.</span>
                 </li>
               </ul>
             </div>
