@@ -1,18 +1,44 @@
 import { ConfigContext, ExpoConfig } from 'expo/config';
 
+/**
+ * Values that must be present when EAS builds a store-bound binary.
+ * Without these the build still succeeds but ships broken Google Sign-In,
+ * a dead Maps key, or a pointer at the wrong Supabase project.
+ */
+const REQUIRED_STORE_BUILD_ENV = [
+    'EXPO_PUBLIC_SUPABASE_URL',
+    'EXPO_PUBLIC_SUPABASE_ANON_KEY',
+    'EXPO_PUBLIC_GOOGLE_MAPS_API_KEY',
+    'EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID',
+    'EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID',
+    'EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME',
+] as const;
+
+if (
+    process.env.EAS_BUILD === 'true' &&
+    process.env.EAS_BUILD_PROFILE === 'production'
+) {
+    const missing = REQUIRED_STORE_BUILD_ENV.filter((key) => !process.env[key]);
+    if (missing.length > 0) {
+        throw new Error(
+            `Missing required env for a production EAS build: ${missing.join(', ')}. ` +
+                `Set them with \`eas env:create --environment production\` before building.`
+        );
+    }
+}
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
     name: 'Forked',
     slug: 'forked',
-    version: '0.1.0',
+    version: '1.0.0',
     orientation: 'portrait',
     scheme: 'forked',
     userInterfaceStyle: 'automatic',
     icon: './assets/adaptive-icon.png',
     ios: {
         bundleIdentifier: 'com.forked.prod',
-        appStoreUrl: 'https://apps.apple.com/app/id6740587828',
-        buildNumber: '1',
+        appStoreUrl: 'https://apps.apple.com/app/id6761374977',
         supportsTablet: true,
         config: {
             googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? '',
@@ -45,7 +71,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         predictiveBackGestureEnabled: false,
         softwareKeyboardLayoutMode: 'pan',
         package: 'com.forked.prod',
-        versionCode: 1,
     },
     web: {
         output: 'static',

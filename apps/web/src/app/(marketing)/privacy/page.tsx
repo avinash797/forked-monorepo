@@ -35,6 +35,14 @@ export default function PrivacyPage() {
             display name, bio, and profile avatar.
           </li>
           <li>
+            <strong>Sign-In Provider Data:</strong> If you sign in with Google or
+            Apple, we receive your email address and, where you permit it, your
+            name from that provider in order to create and authenticate your
+            account. We never receive your password. If you use Apple&apos;s
+            &quot;Hide My Email&quot; option, we only ever see the relay address
+            Apple generates for you.
+          </li>
+          <li>
             <strong>Ratings &amp; Content:</strong> Photos of dishes, sentiment
             ratings (liked, okay, disliked), taste tag preferences, and optional
             notes about dishes.
@@ -172,6 +180,20 @@ export default function PrivacyPage() {
                 <td className="py-2">Anonymized usage events, device info</td>
               </tr>
               <tr className="border-b border-border">
+                <td className="py-2 pr-4 font-semibold">Google Sign-In</td>
+                <td className="py-2 pr-4">Account authentication</td>
+                <td className="py-2">Email address, name, Google account ID</td>
+              </tr>
+              <tr className="border-b border-border">
+                <td className="py-2 pr-4 font-semibold">
+                  Sign in with Apple
+                </td>
+                <td className="py-2 pr-4">Account authentication</td>
+                <td className="py-2">
+                  Email address (or Apple relay address), name
+                </td>
+              </tr>
+              <tr className="border-b border-border">
                 <td className="py-2 pr-4 font-semibold">Expo</td>
                 <td className="py-2 pr-4">
                   App delivery and push notifications (if enabled)
@@ -273,7 +295,14 @@ export default function PrivacyPage() {
           <li>
             <strong>Account Deletion:</strong> You can delete your account at any
             time from the Settings screen in the App. This is permanent and
-            cannot be undone.
+            cannot be undone. If you no longer have the App installed, you can{" "}
+            <a
+              href="/delete-account"
+              className="text-accent underline underline-offset-2"
+            >
+              request account and data deletion here
+            </a>
+            .
           </li>
           <li>
             <strong>Location Permissions:</strong> You can revoke location access
