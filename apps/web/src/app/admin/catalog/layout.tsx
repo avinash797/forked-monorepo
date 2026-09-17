@@ -27,7 +27,7 @@ export default function CatalogLayout({
               href={tab.href}
               className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
                 isActive
-                  ? "border-[#ee6c2b] text-[#ee6c2b]"
+                  ? "border-accent text-accent"
                   : "border-transparent text-[#9BA1A6] hover:text-[#ECEDEE] hover:border-[#4a3728]"
               }`}
             >

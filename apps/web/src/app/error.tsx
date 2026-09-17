@@ -16,10 +16,10 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center px-6 text-center">
+    <div className="min-h-screen bg-[#0F0F10] flex flex-col items-center justify-center px-6 text-center">
       <ForkLogo size={48} color="#FBBF24" className="mb-6" />
       <h1 className="font-display italic font-black text-4xl md:text-6xl text-white mb-4">
-        Something went <span className="text-[#FF4D00]">wrong.</span>
+        Something went <span className="text-[#C0392B]">wrong.</span>
       </h1>
       <p className="text-white/50 text-lg mb-8 max-w-md">
         An unexpected error occurred. Try again or head back home.
@@ -27,7 +27,7 @@ export default function Error({
       <div className="flex flex-col sm:flex-row gap-4">
         <button
           onClick={() => reset()}
-          className="bg-[#FF4D00] text-white px-8 py-3 rounded-xl font-bold text-sm tracking-widest hover:scale-105 active:scale-95 transition-all cursor-pointer"
+          className="bg-[#C0392B] text-white px-8 py-3 rounded-xl font-bold text-sm tracking-widest hover:scale-105 active:scale-95 transition-all cursor-pointer"
         >
           TRY AGAIN
         </button>

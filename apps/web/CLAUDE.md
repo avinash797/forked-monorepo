@@ -29,13 +29,13 @@ npm run lint       # ESLint
 src/
 ├── app/                           # Next.js App Router
 │   ├── layout.tsx                 # Root layout: fonts, metadata, JSON-LD (WebSite + Organization)
-│   ├── page.tsx                   # Landing page — 7 sections, ISR 10min
+│   ├── page.tsx                   # Landing page — server component, ISR 10min; delegates to marketing/landing-page-client.tsx (client wrapper holding the EarlyAccessModal state) for the 8-section one-page composition: Hero, TheEnemy, ThreePillars, CityLeaderboardViewer, AntiSlopComparison, SubredditReceipts, FaqSection, CtaSection
 │   ├── globals.css                # Design tokens (CSS vars) + Tailwind @theme inline
 │   │
-│   ├── (marketing)/               # Route group with shared Navbar + Footer layout
-│   │   ├── layout.tsx
-│   │   ├── about/page.tsx
-│   │   └── how-it-works/page.tsx
+│   ├── (content)/                 # Route group for standalone content pages
+│   │   ├── blog/
+│   │   ├── privacy/
+│   │   └── terms/
 │   │
 │   ├── admin/                     # Protected admin dashboard
 │   │   ├── layout.tsx             # Admin layout: sidebar (256px) + header + content area
@@ -99,8 +99,8 @@ src/
 │   │       ├── leaderboard-health.tsx   # Confidence score distribution
 │   │       └── date-range-selector.tsx  # Preset date range buttons
 │   ├── layout/
-│   │   ├── navbar.tsx             # Fixed top nav (dark bg, gold logo, accent CTA)
-│   │   └── footer.tsx             # 4-column footer (brand, explore, legal, download)
+│   │   ├── navbar.tsx             # Sticky top nav, token-based, with a hard-coded dark marquee strip of scrolling dish names above it
+│   │   └── footer.tsx             # 3-column dark footer (brand, product links, get-forked/beta CTA)
 │   ├── marketing/                 # Landing page section components
 │   ├── leaderboard/               # Leaderboard display components
 │   └── ui/                        # Shared UI primitives (Button, Card, Badge, etc.)
@@ -177,16 +177,18 @@ Never hand-edit `theme.css` or re-declare token values in this app.
 
 ### Key Colors
 
-- **Accent:** `#ee6c2b` (orange)
-- **Dark backgrounds:** `#221610` (bg), `#342219` (surface), `#3d2a1f` (surface2)
-- **Light backgrounds:** `#f8f6f6` (bg), `#ffffff` (surface), `#F3F4F6` (surface2)
+webPalette is converged with mobilePalette (see the comment in `packages/theme/src/palettes.ts`) — same brick-red accent, same neutrals, field-for-field identical values.
+
+- **Accent:** `#B83227` light / `#C0392B` dark (brick red)
+- **Dark backgrounds:** `#0F0F10` (bg), `#171719` (surface), `#1E1E21` (surface2)
+- **Light backgrounds:** `#FFFFFF` (bg), `#FBF7F2` (surface), `#FFFFFF` (surface2)
 - **Gold:** `#FBBF24` (used for logo, medals)
-- **Text (dark mode):** `#ECEDEE` (primary), `#c9a492` (secondary), `#9BA1A6` (tertiary)
-- **Text (light mode):** `#221610` (primary), `#4B5563` (secondary), `#687076` (tertiary)
+- **Text (dark mode):** `#F3F1EE` (primary), `#B8B1A8` (secondary), `#8E877F` (tertiary)
+- **Text (light mode):** `#1A1714` (primary), `#4A443D` (secondary), `#6D665E` (tertiary)
 
 ### Dark Mode
 
-Dark mode uses the `.dark` CSS class strategy. The Navbar, Footer, Hero, Mission, and CTA sections use dark styling directly (hard-coded dark tokens), since the landing page alternates between light and dark sections by design.
+Dark mode uses the `.dark` CSS class strategy. Most sections are token-based and follow the site theme, but a handful of sections are permanently dark regardless of theme (hard-coded dark tokens) by design: the Navbar's top marquee strip (the rest of the Navbar is token-based), the entire Footer, `TheEnemy`, `AntiSlopComparison`, `CtaSection`, `EarlyAccessModal`, the bottom "drive to app" card inside `CityLeaderboardViewer`, and the phone-mockup illustration inside `Hero` (the rest of `Hero` is token-based).
 
 ### Using Tokens
 
@@ -198,10 +200,10 @@ Always use Tailwind utility classes that reference token colors:
 <button className="bg-accent text-accent-on" />
 
 // Incorrect — don't use raw hex values
-<div className="bg-[#342219] text-[#ECEDEE]" />
+<div className="bg-[#171719] text-[#F3F1EE]" />
 ```
 
-Exception: hard-coded hex values are acceptable in dark-only sections (Navbar, Footer, Hero, Mission, CTA) where the background is always dark regardless of theme.
+Exception: hard-coded hex values are acceptable in the permanently-dark sections and sub-sections listed above (Navbar's marquee strip, Footer, TheEnemy, AntiSlopComparison, CtaSection, EarlyAccessModal, CityLeaderboardViewer's bottom CTA card, Hero's phone mockup) where the background is always dark regardless of theme.
 
 ## Supabase Integration
 
@@ -279,3 +281,13 @@ See [PLAN.md](./PLAN.md) for the full implementation roadmap.
 - **Phase 3:** Admin Dashboard → **COMPLETE**
 - **Phase 4:** Supporting Content → NOT STARTED
 - **Phase 5:** Performance & Polish → NOT STARTED
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

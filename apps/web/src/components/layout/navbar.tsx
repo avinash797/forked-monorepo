@@ -7,134 +7,132 @@ import { Menu, X } from "lucide-react";
 import { track } from "@vercel/analytics";
 import { IS_WAITLIST_MODE } from "@/lib/waitlist";
 
-const allNavLinks = [
-  { href: "/leaderboard", label: "Leaderboards" },
-  { href: "/blog", label: "Blog" },
-  { href: "/about", label: "About" },
-  { href: "/how-it-works", label: "How It Works" },
+const MARQUEE_DISHES = [
+  "Pizza", "Smash Burger", "Tacos al Pastor", "Roast Beef Po'boy", "Hot Chicken",
+  "Tonkotsu Ramen", "Italian Beef", "Buffalo Wings", "Birria Tacos",
+  "Fried Chicken Sandwich", "Pad Thai", "Cheesesteak", "Lobster Roll",
+  "Texas Brisket", "Fish & Chips", "Chicken Tikka Masala", "Biryani",
+  "Dan Dan Noodles", "Gumbo", "Bagel & Lox", "Carnitas", "French Dip",
+  "Clam Chowder", "Pork Belly Bao", "Shawarma", "Mac & Cheese",
 ];
 
-const waitlistHiddenHrefs = ["/leaderboard", "/blog"];
+const allNavLinks = [
+  { href: "/#the-enemy", label: "The Enemy" },
+  { href: "/#how-it-works", label: "How It Works" },
+  { href: "/#leaderboards", label: "Leaderboards" },
+  { href: "/#compare", label: "Compare" },
+  { href: "/#faq", label: "FAQ" },
+  { href: "/blog", label: "Blog" },
+];
 
-const navLinks = IS_WAITLIST_MODE
-  ? allNavLinks.filter((l) => !waitlistHiddenHrefs.includes(l.href))
-  : allNavLinks;
+const waitlistHiddenHrefs = ["/blog"];
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
+  const navLinks = IS_WAITLIST_MODE
+    ? allNavLinks.filter((l) => !waitlistHiddenHrefs.includes(l.href))
+    : allNavLinks;
+
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu on resize to desktop
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 768) setIsMobileOpen(false);
+      if (window.innerWidth >= 1024) setIsMobileOpen(false);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-6 py-4 min-h-16 flex items-center justify-between ${
-        isScrolled || isMobileOpen
-          ? "bg-bg/80 backdrop-blur-md border-b border-border"
-          : "bg-transparent"
-      }`}
-    >
-      <Link href="/" className="flex items-center gap-2">
-        <Image
-          src="/images/fork-logo/fork-gold.png"
-          alt="Forked logo"
-          width={28}
-          height={28}
-        />
-        <span className="text-xl font-extrabold tracking-tighter uppercase italic text-text-primary">
-          Forked
-        </span>
-      </Link>
-
-      {/* Desktop nav links */}
-      <div className="hidden md:flex items-center gap-8 text-sm font-medium tracking-tight text-text-secondary">
-        {navLinks.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            onClick={() => track("nav_link_click", { label: link.label })}
-            className="hover:text-text-primary transition-colors"
-          >
-            {link.label}
-          </Link>
-        ))}
+    <>
+      <div className="bg-[#121212] text-[#FBF9F5] py-2 border-b border-[#252525] overflow-hidden whitespace-nowrap select-none">
+        <div className="animate-marquee flex items-center">
+          {[0, 1].map((loop) => (
+            <div key={loop} className="flex items-center">
+              {MARQUEE_DISHES.map((dish, i) => (
+                <div key={`dish-${loop}-${i}`} className="inline-flex items-center gap-3 px-4 shrink-0">
+                  <span className="text-xs font-medium tracking-wider text-white/90 uppercase">{dish}</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E13B22]" />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        {!IS_WAITLIST_MODE && (
-          <Link
-            href="#download"
-            onClick={() => track("nav_cta_click", { location: "desktop" })}
-            className="hidden sm:inline-flex bg-text-primary text-bg px-5 py-2 rounded-full text-xs font-bold hover:bg-accent hover:text-accent-on transition-all active:scale-95"
-          >
-            GET THE APP
-          </Link>
-        )}
+      <header
+        className={`sticky top-0 z-40 transition-all duration-200 ${
+          isScrolled || isMobileOpen
+            ? "bg-bg/90 backdrop-blur-md border-b border-border shadow-xs py-3"
+            : "bg-bg border-b border-border py-4"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <Image src="/images/fork-logo/fork-gold.png" alt="Forked logo" width={36} height={36} />
+              <div className="flex flex-col">
+                <span className="font-display font-black text-2xl tracking-tight leading-none text-text-primary">
+                  FORKED
+                </span>
+                <span className="text-[10px] uppercase tracking-widest text-text-tertiary leading-none mt-0.5">
+                  Rank The Dish
+                </span>
+              </div>
+            </Link>
 
-        {/* Mobile hamburger */}
-        <button
-          onClick={() => {
-            track("nav_mobile_menu", {
-              action: isMobileOpen ? "close" : "open",
-            });
-            setIsMobileOpen(!isMobileOpen);
-          }}
-          className="md:hidden text-text-primary p-1 cursor-pointer"
-          aria-label={
-            isMobileOpen ? "Close navigation menu" : "Open navigation menu"
-          }
-          aria-expanded={isMobileOpen}
-        >
-          {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
+            <nav className="hidden lg:flex items-center space-x-1 font-medium text-sm text-text-secondary">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => track("nav_link_click", { label: link.label })}
+                  className="px-3 py-1.5 rounded-md hover:text-text-primary hover:bg-surface-2 transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
 
-      {/* Mobile menu */}
-      {isMobileOpen && (
-        <div className="absolute top-full left-0 right-0 bg-bg/95 backdrop-blur-md border-b border-border md:hidden">
-          <div className="flex flex-col px-6 py-4 gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => {
-                  track("nav_link_click", { label: link.label });
-                  setIsMobileOpen(false);
-                }}
-                className="text-text-secondary hover:text-text-primary text-base font-medium py-3 border-b border-border transition-colors"
+            <div className="flex items-center lg:hidden">
+              <button
+                onClick={() => setIsMobileOpen(!isMobileOpen)}
+                className="p-2 rounded-lg text-text-primary hover:bg-surface-2 focus:outline-none"
+                aria-label={isMobileOpen ? "Close navigation menu" : "Open navigation menu"}
+                aria-expanded={isMobileOpen}
               >
-                {link.label}
-              </Link>
-            ))}
-
-            {!IS_WAITLIST_MODE && (
-              <Link
-                href="#download"
-                onClick={() => {
-                  track("nav_cta_click", { location: "mobile" });
-                  setIsMobileOpen(false);
-                }}
-                className="mt-3 bg-accent text-accent-on px-6 py-3 rounded-xl text-sm font-bold tracking-widest text-center hover:scale-105 active:scale-95 transition-all"
-              >
-                GET THE APP
-              </Link>
-            )}
+                {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
-      )}
-    </nav>
+
+        {isMobileOpen && (
+          <div className="lg:hidden bg-bg border-b border-border px-4 pt-3 pb-4 space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => {
+                    track("nav_link_click", { label: link.label });
+                    setIsMobileOpen(false);
+                  }}
+                  className="px-3 py-2 text-sm font-medium rounded-md text-text-secondary bg-surface-2 hover:brightness-95"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </header>
+    </>
   );
 }

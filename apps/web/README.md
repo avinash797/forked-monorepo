@@ -84,9 +84,9 @@ forked-web/
 ├── src/
 │   ├── app/                        # Next.js App Router
 │   │   ├── layout.tsx              # Root layout (fonts, metadata, JSON-LD)
-│   │   ├── page.tsx                # Landing page (7 marketing sections)
+│   │   ├── page.tsx                # Landing page (one-page composition, 8 marketing sections)
 │   │   ├── globals.css             # Design tokens + Tailwind theme
-│   │   ├── (marketing)/            # About, How It Works (shared nav/footer layout)
+│   │   ├── (content)/              # blog, privacy, terms (shared nav/footer layout)
 │   │   ├── leaderboard/            # Public leaderboard pages (ISR)
 │   │   │   ├── page.tsx            # Hub — city list
 │   │   │   ├── [city]/page.tsx     # City overview — all dish types
@@ -98,8 +98,8 @@ forked-web/
 │   ├── components/
 │   │   ├── icons/                  # ForkLogo (web SVG)
 │   │   ├── layout/                 # Navbar, Footer
-│   │   ├── marketing/              # Hero, Problem, HowItWorks, LeaderboardPreview,
-│   │   │                           # Mission, Stats, CTA sections
+│   │   ├── marketing/              # Hero, TheEnemy, ThreePillars, CityLeaderboardViewer,
+│   │   │                           # AntiSlopComparison, SubredditReceipts, FaqSection, CtaSection
 │   │   ├── leaderboard/            # LeaderboardTable, DishTypeTabs
 │   │   └── ui/                     # Button, Card, Badge, ScoreBadge, Skeleton
 │   │

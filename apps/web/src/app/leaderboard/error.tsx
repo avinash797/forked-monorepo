@@ -15,9 +15,9 @@ export default function LeaderboardError({
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center px-6 text-center">
+    <div className="min-h-screen bg-[#0F0F10] flex flex-col items-center justify-center px-6 text-center">
       <h1 className="font-display italic font-black text-4xl md:text-6xl text-white mb-4">
-        Leaderboard <span className="text-[#FF4D00]">unavailable.</span>
+        Leaderboard <span className="text-[#C0392B]">unavailable.</span>
       </h1>
       <p className="text-white/50 text-lg mb-8 max-w-md">
         We couldn&apos;t load the rankings right now. Try again shortly.
@@ -25,7 +25,7 @@ export default function LeaderboardError({
       <div className="flex flex-col sm:flex-row gap-4">
         <button
           onClick={() => reset()}
-          className="bg-[#FF4D00] text-white px-8 py-3 rounded-xl font-bold text-sm tracking-widest hover:scale-105 active:scale-95 transition-all cursor-pointer"
+          className="bg-[#C0392B] text-white px-8 py-3 rounded-xl font-bold text-sm tracking-widest hover:scale-105 active:scale-95 transition-all cursor-pointer"
         >
           TRY AGAIN
         </button>
