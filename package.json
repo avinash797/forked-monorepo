@@ -41,7 +41,8 @@
     "db:dump:prod": "./scripts/supabase-env.sh prod db dump",
     "gen:types:dev": "./scripts/supabase-env.sh dev gen types typescript > packages/supabase/src/database.types.ts",
     "fn:deploy:dev": "./scripts/supabase-env.sh dev functions deploy",
-    "fn:deploy:prod": "./scripts/supabase-env.sh prod functions deploy"
+    "fn:deploy:prod": "./scripts/supabase-env.sh prod functions deploy",
+    "seed:nola": "node scripts/seed-nola/index.mjs"
   },
   "devDependencies": {
     "turbo": "^2.5.0"
